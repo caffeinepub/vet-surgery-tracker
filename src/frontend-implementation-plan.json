@@ -1,0 +1,234 @@
+{
+  "kind": "implementation_plan",
+  "version": "1.0",
+  "title": "Vet Surgery Tracker (Frontend): case cards, search, checklist, CSV import/export, blue theme",
+  "requirements": [
+    {
+      "id": "REQ-2",
+      "summary": "Implement case create/edit UI with the exact specified fields, labels, defaults, and option constraints, wired to backend case create/update capabilities.",
+      "acceptanceCriteria": [
+        "Case create/edit UI includes all listed fields with the listed labels/options.",
+        "Arrival Date defaults to the user's current date when creating a new case (but can be changed).",
+        "Species and Sex are constrained to the specified option sets in the UI (and validated accordingly)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "create",
+          "description": "Create the app shell and wire the primary cases UI into the application render path. Include authentication gating using the selected authorization component patterns (login required before showing data). Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/features/cases/types.ts",
+          "operation": "create",
+          "description": "Define frontend case form types/view-models that map to backend SurgeryCase fields (Medical Record #, Arrival Date, Pet Name, Owner Last Name, Species, Breed, Sex, Date of Birth, Presenting Complaint, Notes) and provide consistent label text in English."
+        },
+        {
+          "path": "frontend/src/features/cases/validation.ts",
+          "operation": "create",
+          "description": "Add field-level validation helpers: required fields, Species/Sex option constraints, and date parsing/format validation with English error messages."
+        },
+        {
+          "path": "frontend/src/features/cases/hooks/useCases.ts",
+          "operation": "create",
+          "description": "Implement React Query hooks to fetch and mutate cases via the backend actor (list, get, create, update, delete), and normalize data for UI consumption (including date formatting)."
+        },
+        {
+          "path": "frontend/src/features/cases/components/CaseForm.tsx",
+          "operation": "create",
+          "description": "Implement create/edit form with exact field labels and option sets for Species (Canine, Feline, Other) and Sex (Male, Male Neutered, Female, Female Spayed). Set Arrival Date default to the user's current date for new cases and allow changing it. Use shadcn-ui form/input building blocks by composing existing components under frontend/src/components/ui (do not modify them). Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/features/auth/components/AuthGate.tsx",
+          "operation": "create",
+          "description": "Add an authentication gate that requires Internet Identity login before loading or showing any case data, per the selected authorization component guidance. On logout, clear cached application data (React Query). Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/features/auth/components/LoginButton.tsx",
+          "operation": "create",
+          "description": "Add a login/logout button using the useInternetIdentity hook and React Query cache clearing pattern described by the selected authorization component. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/features/auth/components/ProfileSetupModal.tsx",
+          "operation": "create",
+          "description": "Implement first-login profile setup (ask for name once) using getCallerUserProfile/saveCallerUserProfile patterns from the selected authorization component. Prevent modal flash using the recommended 'isFetched' gating approach. Verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Provide manual entry plus calendar/date-picker UI for Arrival Date and Date of Birth with clear validation.",
+      "acceptanceCriteria": [
+        "Arrival Date and Date of Birth inputs allow typing a date and also selecting a date from a calendar/date picker.",
+        "Invalid date input is prevented or clearly validated with an English error message."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/features/cases/components/DateField.tsx",
+          "operation": "create",
+          "description": "Create a reusable date field component that supports both typed input and a calendar picker. Compose shadcn-ui date picker building blocks (e.g., Popover/Calendar) without modifying frontend/src/components/ui. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/features/cases/components/CaseForm.tsx",
+          "operation": "modify",
+          "description": "Wire DateField into the Arrival Date and Date of Birth form controls; ensure invalid inputs show English validation messages and do not submit."
+        },
+        {
+          "path": "frontend/src/features/cases/validation.ts",
+          "operation": "modify",
+          "description": "Add/adjust date validation and parsing to ensure consistent behavior for typed dates vs selected dates, returning clear English error messages."
+        }
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "summary": "Add a per-case 7-item to-do checklist with exact labels and default checked states, editable on create/edit and persisted via backend updates.",
+      "acceptanceCriteria": [
+        "Case create/edit UI shows all seven checklist items with the specified default checked/unchecked states on new cases.",
+        "The checklist state is saved with the case and is preserved on reload.",
+        "Checklist item labels match exactly (including capitalization such as pDVM)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/features/cases/checklist.ts",
+          "operation": "create",
+          "description": "Define the checklist schema for the UI with exact seven labels and stable keys: Discharge Notes (default checked), pDVM Notified (default checked), Labs, Histo, Surgery Report, Imaging, Culture (defaults unchecked)."
+        },
+        {
+          "path": "frontend/src/features/cases/components/ChecklistEditor.tsx",
+          "operation": "create",
+          "description": "Create a checklist editor component for create/edit views. Compose shadcn-ui checkbox components without modifying frontend/src/components/ui. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/features/cases/components/CaseForm.tsx",
+          "operation": "modify",
+          "description": "Include ChecklistEditor in the case create/edit form and initialize defaults for new cases (first two checked, rest unchecked). Ensure labels match exactly in English (including 'pDVM')."
+        },
+        {
+          "path": "frontend/src/features/cases/hooks/useCases.ts",
+          "operation": "modify",
+          "description": "Ensure checklist values are saved alongside the case using available backend mutation capabilities and reloaded into the edit form and cards consistently."
+        }
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "summary": "Render cases as cards in the main list view and show remaining (unchecked) to-do items per card, with a clear 'no remaining items' indicator.",
+      "acceptanceCriteria": [
+        "Cases are rendered in a card-based layout (not a plain table).",
+        "Each case card shows key case fields (at minimum: Medical Record #, Arrival Date, Pet Name, Owner Last Name, Species, Sex) and also lists the remaining (unchecked) to-do items.",
+        "When all to-do items are completed, the card clearly indicates there are no remaining items (in English)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/features/cases/components/CaseCard.tsx",
+          "operation": "create",
+          "description": "Implement a card UI to display key case fields and a computed list of remaining (unchecked) checklist items. If none remain, show a clear English message indicating there are no remaining items. Compose shadcn-ui card/badge/typography components without modifying frontend/src/components/ui. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/features/cases/components/CasesListView.tsx",
+          "operation": "create",
+          "description": "Create the main case list view that renders a responsive grid/list of CaseCard components (card-based layout), and provides controls to create/edit/delete cases where appropriate."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Wire CasesListView into the authenticated area so it is the primary post-login view."
+        }
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "summary": "Add client-side search to filter the case card list by matching against all case fields and checklist labels/states without reloading.",
+      "acceptanceCriteria": [
+        "A search UI is available on the case list view.",
+        "Entering a query filters the displayed case cards by matching against all fields (Medical Record #, Arrival Date, Pet Name, Owner Last Name, Species, Breed, Sex, Date of Birth, Presenting Complaint, Notes, and to-do item labels).",
+        "Search updates results without requiring a page reload."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/features/cases/search.ts",
+          "operation": "create",
+          "description": "Implement a search index/matcher that normalizes all case fields and checklist labels/states into searchable text and returns filtered case IDs/results for a given query."
+        },
+        {
+          "path": "frontend/src/features/cases/components/CasesSearchBar.tsx",
+          "operation": "create",
+          "description": "Add a search input UI (English placeholder/help text) that updates the query state. Compose shadcn-ui input components without modifying frontend/src/components/ui. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/features/cases/components/CasesListView.tsx",
+          "operation": "modify",
+          "description": "Wire CasesSearchBar into the list view and filter CaseCard rendering in-memory based on the query (no reload). Ensure all fields and checklist labels are included in matching."
+        }
+      ]
+    },
+    {
+      "id": "REQ-7",
+      "summary": "Provide CSV import/export for cases using a React CSV parser, with deterministic upsert rules, validation, and row-level English error reporting; include checklist fields in a consistent format.",
+      "acceptanceCriteria": [
+        "User can export the current cases to a CSV file.",
+        "User can import cases from a CSV file via a file picker; imported rows create or update cases based on a deterministic key (Medical Record # + Arrival Date) OR a clearly documented in-UI rule (in English).",
+        "CSV import validates required/invalid values (e.g., Species/Sex options) and reports row-level errors in English without crashing.",
+        "To-do checklist fields are included in CSV import/export in a consistent format (e.g., boolean columns per item)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/features/cases/csv/caseCsvSchema.ts",
+          "operation": "create",
+          "description": "Define the CSV column mapping for all case fields and checklist items, using a consistent boolean-per-checklist-item format for import/export."
+        },
+        {
+          "path": "frontend/src/features/cases/csv/caseCsv.ts",
+          "operation": "create",
+          "description": "Implement CSV parsing and generation using a React CSV parser library (e.g., Papa Parse). Include deterministic upsert key logic (Medical Record # + Arrival Date) and row-level validation (Species/Sex constraints, required fields), returning English error messages without throwing UI-breaking errors."
+        },
+        {
+          "path": "frontend/src/features/cases/components/CsvImportExportPanel.tsx",
+          "operation": "create",
+          "description": "Add UI controls for CSV export (download) and CSV import (file picker). Clearly document the deterministic upsert rule in English in the UI. Show row-level import errors in English. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/features/cases/components/CasesListView.tsx",
+          "operation": "modify",
+          "description": "Wire CsvImportExportPanel into the main list view and connect it to current case data and backend mutations for creating/updating cases."
+        },
+        {
+          "path": "frontend/package.json",
+          "operation": "modify",
+          "description": "Add the chosen React CSV parser dependency (and any minimal supporting dependencies) required for CSV import/export implementation."
+        }
+      ]
+    },
+    {
+      "id": "REQ-8",
+      "summary": "Apply a cohesive blue theme (colors, typography, spacing, card styling) and ensure all user-facing text remains in English.",
+      "acceptanceCriteria": [
+        "Primary UI accents (buttons, links, focus states, highlights) follow a blue color scheme consistently across pages/components.",
+        "Typography and spacing are consistent across list, card, and form views.",
+        "All user-facing labels, helper text, and errors are in English."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/index.css",
+          "operation": "create",
+          "description": "Create global styles (Tailwind base + CSS variables) to enforce a consistent blue primary palette and cohesive typography/spacing across the app, aligning with shadcn-ui token usage."
+        },
+        {
+          "path": "frontend/tailwind.config.js",
+          "operation": "modify",
+          "description": "Adjust Tailwind theme extensions/tokens as needed to support a consistent blue-accent theme (while keeping the existing shadcn variable-based color system intact)."
+        },
+        {
+          "path": "frontend/src/features/cases/components/CaseCard.tsx",
+          "operation": "modify",
+          "description": "Ensure card styling, spacing, and typography align with the blue theme and remain consistent with other views (English-only user-facing text)."
+        },
+        {
+          "path": "frontend/src/features/cases/components/CaseForm.tsx",
+          "operation": "modify",
+          "description": "Ensure form styling (inputs, labels, validation messages, buttons) follows the blue theme and uses consistent spacing/typography; keep all user-facing text in English."
+        }
+      ]
+    }
+  ]
+}

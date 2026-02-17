@@ -1,0 +1,255 @@
+{
+  "kind": "coverage_report",
+  "version": "1.0",
+  "generatedAt": "2026-02-17T23:25:05.202Z",
+  "sources": {
+    "buildRequest": true,
+    "implementationPlan": true
+  },
+  "requirements": {
+    "total": 8,
+    "implemented": 7,
+    "items": [
+      {
+        "id": "REQ-1",
+        "summary": "Create a persistent veterinary surgery case data model in the Motoko backend and expose CRUD methods to create, list, update, and delete cases.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-2",
+        "summary": "Implement the case fields exactly as specified: Medical Record #, Arrival Date (defaults to today), Pet Name, Owner Last Name, Species (Canine, Feline, Other), Breed, Sex (Male, Male Neutered, Female, Female Spayed), Date of Birth, Presenting Complaint, Notes.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/App.tsx",
+          "frontend/src/features/cases/types.ts",
+          "frontend/src/features/cases/validation.ts",
+          "frontend/src/features/cases/hooks/useCases.ts",
+          "frontend/src/features/cases/components/CaseForm.tsx",
+          "frontend/src/features/auth/components/AuthGate.tsx",
+          "frontend/src/features/auth/components/LoginButton.tsx",
+          "frontend/src/features/auth/components/ProfileSetupModal.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/App.tsx",
+          "frontend/src/features/cases/types.ts",
+          "frontend/src/features/cases/validation.ts",
+          "frontend/src/features/auth/components/LoginButton.tsx",
+          "frontend/src/features/auth/components/ProfileSetupModal.tsx"
+        ]
+      },
+      {
+        "id": "REQ-3",
+        "summary": "Support manual entry and a calendar/date-picker UI for all date fields (Arrival Date and Date of Birth).",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/features/cases/components/DateField.tsx",
+          "frontend/src/features/cases/components/CaseForm.tsx",
+          "frontend/src/features/cases/validation.ts"
+        ],
+        "matchedFiles": [
+          "frontend/src/features/cases/components/DateField.tsx",
+          "frontend/src/features/cases/validation.ts"
+        ]
+      },
+      {
+        "id": "REQ-4",
+        "summary": "Add a per-case to-do checklist with exactly seven items and defaults: Discharge Notes (default checked), pDVM Notified (default checked), Labs (default unchecked), Histo (default unchecked), Surgery Report (default unchecked), Imaging (default unchecked), Culture (default unchecked).",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/features/cases/checklist.ts",
+          "frontend/src/features/cases/components/ChecklistEditor.tsx",
+          "frontend/src/features/cases/components/CaseForm.tsx",
+          "frontend/src/features/cases/hooks/useCases.ts"
+        ],
+        "matchedFiles": [
+          "frontend/src/features/cases/checklist.ts",
+          "frontend/src/features/cases/components/ChecklistEditor.tsx"
+        ]
+      },
+      {
+        "id": "REQ-5",
+        "summary": "Display case data as cards in the main list view, and on each case card show the to-do items that are still not completed (i.e., unchecked).",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/features/cases/components/CaseCard.tsx",
+          "frontend/src/features/cases/components/CasesListView.tsx",
+          "frontend/src/App.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/features/cases/components/CaseCard.tsx",
+          "frontend/src/features/cases/components/CasesListView.tsx",
+          "frontend/src/App.tsx"
+        ]
+      },
+      {
+        "id": "REQ-6",
+        "summary": "Implement case search that can filter the case card list using data from all case fields (including text fields, selects, dates, and to-do item names/states).",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/features/cases/search.ts",
+          "frontend/src/features/cases/components/CasesSearchBar.tsx",
+          "frontend/src/features/cases/components/CasesListView.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/features/cases/search.ts",
+          "frontend/src/features/cases/components/CasesSearchBar.tsx",
+          "frontend/src/features/cases/components/CasesListView.tsx"
+        ]
+      },
+      {
+        "id": "REQ-7",
+        "summary": "Add CSV import and CSV export for cases using a React CSV parser, mapping CSV columns to the case fields and to-do checklist items.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/features/cases/csv/caseCsvSchema.ts",
+          "frontend/src/features/cases/csv/caseCsv.ts",
+          "frontend/src/features/cases/components/CsvImportExportPanel.tsx",
+          "frontend/src/features/cases/components/CasesListView.tsx",
+          "frontend/package.json"
+        ],
+        "matchedFiles": [
+          "frontend/src/features/cases/csv/caseCsvSchema.ts",
+          "frontend/src/features/cases/csv/caseCsv.ts",
+          "frontend/src/features/cases/components/CsvImportExportPanel.tsx",
+          "frontend/src/features/cases/components/CasesListView.tsx"
+        ]
+      },
+      {
+        "id": "REQ-8",
+        "summary": "Apply a consistent blue color scheme and cohesive visual theme across the app UI (colors, typography, spacing, and card styling), keeping all user-facing text in English.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/index.css",
+          "frontend/tailwind.config.js",
+          "frontend/src/features/cases/components/CaseCard.tsx",
+          "frontend/src/features/cases/components/CaseForm.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/index.css",
+          "frontend/tailwind.config.js",
+          "frontend/src/features/cases/components/CaseCard.tsx"
+        ]
+      }
+    ]
+  },
+  "changedFiles": [
+    "backend/authorization/MixinAuthorization.mo",
+    "backend/authorization/access-control.mo",
+    "backend/main.mo",
+    "build-request.json",
+    "build-template/Dockerfile",
+    "build-template/LICENSE",
+    "build-template/README.md",
+    "build-template/deploy.sh",
+    "build-template/icp.yaml",
+    "build-template/package.json",
+    "build-template/pnpm-lock.yaml",
+    "build-template/pnpm-workspace.yaml",
+    "build-template/scripts/prune-unused-images.js",
+    "build-template/scripts/resize-images.js",
+    "build-template/src/backend/canister.yaml",
+    "build-template/src/backend/system-idl/aaaaa-aa.did",
+    "build-template/src/frontend/canister.yaml",
+    "build-template/src/frontend/components.json",
+    "build-template/src/frontend/env.json",
+    "build-template/src/frontend/eslint-rules/no-bigint-in-query-keys.js",
+    "build-template/src/frontend/eslint-rules/require-internet-identity-provider.js",
+    "build-template/src/frontend/eslint.config.js",
+    "build-template/src/frontend/package.json",
+    "build-template/src/frontend/postcss.config.js",
+    "build-template/src/frontend/src/components/ui/accordion.tsx",
+    "build-template/src/frontend/src/components/ui/alert-dialog.tsx",
+    "build-template/src/frontend/src/components/ui/alert.tsx",
+    "build-template/src/frontend/src/components/ui/aspect-ratio.tsx",
+    "build-template/src/frontend/src/components/ui/avatar.tsx",
+    "build-template/src/frontend/src/components/ui/badge.tsx",
+    "build-template/src/frontend/src/components/ui/breadcrumb.tsx",
+    "build-template/src/frontend/src/components/ui/button.tsx",
+    "build-template/src/frontend/src/components/ui/calendar.tsx",
+    "build-template/src/frontend/src/components/ui/card.tsx",
+    "build-template/src/frontend/src/components/ui/carousel.tsx",
+    "build-template/src/frontend/src/components/ui/chart.tsx",
+    "build-template/src/frontend/src/components/ui/checkbox.tsx",
+    "build-template/src/frontend/src/components/ui/collapsible.tsx",
+    "build-template/src/frontend/src/components/ui/command.tsx",
+    "build-template/src/frontend/src/components/ui/context-menu.tsx",
+    "build-template/src/frontend/src/components/ui/dialog.tsx",
+    "build-template/src/frontend/src/components/ui/drawer.tsx",
+    "build-template/src/frontend/src/components/ui/dropdown-menu.tsx",
+    "build-template/src/frontend/src/components/ui/form.tsx",
+    "build-template/src/frontend/src/components/ui/hover-card.tsx",
+    "build-template/src/frontend/src/components/ui/input-otp.tsx",
+    "build-template/src/frontend/src/components/ui/input.tsx",
+    "build-template/src/frontend/src/components/ui/label.tsx",
+    "build-template/src/frontend/src/components/ui/menubar.tsx",
+    "build-template/src/frontend/src/components/ui/navigation-menu.tsx",
+    "build-template/src/frontend/src/components/ui/pagination.tsx",
+    "build-template/src/frontend/src/components/ui/popover.tsx",
+    "build-template/src/frontend/src/components/ui/progress.tsx",
+    "build-template/src/frontend/src/components/ui/radio-group.tsx",
+    "build-template/src/frontend/src/components/ui/resizable.tsx",
+    "build-template/src/frontend/src/components/ui/scroll-area.tsx",
+    "build-template/src/frontend/src/components/ui/select.tsx",
+    "build-template/src/frontend/src/components/ui/separator.tsx",
+    "build-template/src/frontend/src/components/ui/sheet.tsx",
+    "build-template/src/frontend/src/components/ui/sidebar.tsx",
+    "build-template/src/frontend/src/components/ui/skeleton.tsx",
+    "build-template/src/frontend/src/components/ui/slider.tsx",
+    "build-template/src/frontend/src/components/ui/sonner.tsx",
+    "build-template/src/frontend/src/components/ui/switch.tsx",
+    "build-template/src/frontend/src/components/ui/table.tsx",
+    "build-template/src/frontend/src/components/ui/tabs.tsx",
+    "build-template/src/frontend/src/components/ui/textarea.tsx",
+    "build-template/src/frontend/src/components/ui/toggle-group.tsx",
+    "build-template/src/frontend/src/components/ui/toggle.tsx",
+    "build-template/src/frontend/src/components/ui/tooltip.tsx",
+    "build-template/src/frontend/src/hooks/use-mobile.tsx",
+    "build-template/src/frontend/src/lib/utils.ts",
+    "build-template/src/frontend/tsconfig.json",
+    "build-template/src/frontend/vite.config.js",
+    "build-template/tsconfig.json",
+    "caffeine.lock.json",
+    "feature_evidence.json",
+    "frontend-file-summaries.txt",
+    "frontend-implementation-plan.json",
+    "frontend/index.css",
+    "frontend/index.html",
+    "frontend/src/App.tsx",
+    "frontend/src/backend.d.ts",
+    "frontend/src/backend.ts",
+    "frontend/src/config.ts",
+    "frontend/src/declarations/backend.did.d.ts",
+    "frontend/src/declarations/backend.did.js",
+    "frontend/src/features/auth/components/LoginButton.tsx",
+    "frontend/src/features/auth/components/ProfileSetupModal.tsx",
+    "frontend/src/features/cases/checklist.ts",
+    "frontend/src/features/cases/components/CaseCard.tsx",
+    "frontend/src/features/cases/components/CaseFormDialog.tsx",
+    "frontend/src/features/cases/components/CasesListView.tsx",
+    "frontend/src/features/cases/components/CasesSearchBar.tsx",
+    "frontend/src/features/cases/components/ChecklistEditor.tsx",
+    "frontend/src/features/cases/components/CsvImportExportPanel.tsx",
+    "frontend/src/features/cases/components/DateField.tsx",
+    "frontend/src/features/cases/csv/caseCsv.ts",
+    "frontend/src/features/cases/csv/caseCsvSchema.ts",
+    "frontend/src/features/cases/search.ts",
+    "frontend/src/features/cases/types.ts",
+    "frontend/src/features/cases/validation.ts",
+    "frontend/src/hooks/useActor.ts",
+    "frontend/src/hooks/useInternetIdentity.ts",
+    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/index.css",
+    "frontend/src/lib/utils.ts",
+    "frontend/src/main.tsx",
+    "frontend/src/ui-summary.json",
+    "frontend/src/utils/StorageClient.ts",
+    "frontend/src/utils/urlParams.ts",
+    "frontend/tailwind.config.js",
+    "project_state.json",
+    "scratch/component-selection.json",
+    "spec.md",
+    "spec_vs_diff_report.json"
+  ]
+}

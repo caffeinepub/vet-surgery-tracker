@@ -1,0 +1,170 @@
+{
+  "kind": "build_request",
+  "title": "Veterinary surgery case tracker with CSV import/export, searchable case cards, and per-case to-do checklist",
+  "projectName": "Vet Surgery Tracker",
+  "priority": "normal",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "text": "Create a persistent veterinary surgery case data model in the Motoko backend and expose CRUD methods to create, list, update, and delete cases.",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-2"
+        ],
+        "quotes": [
+          "Make an app to track veterinary surgery cases"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Backend provides methods to create a case, fetch a single case by id, list all cases, update a case, and delete a case.",
+        "Case records persist across page refreshes.",
+        "Each case has a stable unique identifier returned by the backend."
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "text": "Implement the case fields exactly as specified: Medical Record #, Arrival Date (defaults to today), Pet Name, Owner Last Name, Species (Canine, Feline, Other), Breed, Sex (Male, Male Neutered, Female, Female Spayed), Date of Birth, Presenting Complaint, Notes.",
+      "target": "both",
+      "source": {
+        "messageIds": [
+          "msg-2"
+        ],
+        "quotes": [
+          "-Case fields: Medical Record #, Arrival Date (defaults to today), Pet Name, Owner Last Name, Species (Canine, Feline, Other), Breed, Sex (Male, Male Neutered, Female, Female Spayed), Date of Birth, Presenting Complaint, Notes"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Case create/edit UI includes all listed fields with the listed labels/options.",
+        "Arrival Date defaults to the user's current date when creating a new case (but can be changed).",
+        "Species and Sex are constrained to the specified option sets in the UI (and validated accordingly)."
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Support manual entry and a calendar/date-picker UI for all date fields (Arrival Date and Date of Birth).",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-2"
+        ],
+        "quotes": [
+          "- Date fields can be entered manually or use a calendar"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Arrival Date and Date of Birth inputs allow typing a date and also selecting a date from a calendar/date picker.",
+        "Invalid date input is prevented or clearly validated with an English error message."
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Add a per-case to-do checklist with exactly seven items and defaults: Discharge Notes (default checked), pDVM Notified (default checked), Labs (default unchecked), Histo (default unchecked), Surgery Report (default unchecked), Imaging (default unchecked), Culture (default unchecked).",
+      "target": "both",
+      "source": {
+        "messageIds": [
+          "msg-2"
+        ],
+        "quotes": [
+          "- per case to do list so each case now includes all seven items, with the first two checked by default. Here’s the full list that will be added; ...",
+          "•\tDischarge Notes (default: yes)\n•\tpDVM Notified (default: yes)\n•\tLabs (default: no)\n•\tHisto (default: no)\n•\tSurgery Report (default: no)\n•\tImaging (default: no)\n•\tCulture (default: no"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Case create/edit UI shows all seven checklist items with the specified default checked/unchecked states on new cases.",
+        "The checklist state is saved with the case and is preserved on reload.",
+        "Checklist item labels match exactly (including capitalization such as pDVM)."
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "text": "Display case data as cards in the main list view, and on each case card show the to-do items that are still not completed (i.e., unchecked).",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-2"
+        ],
+        "quotes": [
+          "-Case data should be displayed as “cards”",
+          "Each item you check when creating the case will appear on the case card as something that still needs to be done."
+        ]
+      },
+      "acceptanceCriteria": [
+        "Cases are rendered in a card-based layout (not a plain table).",
+        "Each case card shows key case fields (at minimum: Medical Record #, Arrival Date, Pet Name, Owner Last Name, Species, Sex) and also lists the remaining (unchecked) to-do items.",
+        "When all to-do items are completed, the card clearly indicates there are no remaining items (in English)."
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "text": "Implement case search that can filter the case card list using data from all case fields (including text fields, selects, dates, and to-do item names/states).",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-2"
+        ],
+        "quotes": [
+          "-Case Search options using data from all fields"
+        ]
+      },
+      "acceptanceCriteria": [
+        "A search UI is available on the case list view.",
+        "Entering a query filters the displayed case cards by matching against all fields (Medical Record #, Arrival Date, Pet Name, Owner Last Name, Species, Breed, Sex, Date of Birth, Presenting Complaint, Notes, and to-do item labels).",
+        "Search updates results without requiring a page reload."
+      ]
+    },
+    {
+      "id": "REQ-7",
+      "text": "Add CSV import and CSV export for cases using a React CSV parser, mapping CSV columns to the case fields and to-do checklist items.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-2"
+        ],
+        "quotes": [
+          "- CSV import and export using a React CSV parser"
+        ]
+      },
+      "acceptanceCriteria": [
+        "User can export the current cases to a CSV file.",
+        "User can import cases from a CSV file via a file picker; imported rows create or update cases based on a deterministic key (Medical Record # + Arrival Date) OR a clearly documented in-UI rule (in English).",
+        "CSV import validates required/invalid values (e.g., Species/Sex options) and reports row-level errors in English without crashing.",
+        "To-do checklist fields are included in CSV import/export in a consistent format (e.g., boolean columns per item)."
+      ]
+    },
+    {
+      "id": "REQ-8",
+      "text": "Apply a consistent blue color scheme and cohesive visual theme across the app UI (colors, typography, spacing, and card styling), keeping all user-facing text in English.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-2"
+        ],
+        "quotes": [
+          "- Blue color scheme"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Primary UI accents (buttons, links, focus states, highlights) follow a blue color scheme consistently across pages/components.",
+        "Typography and spacing are consistent across list, card, and form views.",
+        "All user-facing labels, helper text, and errors are in English."
+      ]
+    }
+  ],
+  "constraints": [
+    "Backend must remain a single Motoko actor (all logic in the main actor).",
+    "Do not modify frontend files under immutable paths: frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, frontend/src/components/ui (compose these components instead).",
+    "No third-party authentication other than Internet Identity.",
+    "No external databases or non-Motoko backend services."
+  ],
+  "nonGoals": [
+    "Real-time collaboration or live updates between multiple users.",
+    "Mobile-native app packaging (iOS/Android).",
+    "Integrations with external veterinary practice management systems or EHR/EMR systems.",
+    "Advanced analytics/reporting dashboards beyond search/filter and CSV import/export."
+  ],
+  "imageRequirements": {
+    "required": [],
+    "edits": []
+  }
+}

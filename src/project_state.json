@@ -1,0 +1,124 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStateVersion": 3,
+  "summary": "Veterinary surgery case tracking app with CSV import/export, searchable case cards, defined case fields (including date pickers/defaults), per-case to-do checklist, and blue color scheme.",
+  "architectural_notes": [
+    "Use a React CSV parser library for CSV import/export."
+  ],
+  "known_issues": [],
+  "isFixRequest": false,
+  "existing_features": [
+    {
+      "id": "feature-implement-the-case-fields-exactly-as-specified-medical-record-arrival-date-defaults-to-today-pet-name-owner-last-name-species-canine-feline-other-breed-sex-male-male-neutered-female-female-spayed-date-of-birth-presenting-complaint-notes",
+      "title": "Implement the case fields exactly as specified: Medical Record #, Arrival Date (defaults to today), Pet Name, Owner Last Name, Species (Canine, Feline, Other), Breed, Sex (Male, Male Neutered, Female, Female Spayed), Date of Birth, Presenting Complaint, Notes.",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-support-manual-entry-and-a-calendar-date-picker-ui-for-all-date-fields-arrival-date-and-date-of-birth",
+      "title": "Support manual entry and a calendar/date-picker UI for all date fields (Arrival Date and Date of Birth).",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-per-case-to-do-checklist-with-exactly-seven-items-and-defaults-discharge-notes-default-checked-pdvm-notified-default-checked-labs-default-unchecked-histo-default-unchecked-surgery-report-default-unchecked-imaging-default-unchecked-culture-default-unchecked",
+      "title": "Add a per-case to-do checklist with exactly seven items and defaults: Discharge Notes (default checked), pDVM Notified (default checked), Labs (default unchecked), Histo (default unchecked), Surgery Report (default unchecked), Imaging (default unchecked), Culture (default unchecked).",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-display-case-data-as-cards-in-the-main-list-view-and-on-each-case-card-show-the-to-do-items-that-are-still-not-completed-i-e-unchecked",
+      "title": "Display case data as cards in the main list view, and on each case card show the to-do items that are still not completed (i.e., unchecked).",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-case-search-that-can-filter-the-case-card-list-using-data-from-all-case-fields-including-text-fields-selects-dates-and-to-do-item-names-states",
+      "title": "Implement case search that can filter the case card list using data from all case fields (including text fields, selects, dates, and to-do item names/states).",
+      "reqIds": [
+        "REQ-6"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-csv-import-and-csv-export-for-cases-using-a-react-csv-parser-mapping-csv-columns-to-the-case-fields-and-to-do-checklist-items",
+      "title": "Add CSV import and CSV export for cases using a React CSV parser, mapping CSV columns to the case fields and to-do checklist items.",
+      "reqIds": [
+        "REQ-7"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-apply-a-consistent-blue-color-scheme-and-cohesive-visual-theme-across-the-app-ui-colors-typography-spacing-and-card-styling-keeping-all-user-facing-text-in-english",
+      "title": "Apply a consistent blue color scheme and cohesive visual theme across the app UI (colors, typography, spacing, and card styling), keeping all user-facing text in English.",
+      "reqIds": [
+        "REQ-8"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Implement CSV import/export for cases using a React CSV parser library",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Create case data model and case creation/edit form with specified fields and defaults (e.g., Arrival Date defaults to today)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Support manual entry and calendar/date-picker UI for date fields (Arrival Date, Date of Birth)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "Add per-case to-do checklist with 7 items and defaults (Discharge Notes & pDVM Notified checked by default) and show remaining items on case card",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-5",
+      "summary": "Display case data as cards (case card UI)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-6",
+      "summary": "Add case search across all case fields",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-7",
+      "summary": "Apply blue color scheme/theme across the app UI",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-8",
+      "summary": "Create a persistent veterinary surgery case data model in the Motoko backend and expose CRUD methods to create, list, update, and delete cases.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "status": "pending"
+    }
+  ],
+  "gameProjectType": "none",
+  "projectName": "Vet Surgery Tracker",
+  "clarification_mode": "instant",
+  "clarification_rounds": 0
+}
