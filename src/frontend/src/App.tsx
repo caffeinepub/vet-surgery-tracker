@@ -55,14 +55,25 @@ export default function App() {
         <div className="flex min-h-screen flex-col bg-background">
           <header className="border-b bg-card backdrop-blur-sm">
             <div className="container mx-auto flex h-16 items-center justify-between px-4">
-              <h1 className="text-2xl font-bold text-foreground">Vet Surgery Tracker</h1>
+              <div className="flex items-center gap-3">
+                <img 
+                  src="/assets/generated/surgery-case-log-icon.dim_512x512.png" 
+                  alt="Surgery Case Log" 
+                  className="h-10 w-10"
+                />
+                <h1 className="text-2xl font-bold text-foreground">Surgery Case Log</h1>
+              </div>
               <LoginButton />
             </div>
           </header>
           <main className="flex flex-1 items-center justify-center px-4">
             <div className="max-w-md text-center">
-              <div className="mb-8 text-6xl">🏥</div>
-              <h2 className="mb-4 text-3xl font-bold text-foreground">Welcome to Vet Surgery Tracker</h2>
+              <img 
+                src="/assets/generated/surgery-case-log-icon.dim_512x512.png" 
+                alt="Surgery Case Log" 
+                className="mb-8 h-24 w-24 mx-auto"
+              />
+              <h2 className="mb-4 text-3xl font-bold text-foreground">Welcome to Surgery Case Log</h2>
               <p className="mb-8 text-lg text-muted-foreground">
                 Track and manage veterinary surgery cases with ease. Please log in to continue.
               </p>
@@ -93,7 +104,14 @@ export default function App() {
       <div className="flex min-h-screen flex-col bg-background">
         <header className="border-b bg-card backdrop-blur-sm">
           <div className="container mx-auto flex h-16 items-center justify-between px-4">
-            <h1 className="text-2xl font-bold text-foreground">Vet Surgery Tracker</h1>
+            <div className="flex items-center gap-3">
+              <img 
+                src="/assets/generated/surgery-case-log-icon.dim_512x512.png" 
+                alt="Surgery Case Log" 
+                className="h-10 w-10"
+              />
+              <h1 className="text-2xl font-bold text-foreground">Surgery Case Log</h1>
+            </div>
             <div className="flex items-center gap-4">
               {userProfile && (
                 <span className="text-sm text-muted-foreground">

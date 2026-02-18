@@ -51,6 +51,7 @@ export interface _SERVICE {
   'createCase' : ActorMethod<
     [
       string,
+      Time,
       string,
       string,
       Species,
@@ -68,6 +69,7 @@ export interface _SERVICE {
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
   'getCase' : ActorMethod<[bigint], SurgeryCase>,
+  'getCaseByMedicalRecordNumber' : ActorMethod<[string], [] | [SurgeryCase]>,
   'getCasesByOwner' : ActorMethod<[string], Array<SurgeryCase>>,
   'getChecklist' : ActorMethod<[bigint], Checklist>,
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
@@ -81,6 +83,7 @@ export interface _SERVICE {
     [
       bigint,
       string,
+      Time,
       string,
       string,
       Species,

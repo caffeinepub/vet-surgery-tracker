@@ -1,4 +1,4 @@
-import type { Species, Sex } from '../../backend';
+import { Species, Sex } from '../../backend';
 
 export function validateMedicalRecordNumber(value: string): string | null {
   if (!value.trim()) {
@@ -28,18 +28,71 @@ export function validateBreed(value: string): string | null {
   return null;
 }
 
-export function validateSpecies(value: string): Species | null {
-  if (value === 'canine' || value === 'feline' || value === 'other') {
-    return value as Species;
+export function parseSpecies(value: string): Species | null {
+  const normalized = value.trim().toLowerCase();
+  
+  // Direct matches
+  if (normalized === 'canine' || normalized === 'dog' || normalized === 'dogs') {
+    return Species.canine;
   }
+  if (normalized === 'feline' || normalized === 'cat' || normalized === 'cats') {
+    return Species.feline;
+  }
+  if (normalized === 'other') {
+    return Species.other;
+  }
+  
+  // Partial matches
+  if (normalized.includes('dog') || normalized.includes('canine')) {
+    return Species.canine;
+  }
+  if (normalized.includes('cat') || normalized.includes('feline')) {
+    return Species.feline;
+  }
+  
+  return null;
+}
+
+export function validateSpecies(value: string): Species | null {
+  return parseSpecies(value);
+}
+
+export function parseSex(value: string): Sex | null {
+  const normalized = value.trim().toLowerCase().replace(/[\s\-_()]/g, '');
+  
+  // Direct matches
+  if (normalized === 'male' || normalized === 'm') {
+    return Sex.male;
+  }
+  if (normalized === 'maleneutered' || normalized === 'mn' || normalized === 'neutered' || normalized === 'castrated') {
+    return Sex.maleNeutered;
+  }
+  if (normalized === 'female' || normalized === 'f') {
+    return Sex.female;
+  }
+  if (normalized === 'femalespayed' || normalized === 'fs' || normalized === 'spayed') {
+    return Sex.femaleSpayed;
+  }
+  
+  // Partial matches
+  if (normalized.includes('neutered') || normalized.includes('castrated')) {
+    return Sex.maleNeutered;
+  }
+  if (normalized.includes('spayed')) {
+    return Sex.femaleSpayed;
+  }
+  if (normalized.includes('male') && !normalized.includes('female')) {
+    return Sex.male;
+  }
+  if (normalized.includes('female')) {
+    return Sex.female;
+  }
+  
   return null;
 }
 
 export function validateSex(value: string): Sex | null {
-  if (value === 'male' || value === 'maleNeutered' || value === 'female' || value === 'femaleSpayed') {
-    return value as Sex;
-  }
-  return null;
+  return parseSex(value);
 }
 
 export function validateDate(value: Date | null): string | null {
@@ -52,44 +105,94 @@ export function validateDate(value: Date | null): string | null {
   return null;
 }
 
+export function parseDateString(value: string): Date | null {
+  if (!value || !value.trim()) return null;
+  
+  const trimmed = value.trim();
+  
+  // Try ISO format first (YYYY-MM-DD)
+  const isoMatch = trimmed.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+  if (isoMatch) {
+    const [, year, month, day] = isoMatch;
+    const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+    if (!isNaN(date.getTime()) && date.getFullYear() === parseInt(year)) {
+      return date;
+    }
+  }
+  
+  // Try slash-separated formats (MM/DD/YYYY or DD/MM/YYYY)
+  const slashMatch = trimmed.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (slashMatch) {
+    const [, first, second, year] = slashMatch;
+    const firstNum = parseInt(first);
+    const secondNum = parseInt(second);
+    const yearNum = parseInt(year);
+    
+    // Try US format (MM/DD/YYYY) first if first number could be a valid month
+    if (firstNum >= 1 && firstNum <= 12) {
+      const usDate = new Date(yearNum, firstNum - 1, secondNum);
+      if (!isNaN(usDate.getTime()) && 
+          usDate.getFullYear() === yearNum && 
+          usDate.getMonth() === firstNum - 1 && 
+          usDate.getDate() === secondNum) {
+        return usDate;
+      }
+    }
+    
+    // Try EU format (DD/MM/YYYY) if US format failed or first number is > 12
+    if (secondNum >= 1 && secondNum <= 12) {
+      const euDate = new Date(yearNum, secondNum - 1, firstNum);
+      if (!isNaN(euDate.getTime()) && 
+          euDate.getFullYear() === yearNum && 
+          euDate.getMonth() === secondNum - 1 && 
+          euDate.getDate() === firstNum) {
+        return euDate;
+      }
+    }
+  }
+  
+  // Try natural language parsing as last resort (e.g., "January 15, 2024")
+  const naturalDate = new Date(trimmed);
+  if (!isNaN(naturalDate.getTime())) {
+    return naturalDate;
+  }
+  
+  return null;
+}
+
 export function parseDate(value: string): Date | null {
-  if (!value) return null;
-  const date = new Date(value);
-  if (isNaN(date.getTime())) return null;
-  return date;
+  return parseDateString(value);
 }
 
 export function formatDate(date: Date | bigint | null): string {
   if (!date) return '';
   
   if (typeof date === 'bigint') {
-    const milliseconds = Number(date / BigInt(1000000));
-    date = new Date(milliseconds);
+    date = nanosecondsToDate(date);
   }
   
-  return date.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  });
-}
-
-export function dateToNanoseconds(date: Date): bigint {
-  return BigInt(date.getTime()) * BigInt(1000000);
-}
-
-export function nanosecondsToDate(ns: bigint): Date {
-  return new Date(Number(ns / BigInt(1000000)));
-}
-
-export function calculateAge(dateOfBirth: Date | bigint | null): string {
-  if (!dateOfBirth) return '';
+  if (!(date instanceof Date) || isNaN(date.getTime())) {
+    return '';
+  }
   
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  
+  return `${year}-${month}-${day}`;
+}
+
+export function calculateAge(dateOfBirth: Date | bigint): string {
   let birthDate: Date;
+  
   if (typeof dateOfBirth === 'bigint') {
     birthDate = nanosecondsToDate(dateOfBirth);
   } else {
     birthDate = dateOfBirth;
+  }
+  
+  if (!(birthDate instanceof Date) || isNaN(birthDate.getTime())) {
+    return 'Unknown';
   }
   
   const today = new Date();
@@ -101,6 +204,7 @@ export function calculateAge(dateOfBirth: Date | bigint | null): string {
     months += 12;
   }
   
+  // Adjust if the day hasn't occurred yet this month
   if (today.getDate() < birthDate.getDate()) {
     months--;
     if (months < 0) {
@@ -112,10 +216,27 @@ export function calculateAge(dateOfBirth: Date | bigint | null): string {
   if (years === 0 && months === 0) {
     return 'Less than 1 month';
   } else if (years === 0) {
-    return `${months} month${months !== 1 ? 's' : ''}`;
+    return `${months} ${months === 1 ? 'month' : 'months'}`;
   } else if (months === 0) {
-    return `${years} year${years !== 1 ? 's' : ''}`;
+    return `${years} ${years === 1 ? 'year' : 'years'}`;
   } else {
-    return `${years} year${years !== 1 ? 's' : ''}, ${months} month${months !== 1 ? 's' : ''}`;
+    return `${years} ${years === 1 ? 'year' : 'years'}, ${months} ${months === 1 ? 'month' : 'months'}`;
   }
+}
+
+export function dateToNanoseconds(date: Date): bigint {
+  return BigInt(date.getTime()) * BigInt(1_000_000);
+}
+
+export function nanosecondsToDate(nanoseconds: bigint): Date {
+  return new Date(Number(nanoseconds / BigInt(1_000_000)));
+}
+
+export function normalizeText(text: string): string {
+  return text.trim().toLowerCase().replace(/[\s\-_()]/g, '');
+}
+
+export function extractPattern(text: string, pattern: RegExp): string | null {
+  const match = text.match(pattern);
+  return match ? match[1].trim() : null;
 }

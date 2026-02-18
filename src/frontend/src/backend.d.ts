@@ -52,19 +52,20 @@ export enum UserRole {
 }
 export interface backendInterface {
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
-    createCase(medicalRecordNumber: string, petName: string, ownerLastName: string, species: Species, breed: string, sex: Sex, dateOfBirth: Time | null, presentingComplaint: string, notes: string, checklist: Checklist): Promise<SurgeryCase>;
+    createCase(medicalRecordNumber: string, arrivalDate: Time, petName: string, ownerLastName: string, species: Species, breed: string, sex: Sex, dateOfBirth: Time | null, presentingComplaint: string, notes: string, checklist: Checklist): Promise<SurgeryCase>;
     deleteCase(id: bigint): Promise<void>;
     getAllCases(): Promise<Array<SurgeryCase>>;
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
     getCase(id: bigint): Promise<SurgeryCase>;
+    getCaseByMedicalRecordNumber(medicalRecordNumber: string): Promise<SurgeryCase | null>;
     getCasesByOwner(ownerLastName: string): Promise<Array<SurgeryCase>>;
     getChecklist(id: bigint): Promise<Checklist>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
     isCallerAdmin(): Promise<boolean>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     searchCasesByMedicalRecordNumber(searchTerm: string): Promise<Array<SurgeryCase>>;
-    updateCase(id: bigint, medicalRecordNumber: string, petName: string, ownerLastName: string, species: Species, breed: string, sex: Sex, dateOfBirth: Time | null, presentingComplaint: string, notes: string, checklist: Checklist): Promise<void>;
+    updateCase(id: bigint, medicalRecordNumber: string, arrivalDate: Time, petName: string, ownerLastName: string, species: Species, breed: string, sex: Sex, dateOfBirth: Time | null, presentingComplaint: string, notes: string, checklist: Checklist): Promise<void>;
     updateCaseNotes(id: bigint, notes: string): Promise<void>;
     updateChecklist(id: bigint, checklist: Checklist): Promise<void>;
 }

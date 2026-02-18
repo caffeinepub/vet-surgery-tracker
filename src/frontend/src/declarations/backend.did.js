@@ -13,6 +13,7 @@ export const UserRole = IDL.Variant({
   'user' : IDL.Null,
   'guest' : IDL.Null,
 });
+export const Time = IDL.Int;
 export const Species = IDL.Variant({
   'other' : IDL.Null,
   'feline' : IDL.Null,
@@ -24,7 +25,6 @@ export const Sex = IDL.Variant({
   'femaleSpayed' : IDL.Null,
   'maleNeutered' : IDL.Null,
 });
-export const Time = IDL.Int;
 export const Checklist = IDL.Record({
   'pdvmNotified' : IDL.Bool,
   'histo' : IDL.Bool,
@@ -56,6 +56,7 @@ export const idlService = IDL.Service({
   'createCase' : IDL.Func(
       [
         IDL.Text,
+        Time,
         IDL.Text,
         IDL.Text,
         Species,
@@ -74,6 +75,11 @@ export const idlService = IDL.Service({
   'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
   'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
   'getCase' : IDL.Func([IDL.Nat], [SurgeryCase], ['query']),
+  'getCaseByMedicalRecordNumber' : IDL.Func(
+      [IDL.Text],
+      [IDL.Opt(SurgeryCase)],
+      ['query'],
+    ),
   'getCasesByOwner' : IDL.Func([IDL.Text], [IDL.Vec(SurgeryCase)], ['query']),
   'getChecklist' : IDL.Func([IDL.Nat], [Checklist], ['query']),
   'getUserProfile' : IDL.Func(
@@ -92,6 +98,7 @@ export const idlService = IDL.Service({
       [
         IDL.Nat,
         IDL.Text,
+        Time,
         IDL.Text,
         IDL.Text,
         Species,
@@ -117,6 +124,7 @@ export const idlFactory = ({ IDL }) => {
     'user' : IDL.Null,
     'guest' : IDL.Null,
   });
+  const Time = IDL.Int;
   const Species = IDL.Variant({
     'other' : IDL.Null,
     'feline' : IDL.Null,
@@ -128,7 +136,6 @@ export const idlFactory = ({ IDL }) => {
     'femaleSpayed' : IDL.Null,
     'maleNeutered' : IDL.Null,
   });
-  const Time = IDL.Int;
   const Checklist = IDL.Record({
     'pdvmNotified' : IDL.Bool,
     'histo' : IDL.Bool,
@@ -160,6 +167,7 @@ export const idlFactory = ({ IDL }) => {
     'createCase' : IDL.Func(
         [
           IDL.Text,
+          Time,
           IDL.Text,
           IDL.Text,
           Species,
@@ -178,6 +186,11 @@ export const idlFactory = ({ IDL }) => {
     'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
     'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
     'getCase' : IDL.Func([IDL.Nat], [SurgeryCase], ['query']),
+    'getCaseByMedicalRecordNumber' : IDL.Func(
+        [IDL.Text],
+        [IDL.Opt(SurgeryCase)],
+        ['query'],
+      ),
     'getCasesByOwner' : IDL.Func([IDL.Text], [IDL.Vec(SurgeryCase)], ['query']),
     'getChecklist' : IDL.Func([IDL.Nat], [Checklist], ['query']),
     'getUserProfile' : IDL.Func(
@@ -196,6 +209,7 @@ export const idlFactory = ({ IDL }) => {
         [
           IDL.Nat,
           IDL.Text,
+          Time,
           IDL.Text,
           IDL.Text,
           Species,

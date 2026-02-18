@@ -49,6 +49,7 @@ interface ImportResult {
   cases: Array<{
     data: {
       medicalRecordNumber: string;
+      arrivalDate: bigint;
       petName: string;
       ownerLastName: string;
       species: Species;
@@ -157,16 +158,18 @@ export async function importCasesFromCsv(file: File, existingCases: SurgeryCase[
           arrivalDate = parsed;
         }
       }
+      const arrivalDateNs = dateToNanoseconds(arrivalDate);
 
       const existingCase = existingCases.find(
         (c) =>
           c.medicalRecordNumber === medicalRecordNumber &&
-          formatDate(c.arrivalDate) === formatDate(dateToNanoseconds(arrivalDate))
+          formatDate(c.arrivalDate) === formatDate(arrivalDateNs)
       );
 
       result.cases.push({
         data: {
           medicalRecordNumber,
+          arrivalDate: arrivalDateNs,
           petName,
           ownerLastName,
           species,

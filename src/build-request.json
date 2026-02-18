@@ -1,52 +1,38 @@
 {
   "kind": "build_request",
-  "title": "Force app into light mode (theme/colors apply)",
-  "projectName": "Vet Surgery Tracker",
-  "priority": "normal",
+  "title": "Fix Date of Birth field population from Quick Fill text",
+  "priority": "high",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Force the app UI to always use light mode (do not follow system theme), so the light theme color tokens in `frontend/src/index.css` are consistently applied and the user does not remain in dark mode.",
+      "text": "Fix the parseStructuredText function to correctly extract and populate the Date of Birth field when using Quick Fill from structured text input. The parser must recognize date of birth labels (including 'DOB', 'Date of Birth', 'Birth Date', 'Birthday') and correctly parse dates in ISO (YYYY-MM-DD), US (MM/DD/YYYY), and EU (DD/MM/YYYY) formats.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-3"
+          "msg-4"
         ],
         "quotes": [
-          "the colors did not change; change app to light mode"
+          "Date of birth does not populate from quick text"
         ]
       },
       "acceptanceCriteria": [
-        "On initial load, the app renders using light theme styles even when the OS/browser is set to dark mode.",
-        "No `dark` class is applied to the root theme element (e.g., `html`) during normal app usage.",
-        "All screens (loading, logged-out, logged-in) use the same forced light theme behavior (no screen-specific theme differences)."
-      ]
-    },
-    {
-      "id": "REQ-2",
-      "text": "Fix the reported issue where theme/color changes are not applying by ensuring the app’s active theme configuration and global styles do not get overridden by an unintended dark-mode setting or a competing global stylesheet.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-3"
-        ],
-        "quotes": [
-          "the colors did not change"
-        ]
-      },
-      "acceptanceCriteria": [
-        "The app’s `bg-background`, `text-foreground`, `bg-card`, and `text-muted-foreground` styles visibly reflect the light theme defined in `frontend/src/index.css` when viewed in the browser.",
-        "After the fix, switching the OS theme between light/dark does not change the app’s appearance (it remains in light mode)."
+        "When Quick Fill text contains 'DOB: 2020-05-15', the Date of Birth field populates with '2020-05-15'",
+        "When Quick Fill text contains 'Date of Birth: 05/15/2020', the Date of Birth field populates correctly",
+        "When Quick Fill text contains 'Birthday: 15/05/2020', the Date of Birth field populates correctly",
+        "The Date of Birth field updates immediately when Quick Fill is triggered",
+        "Other fields continue to populate correctly from Quick Fill without regression"
       ]
     }
   ],
   "constraints": [
-    "Do not edit files under `frontend/src/hooks/useInternetIdentity.ts`, `frontend/src/hooks/useInternetIdentity.tsx`, `frontend/src/hooks/useActor.ts`, `frontend/src/main.tsx`, `frontend/src/components/ui` (immutable paths).",
-    "Backend must remain single-actor; no backend changes are required for this request."
+    "Do not modify the backend schema or main.mo",
+    "Maintain compatibility with existing date parsing logic in validation.ts",
+    "Preserve all other Quick Fill functionality for remaining fields"
   ],
   "nonGoals": [
-    "Adding a user-facing theme toggle UI.",
-    "Redesigning the app layout or changing the existing color palette beyond enforcing light mode and making sure the intended light theme is applied."
+    "Changing the date input component UI",
+    "Adding new date formats beyond ISO, US, and EU formats",
+    "Modifying CSV import/export date handling"
   ],
   "imageRequirements": {
     "required": [],

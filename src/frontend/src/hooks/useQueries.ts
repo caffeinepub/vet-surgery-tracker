@@ -50,6 +50,20 @@ export function useGetAllCases() {
   });
 }
 
+export function useGetCaseByMedicalRecordNumber(medicalRecordNumber: string, enabled: boolean = true) {
+  const { actor, isFetching } = useActor();
+
+  return useQuery<SurgeryCase | null>({
+    queryKey: ['caseByMRN', medicalRecordNumber],
+    queryFn: async () => {
+      if (!actor) return null;
+      return actor.getCaseByMedicalRecordNumber(medicalRecordNumber);
+    },
+    enabled: !!actor && !isFetching && enabled && medicalRecordNumber.trim().length > 0,
+    retry: false,
+  });
+}
+
 export function useCreateCase() {
   const { actor } = useActor();
   const queryClient = useQueryClient();
@@ -57,6 +71,7 @@ export function useCreateCase() {
   return useMutation({
     mutationFn: async (params: {
       medicalRecordNumber: string;
+      arrivalDate: bigint;
       petName: string;
       ownerLastName: string;
       species: Species;
@@ -70,6 +85,7 @@ export function useCreateCase() {
       if (!actor) throw new Error('Actor not available');
       return actor.createCase(
         params.medicalRecordNumber,
+        params.arrivalDate,
         params.petName,
         params.ownerLastName,
         params.species,
@@ -95,6 +111,7 @@ export function useUpdateCase() {
     mutationFn: async (params: {
       id: bigint;
       medicalRecordNumber: string;
+      arrivalDate: bigint;
       petName: string;
       ownerLastName: string;
       species: Species;
@@ -109,6 +126,7 @@ export function useUpdateCase() {
       return actor.updateCase(
         params.id,
         params.medicalRecordNumber,
+        params.arrivalDate,
         params.petName,
         params.ownerLastName,
         params.species,

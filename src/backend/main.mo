@@ -1,11 +1,12 @@
 import Array "mo:core/Array";
 import Map "mo:core/Map";
+import Iter "mo:core/Iter";
 import Order "mo:core/Order";
 import Principal "mo:core/Principal";
 import Runtime "mo:core/Runtime";
 import Text "mo:core/Text";
 import Time "mo:core/Time";
-import Iter "mo:core/Iter";
+import Nat "mo:core/Nat";
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
 
@@ -52,7 +53,6 @@ actor {
   let cases = Map.empty<Nat, SurgeryCase>();
   let userProfiles = Map.empty<Principal, UserProfile>();
 
-  // Initialize the user system state
   let accessControlState = AccessControl.initState();
   include MixinAuthorization(accessControlState);
 
@@ -79,6 +79,7 @@ actor {
 
   public shared ({ caller }) func createCase(
     medicalRecordNumber : Text,
+    arrivalDate : Time.Time,
     petName : Text,
     ownerLastName : Text,
     species : Species,
@@ -87,7 +88,7 @@ actor {
     dateOfBirth : ?Time.Time,
     presentingComplaint : Text,
     notes : Text,
-    checklist : Checklist, // Accept checklist from frontend
+    checklist : Checklist,
   ) : async SurgeryCase {
     if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
       Runtime.trap("Unauthorized: Only users can create cases");
@@ -96,7 +97,7 @@ actor {
     let newCase : SurgeryCase = {
       id = nextId;
       medicalRecordNumber;
-      arrivalDate = Time.now();
+      arrivalDate;
       petName;
       ownerLastName;
       species;
@@ -142,6 +143,7 @@ actor {
   public shared ({ caller }) func updateCase(
     id : Nat,
     medicalRecordNumber : Text,
+    arrivalDate : Time.Time,
     petName : Text,
     ownerLastName : Text,
     species : Species,
@@ -164,7 +166,7 @@ actor {
     let updatedCase : SurgeryCase = {
       id;
       medicalRecordNumber;
-      arrivalDate = Time.now();
+      arrivalDate;
       petName;
       ownerLastName;
       species;
@@ -244,4 +246,20 @@ actor {
       }
     ).sort();
   };
+
+  public query ({ caller }) func getCaseByMedicalRecordNumber(medicalRecordNumber : Text) : async ?SurgeryCase {
+    if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
+      Runtime.trap("Unauthorized: Only users can search cases");
+    };
+    let caseEntry = cases.entries().find(
+      func(id, surgeryCase) {
+        surgeryCase.medicalRecordNumber == medicalRecordNumber;
+      }
+    );
+    switch (caseEntry) {
+      case (null) { null };
+      case (?(_, surgeryCase)) { ?surgeryCase };
+    };
+  };
 };
+

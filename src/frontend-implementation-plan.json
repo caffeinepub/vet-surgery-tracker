@@ -1,51 +1,23 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Vet Surgery Tracker — Force Light Mode",
+  "title": "Fix Date of Birth field population from Quick Fill text",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Force the app to always render in light mode by preventing system-theme driven dark mode and ensuring no `dark` class is applied to the root element.",
+      "summary": "Fix parseStructuredText function to correctly extract and populate Date of Birth field from Quick Fill with support for DOB labels and multiple date formats (ISO, US, EU)",
       "acceptanceCriteria": [
-        "On initial load, the app renders using light theme styles even when the OS/browser is set to dark mode.",
-        "No `dark` class is applied to the root theme element (e.g., `html`) during normal app usage.",
-        "All screens (loading, logged-out, logged-in) use the same forced light theme behavior (no screen-specific theme differences)."
+        "When Quick Fill text contains 'DOB: 2020-05-15', the Date of Birth field populates with '2020-05-15'",
+        "When Quick Fill text contains 'Date of Birth: 05/15/2020', the Date of Birth field populates correctly",
+        "When Quick Fill text contains 'Birthday: 15/05/2020', the Date of Birth field populates correctly",
+        "The Date of Birth field updates immediately when Quick Fill is triggered",
+        "Other fields continue to populate correctly from Quick Fill without regression"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/App.tsx",
+          "path": "frontend/src/features/cases/parsing/parseStructuredText.ts",
           "operation": "modify",
-          "description": "Update `next-themes` ThemeProvider usage to force light mode (e.g., disable system theme following and ensure the provider always applies light). Also add a small defensive runtime guard (e.g., effect) to remove any unexpected `dark` class from the root theme element so loading/logged-out/logged-in flows behave consistently."
-        },
-        {
-          "path": "frontend/index.html",
-          "operation": "modify",
-          "description": "Set document-level defaults that encourage light rendering regardless of OS theme (e.g., declare light `color-scheme` and ensure no initial `dark` class is present on the root element) to prevent a dark flash before React mounts."
-        }
-      ]
-    },
-    {
-      "id": "REQ-2",
-      "summary": "Ensure the intended light theme tokens and global styles are the active source of truth and are not overridden by an unintended dark-mode setting or conflicting global stylesheet definitions.",
-      "acceptanceCriteria": [
-        "The app’s `bg-background`, `text-foreground`, `bg-card`, and `text-muted-foreground` styles visibly reflect the light theme defined in `frontend/src/index.css` when viewed in the browser.",
-        "After the fix, switching the OS theme between light/dark does not change the app’s appearance (it remains in light mode)."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/index.css",
-          "operation": "modify",
-          "description": "Reinforce that the light tokens are the default applied theme (e.g., ensure `:root` defines the light variables clearly and add any necessary base-level declarations like `color-scheme: light` so form controls and UA defaults don’t appear dark). Keep dark variables defined but ensure they only apply if `.dark` is explicitly present (which the app should no longer set)."
-        },
-        {
-          "path": "frontend/index.css",
-          "operation": "modify",
-          "description": "Eliminate the possibility of a competing global stylesheet causing mismatched tokens by aligning this file’s `:root` light theme variables with `frontend/src/index.css` (or otherwise ensuring it cannot override the intended light tokens if it is ever included by tooling)."
-        },
-        {
-          "path": "frontend/src/App.tsx",
-          "operation": "modify",
-          "description": "Remove any remaining system-theme coupling by ensuring all ThemeProvider instances use the same forced-light configuration so OS theme changes cannot affect any screen’s styles."
+          "description": "Add date of birth parsing logic to the parseStructuredText function. Recognize labels 'DOB', 'Date of Birth', 'Birth Date', and 'Birthday' (case-insensitive). Extract the date value and use the existing parseDate function from validation.ts to handle ISO (YYYY-MM-DD), US (MM/DD/YYYY), and EU (DD/MM/YYYY) formats. Set the parsed date to result.dateOfBirth when found. Ensure existing field parsing logic remains unchanged."
         }
       ]
     }

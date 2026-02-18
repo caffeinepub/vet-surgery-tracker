@@ -4,36 +4,21 @@
   "summary": "New project",
   "architectural_notes": [],
   "known_issues": [
-    "Theme/color changes are not applying (user reports colors did not change)."
+    "Date of Birth field does not populate from quick text/Quick Fill functionality"
   ],
   "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-force-the-app-ui-to-always-use-light-mode-do-not-follow-system-theme-so-the-light-theme-color-tokens-in-frontend-src-index-css-are-consistently-applied-and-the-user-does-not-remain-in-dark-mode",
-      "title": "Force the app UI to always use light mode (do not follow system theme), so the light theme color tokens in `frontend/src/index.css` are consistently applied and the user does not remain in dark mode.",
+      "id": "feature-fix-the-parsestructuredtext-function-to-correctly-extract-and-populate-the-date-of-birth-field-when-using-quick-fill-from-structured-text-input-the-parser-must-recognize-date-of-birth-labels-including-dob-date-of-birth-birth-date-birthday-and-correctly-parse-dates-in-iso-yyyy-mm-dd-us-mm-dd-yyyy-and-eu-dd-mm-yyyy-formats",
+      "title": "Fix the parseStructuredText function to correctly extract and populate the Date of Birth field when using Quick Fill from structured text input. The parser must recognize date of birth labels (including 'DOB', 'Date of Birth', 'Birth Date', 'Birthday') and correctly parse dates in ISO (YYYY-MM-DD), US (MM/DD/YYYY), and EU (DD/MM/YYYY) formats.",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
-    },
-    {
-      "id": "feature-fix-the-reported-issue-where-theme-color-changes-are-not-applying-by-ensuring-the-app-s-active-theme-configuration-and-global-styles-do-not-get-overridden-by-an-unintended-dark-mode-setting-or-a-competing-global-stylesheet",
-      "title": "Fix the reported issue where theme/color changes are not applying by ensuring the app’s active theme configuration and global styles do not get overridden by an unintended dark-mode setting or a competing global stylesheet.",
-      "reqIds": [
-        "REQ-2"
-      ],
-      "version": 1
     }
   ],
-  "new_feature_requests": [
-    {
-      "id": "AR-1",
-      "summary": "Switch the app UI to light mode (light theme)",
-      "reqIds": [],
-      "status": "pending"
-    }
-  ],
-  "projectName": "Vet Surgery Tracker",
+  "new_feature_requests": [],
+  "projectName": "Fix Date of Birth field population from Quick Fill text",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

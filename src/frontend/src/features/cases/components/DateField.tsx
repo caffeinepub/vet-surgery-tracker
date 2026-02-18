@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -18,19 +18,43 @@ export default function DateField({ id, value, onChange, disabled }: DateFieldPr
   const [inputValue, setInputValue] = useState(value ? format(value, 'yyyy-MM-dd') : '');
   const [isOpen, setIsOpen] = useState(false);
 
+  // Sync inputValue with value prop changes (e.g., from MRN auto-prefill)
+  useEffect(() => {
+    setInputValue(value ? format(value, 'yyyy-MM-dd') : '');
+  }, [value]);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     setInputValue(newValue);
 
+    // If empty, set to null
     if (!newValue) {
       onChange(null);
       return;
     }
 
-    const date = new Date(newValue);
-    if (!isNaN(date.getTime())) {
-      onChange(date);
+    // Parse YYYY-MM-DD format explicitly to avoid browser-dependent parsing
+    // The native date input always provides values in YYYY-MM-DD format
+    const match = newValue.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (match) {
+      const year = parseInt(match[1], 10);
+      const month = parseInt(match[2], 10) - 1; // Month is 0-indexed
+      const day = parseInt(match[3], 10);
+      
+      // Create date in local timezone
+      const date = new Date(year, month, day);
+      
+      // Validate that the date is valid (e.g., not Feb 31)
+      if (
+        date.getFullYear() === year &&
+        date.getMonth() === month &&
+        date.getDate() === day
+      ) {
+        onChange(date);
+      }
     }
+    // If the format doesn't match or is incomplete, don't call onChange
+    // This allows the user to type without triggering invalid states
   };
 
   const handleCalendarSelect = (date: Date | undefined) => {

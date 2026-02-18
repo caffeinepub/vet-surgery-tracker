@@ -135,19 +135,20 @@ export enum UserRole {
 export interface backendInterface {
     _initializeAccessControlWithSecret(userSecret: string): Promise<void>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
-    createCase(medicalRecordNumber: string, petName: string, ownerLastName: string, species: Species, breed: string, sex: Sex, dateOfBirth: Time | null, presentingComplaint: string, notes: string, checklist: Checklist): Promise<SurgeryCase>;
+    createCase(medicalRecordNumber: string, arrivalDate: Time, petName: string, ownerLastName: string, species: Species, breed: string, sex: Sex, dateOfBirth: Time | null, presentingComplaint: string, notes: string, checklist: Checklist): Promise<SurgeryCase>;
     deleteCase(id: bigint): Promise<void>;
     getAllCases(): Promise<Array<SurgeryCase>>;
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
     getCase(id: bigint): Promise<SurgeryCase>;
+    getCaseByMedicalRecordNumber(medicalRecordNumber: string): Promise<SurgeryCase | null>;
     getCasesByOwner(ownerLastName: string): Promise<Array<SurgeryCase>>;
     getChecklist(id: bigint): Promise<Checklist>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
     isCallerAdmin(): Promise<boolean>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     searchCasesByMedicalRecordNumber(searchTerm: string): Promise<Array<SurgeryCase>>;
-    updateCase(id: bigint, medicalRecordNumber: string, petName: string, ownerLastName: string, species: Species, breed: string, sex: Sex, dateOfBirth: Time | null, presentingComplaint: string, notes: string, checklist: Checklist): Promise<void>;
+    updateCase(id: bigint, medicalRecordNumber: string, arrivalDate: Time, petName: string, ownerLastName: string, species: Species, breed: string, sex: Sex, dateOfBirth: Time | null, presentingComplaint: string, notes: string, checklist: Checklist): Promise<void>;
     updateCaseNotes(id: bigint, notes: string): Promise<void>;
     updateChecklist(id: bigint, checklist: Checklist): Promise<void>;
 }
@@ -182,17 +183,17 @@ export class Backend implements backendInterface {
             return result;
         }
     }
-    async createCase(arg0: string, arg1: string, arg2: string, arg3: Species, arg4: string, arg5: Sex, arg6: Time | null, arg7: string, arg8: string, arg9: Checklist): Promise<SurgeryCase> {
+    async createCase(arg0: string, arg1: Time, arg2: string, arg3: string, arg4: Species, arg5: string, arg6: Sex, arg7: Time | null, arg8: string, arg9: string, arg10: Checklist): Promise<SurgeryCase> {
         if (this.processError) {
             try {
-                const result = await this.actor.createCase(arg0, arg1, arg2, to_candid_Species_n3(this._uploadFile, this._downloadFile, arg3), arg4, to_candid_Sex_n5(this._uploadFile, this._downloadFile, arg5), to_candid_opt_n7(this._uploadFile, this._downloadFile, arg6), arg7, arg8, arg9);
+                const result = await this.actor.createCase(arg0, arg1, arg2, arg3, to_candid_Species_n3(this._uploadFile, this._downloadFile, arg4), arg5, to_candid_Sex_n5(this._uploadFile, this._downloadFile, arg6), to_candid_opt_n7(this._uploadFile, this._downloadFile, arg7), arg8, arg9, arg10);
                 return from_candid_SurgeryCase_n8(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.createCase(arg0, arg1, arg2, to_candid_Species_n3(this._uploadFile, this._downloadFile, arg3), arg4, to_candid_Sex_n5(this._uploadFile, this._downloadFile, arg5), to_candid_opt_n7(this._uploadFile, this._downloadFile, arg6), arg7, arg8, arg9);
+            const result = await this.actor.createCase(arg0, arg1, arg2, arg3, to_candid_Species_n3(this._uploadFile, this._downloadFile, arg4), arg5, to_candid_Sex_n5(this._uploadFile, this._downloadFile, arg6), to_candid_opt_n7(this._uploadFile, this._downloadFile, arg7), arg8, arg9, arg10);
             return from_candid_SurgeryCase_n8(this._uploadFile, this._downloadFile, result);
         }
     }
@@ -264,6 +265,20 @@ export class Backend implements backendInterface {
         } else {
             const result = await this.actor.getCase(arg0);
             return from_candid_SurgeryCase_n8(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getCaseByMedicalRecordNumber(arg0: string): Promise<SurgeryCase | null> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getCaseByMedicalRecordNumber(arg0);
+                return from_candid_opt_n19(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getCaseByMedicalRecordNumber(arg0);
+            return from_candid_opt_n19(this._uploadFile, this._downloadFile, result);
         }
     }
     async getCasesByOwner(arg0: string): Promise<Array<SurgeryCase>> {
@@ -350,17 +365,17 @@ export class Backend implements backendInterface {
             return from_candid_vec_n15(this._uploadFile, this._downloadFile, result);
         }
     }
-    async updateCase(arg0: bigint, arg1: string, arg2: string, arg3: string, arg4: Species, arg5: string, arg6: Sex, arg7: Time | null, arg8: string, arg9: string, arg10: Checklist): Promise<void> {
+    async updateCase(arg0: bigint, arg1: string, arg2: Time, arg3: string, arg4: string, arg5: Species, arg6: string, arg7: Sex, arg8: Time | null, arg9: string, arg10: string, arg11: Checklist): Promise<void> {
         if (this.processError) {
             try {
-                const result = await this.actor.updateCase(arg0, arg1, arg2, arg3, to_candid_Species_n3(this._uploadFile, this._downloadFile, arg4), arg5, to_candid_Sex_n5(this._uploadFile, this._downloadFile, arg6), to_candid_opt_n7(this._uploadFile, this._downloadFile, arg7), arg8, arg9, arg10);
+                const result = await this.actor.updateCase(arg0, arg1, arg2, arg3, arg4, to_candid_Species_n3(this._uploadFile, this._downloadFile, arg5), arg6, to_candid_Sex_n5(this._uploadFile, this._downloadFile, arg7), to_candid_opt_n7(this._uploadFile, this._downloadFile, arg8), arg9, arg10, arg11);
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.updateCase(arg0, arg1, arg2, arg3, to_candid_Species_n3(this._uploadFile, this._downloadFile, arg4), arg5, to_candid_Sex_n5(this._uploadFile, this._downloadFile, arg6), to_candid_opt_n7(this._uploadFile, this._downloadFile, arg7), arg8, arg9, arg10);
+            const result = await this.actor.updateCase(arg0, arg1, arg2, arg3, arg4, to_candid_Species_n3(this._uploadFile, this._downloadFile, arg5), arg6, to_candid_Sex_n5(this._uploadFile, this._downloadFile, arg7), to_candid_opt_n7(this._uploadFile, this._downloadFile, arg8), arg9, arg10, arg11);
             return result;
         }
     }
@@ -410,6 +425,9 @@ function from_candid_opt_n12(_uploadFile: (file: ExternalBlob) => Promise<Uint8A
 }
 function from_candid_opt_n16(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_UserProfile]): UserProfile | null {
     return value.length === 0 ? null : value[0];
+}
+function from_candid_opt_n19(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_SurgeryCase]): SurgeryCase | null {
+    return value.length === 0 ? null : from_candid_SurgeryCase_n8(_uploadFile, _downloadFile, value[0]);
 }
 function from_candid_record_n9(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
     id: bigint;
