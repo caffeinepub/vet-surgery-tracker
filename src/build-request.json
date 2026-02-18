@@ -1,34 +1,51 @@
 {
   "kind": "build_request",
-  "title": "Replace app icon with user-provided image",
+  "title": "Remove app icon/logo",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Replace the app icon/favicon with the user-uploaded image 'ChatGPT Image Feb 18, 2026, 03_23_00 PM.png' showing a black dog and orange cat with a surgical scalpel on a blue background",
+      "text": "Remove the custom favicon link from frontend/index.html and revert to default/no favicon",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-latest"
         ],
         "quotes": [
-          "The app icon did not change. Please change the app icon to the attached image"
+          "Remove icon/logo for the app"
         ]
       },
       "acceptanceCriteria": [
-        "The uploaded image is saved as the favicon in frontend/public/",
-        "The index.html file references the new favicon correctly",
-        "The app icon displays the new image when loaded in the browser"
+        "The custom favicon link tag is removed from frontend/index.html",
+        "No custom icon or logo is displayed in the browser tab"
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "text": "Remove any generated icon/logo image files from frontend/public/assets/generated directory",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-latest"
+        ],
+        "quotes": [
+          "Remove icon/logo for the app"
+        ]
+      },
+      "acceptanceCriteria": [
+        "All custom icon/logo files are deleted from the assets directory",
+        "No orphaned image files remain"
       ]
     }
   ],
   "constraints": [
-    "Use the exact user-provided image file without modifications",
-    "Ensure the favicon reference in index.html points to the correct path"
+    "Do not modify backend files",
+    "Preserve all other frontend functionality and styling"
   ],
   "nonGoals": [
-    "Modifying the image content or appearance",
-    "Creating multiple icon sizes or formats"
+    "Adding a new icon or logo",
+    "Changing the app title",
+    "Modifying any other visual elements"
   ],
   "imageRequirements": {
     "required": [],

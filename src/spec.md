@@ -1,11 +1,10 @@
 # Specification
 
 ## Summary
-**Goal:** Replace the app icon/favicon with the user-provided image showing a black dog and orange cat with a surgical scalpel.
+**Goal:** Remove the custom app icon/logo and revert to browser default.
 
 **Planned changes:**
-- Save the user-uploaded image as the favicon in frontend/public/
-- Update index.html to reference the new favicon
-- Ensure the app icon displays correctly in the browser
+- Remove the custom favicon link from frontend/index.html
+- Delete generated icon/logo image files from frontend/public/assets/generated directory
 
-**User-visible outcome:** The app displays the new custom icon (black dog and orange cat with surgical scalpel on blue background) in the browser tab and bookmarks.
+**User-visible outcome:** The browser tab will display the browser's default favicon instead of a custom icon.

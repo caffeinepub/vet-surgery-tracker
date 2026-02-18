@@ -1,25 +1,37 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-18T23:30:44.416Z",
+  "generatedAt": "2026-02-18T23:36:23.016Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 1,
-    "implemented": 1,
+    "total": 2,
+    "implemented": 2,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Replace the app icon/favicon with the user-uploaded image 'ChatGPT Image Feb 18, 2026, 03_23_00 PM.png' showing a black dog and orange cat with a surgical scalpel on a blue background",
+        "summary": "Remove the custom favicon link from frontend/index.html and revert to default/no favicon",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/public/favicon.ico",
           "frontend/index.html"
         ],
         "matchedFiles": [
           "frontend/index.html"
+        ]
+      },
+      {
+        "id": "REQ-2",
+        "summary": "Remove any generated icon/logo image files from frontend/public/assets/generated directory",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/public/assets/generated/surgery-case-log-favicon.dim_64x64.png",
+          "frontend/public/assets/generated/surgery-case-log-icon.dim_512x512.png"
+        ],
+        "matchedFiles": [
+          "frontend/public/assets/generated/surgery-case-log-favicon.dim_64x64.png",
+          "frontend/public/assets/generated/surgery-case-log-icon.dim_512x512.png"
         ]
       }
     ]
@@ -30,6 +42,8 @@
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
     "frontend/index.html",
+    "frontend/public/assets/generated/surgery-case-log-favicon.dim_64x64.png",
+    "frontend/public/assets/generated/surgery-case-log-icon.dim_512x512.png",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

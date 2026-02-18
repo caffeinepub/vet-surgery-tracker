@@ -1,26 +1,40 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Replace app icon with user-provided image",
+  "title": "Remove app icon/logo",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Replace the app icon/favicon with the user-uploaded image showing a black dog and orange cat with a surgical scalpel on a blue background",
+      "summary": "Remove the custom favicon link from frontend/index.html and revert to default/no favicon",
       "acceptanceCriteria": [
-        "The uploaded image is saved as the favicon in frontend/public/",
-        "The index.html file references the new favicon correctly",
-        "The app icon displays the new image when loaded in the browser"
+        "The custom favicon link tag is removed from frontend/index.html",
+        "No custom icon or logo is displayed in the browser tab"
       ],
       "file_operations": [
         {
-          "path": "frontend/public/favicon.ico",
-          "operation": "create",
-          "description": "Save the user-provided image 'ChatGPT Image Feb 18, 2026, 03_23_00 PM.png' as favicon.ico in the public directory. Convert the PNG to ICO format if necessary, or use the PNG directly as modern browsers support PNG favicons."
-        },
-        {
           "path": "frontend/index.html",
           "operation": "modify",
-          "description": "Update the favicon link element to reference the new favicon file. Replace the current favicon reference (likely pointing to /assets/image.png) with a link to /favicon.ico or the appropriate path for the new favicon file."
+          "description": "Remove the custom favicon link tag that references the dog-and-cat icon. This will revert the browser tab to showing no custom icon (default browser behavior)."
+        }
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "summary": "Remove any generated icon/logo image files from frontend/public/assets/generated directory",
+      "acceptanceCriteria": [
+        "All custom icon/logo files are deleted from the assets directory",
+        "No orphaned image files remain"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/public/assets/generated/surgery-case-log-favicon.dim_64x64.png",
+          "operation": "delete",
+          "description": "Delete the generated favicon image file from the assets directory to remove all traces of the custom icon."
+        },
+        {
+          "path": "frontend/public/assets/generated/surgery-case-log-icon.dim_512x512.png",
+          "operation": "delete",
+          "description": "Delete the generated icon image file from the assets directory to ensure no orphaned logo files remain."
         }
       ]
     }
