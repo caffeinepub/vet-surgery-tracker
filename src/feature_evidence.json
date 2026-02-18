@@ -2,8 +2,8 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-replace-the-current-app-logo-favicon-with-the-user-provided-image-image-png-showing-a-black-dog-and-orange-cat-with-a-surgical-scalpel-on-a-blue-background",
-      "featureTitle": "Replace the current app logo/favicon with the user-provided image (image.png) showing a black dog and orange cat with a surgical scalpel on a blue background",
+      "featureId": "feature-replace-the-app-icon-favicon-with-the-user-uploaded-image-chatgpt-image-feb-18-2026-03-23-00-pm-png-showing-a-black-dog-and-orange-cat-with-a-surgical-scalpel-on-a-blue-background",
+      "featureTitle": "Replace the app icon/favicon with the user-uploaded image 'ChatGPT Image Feb 18, 2026, 03_23_00 PM.png' showing a black dog and orange cat with a surgical scalpel on a blue background",
       "files": [
         "frontend/index.html"
       ],

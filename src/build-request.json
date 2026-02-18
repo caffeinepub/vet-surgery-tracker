@@ -1,30 +1,35 @@
 {
   "kind": "build_request",
-  "title": "Replace app logo with user-provided image",
-  "projectName": "Surgery Case Log",
+  "title": "Replace app icon with user-provided image",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Replace the current app logo/favicon with the user-provided image (image.png) showing a black dog and orange cat with a surgical scalpel on a blue background",
+      "text": "Replace the app icon/favicon with the user-uploaded image 'ChatGPT Image Feb 18, 2026, 03_23_00 PM.png' showing a black dog and orange cat with a surgical scalpel on a blue background",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-latest"
         ],
         "quotes": [
-          "change logo for app to this image"
+          "The app icon did not change. Please change the app icon to the attached image"
         ]
       },
       "acceptanceCriteria": [
-        "The user-provided image is used as the app logo throughout the application",
-        "Favicon references in frontend/index.html are updated to use the new logo",
-        "The new logo displays correctly in the browser tab and any UI areas showing the app logo"
+        "The uploaded image is saved as the favicon in frontend/public/",
+        "The index.html file references the new favicon correctly",
+        "The app icon displays the new image when loaded in the browser"
       ]
     }
   ],
-  "constraints": [],
-  "nonGoals": [],
+  "constraints": [
+    "Use the exact user-provided image file without modifications",
+    "Ensure the favicon reference in index.html points to the correct path"
+  ],
+  "nonGoals": [
+    "Modifying the image content or appearance",
+    "Creating multiple icon sizes or formats"
+  ],
   "imageRequirements": {
     "required": [],
     "edits": []

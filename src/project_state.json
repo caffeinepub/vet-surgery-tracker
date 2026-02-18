@@ -3,27 +3,22 @@
   "projectStateVersion": 3,
   "summary": "New project",
   "architectural_notes": [],
-  "known_issues": [],
-  "isFixRequest": false,
+  "known_issues": [
+    "App icon not updating after deployment"
+  ],
+  "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-replace-the-current-app-logo-favicon-with-the-user-provided-image-image-png-showing-a-black-dog-and-orange-cat-with-a-surgical-scalpel-on-a-blue-background",
-      "title": "Replace the current app logo/favicon with the user-provided image (image.png) showing a black dog and orange cat with a surgical scalpel on a blue background",
+      "id": "feature-replace-the-app-icon-favicon-with-the-user-uploaded-image-chatgpt-image-feb-18-2026-03-23-00-pm-png-showing-a-black-dog-and-orange-cat-with-a-surgical-scalpel-on-a-blue-background",
+      "title": "Replace the app icon/favicon with the user-uploaded image 'ChatGPT Image Feb 18, 2026, 03_23_00 PM.png' showing a black dog and orange cat with a surgical scalpel on a blue background",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     }
   ],
-  "new_feature_requests": [
-    {
-      "id": "AR-1",
-      "summary": "Change app logo to user-provided image",
-      "reqIds": [],
-      "status": "pending"
-    }
-  ],
-  "projectName": "Surgery Case Log",
+  "new_feature_requests": [],
+  "projectName": "Replace app icon with user-provided image",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }
