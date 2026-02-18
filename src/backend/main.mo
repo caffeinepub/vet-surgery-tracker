@@ -23,20 +23,6 @@ actor {
     culture : Bool;
   };
 
-  module Checklist {
-    public func default() : Checklist {
-      {
-        dischargeNotes = true;
-        pdvmNotified = true;
-        labs = false;
-        histo = false;
-        surgeryReport = false;
-        imaging = false;
-        culture = false;
-      };
-    };
-  };
-
   public type SurgeryCase = {
     id : Nat;
     medicalRecordNumber : Text;
@@ -101,6 +87,7 @@ actor {
     dateOfBirth : ?Time.Time,
     presentingComplaint : Text,
     notes : Text,
+    checklist : Checklist, // Accept checklist from frontend
   ) : async SurgeryCase {
     if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
       Runtime.trap("Unauthorized: Only users can create cases");
@@ -118,7 +105,7 @@ actor {
       dateOfBirth;
       presentingComplaint;
       notes;
-      checklist = Checklist.default();
+      checklist;
     };
 
     cases.add(nextId, newCase);

@@ -29,5 +29,5 @@ export function getDefaultChecklist(): Checklist {
 }
 
 export function getRemainingItems(checklist: Checklist): string[] {
-  return CHECKLIST_ITEMS.filter((item) => !checklist[item.key]).map((item) => item.label);
+  return CHECKLIST_ITEMS.filter((item) => checklist[item.key]).map((item) => item.label);
 }

@@ -65,6 +65,7 @@ export function useCreateCase() {
       dateOfBirth: bigint | null;
       presentingComplaint: string;
       notes: string;
+      checklist: Checklist;
     }) => {
       if (!actor) throw new Error('Actor not available');
       return actor.createCase(
@@ -76,7 +77,8 @@ export function useCreateCase() {
         params.sex,
         params.dateOfBirth,
         params.presentingComplaint,
-        params.notes
+        params.notes,
+        params.checklist
       );
     },
     onSuccess: () => {

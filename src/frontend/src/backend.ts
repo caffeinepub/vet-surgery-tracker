@@ -135,7 +135,7 @@ export enum UserRole {
 export interface backendInterface {
     _initializeAccessControlWithSecret(userSecret: string): Promise<void>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
-    createCase(medicalRecordNumber: string, petName: string, ownerLastName: string, species: Species, breed: string, sex: Sex, dateOfBirth: Time | null, presentingComplaint: string, notes: string): Promise<SurgeryCase>;
+    createCase(medicalRecordNumber: string, petName: string, ownerLastName: string, species: Species, breed: string, sex: Sex, dateOfBirth: Time | null, presentingComplaint: string, notes: string, checklist: Checklist): Promise<SurgeryCase>;
     deleteCase(id: bigint): Promise<void>;
     getAllCases(): Promise<Array<SurgeryCase>>;
     getCallerUserProfile(): Promise<UserProfile | null>;
@@ -182,17 +182,17 @@ export class Backend implements backendInterface {
             return result;
         }
     }
-    async createCase(arg0: string, arg1: string, arg2: string, arg3: Species, arg4: string, arg5: Sex, arg6: Time | null, arg7: string, arg8: string): Promise<SurgeryCase> {
+    async createCase(arg0: string, arg1: string, arg2: string, arg3: Species, arg4: string, arg5: Sex, arg6: Time | null, arg7: string, arg8: string, arg9: Checklist): Promise<SurgeryCase> {
         if (this.processError) {
             try {
-                const result = await this.actor.createCase(arg0, arg1, arg2, to_candid_Species_n3(this._uploadFile, this._downloadFile, arg3), arg4, to_candid_Sex_n5(this._uploadFile, this._downloadFile, arg5), to_candid_opt_n7(this._uploadFile, this._downloadFile, arg6), arg7, arg8);
+                const result = await this.actor.createCase(arg0, arg1, arg2, to_candid_Species_n3(this._uploadFile, this._downloadFile, arg3), arg4, to_candid_Sex_n5(this._uploadFile, this._downloadFile, arg5), to_candid_opt_n7(this._uploadFile, this._downloadFile, arg6), arg7, arg8, arg9);
                 return from_candid_SurgeryCase_n8(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.createCase(arg0, arg1, arg2, to_candid_Species_n3(this._uploadFile, this._downloadFile, arg3), arg4, to_candid_Sex_n5(this._uploadFile, this._downloadFile, arg5), to_candid_opt_n7(this._uploadFile, this._downloadFile, arg6), arg7, arg8);
+            const result = await this.actor.createCase(arg0, arg1, arg2, to_candid_Species_n3(this._uploadFile, this._downloadFile, arg3), arg4, to_candid_Sex_n5(this._uploadFile, this._downloadFile, arg5), to_candid_opt_n7(this._uploadFile, this._downloadFile, arg6), arg7, arg8, arg9);
             return from_candid_SurgeryCase_n8(this._uploadFile, this._downloadFile, result);
         }
     }

@@ -1,11 +1,16 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 3,
+  "projectStateVersion": 9,
   "summary": "Veterinary surgery case tracking app with CSV import/export, searchable case cards, defined case fields (including date pickers/defaults), per-case to-do checklist, and blue color scheme.",
   "architectural_notes": [
-    "Use a React CSV parser library for CSV import/export."
+    "Use a React CSV parser library for CSV import/export.",
+    "Ensure the per-case to-do checklist (7 items with defaults) is included directly in the case add/edit form UI as a set of checkboxes.",
+    "Checklist semantics per latest request: tasks checked during case creation should appear on the case card as items still needing to be done (i.e., checked = pending/remaining).",
+    "Case card UI: visually emphasize the Presenting Complaint field with a distinct blue box/border styling to make it stand out."
   ],
-  "known_issues": [],
+  "known_issues": [
+    "Potential requirements conflict: existing spec indicates showing unchecked to-do items as remaining, but latest request says checked items should appear as still needing to be done (checked = remaining)."
+  ],
   "isFixRequest": false,
   "existing_features": [
     {
@@ -63,6 +68,46 @@
         "REQ-8"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-update-the-case-creation-flow-so-the-checklist-selections-made-in-the-to-do-checklist-section-of-the-new-case-dialog-are-saved-on-the-newly-created-case-not-overwritten-by-backend-defaults",
+      "title": "Update the case creation flow so the checklist selections made in the “To-Do Checklist” section of the New Case dialog are saved on the newly created case (not overwritten by backend defaults).",
+      "reqIds": [
+        "REQ-9"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-change-the-remaining-tasks-behavior-so-that-checklist-items-that-are-checked-are-treated-as-still-needs-to-be-done-and-are-what-appear-in-the-case-card-s-task-list-unchecked-items-are-treated-as-not-needing-to-be-done-or-completed",
+      "title": "Change the “Remaining Tasks” behavior so that checklist items that are checked are treated as “still needs to be done” and are what appear in the Case Card’s task list; unchecked items are treated as not needing to be done (or completed).",
+      "reqIds": [
+        "REQ-10"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-on-the-case-card-patient-card-visually-emphasize-the-notes-field-by-rendering-it-inside-a-distinct-bordered-filled-color-box-so-it-stands-out-more",
+      "title": "On the case card (patient card), visually emphasize the Notes field by rendering it inside a distinct bordered/filled color box so it stands out more.",
+      "reqIds": [
+        "REQ-11"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-on-the-case-card-patient-card-render-the-histo-task-badge-with-a-purple-box-styling-and-the-imaging-task-badge-with-a-blue-box-styling-when-those-tasks-are-shown-on-the-card",
+      "title": "On the case card (patient card), render the “Histo” task badge with a purple box styling and the “Imaging” task badge with a blue box styling (when those tasks are shown on the card).",
+      "reqIds": [
+        "REQ-12"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-on-the-case-card-ui-visually-emphasize-the-presenting-complaint-field-by-rendering-the-presenting-complaint-text-inside-a-distinct-blue-bordered-filled-box-similar-in-prominence-to-the-existing-emphasized-notes-styling-so-it-stands-out-more-than-surrounding-fields",
+      "title": "On the case card UI, visually emphasize the “Presenting Complaint” field by rendering the presenting complaint text inside a distinct blue bordered/filled box (similar in prominence to the existing emphasized Notes styling), so it stands out more than surrounding fields.",
+      "reqIds": [
+        "REQ-13"
+      ],
+      "version": 1
     }
   ],
   "new_feature_requests": [
@@ -114,6 +159,18 @@
       "reqIds": [
         "REQ-1"
       ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-9",
+      "summary": "Update case card UI styling: add a colored box/border around the Notes field; render Histo task with a purple box and Imaging task with a blue box on the patient/case card",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-10",
+      "summary": "On the case card, visually emphasize the Presenting Complaint field by rendering it in a distinct blue bordered/filled box (similar to Notes emphasis)",
+      "reqIds": [],
       "status": "pending"
     }
   ],

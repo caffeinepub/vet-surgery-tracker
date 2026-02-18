@@ -2,14 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-implement-the-case-fields-exactly-as-specified-medical-record-arrival-date-defaults-to-today-pet-name-owner-last-name-species-canine-feline-other-breed-sex-male-male-neutered-female-female-spayed-date-of-birth-presenting-complaint-notes",
-      "featureTitle": "Implement the case fields exactly as specified: Medical Record #, Arrival Date (defaults to today), Pet Name, Owner Last Name, Species (Canine, Feline, Other), Breed, Sex (Male, Male Neutered, Female, Female Spayed), Date of Birth, Presenting Complaint, Notes.",
+      "featureId": "feature-on-the-case-card-ui-visually-emphasize-the-presenting-complaint-field-by-rendering-the-presenting-complaint-text-inside-a-distinct-blue-bordered-filled-box-similar-in-prominence-to-the-existing-emphasized-notes-styling-so-it-stands-out-more-than-surrounding-fields",
+      "featureTitle": "On the case card UI, visually emphasize the “Presenting Complaint” field by rendering the presenting complaint text inside a distinct blue bordered/filled box (similar in prominence to the existing emphasized Notes styling), so it stands out more than surrounding fields.",
       "files": [
-        "frontend/src/App.tsx",
-        "frontend/src/features/auth/components/LoginButton.tsx",
-        "frontend/src/features/auth/components/ProfileSetupModal.tsx",
-        "frontend/src/features/cases/types.ts",
-        "frontend/src/features/cases/validation.ts"
+        "frontend/src/features/cases/components/CaseCard.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -20,132 +16,7 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-2"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-support-manual-entry-and-a-calendar-date-picker-ui-for-all-date-fields-arrival-date-and-date-of-birth",
-      "featureTitle": "Support manual entry and a calendar/date-picker UI for all date fields (Arrival Date and Date of Birth).",
-      "files": [
-        "frontend/src/features/cases/components/DateField.tsx",
-        "frontend/src/features/cases/validation.ts"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-3"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-add-a-per-case-to-do-checklist-with-exactly-seven-items-and-defaults-discharge-notes-default-checked-pdvm-notified-default-checked-labs-default-unchecked-histo-default-unchecked-surgery-report-default-unchecked-imaging-default-unchecked-culture-default-unchecked",
-      "featureTitle": "Add a per-case to-do checklist with exactly seven items and defaults: Discharge Notes (default checked), pDVM Notified (default checked), Labs (default unchecked), Histo (default unchecked), Surgery Report (default unchecked), Imaging (default unchecked), Culture (default unchecked).",
-      "files": [
-        "frontend/src/features/cases/checklist.ts",
-        "frontend/src/features/cases/components/ChecklistEditor.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-4"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-display-case-data-as-cards-in-the-main-list-view-and-on-each-case-card-show-the-to-do-items-that-are-still-not-completed-i-e-unchecked",
-      "featureTitle": "Display case data as cards in the main list view, and on each case card show the to-do items that are still not completed (i.e., unchecked).",
-      "files": [
-        "frontend/src/App.tsx",
-        "frontend/src/features/cases/components/CaseCard.tsx",
-        "frontend/src/features/cases/components/CasesListView.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-5"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-implement-case-search-that-can-filter-the-case-card-list-using-data-from-all-case-fields-including-text-fields-selects-dates-and-to-do-item-names-states",
-      "featureTitle": "Implement case search that can filter the case card list using data from all case fields (including text fields, selects, dates, and to-do item names/states).",
-      "files": [
-        "frontend/src/features/cases/components/CasesListView.tsx",
-        "frontend/src/features/cases/components/CasesSearchBar.tsx",
-        "frontend/src/features/cases/search.ts"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-6"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-add-csv-import-and-csv-export-for-cases-using-a-react-csv-parser-mapping-csv-columns-to-the-case-fields-and-to-do-checklist-items",
-      "featureTitle": "Add CSV import and CSV export for cases using a React CSV parser, mapping CSV columns to the case fields and to-do checklist items.",
-      "files": [
-        "frontend/src/features/cases/components/CasesListView.tsx",
-        "frontend/src/features/cases/components/CsvImportExportPanel.tsx",
-        "frontend/src/features/cases/csv/caseCsv.ts",
-        "frontend/src/features/cases/csv/caseCsvSchema.ts"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-7"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-apply-a-consistent-blue-color-scheme-and-cohesive-visual-theme-across-the-app-ui-colors-typography-spacing-and-card-styling-keeping-all-user-facing-text-in-english",
-      "featureTitle": "Apply a consistent blue color scheme and cohesive visual theme across the app UI (colors, typography, spacing, and card styling), keeping all user-facing text in English.",
-      "files": [
-        "frontend/src/features/cases/components/CaseCard.tsx",
-        "frontend/src/index.css",
-        "frontend/tailwind.config.js"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-8"
+        "REQ-13"
       ],
       "confidence": "high"
     }

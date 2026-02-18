@@ -49,7 +49,18 @@ export interface _SERVICE {
   '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
   'createCase' : ActorMethod<
-    [string, string, string, Species, string, Sex, [] | [Time], string, string],
+    [
+      string,
+      string,
+      string,
+      Species,
+      string,
+      Sex,
+      [] | [Time],
+      string,
+      string,
+      Checklist,
+    ],
     SurgeryCase
   >,
   'deleteCase' : ActorMethod<[bigint], undefined>,

@@ -36,6 +36,16 @@ export default function CaseCard({ surgeryCase }: CaseCardProps) {
     }
   };
 
+  const getTaskBadgeStyle = (taskLabel: string) => {
+    if (taskLabel === 'Histo') {
+      return 'bg-purple-100 text-purple-700 border-purple-300 dark:bg-purple-900 dark:text-purple-300 dark:border-purple-600';
+    }
+    if (taskLabel === 'Imaging') {
+      return 'bg-sky-100 text-sky-700 border-sky-300 dark:bg-sky-900 dark:text-sky-300 dark:border-sky-600';
+    }
+    return 'bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-900 dark:text-blue-300 dark:border-blue-600';
+  };
+
   return (
     <>
       <Card className="hover:shadow-lg transition-shadow border-blue-200 dark:border-gray-700">
@@ -77,9 +87,22 @@ export default function CaseCard({ surgeryCase }: CaseCardProps) {
           {surgeryCase.presentingComplaint && (
             <div>
               <p className="text-blue-600 dark:text-blue-400 font-medium mb-1">Presenting Complaint</p>
-              <p className="text-blue-900 dark:text-blue-100 text-xs line-clamp-2">
-                {surgeryCase.presentingComplaint}
-              </p>
+              <div className="p-3 rounded-md border-2 border-blue-500 bg-blue-50 dark:border-blue-500 dark:bg-blue-950">
+                <p className="text-blue-900 dark:text-blue-100 text-xs line-clamp-2">
+                  {surgeryCase.presentingComplaint}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {surgeryCase.notes && (
+            <div>
+              <p className="text-blue-600 dark:text-blue-400 font-medium mb-1">Notes</p>
+              <div className="p-3 rounded-md border-2 border-amber-400 bg-amber-50 dark:border-amber-600 dark:bg-amber-950">
+                <p className="text-blue-900 dark:text-blue-100 text-xs line-clamp-3">
+                  {surgeryCase.notes}
+                </p>
+              </div>
             </div>
           )}
 
@@ -93,7 +116,11 @@ export default function CaseCard({ surgeryCase }: CaseCardProps) {
             ) : (
               <div className="flex flex-wrap gap-1.5">
                 {remainingItems.map((item) => (
-                  <Badge key={item} variant="secondary" className="text-xs bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300">
+                  <Badge 
+                    key={item} 
+                    variant="outline" 
+                    className={`text-xs border-2 ${getTaskBadgeStyle(item)}`}
+                  >
                     {item}
                   </Badge>
                 ))}
@@ -140,10 +167,9 @@ export default function CaseCard({ surgeryCase }: CaseCardProps) {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
-              disabled={deleteCase.isPending}
               className="bg-red-600 hover:bg-red-700 text-white"
             >
-              {deleteCase.isPending ? 'Deleting...' : 'Delete'}
+              Delete
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

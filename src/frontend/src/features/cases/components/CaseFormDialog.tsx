@@ -127,6 +127,7 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
           dateOfBirth: dateOfBirth ? dateToNanoseconds(dateOfBirth) : null,
           presentingComplaint,
           notes,
+          checklist,
         });
         toast.success('Case created successfully');
       }
@@ -299,7 +300,7 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
               disabled={isPending}
               className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
             >
-              {isPending ? 'Saving...' : isEditing ? 'Update Case' : 'Create Case'}
+              {isPending ? (isEditing ? 'Updating...' : 'Creating...') : (isEditing ? 'Update Case' : 'Create Case')}
             </Button>
           </div>
         </form>
