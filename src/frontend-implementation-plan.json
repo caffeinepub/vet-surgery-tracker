@@ -1,21 +1,51 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Highlight Presenting Complaint on Case Cards",
+  "title": "Vet Surgery Tracker — Force Light Mode",
   "requirements": [
     {
-      "id": "REQ-13",
-      "summary": "Visually emphasize Presenting Complaint on CaseCard with a distinct blue bordered/filled box that works in light and dark themes.",
+      "id": "REQ-1",
+      "summary": "Force the app to always render in light mode by preventing system-theme driven dark mode and ensuring no `dark` class is applied to the root element.",
       "acceptanceCriteria": [
-        "In the main case list view, when a case has a non-empty Presenting Complaint, it is displayed inside a visually distinct blue box (border and subtle background fill) on the CaseCard.",
-        "The Presenting Complaint emphasis styling works in both light and dark themes and does not reduce readability.",
-        "No user-facing text labels are changed; the label remains “Presenting Complaint”."
+        "On initial load, the app renders using light theme styles even when the OS/browser is set to dark mode.",
+        "No `dark` class is applied to the root theme element (e.g., `html`) during normal app usage.",
+        "All screens (loading, logged-out, logged-in) use the same forced light theme behavior (no screen-specific theme differences)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/features/cases/components/CaseCard.tsx",
+          "path": "frontend/src/App.tsx",
           "operation": "modify",
-          "description": "Update the Presenting Complaint rendering to wrap the text in a padded, rounded blue-emphasis container (blue border + subtle blue background) with appropriate light/dark Tailwind classes, matching the prominence level of the existing emphasized Notes styling while keeping the label text unchanged."
+          "description": "Update `next-themes` ThemeProvider usage to force light mode (e.g., disable system theme following and ensure the provider always applies light). Also add a small defensive runtime guard (e.g., effect) to remove any unexpected `dark` class from the root theme element so loading/logged-out/logged-in flows behave consistently."
+        },
+        {
+          "path": "frontend/index.html",
+          "operation": "modify",
+          "description": "Set document-level defaults that encourage light rendering regardless of OS theme (e.g., declare light `color-scheme` and ensure no initial `dark` class is present on the root element) to prevent a dark flash before React mounts."
+        }
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "summary": "Ensure the intended light theme tokens and global styles are the active source of truth and are not overridden by an unintended dark-mode setting or conflicting global stylesheet definitions.",
+      "acceptanceCriteria": [
+        "The app’s `bg-background`, `text-foreground`, `bg-card`, and `text-muted-foreground` styles visibly reflect the light theme defined in `frontend/src/index.css` when viewed in the browser.",
+        "After the fix, switching the OS theme between light/dark does not change the app’s appearance (it remains in light mode)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/index.css",
+          "operation": "modify",
+          "description": "Reinforce that the light tokens are the default applied theme (e.g., ensure `:root` defines the light variables clearly and add any necessary base-level declarations like `color-scheme: light` so form controls and UA defaults don’t appear dark). Keep dark variables defined but ensure they only apply if `.dark` is explicitly present (which the app should no longer set)."
+        },
+        {
+          "path": "frontend/index.css",
+          "operation": "modify",
+          "description": "Eliminate the possibility of a competing global stylesheet causing mismatched tokens by aligning this file’s `:root` light theme variables with `frontend/src/index.css` (or otherwise ensuring it cannot override the intended light tokens if it is ever included by tooling)."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Remove any remaining system-theme coupling by ensuring all ThemeProvider instances use the same forced-light configuration so OS theme changes cannot affect any screen’s styles."
         }
       ]
     }

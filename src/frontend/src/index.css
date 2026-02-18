@@ -4,61 +4,79 @@
 
 @layer base {
     :root {
+        color-scheme: light;
         --radius: 0.5rem;
         
-        /* Blue-themed light mode */
-        --background: 0.98 0 0;
-        --foreground: 0.15 0.02 250;
+        /* Light blue background with white surfaces */
+        --background: 0.95 0.03 240;
+        --foreground: 0.20 0.02 240;
         --card: 1 0 0;
-        --card-foreground: 0.15 0.02 250;
+        --card-foreground: 0.20 0.02 240;
         --popover: 1 0 0;
-        --popover-foreground: 0.15 0.02 250;
-        --primary: 0.55 0.18 250;
-        --primary-foreground: 0.98 0 0;
-        --secondary: 0.92 0.04 250;
-        --secondary-foreground: 0.25 0.06 250;
-        --muted: 0.94 0.02 250;
-        --muted-foreground: 0.50 0.04 250;
-        --accent: 0.88 0.08 250;
-        --accent-foreground: 0.25 0.06 250;
+        --popover-foreground: 0.20 0.02 240;
+        --primary: 0.55 0.18 240;
+        --primary-foreground: 1 0 0;
+        --secondary: 0.96 0.01 240;
+        --secondary-foreground: 0.25 0.03 240;
+        --muted: 0.96 0.01 240;
+        --muted-foreground: 0.50 0.03 240;
+        --accent: 0.94 0.02 240;
+        --accent-foreground: 0.25 0.03 240;
         --destructive: 0.55 0.22 25;
         --destructive-foreground: 0.98 0 0;
-        --border: 0.88 0.04 250;
-        --input: 0.88 0.04 250;
-        --ring: 0.55 0.18 250;
-        --chart-1: 0.60 0.20 250;
-        --chart-2: 0.65 0.18 200;
-        --chart-3: 0.55 0.16 280;
-        --chart-4: 0.70 0.15 220;
-        --chart-5: 0.50 0.22 260;
+        --border: 0.90 0.01 240;
+        --input: 0.90 0.01 240;
+        --ring: 0.55 0.18 240;
+        --chart-1: 0.60 0.16 240;
+        --chart-2: 0.65 0.15 220;
+        --chart-3: 0.55 0.14 260;
+        --chart-4: 0.70 0.13 230;
+        --chart-5: 0.50 0.17 250;
+        
+        /* Blue for patient name */
+        --patient-name: 0.50 0.20 240;
+        
+        /* Orange for presenting complaint */
+        --complaint-bg: 0.70 0.15 40;
+        --complaint-text: 0.35 0.12 40;
+        --complaint-border: 0.60 0.18 40;
     }
 
     .dark {
-        /* Blue-themed dark mode */
-        --background: 0.12 0.02 250;
-        --foreground: 0.95 0.02 250;
-        --card: 0.18 0.02 250;
-        --card-foreground: 0.95 0.02 250;
-        --popover: 0.15 0.02 250;
-        --popover-foreground: 0.95 0.02 250;
-        --primary: 0.65 0.20 250;
-        --primary-foreground: 0.12 0.02 250;
-        --secondary: 0.22 0.04 250;
-        --secondary-foreground: 0.95 0.02 250;
-        --muted: 0.20 0.02 250;
-        --muted-foreground: 0.65 0.04 250;
-        --accent: 0.28 0.06 250;
-        --accent-foreground: 0.95 0.02 250;
-        --destructive: 0.60 0.24 25;
-        --destructive-foreground: 0.95 0 0;
-        --border: 0.25 0.04 250;
-        --input: 0.25 0.04 250;
-        --ring: 0.65 0.20 250;
-        --chart-1: 0.60 0.20 250;
-        --chart-2: 0.65 0.18 200;
-        --chart-3: 0.55 0.16 280;
-        --chart-4: 0.70 0.15 220;
-        --chart-5: 0.50 0.22 260;
+        /* Dark mode tokens kept for reference but will not be applied */
+        color-scheme: light;
+        --background: 0.95 0.03 240;
+        --foreground: 0.20 0.02 240;
+        --card: 1 0 0;
+        --card-foreground: 0.20 0.02 240;
+        --popover: 1 0 0;
+        --popover-foreground: 0.20 0.02 240;
+        --primary: 0.55 0.18 240;
+        --primary-foreground: 1 0 0;
+        --secondary: 0.96 0.01 240;
+        --secondary-foreground: 0.25 0.03 240;
+        --muted: 0.96 0.01 240;
+        --muted-foreground: 0.50 0.03 240;
+        --accent: 0.94 0.02 240;
+        --accent-foreground: 0.25 0.03 240;
+        --destructive: 0.55 0.22 25;
+        --destructive-foreground: 0.98 0 0;
+        --border: 0.90 0.01 240;
+        --input: 0.90 0.01 240;
+        --ring: 0.55 0.18 240;
+        --chart-1: 0.60 0.16 240;
+        --chart-2: 0.65 0.15 220;
+        --chart-3: 0.55 0.14 260;
+        --chart-4: 0.70 0.13 230;
+        --chart-5: 0.50 0.17 250;
+        
+        /* Blue for patient name */
+        --patient-name: 0.50 0.20 240;
+        
+        /* Orange for presenting complaint */
+        --complaint-bg: 0.70 0.15 40;
+        --complaint-text: 0.35 0.12 40;
+        --complaint-border: 0.60 0.18 40;
     }
 
     * {

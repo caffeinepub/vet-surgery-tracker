@@ -18,7 +18,7 @@ export default function ChecklistEditor({ value, onChange, disabled }: Checklist
   };
 
   return (
-    <div className="space-y-3 rounded-lg border border-blue-200 dark:border-gray-700 p-4 bg-blue-50/50 dark:bg-gray-800/50">
+    <div className="space-y-3 rounded-lg border p-4 bg-muted/50">
       {CHECKLIST_ITEMS.map((item) => (
         <div key={item.key} className="flex items-center space-x-2">
           <Checkbox
@@ -29,7 +29,7 @@ export default function ChecklistEditor({ value, onChange, disabled }: Checklist
           />
           <Label
             htmlFor={item.key}
-            className="text-sm font-normal cursor-pointer text-blue-900 dark:text-blue-100"
+            className="text-sm font-normal cursor-pointer"
           >
             {item.label}
           </Label>

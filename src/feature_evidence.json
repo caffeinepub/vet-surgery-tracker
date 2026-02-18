@@ -2,10 +2,11 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-on-the-case-card-ui-visually-emphasize-the-presenting-complaint-field-by-rendering-the-presenting-complaint-text-inside-a-distinct-blue-bordered-filled-box-similar-in-prominence-to-the-existing-emphasized-notes-styling-so-it-stands-out-more-than-surrounding-fields",
-      "featureTitle": "On the case card UI, visually emphasize the “Presenting Complaint” field by rendering the presenting complaint text inside a distinct blue bordered/filled box (similar in prominence to the existing emphasized Notes styling), so it stands out more than surrounding fields.",
+      "featureId": "feature-force-the-app-ui-to-always-use-light-mode-do-not-follow-system-theme-so-the-light-theme-color-tokens-in-frontend-src-index-css-are-consistently-applied-and-the-user-does-not-remain-in-dark-mode",
+      "featureTitle": "Force the app UI to always use light mode (do not follow system theme), so the light theme color tokens in `frontend/src/index.css` are consistently applied and the user does not remain in dark mode.",
       "files": [
-        "frontend/src/features/cases/components/CaseCard.tsx"
+        "frontend/index.html",
+        "frontend/src/App.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -16,7 +17,27 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-13"
+        "REQ-1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-fix-the-reported-issue-where-theme-color-changes-are-not-applying-by-ensuring-the-app-s-active-theme-configuration-and-global-styles-do-not-get-overridden-by-an-unintended-dark-mode-setting-or-a-competing-global-stylesheet",
+      "featureTitle": "Fix the reported issue where theme/color changes are not applying by ensuring the app’s active theme configuration and global styles do not get overridden by an unintended dark-mode setting or a competing global stylesheet.",
+      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/index.css"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-2"
       ],
       "confidence": "high"
     }

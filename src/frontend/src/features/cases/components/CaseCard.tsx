@@ -1,14 +1,15 @@
 import { useState } from 'react';
 import type { SurgeryCase } from '../../../backend';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Edit, Trash2, CheckCircle2 } from 'lucide-react';
-import { formatDate } from '../validation';
+import { formatDate, calculateAge } from '../validation';
 import { getRemainingItems } from '../checklist';
 import { SPECIES_OPTIONS, SEX_OPTIONS } from '../types';
-import { useDeleteCase } from '../../../hooks/useQueries';
+import { useDeleteCase, useUpdateChecklist } from '../../../hooks/useQueries';
 import { toast } from 'sonner';
 import CaseFormDialog from './CaseFormDialog';
 
@@ -20,6 +21,7 @@ export default function CaseCard({ surgeryCase }: CaseCardProps) {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const deleteCase = useDeleteCase();
+  const updateChecklist = useUpdateChecklist();
 
   const remainingItems = getRemainingItems(surgeryCase.checklist);
   const speciesLabel = SPECIES_OPTIONS.find((opt) => opt.value === surgeryCase.species)?.label || surgeryCase.species;
@@ -36,59 +38,84 @@ export default function CaseCard({ surgeryCase }: CaseCardProps) {
     }
   };
 
-  const getTaskBadgeStyle = (taskLabel: string) => {
-    if (taskLabel === 'Histo') {
-      return 'bg-purple-100 text-purple-700 border-purple-300 dark:bg-purple-900 dark:text-purple-300 dark:border-purple-600';
+  const handleTaskToggle = async (taskKey: keyof typeof surgeryCase.checklist) => {
+    try {
+      const updatedChecklist = {
+        ...surgeryCase.checklist,
+        [taskKey]: false,
+      };
+      await updateChecklist.mutateAsync({
+        id: surgeryCase.id,
+        checklist: updatedChecklist,
+      });
+      toast.success('Task completed');
+    } catch (error) {
+      toast.error('Failed to update task');
+      console.error('Update error:', error);
     }
-    if (taskLabel === 'Imaging') {
-      return 'bg-sky-100 text-sky-700 border-sky-300 dark:bg-sky-900 dark:text-sky-300 dark:border-sky-600';
-    }
-    return 'bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-900 dark:text-blue-300 dark:border-blue-600';
   };
 
   return (
     <>
-      <Card className="hover:shadow-lg transition-shadow border-blue-200 dark:border-gray-700">
+      <Card className="hover:shadow-lg transition-shadow bg-white dark:bg-card">
         <CardHeader className="pb-3">
-          <div className="flex items-start justify-between gap-2">
-            <div className="flex-1 min-w-0">
-              <CardTitle className="text-xl text-blue-900 dark:text-blue-100 truncate">
-                {surgeryCase.petName}
-              </CardTitle>
-              <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
-                MR# {surgeryCase.medicalRecordNumber}
-              </p>
-            </div>
-            <Badge variant="outline" className="shrink-0 border-blue-300 text-blue-700 dark:border-blue-600 dark:text-blue-300">
+          <div className="flex items-start justify-between gap-2 mb-2">
+            <CardTitle className="text-xl truncate flex-1" style={{ color: 'oklch(var(--patient-name))' }}>
+              {surgeryCase.petName}
+            </CardTitle>
+            <p className="text-sm text-muted-foreground shrink-0">
+              {formatDate(surgeryCase.arrivalDate)}
+            </p>
+          </div>
+          <div className="space-y-1">
+            <p className="text-sm text-muted-foreground">
+              MR# {surgeryCase.medicalRecordNumber}
+            </p>
+            <div className="inline-flex items-center px-2.5 py-1 rounded-full bg-primary/10 text-primary border-2 border-primary/40 text-sm font-medium">
               {speciesLabel}
-            </Badge>
+            </div>
           </div>
         </CardHeader>
         <CardContent className="space-y-3 text-sm">
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <p className="text-blue-600 dark:text-blue-400 font-medium">Owner</p>
-              <p className="text-blue-900 dark:text-blue-100">{surgeryCase.ownerLastName}</p>
+              <p className="text-muted-foreground font-medium">Owner</p>
+              <p className="text-foreground">{surgeryCase.ownerLastName}</p>
             </div>
             <div>
-              <p className="text-blue-600 dark:text-blue-400 font-medium">Sex</p>
-              <p className="text-blue-900 dark:text-blue-100">{sexLabel}</p>
+              <p className="text-muted-foreground font-medium">Sex</p>
+              <p className="text-foreground">{sexLabel}</p>
             </div>
-            <div>
-              <p className="text-blue-600 dark:text-blue-400 font-medium">Breed</p>
-              <p className="text-blue-900 dark:text-blue-100 truncate">{surgeryCase.breed}</p>
+            <div className="col-span-2">
+              <p className="text-muted-foreground font-medium">Breed</p>
+              <p className="text-foreground">{surgeryCase.breed}</p>
             </div>
-            <div>
-              <p className="text-blue-600 dark:text-blue-400 font-medium">Arrival</p>
-              <p className="text-blue-900 dark:text-blue-100">{formatDate(surgeryCase.arrivalDate)}</p>
-            </div>
+            {surgeryCase.dateOfBirth && (
+              <>
+                <div>
+                  <p className="text-muted-foreground font-medium">Date of Birth</p>
+                  <p className="text-foreground">{formatDate(surgeryCase.dateOfBirth)}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground font-medium">Age</p>
+                  <p className="text-foreground">{calculateAge(surgeryCase.dateOfBirth)}</p>
+                </div>
+              </>
+            )}
           </div>
 
           {surgeryCase.presentingComplaint && (
             <div>
-              <p className="text-blue-600 dark:text-blue-400 font-medium mb-1">Presenting Complaint</p>
-              <div className="p-3 rounded-md border-2 border-blue-500 bg-blue-50 dark:border-blue-500 dark:bg-blue-950">
-                <p className="text-blue-900 dark:text-blue-100 text-xs line-clamp-2">
+              <p className="text-muted-foreground font-medium mb-1">Presenting Complaint</p>
+              <div 
+                className="p-3 rounded-md border-2" 
+                style={{ 
+                  backgroundColor: 'oklch(var(--complaint-bg))',
+                  borderColor: 'oklch(var(--complaint-border))',
+                  color: 'oklch(var(--complaint-text))'
+                }}
+              >
+                <p className="text-xs line-clamp-2">
                   {surgeryCase.presentingComplaint}
                 </p>
               </div>
@@ -97,9 +124,9 @@ export default function CaseCard({ surgeryCase }: CaseCardProps) {
 
           {surgeryCase.notes && (
             <div>
-              <p className="text-blue-600 dark:text-blue-400 font-medium mb-1">Notes</p>
-              <div className="p-3 rounded-md border-2 border-amber-400 bg-amber-50 dark:border-amber-600 dark:bg-amber-950">
-                <p className="text-blue-900 dark:text-blue-100 text-xs line-clamp-3">
+              <p className="text-muted-foreground font-medium mb-1">Notes</p>
+              <div className="p-3 rounded-md border-2 border-muted bg-muted/50">
+                <p className="text-foreground text-xs line-clamp-3">
                   {surgeryCase.notes}
                 </p>
               </div>
@@ -107,23 +134,41 @@ export default function CaseCard({ surgeryCase }: CaseCardProps) {
           )}
 
           <div>
-            <p className="text-blue-600 dark:text-blue-400 font-medium mb-2">Remaining Tasks</p>
+            <p className="text-muted-foreground font-medium mb-2">Remaining Tasks</p>
             {remainingItems.length === 0 ? (
-              <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
+              <div className="flex items-center gap-2 text-primary">
                 <CheckCircle2 className="h-4 w-4" />
                 <span className="text-sm font-medium">All tasks completed</span>
               </div>
             ) : (
-              <div className="flex flex-wrap gap-1.5">
-                {remainingItems.map((item) => (
-                  <Badge 
-                    key={item} 
-                    variant="outline" 
-                    className={`text-xs border-2 ${getTaskBadgeStyle(item)}`}
-                  >
-                    {item}
-                  </Badge>
-                ))}
+              <div className="space-y-2">
+                {remainingItems.map((item) => {
+                  const isHisto = item.label === 'Histo';
+                  const isImaging = item.label === 'Imaging';
+                  
+                  return (
+                    <div key={item.key} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`task-${surgeryCase.id}-${item.key}`}
+                        checked={false}
+                        onCheckedChange={() => handleTaskToggle(item.key)}
+                        disabled={updateChecklist.isPending}
+                      />
+                      <Label
+                        htmlFor={`task-${surgeryCase.id}-${item.key}`}
+                        className={`text-sm font-normal cursor-pointer ${
+                          isHisto
+                            ? 'px-2 py-0.5 border-2 border-purple-500 rounded bg-purple-100 text-purple-700 dark:border-purple-400 dark:bg-purple-900/30 dark:text-purple-300'
+                            : isImaging
+                            ? 'px-2 py-0.5 border-2 border-primary/60 rounded bg-primary/10 text-primary'
+                            : 'text-foreground'
+                        }`}
+                      >
+                        {item.label}
+                      </Label>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
@@ -133,7 +178,7 @@ export default function CaseCard({ surgeryCase }: CaseCardProps) {
             variant="outline"
             size="sm"
             onClick={() => setIsEditDialogOpen(true)}
-            className="flex-1 border-blue-300 text-blue-700 hover:bg-blue-50 dark:border-blue-600 dark:text-blue-300 dark:hover:bg-blue-900"
+            className="flex-1"
           >
             <Edit className="mr-2 h-3.5 w-3.5" />
             Edit
@@ -142,7 +187,7 @@ export default function CaseCard({ surgeryCase }: CaseCardProps) {
             variant="outline"
             size="sm"
             onClick={() => setIsDeleteDialogOpen(true)}
-            className="border-red-300 text-red-700 hover:bg-red-50 dark:border-red-600 dark:text-red-300 dark:hover:bg-red-900"
+            className="border-destructive/50 text-destructive hover:bg-destructive/10 dark:border-destructive dark:text-destructive dark:hover:bg-destructive/20"
           >
             <Trash2 className="h-3.5 w-3.5" />
           </Button>
@@ -167,9 +212,9 @@ export default function CaseCard({ surgeryCase }: CaseCardProps) {
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
-              className="bg-red-600 hover:bg-red-700 text-white"
+              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
             >
-              Delete
+              {deleteCase.isPending ? 'Deleting...' : 'Delete'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

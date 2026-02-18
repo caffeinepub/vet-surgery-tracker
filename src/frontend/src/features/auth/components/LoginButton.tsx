@@ -32,7 +32,6 @@ export default function LoginButton() {
       onClick={handleAuth}
       disabled={disabled}
       variant={isAuthenticated ? 'outline' : 'default'}
-      className={isAuthenticated ? '' : 'bg-blue-600 hover:bg-blue-700 text-white'}
     >
       {text}
     </Button>

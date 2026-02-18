@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useInternetIdentity } from './hooks/useInternetIdentity';
 import { useGetCallerUserProfile } from './hooks/useQueries';
 import LoginButton from './features/auth/components/LoginButton';
@@ -13,13 +14,35 @@ export default function App() {
   const isAuthenticated = !!identity;
   const showProfileSetup = isAuthenticated && !profileLoading && isFetched && userProfile === null;
 
+  // Defensive guard: ensure no dark class is ever applied
+  useEffect(() => {
+    const removeAnyDarkClass = () => {
+      const html = document.documentElement;
+      if (html.classList.contains('dark')) {
+        html.classList.remove('dark');
+      }
+    };
+
+    // Remove immediately
+    removeAnyDarkClass();
+
+    // Watch for any changes
+    const observer = new MutationObserver(removeAnyDarkClass);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class'],
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
   if (isInitializing) {
     return (
-      <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-        <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100 dark:from-gray-900 dark:to-gray-800">
+      <ThemeProvider attribute="class" defaultTheme="light" forcedTheme="light" enableSystem={false}>
+        <div className="flex min-h-screen items-center justify-center bg-background">
           <div className="text-center">
-            <div className="mb-4 h-12 w-12 animate-spin rounded-full border-4 border-blue-600 border-t-transparent mx-auto"></div>
-            <p className="text-blue-900 dark:text-blue-100 font-medium">Loading...</p>
+            <div className="mb-4 h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto"></div>
+            <p className="text-foreground font-medium">Loading...</p>
           </div>
         </div>
       </ThemeProvider>
@@ -28,32 +51,32 @@ export default function App() {
 
   if (!isAuthenticated) {
     return (
-      <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-        <div className="flex min-h-screen flex-col bg-gradient-to-br from-blue-50 to-blue-100 dark:from-gray-900 dark:to-gray-800">
-          <header className="border-b border-blue-200 dark:border-gray-700 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
+      <ThemeProvider attribute="class" defaultTheme="light" forcedTheme="light" enableSystem={false}>
+        <div className="flex min-h-screen flex-col bg-background">
+          <header className="border-b bg-card backdrop-blur-sm">
             <div className="container mx-auto flex h-16 items-center justify-between px-4">
-              <h1 className="text-2xl font-bold text-blue-900 dark:text-blue-100">Vet Surgery Tracker</h1>
+              <h1 className="text-2xl font-bold text-foreground">Vet Surgery Tracker</h1>
               <LoginButton />
             </div>
           </header>
           <main className="flex flex-1 items-center justify-center px-4">
             <div className="max-w-md text-center">
               <div className="mb-8 text-6xl">🏥</div>
-              <h2 className="mb-4 text-3xl font-bold text-blue-900 dark:text-blue-100">Welcome to Vet Surgery Tracker</h2>
-              <p className="mb-8 text-lg text-blue-700 dark:text-blue-300">
+              <h2 className="mb-4 text-3xl font-bold text-foreground">Welcome to Vet Surgery Tracker</h2>
+              <p className="mb-8 text-lg text-muted-foreground">
                 Track and manage veterinary surgery cases with ease. Please log in to continue.
               </p>
               <LoginButton />
             </div>
           </main>
-          <footer className="border-t border-blue-200 dark:border-gray-700 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm py-6">
-            <div className="container mx-auto px-4 text-center text-sm text-blue-600 dark:text-blue-400">
+          <footer className="border-t bg-card backdrop-blur-sm py-6">
+            <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
               © {new Date().getFullYear()} · Built with ❤️ using{' '}
               <a
                 href={`https://caffeine.ai/?utm_source=Caffeine-footer&utm_medium=referral&utm_content=${encodeURIComponent(window.location.hostname)}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-medium hover:underline"
+                className="font-medium text-primary hover:underline"
               >
                 caffeine.ai
               </a>
@@ -66,15 +89,15 @@ export default function App() {
   }
 
   return (
-    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-      <div className="flex min-h-screen flex-col bg-gradient-to-br from-blue-50 to-blue-100 dark:from-gray-900 dark:to-gray-800">
-        <header className="border-b border-blue-200 dark:border-gray-700 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm sticky top-0 z-50">
+    <ThemeProvider attribute="class" defaultTheme="light" forcedTheme="light" enableSystem={false}>
+      <div className="flex min-h-screen flex-col bg-background">
+        <header className="border-b bg-card backdrop-blur-sm">
           <div className="container mx-auto flex h-16 items-center justify-between px-4">
-            <h1 className="text-2xl font-bold text-blue-900 dark:text-blue-100">Vet Surgery Tracker</h1>
+            <h1 className="text-2xl font-bold text-foreground">Vet Surgery Tracker</h1>
             <div className="flex items-center gap-4">
               {userProfile && (
-                <span className="text-sm text-blue-700 dark:text-blue-300">
-                  Welcome, <span className="font-medium">{userProfile.name}</span>
+                <span className="text-sm text-muted-foreground">
+                  Welcome, <span className="font-medium text-foreground">{userProfile.name}</span>
                 </span>
               )}
               <LoginButton />
@@ -84,21 +107,21 @@ export default function App() {
         <main className="flex-1 container mx-auto px-4 py-8">
           <CasesListView />
         </main>
-        <footer className="border-t border-blue-200 dark:border-gray-700 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm py-6">
-          <div className="container mx-auto px-4 text-center text-sm text-blue-600 dark:text-blue-400">
+        <footer className="border-t bg-card backdrop-blur-sm py-6">
+          <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
             © {new Date().getFullYear()} · Built with ❤️ using{' '}
             <a
               href={`https://caffeine.ai/?utm_source=Caffeine-footer&utm_medium=referral&utm_content=${encodeURIComponent(window.location.hostname)}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="font-medium hover:underline"
+              className="font-medium text-primary hover:underline"
             >
               caffeine.ai
             </a>
           </div>
         </footer>
       </div>
-      {showProfileSetup && <ProfileSetupModal />}
+      <ProfileSetupModal open={showProfileSetup} />
       <Toaster />
     </ThemeProvider>
   );

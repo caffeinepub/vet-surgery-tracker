@@ -80,7 +80,7 @@ export default function CsvImportExportPanel({ cases }: CsvImportExportPanelProp
         size="sm"
         onClick={handleExport}
         disabled={cases.length === 0}
-        className="border-blue-300 text-blue-700 hover:bg-blue-50 dark:border-blue-600 dark:text-blue-300 dark:hover:bg-blue-900"
+        className="border-primary/40 text-primary hover:bg-primary/10 dark:border-primary dark:text-primary dark:hover:bg-primary/20"
       >
         <Download className="mr-2 h-4 w-4" />
         Export CSV
@@ -89,7 +89,7 @@ export default function CsvImportExportPanel({ cases }: CsvImportExportPanelProp
         variant="outline"
         size="sm"
         onClick={() => fileInputRef.current?.click()}
-        className="border-blue-300 text-blue-700 hover:bg-blue-50 dark:border-blue-600 dark:text-blue-300 dark:hover:bg-blue-900"
+        className="border-primary/40 text-primary hover:bg-primary/10 dark:border-primary dark:text-primary dark:hover:bg-primary/20"
       >
         <Upload className="mr-2 h-4 w-4" />
         Import CSV

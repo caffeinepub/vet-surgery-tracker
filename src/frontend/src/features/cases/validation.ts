@@ -81,3 +81,41 @@ export function dateToNanoseconds(date: Date): bigint {
 export function nanosecondsToDate(ns: bigint): Date {
   return new Date(Number(ns / BigInt(1000000)));
 }
+
+export function calculateAge(dateOfBirth: Date | bigint | null): string {
+  if (!dateOfBirth) return '';
+  
+  let birthDate: Date;
+  if (typeof dateOfBirth === 'bigint') {
+    birthDate = nanosecondsToDate(dateOfBirth);
+  } else {
+    birthDate = dateOfBirth;
+  }
+  
+  const today = new Date();
+  let years = today.getFullYear() - birthDate.getFullYear();
+  let months = today.getMonth() - birthDate.getMonth();
+  
+  if (months < 0) {
+    years--;
+    months += 12;
+  }
+  
+  if (today.getDate() < birthDate.getDate()) {
+    months--;
+    if (months < 0) {
+      years--;
+      months += 12;
+    }
+  }
+  
+  if (years === 0 && months === 0) {
+    return 'Less than 1 month';
+  } else if (years === 0) {
+    return `${months} month${months !== 1 ? 's' : ''}`;
+  } else if (months === 0) {
+    return `${years} year${years !== 1 ? 's' : ''}`;
+  } else {
+    return `${years} year${years !== 1 ? 's' : ''}, ${months} month${months !== 1 ? 's' : ''}`;
+  }
+}

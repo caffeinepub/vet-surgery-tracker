@@ -1,36 +1,52 @@
 {
   "kind": "build_request",
-  "title": "Highlight Presenting Complaint on Case Cards",
+  "title": "Force app into light mode (theme/colors apply)",
   "projectName": "Vet Surgery Tracker",
   "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-13",
-      "text": "On the case card UI, visually emphasize the “Presenting Complaint” field by rendering the presenting complaint text inside a distinct blue bordered/filled box (similar in prominence to the existing emphasized Notes styling), so it stands out more than surrounding fields.",
+      "id": "REQ-1",
+      "text": "Force the app UI to always use light mode (do not follow system theme), so the light theme color tokens in `frontend/src/index.css` are consistently applied and the user does not remain in dark mode.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-4"
+          "msg-3"
         ],
         "quotes": [
-          "Put a blue box around presenting complaint to make it stand out more"
+          "the colors did not change; change app to light mode"
         ]
       },
       "acceptanceCriteria": [
-        "In the main case list view, when a case has a non-empty Presenting Complaint, it is displayed inside a visually distinct blue box (border and subtle background fill) on the CaseCard.",
-        "The Presenting Complaint emphasis styling works in both light and dark themes and does not reduce readability.",
-        "No user-facing text labels are changed; the label remains “Presenting Complaint”."
+        "On initial load, the app renders using light theme styles even when the OS/browser is set to dark mode.",
+        "No `dark` class is applied to the root theme element (e.g., `html`) during normal app usage.",
+        "All screens (loading, logged-out, logged-in) use the same forced light theme behavior (no screen-specific theme differences)."
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "text": "Fix the reported issue where theme/color changes are not applying by ensuring the app’s active theme configuration and global styles do not get overridden by an unintended dark-mode setting or a competing global stylesheet.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-3"
+        ],
+        "quotes": [
+          "the colors did not change"
+        ]
+      },
+      "acceptanceCriteria": [
+        "The app’s `bg-background`, `text-foreground`, `bg-card`, and `text-muted-foreground` styles visibly reflect the light theme defined in `frontend/src/index.css` when viewed in the browser.",
+        "After the fix, switching the OS theme between light/dark does not change the app’s appearance (it remains in light mode)."
       ]
     }
   ],
   "constraints": [
-    "Do not edit any files under frontend/src/components/ui (Shadcn UI components are read-only).",
-    "Keep all user-facing text in English."
+    "Do not edit files under `frontend/src/hooks/useInternetIdentity.ts`, `frontend/src/hooks/useInternetIdentity.tsx`, `frontend/src/hooks/useActor.ts`, `frontend/src/main.tsx`, `frontend/src/components/ui` (immutable paths).",
+    "Backend must remain single-actor; no backend changes are required for this request."
   ],
   "nonGoals": [
-    "Do not change checklist item defaults or checklist semantics (checked items represent tasks still needing to be done and appear under Remaining Tasks).",
-    "Do not change backend data models or perform state migrations for this request.",
-    "Do not alter existing Notes field emphasis styling except as needed for consistent layout spacing."
+    "Adding a user-facing theme toggle UI.",
+    "Redesigning the app layout or changing the existing color palette beyond enforcing light mode and making sure the intended light theme is applied."
   ],
   "imageRequirements": {
     "required": [],

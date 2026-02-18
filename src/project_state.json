@@ -1,111 +1,26 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 9,
-  "summary": "Veterinary surgery case tracking app with CSV import/export, searchable case cards, defined case fields (including date pickers/defaults), per-case to-do checklist, and blue color scheme.",
-  "architectural_notes": [
-    "Use a React CSV parser library for CSV import/export.",
-    "Ensure the per-case to-do checklist (7 items with defaults) is included directly in the case add/edit form UI as a set of checkboxes.",
-    "Checklist semantics per latest request: tasks checked during case creation should appear on the case card as items still needing to be done (i.e., checked = pending/remaining).",
-    "Case card UI: visually emphasize the Presenting Complaint field with a distinct blue box/border styling to make it stand out."
-  ],
+  "projectStateVersion": 3,
+  "summary": "New project",
+  "architectural_notes": [],
   "known_issues": [
-    "Potential requirements conflict: existing spec indicates showing unchecked to-do items as remaining, but latest request says checked items should appear as still needing to be done (checked = remaining)."
+    "Theme/color changes are not applying (user reports colors did not change)."
   ],
-  "isFixRequest": false,
+  "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-implement-the-case-fields-exactly-as-specified-medical-record-arrival-date-defaults-to-today-pet-name-owner-last-name-species-canine-feline-other-breed-sex-male-male-neutered-female-female-spayed-date-of-birth-presenting-complaint-notes",
-      "title": "Implement the case fields exactly as specified: Medical Record #, Arrival Date (defaults to today), Pet Name, Owner Last Name, Species (Canine, Feline, Other), Breed, Sex (Male, Male Neutered, Female, Female Spayed), Date of Birth, Presenting Complaint, Notes.",
+      "id": "feature-force-the-app-ui-to-always-use-light-mode-do-not-follow-system-theme-so-the-light-theme-color-tokens-in-frontend-src-index-css-are-consistently-applied-and-the-user-does-not-remain-in-dark-mode",
+      "title": "Force the app UI to always use light mode (do not follow system theme), so the light theme color tokens in `frontend/src/index.css` are consistently applied and the user does not remain in dark mode.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-fix-the-reported-issue-where-theme-color-changes-are-not-applying-by-ensuring-the-app-s-active-theme-configuration-and-global-styles-do-not-get-overridden-by-an-unintended-dark-mode-setting-or-a-competing-global-stylesheet",
+      "title": "Fix the reported issue where theme/color changes are not applying by ensuring the app’s active theme configuration and global styles do not get overridden by an unintended dark-mode setting or a competing global stylesheet.",
       "reqIds": [
         "REQ-2"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-support-manual-entry-and-a-calendar-date-picker-ui-for-all-date-fields-arrival-date-and-date-of-birth",
-      "title": "Support manual entry and a calendar/date-picker UI for all date fields (Arrival Date and Date of Birth).",
-      "reqIds": [
-        "REQ-3"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-add-a-per-case-to-do-checklist-with-exactly-seven-items-and-defaults-discharge-notes-default-checked-pdvm-notified-default-checked-labs-default-unchecked-histo-default-unchecked-surgery-report-default-unchecked-imaging-default-unchecked-culture-default-unchecked",
-      "title": "Add a per-case to-do checklist with exactly seven items and defaults: Discharge Notes (default checked), pDVM Notified (default checked), Labs (default unchecked), Histo (default unchecked), Surgery Report (default unchecked), Imaging (default unchecked), Culture (default unchecked).",
-      "reqIds": [
-        "REQ-4"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-display-case-data-as-cards-in-the-main-list-view-and-on-each-case-card-show-the-to-do-items-that-are-still-not-completed-i-e-unchecked",
-      "title": "Display case data as cards in the main list view, and on each case card show the to-do items that are still not completed (i.e., unchecked).",
-      "reqIds": [
-        "REQ-5"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-implement-case-search-that-can-filter-the-case-card-list-using-data-from-all-case-fields-including-text-fields-selects-dates-and-to-do-item-names-states",
-      "title": "Implement case search that can filter the case card list using data from all case fields (including text fields, selects, dates, and to-do item names/states).",
-      "reqIds": [
-        "REQ-6"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-add-csv-import-and-csv-export-for-cases-using-a-react-csv-parser-mapping-csv-columns-to-the-case-fields-and-to-do-checklist-items",
-      "title": "Add CSV import and CSV export for cases using a React CSV parser, mapping CSV columns to the case fields and to-do checklist items.",
-      "reqIds": [
-        "REQ-7"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-apply-a-consistent-blue-color-scheme-and-cohesive-visual-theme-across-the-app-ui-colors-typography-spacing-and-card-styling-keeping-all-user-facing-text-in-english",
-      "title": "Apply a consistent blue color scheme and cohesive visual theme across the app UI (colors, typography, spacing, and card styling), keeping all user-facing text in English.",
-      "reqIds": [
-        "REQ-8"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-update-the-case-creation-flow-so-the-checklist-selections-made-in-the-to-do-checklist-section-of-the-new-case-dialog-are-saved-on-the-newly-created-case-not-overwritten-by-backend-defaults",
-      "title": "Update the case creation flow so the checklist selections made in the “To-Do Checklist” section of the New Case dialog are saved on the newly created case (not overwritten by backend defaults).",
-      "reqIds": [
-        "REQ-9"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-change-the-remaining-tasks-behavior-so-that-checklist-items-that-are-checked-are-treated-as-still-needs-to-be-done-and-are-what-appear-in-the-case-card-s-task-list-unchecked-items-are-treated-as-not-needing-to-be-done-or-completed",
-      "title": "Change the “Remaining Tasks” behavior so that checklist items that are checked are treated as “still needs to be done” and are what appear in the Case Card’s task list; unchecked items are treated as not needing to be done (or completed).",
-      "reqIds": [
-        "REQ-10"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-on-the-case-card-patient-card-visually-emphasize-the-notes-field-by-rendering-it-inside-a-distinct-bordered-filled-color-box-so-it-stands-out-more",
-      "title": "On the case card (patient card), visually emphasize the Notes field by rendering it inside a distinct bordered/filled color box so it stands out more.",
-      "reqIds": [
-        "REQ-11"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-on-the-case-card-patient-card-render-the-histo-task-badge-with-a-purple-box-styling-and-the-imaging-task-badge-with-a-blue-box-styling-when-those-tasks-are-shown-on-the-card",
-      "title": "On the case card (patient card), render the “Histo” task badge with a purple box styling and the “Imaging” task badge with a blue box styling (when those tasks are shown on the card).",
-      "reqIds": [
-        "REQ-12"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-on-the-case-card-ui-visually-emphasize-the-presenting-complaint-field-by-rendering-the-presenting-complaint-text-inside-a-distinct-blue-bordered-filled-box-similar-in-prominence-to-the-existing-emphasized-notes-styling-so-it-stands-out-more-than-surrounding-fields",
-      "title": "On the case card UI, visually emphasize the “Presenting Complaint” field by rendering the presenting complaint text inside a distinct blue bordered/filled box (similar in prominence to the existing emphasized Notes styling), so it stands out more than surrounding fields.",
-      "reqIds": [
-        "REQ-13"
       ],
       "version": 1
     }
@@ -113,68 +28,11 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Implement CSV import/export for cases using a React CSV parser library",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-2",
-      "summary": "Create case data model and case creation/edit form with specified fields and defaults (e.g., Arrival Date defaults to today)",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-3",
-      "summary": "Support manual entry and calendar/date-picker UI for date fields (Arrival Date, Date of Birth)",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-4",
-      "summary": "Add per-case to-do checklist with 7 items and defaults (Discharge Notes & pDVM Notified checked by default) and show remaining items on case card",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-5",
-      "summary": "Display case data as cards (case card UI)",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-6",
-      "summary": "Add case search across all case fields",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-7",
-      "summary": "Apply blue color scheme/theme across the app UI",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-8",
-      "summary": "Create a persistent veterinary surgery case data model in the Motoko backend and expose CRUD methods to create, list, update, and delete cases.",
-      "reqIds": [
-        "REQ-1"
-      ],
-      "status": "pending"
-    },
-    {
-      "id": "AR-9",
-      "summary": "Update case card UI styling: add a colored box/border around the Notes field; render Histo task with a purple box and Imaging task with a blue box on the patient/case card",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-10",
-      "summary": "On the case card, visually emphasize the Presenting Complaint field by rendering it in a distinct blue bordered/filled box (similar to Notes emphasis)",
+      "summary": "Switch the app UI to light mode (light theme)",
       "reqIds": [],
       "status": "pending"
     }
   ],
-  "gameProjectType": "none",
   "projectName": "Vet Surgery Tracker",
   "clarification_mode": "instant",
   "clarification_rounds": 0

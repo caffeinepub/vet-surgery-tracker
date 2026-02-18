@@ -6,7 +6,11 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 
-export default function ProfileSetupModal() {
+interface ProfileSetupModalProps {
+  open: boolean;
+}
+
+export default function ProfileSetupModal({ open }: ProfileSetupModalProps) {
   const [name, setName] = useState('');
   const saveProfile = useSaveCallerUserProfile();
 
@@ -27,10 +31,10 @@ export default function ProfileSetupModal() {
   };
 
   return (
-    <Dialog open={true}>
+    <Dialog open={open}>
       <DialogContent className="sm:max-w-md" onPointerDownOutside={(e) => e.preventDefault()}>
         <DialogHeader>
-          <DialogTitle className="text-blue-900 dark:text-blue-100">Welcome!</DialogTitle>
+          <DialogTitle>Welcome!</DialogTitle>
           <DialogDescription>Please enter your name to get started.</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -47,7 +51,7 @@ export default function ProfileSetupModal() {
           </div>
           <Button
             type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+            className="w-full"
             disabled={saveProfile.isPending}
           >
             {saveProfile.isPending ? 'Saving...' : 'Continue'}

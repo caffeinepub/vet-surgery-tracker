@@ -142,9 +142,9 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-white dark:bg-popover">
         <DialogHeader>
-          <DialogTitle className="text-blue-900 dark:text-blue-100">
+          <DialogTitle>
             {isEditing ? 'Edit Case' : 'New Case'}
           </DialogTitle>
           <DialogDescription>
@@ -205,7 +205,7 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
               <Label htmlFor="species">Species</Label>
               <Select value={species} onValueChange={setSpecies} disabled={isPending}>
                 <SelectTrigger id="species">
-                  <SelectValue />
+                  <SelectValue placeholder="Select species" />
                 </SelectTrigger>
                 <SelectContent>
                   {SPECIES_OPTIONS.map((option) => (
@@ -234,7 +234,7 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
               <Label htmlFor="sex">Sex</Label>
               <Select value={sex} onValueChange={setSex} disabled={isPending}>
                 <SelectTrigger id="sex">
-                  <SelectValue />
+                  <SelectValue placeholder="Select sex" />
                 </SelectTrigger>
                 <SelectContent>
                   {SEX_OPTIONS.map((option) => (
@@ -276,30 +276,25 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Enter additional notes"
               disabled={isPending}
-              rows={3}
+              rows={4}
             />
           </div>
 
           <div className="space-y-2">
-            <Label>To-Do Checklist</Label>
+            <Label>Checklist</Label>
             <ChecklistEditor value={checklist} onChange={setChecklist} disabled={isPending} />
           </div>
 
-          <div className="flex gap-3 pt-4">
+          <div className="flex justify-end gap-3 pt-4">
             <Button
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={isPending}
-              className="flex-1"
             >
               Cancel
             </Button>
-            <Button
-              type="submit"
-              disabled={isPending}
-              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
-            >
+            <Button type="submit" disabled={isPending}>
               {isPending ? (isEditing ? 'Updating...' : 'Creating...') : (isEditing ? 'Update Case' : 'Create Case')}
             </Button>
           </div>

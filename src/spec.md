@@ -1,10 +1,10 @@
 # Specification
 
 ## Summary
-**Goal:** Make the “Presenting Complaint” on case cards stand out more in the main case list view.
+**Goal:** Force the Vet Surgery Tracker app UI to always render in light mode and ensure the light theme colors from `frontend/src/index.css` reliably apply.
 
 **Planned changes:**
-- Update the CaseCard UI to render non-empty Presenting Complaint text inside a visually distinct blue box (blue border with subtle blue background fill), similar in prominence to the existing emphasized Notes styling.
-- Ensure the new Presenting Complaint styling is readable and consistent in both light and dark themes, without changing the “Presenting Complaint” label text.
+- Enforce light mode globally so the app does not follow OS/browser dark mode and does not apply a `dark` class to the root theme element.
+- Resolve theme/color styles not applying by ensuring global theme configuration and styles are not being overridden by unintended dark-mode behavior or competing global styles.
 
-**User-visible outcome:** In the main case list, cases with a Presenting Complaint show it highlighted in a blue bordered/filled box on the case card, making it easier to spot at a glance.
+**User-visible outcome:** The app consistently appears in the intended light theme on all screens (loading, logged-out, logged-in), and changing the OS theme no longer affects the app’s appearance.
