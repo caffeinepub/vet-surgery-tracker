@@ -1,23 +1,31 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Fix Date of Birth field population from Quick Fill text",
+  "title": "Replace app logo with user-provided image",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Fix parseStructuredText function to correctly extract and populate Date of Birth field from Quick Fill with support for DOB labels and multiple date formats (ISO, US, EU)",
+      "summary": "Replace the current app logo/favicon with the user-provided image showing a black dog and orange cat with a surgical scalpel on a blue background",
       "acceptanceCriteria": [
-        "When Quick Fill text contains 'DOB: 2020-05-15', the Date of Birth field populates with '2020-05-15'",
-        "When Quick Fill text contains 'Date of Birth: 05/15/2020', the Date of Birth field populates correctly",
-        "When Quick Fill text contains 'Birthday: 15/05/2020', the Date of Birth field populates correctly",
-        "The Date of Birth field updates immediately when Quick Fill is triggered",
-        "Other fields continue to populate correctly from Quick Fill without regression"
+        "The user-provided image is used as the app logo throughout the application",
+        "Favicon references in frontend/index.html are updated to use the new logo",
+        "The new logo displays correctly in the browser tab and any UI areas showing the app logo"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/features/cases/parsing/parseStructuredText.ts",
+          "path": "frontend/public/favicon.ico",
+          "operation": "delete",
+          "description": "Remove the old favicon.ico file to replace with the new user-provided logo image"
+        },
+        {
+          "path": "frontend/public/logo.png",
+          "operation": "create",
+          "description": "Add the user-provided image (image.png showing black dog and orange cat with surgical scalpel on blue background) as the new app logo at frontend/public/logo.png"
+        },
+        {
+          "path": "frontend/index.html",
           "operation": "modify",
-          "description": "Add date of birth parsing logic to the parseStructuredText function. Recognize labels 'DOB', 'Date of Birth', 'Birth Date', and 'Birthday' (case-insensitive). Extract the date value and use the existing parseDate function from validation.ts to handle ISO (YYYY-MM-DD), US (MM/DD/YYYY), and EU (DD/MM/YYYY) formats. Set the parsed date to result.dateOfBirth when found. Ensure existing field parsing logic remains unchanged."
+          "description": "Update favicon link references to point to the new logo.png file instead of the old generated favicon files. Replace the current favicon link tags with a single link tag pointing to /logo.png"
         }
       ]
     }

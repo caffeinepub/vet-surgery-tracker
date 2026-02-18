@@ -3,22 +3,27 @@
   "projectStateVersion": 3,
   "summary": "New project",
   "architectural_notes": [],
-  "known_issues": [
-    "Date of Birth field does not populate from quick text/Quick Fill functionality"
-  ],
-  "isFixRequest": true,
+  "known_issues": [],
+  "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-fix-the-parsestructuredtext-function-to-correctly-extract-and-populate-the-date-of-birth-field-when-using-quick-fill-from-structured-text-input-the-parser-must-recognize-date-of-birth-labels-including-dob-date-of-birth-birth-date-birthday-and-correctly-parse-dates-in-iso-yyyy-mm-dd-us-mm-dd-yyyy-and-eu-dd-mm-yyyy-formats",
-      "title": "Fix the parseStructuredText function to correctly extract and populate the Date of Birth field when using Quick Fill from structured text input. The parser must recognize date of birth labels (including 'DOB', 'Date of Birth', 'Birth Date', 'Birthday') and correctly parse dates in ISO (YYYY-MM-DD), US (MM/DD/YYYY), and EU (DD/MM/YYYY) formats.",
+      "id": "feature-replace-the-current-app-logo-favicon-with-the-user-provided-image-image-png-showing-a-black-dog-and-orange-cat-with-a-surgical-scalpel-on-a-blue-background",
+      "title": "Replace the current app logo/favicon with the user-provided image (image.png) showing a black dog and orange cat with a surgical scalpel on a blue background",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     }
   ],
-  "new_feature_requests": [],
-  "projectName": "Fix Date of Birth field population from Quick Fill text",
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Change app logo to user-provided image",
+      "reqIds": [],
+      "status": "pending"
+    }
+  ],
+  "projectName": "Surgery Case Log",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

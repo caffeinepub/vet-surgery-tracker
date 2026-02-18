@@ -1,7 +1,7 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-18T18:52:31.096Z",
+  "generatedAt": "2026-02-18T23:25:17.349Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
@@ -12,23 +12,26 @@
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Fix the parseStructuredText function to correctly extract and populate the Date of Birth field when using Quick Fill from structured text input. The parser must recognize date of birth labels (including 'DOB', 'Date of Birth', 'Birth Date', 'Birthday') and correctly parse dates in ISO (YYYY-MM-DD), US (MM/DD/YYYY), and EU (DD/MM/YYYY) formats.",
+        "summary": "Replace the current app logo/favicon with the user-provided image (image.png) showing a black dog and orange cat with a surgical scalpel on a blue background",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/features/cases/parsing/parseStructuredText.ts"
+          "frontend/public/favicon.ico",
+          "frontend/public/logo.png",
+          "frontend/index.html"
         ],
         "matchedFiles": [
-          "frontend/src/features/cases/parsing/parseStructuredText.ts"
+          "frontend/index.html"
         ]
       }
     ]
   },
   "changedFiles": [
     "build-request.json",
+    "caffeine.lock.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/features/cases/parsing/parseStructuredText.ts",
+    "frontend/index.html",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",
