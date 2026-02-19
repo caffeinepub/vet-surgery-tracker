@@ -1,20 +1,47 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-18T23:36:23.016Z",
+  "generatedAt": "2026-02-18T23:48:11.274Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 2,
-    "implemented": 2,
+    "total": 4,
+    "implemented": 3,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Remove the custom favicon link from frontend/index.html and revert to default/no favicon",
+        "summary": "Display the uploaded logo image (image-1.png) in the header/navigation bar of the application",
         "status": "implemented",
         "plannedFiles": [
+          "frontend/public/assets/image-1.png",
+          "frontend/src/App.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/App.tsx"
+        ]
+      },
+      {
+        "id": "REQ-2",
+        "summary": "Display the uploaded logo image (image-1.png) on the landing page of the application",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/features/cases/components/CasesListView.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/features/cases/components/CasesListView.tsx"
+        ]
+      },
+      {
+        "id": "REQ-3",
+        "summary": "Set the uploaded logo image (image-1.png) as the app icon/favicon",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/public/assets/generated/favicon-16x16.dim_16x16.png",
+          "frontend/public/assets/generated/favicon-32x32.dim_32x32.png",
+          "frontend/public/assets/generated/favicon-192x192.dim_192x192.png",
+          "frontend/public/assets/generated/favicon-512x512.dim_512x512.png",
           "frontend/index.html"
         ],
         "matchedFiles": [
@@ -22,17 +49,13 @@
         ]
       },
       {
-        "id": "REQ-2",
-        "summary": "Remove any generated icon/logo image files from frontend/public/assets/generated directory",
-        "status": "implemented",
+        "id": "REQ-4",
+        "summary": "Save the uploaded logo image (image-1.png) as a static asset in frontend/public/assets",
+        "status": "missing",
         "plannedFiles": [
-          "frontend/public/assets/generated/surgery-case-log-favicon.dim_64x64.png",
-          "frontend/public/assets/generated/surgery-case-log-icon.dim_512x512.png"
+          "frontend/public/assets/image-1.png"
         ],
-        "matchedFiles": [
-          "frontend/public/assets/generated/surgery-case-log-favicon.dim_64x64.png",
-          "frontend/public/assets/generated/surgery-case-log-icon.dim_512x512.png"
-        ]
+        "matchedFiles": []
       }
     ]
   },
@@ -42,8 +65,9 @@
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
     "frontend/index.html",
-    "frontend/public/assets/generated/surgery-case-log-favicon.dim_64x64.png",
-    "frontend/public/assets/generated/surgery-case-log-icon.dim_512x512.png",
+    "frontend/public/assets/generated/favicon-16x16.dim_16x16.png, favicon-32x32.dim_32x32.png, favicon-192x192.dim_192x192.png, favicon-512x512.dim_512x512.png",
+    "frontend/src/App.tsx",
+    "frontend/src/features/cases/components/CasesListView.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

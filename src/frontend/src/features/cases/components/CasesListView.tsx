@@ -28,6 +28,14 @@ export default function CasesListView() {
 
   return (
     <div className="space-y-6">
+      <div className="flex flex-col items-center gap-6 mb-8">
+        <img 
+          src="/assets/image-1.png" 
+          alt="Surgery Case Log" 
+          className="h-24 w-24 rounded-2xl shadow-md"
+        />
+      </div>
+
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-3xl font-bold text-foreground">Surgery Cases</h2>

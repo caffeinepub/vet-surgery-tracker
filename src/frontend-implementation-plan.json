@@ -1,40 +1,92 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Remove app icon/logo",
+  "title": "Add logo to header, landing page, and app icon",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Remove the custom favicon link from frontend/index.html and revert to default/no favicon",
+      "summary": "Display the uploaded logo image (image-1.png) in the header/navigation bar",
       "acceptanceCriteria": [
-        "The custom favicon link tag is removed from frontend/index.html",
-        "No custom icon or logo is displayed in the browser tab"
+        "Logo appears in the header/navigation area",
+        "Logo is appropriately sized for the navigation bar",
+        "Logo is visible on all pages with the header"
       ],
       "file_operations": [
         {
-          "path": "frontend/index.html",
+          "path": "frontend/public/assets/image-1.png",
+          "operation": "create",
+          "description": "Copy the uploaded logo image-1.png to the public assets directory so it can be accessed as a static asset"
+        },
+        {
+          "path": "frontend/src/App.tsx",
           "operation": "modify",
-          "description": "Remove the custom favicon link tag that references the dog-and-cat icon. This will revert the browser tab to showing no custom icon (default browser behavior)."
+          "description": "Add a header/navigation bar component that displays the logo image from frontend/public/assets/image-1.png. Position the logo prominently in the navigation area with appropriate sizing (height around 40-48px). Ensure the header appears on all pages by placing it above the main content area."
         }
       ]
     },
     {
       "id": "REQ-2",
-      "summary": "Remove any generated icon/logo image files from frontend/public/assets/generated directory",
+      "summary": "Display the uploaded logo image (image-1.png) on the landing page",
       "acceptanceCriteria": [
-        "All custom icon/logo files are deleted from the assets directory",
-        "No orphaned image files remain"
+        "Logo appears on the landing page",
+        "Logo is prominently displayed and appropriately sized"
       ],
       "file_operations": [
         {
-          "path": "frontend/public/assets/generated/surgery-case-log-favicon.dim_64x64.png",
-          "operation": "delete",
-          "description": "Delete the generated favicon image file from the assets directory to remove all traces of the custom icon."
+          "path": "frontend/src/features/cases/components/CasesListView.tsx",
+          "operation": "modify",
+          "description": "Add the logo image from frontend/public/assets/image-1.png to the top of the cases list view as a hero/branding section. Display the logo prominently above the search bar and case grid with appropriate sizing (larger than header, e.g., 120-160px height) and centered alignment."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Set the uploaded logo image (image-1.png) as the app icon/favicon",
+      "acceptanceCriteria": [
+        "Favicon appears in browser tabs",
+        "Icon is properly formatted for browser display",
+        "Multiple favicon sizes are generated for different contexts (16x16, 32x32, etc.)"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/public/assets/generated/favicon-16x16.dim_16x16.png",
+          "operation": "create",
+          "description": "Reference the generated favicon at 16x16 size from frontend/public/assets/generated/favicon-16x16.dim_16x16.png as a static asset"
         },
         {
-          "path": "frontend/public/assets/generated/surgery-case-log-icon.dim_512x512.png",
-          "operation": "delete",
-          "description": "Delete the generated icon image file from the assets directory to ensure no orphaned logo files remain."
+          "path": "frontend/public/assets/generated/favicon-32x32.dim_32x32.png",
+          "operation": "create",
+          "description": "Reference the generated favicon at 32x32 size from frontend/public/assets/generated/favicon-32x32.dim_32x32.png as a static asset"
+        },
+        {
+          "path": "frontend/public/assets/generated/favicon-192x192.dim_192x192.png",
+          "operation": "create",
+          "description": "Reference the generated favicon at 192x192 size from frontend/public/assets/generated/favicon-192x192.dim_192x192.png as a static asset"
+        },
+        {
+          "path": "frontend/public/assets/generated/favicon-512x512.dim_512x512.png",
+          "operation": "create",
+          "description": "Reference the generated favicon at 512x512 size from frontend/public/assets/generated/favicon-512x512.dim_512x512.png as a static asset"
+        },
+        {
+          "path": "frontend/index.html",
+          "operation": "modify",
+          "description": "Add favicon link tags to the HTML head referencing the generated favicon files at frontend/public/assets/generated/favicon-16x16.dim_16x16.png, frontend/public/assets/generated/favicon-32x32.dim_32x32.png, frontend/public/assets/generated/favicon-192x192.dim_192x192.png, and frontend/public/assets/generated/favicon-512x512.dim_512x512.png. Include appropriate rel attributes (icon, apple-touch-icon) and sizes attributes for each favicon size to ensure proper display across different browsers and contexts."
+        }
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "summary": "Save the uploaded logo image (image-1.png) as a static asset in frontend/public/assets",
+      "acceptanceCriteria": [
+        "Logo is stored as a static asset",
+        "Logo file is accessible via public path"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/public/assets/image-1.png",
+          "operation": "create",
+          "description": "Store the uploaded logo image-1.png in the frontend/public/assets directory as a static asset that can be referenced throughout the application"
         }
       ]
     }

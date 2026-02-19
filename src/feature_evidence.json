@@ -2,10 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-remove-the-custom-favicon-link-from-frontend-index-html-and-revert-to-default-no-favicon",
-      "featureTitle": "Remove the custom favicon link from frontend/index.html and revert to default/no favicon",
+      "featureId": "feature-display-the-uploaded-logo-image-image-1-png-in-the-header-navigation-bar-of-the-application",
+      "featureTitle": "Display the uploaded logo image (image-1.png) in the header/navigation bar of the application",
       "files": [
-        "frontend/index.html"
+        "frontend/src/App.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -21,9 +21,11 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-remove-any-generated-icon-logo-image-files-from-frontend-public-assets-generated-directory",
-      "featureTitle": "Remove any generated icon/logo image files from frontend/public/assets/generated directory",
-      "files": [],
+      "featureId": "feature-display-the-uploaded-logo-image-image-1-png-on-the-landing-page-of-the-application",
+      "featureTitle": "Display the uploaded logo image (image-1.png) on the landing page of the application",
+      "files": [
+        "frontend/src/features/cases/components/CasesListView.tsx"
+      ],
       "components": [
         "authorization@4.0.0",
         "core-infrastructure@1.0.2",
@@ -34,6 +36,25 @@
       ],
       "testIds": [
         "REQ-2"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-set-the-uploaded-logo-image-image-1-png-as-the-app-icon-favicon",
+      "featureTitle": "Set the uploaded logo image (image-1.png) as the app icon/favicon",
+      "files": [
+        "frontend/index.html"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-3"
       ],
       "confidence": "high"
     }

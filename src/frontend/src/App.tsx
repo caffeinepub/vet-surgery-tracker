@@ -57,9 +57,9 @@ export default function App() {
             <div className="container mx-auto flex h-16 items-center justify-between px-4">
               <div className="flex items-center gap-3">
                 <img 
-                  src="/assets/generated/surgery-case-log-icon.dim_512x512.png" 
+                  src="/assets/image-1.png" 
                   alt="Surgery Case Log" 
-                  className="h-10 w-10"
+                  className="h-12 w-12 rounded-lg"
                 />
                 <h1 className="text-2xl font-bold text-foreground">Surgery Case Log</h1>
               </div>
@@ -69,9 +69,9 @@ export default function App() {
           <main className="flex flex-1 items-center justify-center px-4">
             <div className="max-w-md text-center">
               <img 
-                src="/assets/generated/surgery-case-log-icon.dim_512x512.png" 
+                src="/assets/image-1.png" 
                 alt="Surgery Case Log" 
-                className="mb-8 h-24 w-24 mx-auto"
+                className="mb-8 h-32 w-32 mx-auto rounded-2xl shadow-lg"
               />
               <h2 className="mb-4 text-3xl font-bold text-foreground">Welcome to Surgery Case Log</h2>
               <p className="mb-8 text-lg text-muted-foreground">
@@ -106,9 +106,9 @@ export default function App() {
           <div className="container mx-auto flex h-16 items-center justify-between px-4">
             <div className="flex items-center gap-3">
               <img 
-                src="/assets/generated/surgery-case-log-icon.dim_512x512.png" 
+                src="/assets/image-1.png" 
                 alt="Surgery Case Log" 
-                className="h-10 w-10"
+                className="h-12 w-12 rounded-lg"
               />
               <h1 className="text-2xl font-bold text-foreground">Surgery Case Log</h1>
             </div>

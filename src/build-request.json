@@ -1,54 +1,89 @@
 {
   "kind": "build_request",
-  "title": "Remove app icon/logo",
+  "title": "Add logo to header, landing page, and app icon",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Remove the custom favicon link from frontend/index.html and revert to default/no favicon",
+      "text": "Display the uploaded logo image (image-1.png) in the header/navigation bar of the application",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-latest"
         ],
         "quotes": [
-          "Remove icon/logo for the app"
+          "Display this image to the Header/Navigation bar"
         ]
       },
       "acceptanceCriteria": [
-        "The custom favicon link tag is removed from frontend/index.html",
-        "No custom icon or logo is displayed in the browser tab"
+        "Logo appears in the header/navigation area",
+        "Logo is appropriately sized for the navigation bar",
+        "Logo is visible on all pages with the header"
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Remove any generated icon/logo image files from frontend/public/assets/generated directory",
+      "text": "Display the uploaded logo image (image-1.png) on the landing page of the application",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-latest"
         ],
         "quotes": [
-          "Remove icon/logo for the app"
+          "Display this image to the Header/Navigation bar, the Landing page"
         ]
       },
       "acceptanceCriteria": [
-        "All custom icon/logo files are deleted from the assets directory",
-        "No orphaned image files remain"
+        "Logo appears on the landing page",
+        "Logo is prominently displayed and appropriately sized"
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Set the uploaded logo image (image-1.png) as the app icon/favicon",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-latest"
+        ],
+        "quotes": [
+          "Display this image to the Header/Navigation bar, the Landing page and teh App icon/favicon"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Favicon appears in browser tabs",
+        "Icon is properly formatted for browser display",
+        "Multiple favicon sizes are generated for different contexts (16x16, 32x32, etc.)"
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Save the uploaded logo image (image-1.png) as a static asset in frontend/public/assets",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-latest"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Logo is stored as a static asset",
+        "Logo file is accessible via public path"
       ]
     }
   ],
   "constraints": [
-    "Do not modify backend files",
-    "Preserve all other frontend functionality and styling"
+    "Do not modify backend code",
+    "Use the exact uploaded image (image-1.png) without modifications"
   ],
   "nonGoals": [
-    "Adding a new icon or logo",
-    "Changing the app title",
-    "Modifying any other visual elements"
+    "Creating new logo designs",
+    "Modifying the uploaded logo",
+    "Adding logo animation effects"
   ],
   "imageRequirements": {
-    "required": [],
+    "required": [
+      "App icon/favicon in multiple sizes: 16x16, 32x32, 192x192, 512x512 (favicon-16x16.dim_16x16.png, favicon-32x32.dim_32x32.png, favicon-192x192.dim_192x192.png, favicon-512x512.dim_512x512.png)"
+    ],
     "edits": []
   }
 }
