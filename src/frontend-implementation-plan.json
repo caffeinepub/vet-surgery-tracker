@@ -1,92 +1,65 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Add logo to header, landing page, and app icon",
+  "title": "Add sorting for case cards by arrival date and task status",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Display the uploaded logo image (image-1.png) in the header/navigation bar",
+      "summary": "Add a sorting control UI component to the CasesListView that allows users to select sort order with options: 'Arrival Date (Newest First)', 'Arrival Date (Oldest First)', 'Open Tasks (Most First)', and 'Open Tasks (Fewest First)'",
       "acceptanceCriteria": [
-        "Logo appears in the header/navigation area",
-        "Logo is appropriately sized for the navigation bar",
-        "Logo is visible on all pages with the header"
+        "A visible sort dropdown or button group appears above the case cards grid",
+        "Users can select between at least 4 sorting options",
+        "The selected sort option persists visually while active"
       ],
       "file_operations": [
         {
-          "path": "frontend/public/assets/image-1.png",
+          "path": "frontend/src/features/cases/components/CasesSortControl.tsx",
           "operation": "create",
-          "description": "Copy the uploaded logo image-1.png to the public assets directory so it can be accessed as a static asset"
+          "description": "Create a sorting control component using shadcn/ui Select component. Provide four sort options: 'Arrival Date (Newest First)', 'Arrival Date (Oldest First)', 'Open Tasks (Most First)', and 'Open Tasks (Fewest First)'. Accept onSortChange callback prop and current sortBy value prop. Use consistent styling with the existing search bar component."
         },
         {
-          "path": "frontend/src/App.tsx",
+          "path": "frontend/src/features/cases/components/CasesListView.tsx",
           "operation": "modify",
-          "description": "Add a header/navigation bar component that displays the logo image from frontend/public/assets/image-1.png. Position the logo prominently in the navigation area with appropriate sizing (height around 40-48px). Ensure the header appears on all pages by placing it above the main content area."
+          "description": "Add the CasesSortControl component above the case cards grid, positioned next to the existing CasesSearchBar. Add state to track the current sort selection. Wire the sort control's callback to update the sort state."
         }
       ]
     },
     {
       "id": "REQ-2",
-      "summary": "Display the uploaded logo image (image-1.png) on the landing page",
+      "summary": "Implement sorting logic that reorders the displayed case cards based on the selected sort option, using the arrivalDate field for date sorting and counting uncompleted checklist items for task status sorting",
       "acceptanceCriteria": [
-        "Logo appears on the landing page",
-        "Logo is prominently displayed and appropriately sized"
+        "Cases sort correctly by arrival date in ascending and descending order",
+        "Cases sort correctly by number of open (uncompleted) checklist tasks in ascending and descending order",
+        "Sorting updates immediately when the user changes the selection",
+        "Sorting works correctly with the existing search filter"
       ],
       "file_operations": [
         {
+          "path": "frontend/src/features/cases/sorting.ts",
+          "operation": "create",
+          "description": "Create sorting utility functions. Define a SortOption type with values 'arrival-date-newest', 'arrival-date-oldest', 'open-tasks-most', 'open-tasks-fewest'. Implement a sortCases function that accepts an array of SurgeryCase objects and a SortOption, returning a sorted array. For arrival date sorting, compare arrivalDate timestamps. For task status sorting, count uncompleted checklist items using the getRemainingChecklistItems function from frontend/src/features/cases/checklist.ts and compare counts. Use stable sorting to maintain relative order for equal values."
+        },
+        {
           "path": "frontend/src/features/cases/components/CasesListView.tsx",
           "operation": "modify",
-          "description": "Add the logo image from frontend/public/assets/image-1.png to the top of the cases list view as a hero/branding section. Display the logo prominently above the search bar and case grid with appropriate sizing (larger than header, e.g., 120-160px height) and centered alignment."
+          "description": "Import the sortCases function from frontend/src/features/cases/sorting.ts. Apply sorting after search filtering but before rendering the case cards grid. Pass the filtered cases and the current sort state to sortCases and use the sorted result for rendering. Ensure sorting updates immediately when the sort selection changes."
         }
       ]
     },
     {
       "id": "REQ-3",
-      "summary": "Set the uploaded logo image (image-1.png) as the app icon/favicon",
+      "summary": "Ensure the sorting persists when users perform other actions like searching, creating new cases, updating cases, or toggling checklist items",
       "acceptanceCriteria": [
-        "Favicon appears in browser tabs",
-        "Icon is properly formatted for browser display",
-        "Multiple favicon sizes are generated for different contexts (16x16, 32x32, etc.)"
+        "The selected sort order remains active after search queries change",
+        "Cases automatically re-sort when checklist items are toggled",
+        "New cases appear in the correct sorted position",
+        "Updated cases move to the correct sorted position"
       ],
       "file_operations": [
         {
-          "path": "frontend/public/assets/generated/favicon-16x16.dim_16x16.png",
-          "operation": "create",
-          "description": "Reference the generated favicon at 16x16 size from frontend/public/assets/generated/favicon-16x16.dim_16x16.png as a static asset"
-        },
-        {
-          "path": "frontend/public/assets/generated/favicon-32x32.dim_32x32.png",
-          "operation": "create",
-          "description": "Reference the generated favicon at 32x32 size from frontend/public/assets/generated/favicon-32x32.dim_32x32.png as a static asset"
-        },
-        {
-          "path": "frontend/public/assets/generated/favicon-192x192.dim_192x192.png",
-          "operation": "create",
-          "description": "Reference the generated favicon at 192x192 size from frontend/public/assets/generated/favicon-192x192.dim_192x192.png as a static asset"
-        },
-        {
-          "path": "frontend/public/assets/generated/favicon-512x512.dim_512x512.png",
-          "operation": "create",
-          "description": "Reference the generated favicon at 512x512 size from frontend/public/assets/generated/favicon-512x512.dim_512x512.png as a static asset"
-        },
-        {
-          "path": "frontend/index.html",
+          "path": "frontend/src/features/cases/components/CasesListView.tsx",
           "operation": "modify",
-          "description": "Add favicon link tags to the HTML head referencing the generated favicon files at frontend/public/assets/generated/favicon-16x16.dim_16x16.png, frontend/public/assets/generated/favicon-32x32.dim_32x32.png, frontend/public/assets/generated/favicon-192x192.dim_192x192.png, and frontend/public/assets/generated/favicon-512x512.dim_512x512.png. Include appropriate rel attributes (icon, apple-touch-icon) and sizes attributes for each favicon size to ensure proper display across different browsers and contexts."
-        }
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "summary": "Save the uploaded logo image (image-1.png) as a static asset in frontend/public/assets",
-      "acceptanceCriteria": [
-        "Logo is stored as a static asset",
-        "Logo file is accessible via public path"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/public/assets/image-1.png",
-          "operation": "create",
-          "description": "Store the uploaded logo image-1.png in the frontend/public/assets directory as a static asset that can be referenced throughout the application"
+          "description": "Ensure the sort state is maintained independently from search state. When cases data is refetched due to mutations (create, update, delete, checklist toggle), reapply the current sort order to the updated case list. The sorting logic should run whenever the cases data changes or when the sort selection changes, ensuring cases always appear in the correct sorted position."
         }
       ]
     }

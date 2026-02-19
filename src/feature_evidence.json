@@ -2,10 +2,11 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-display-the-uploaded-logo-image-image-1-png-in-the-header-navigation-bar-of-the-application",
-      "featureTitle": "Display the uploaded logo image (image-1.png) in the header/navigation bar of the application",
+      "featureId": "feature-add-a-sorting-control-ui-component-to-the-caseslistview-that-allows-users-to-select-sort-order-with-options-arrival-date-newest-first-arrival-date-oldest-first-open-tasks-most-first-and-open-tasks-fewest-first",
+      "featureTitle": "Add a sorting control UI component to the CasesListView that allows users to select sort order with options: 'Arrival Date (Newest First)', 'Arrival Date (Oldest First)', 'Open Tasks (Most First)', and 'Open Tasks (Fewest First)'",
       "files": [
-        "frontend/src/App.tsx"
+        "frontend/src/features/cases/components/CasesListView.tsx",
+        "frontend/src/features/cases/components/CasesSortControl.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -21,10 +22,11 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-display-the-uploaded-logo-image-image-1-png-on-the-landing-page-of-the-application",
-      "featureTitle": "Display the uploaded logo image (image-1.png) on the landing page of the application",
+      "featureId": "feature-implement-sorting-logic-that-reorders-the-displayed-case-cards-based-on-the-selected-sort-option-using-the-arrivaldate-field-for-date-sorting-and-counting-uncompleted-checklist-items-for-task-status-sorting",
+      "featureTitle": "Implement sorting logic that reorders the displayed case cards based on the selected sort option, using the arrivalDate field for date sorting and counting uncompleted checklist items for task status sorting",
       "files": [
-        "frontend/src/features/cases/components/CasesListView.tsx"
+        "frontend/src/features/cases/components/CasesListView.tsx",
+        "frontend/src/features/cases/sorting.ts"
       ],
       "components": [
         "authorization@4.0.0",
@@ -40,10 +42,10 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-set-the-uploaded-logo-image-image-1-png-as-the-app-icon-favicon",
-      "featureTitle": "Set the uploaded logo image (image-1.png) as the app icon/favicon",
+      "featureId": "feature-ensure-the-sorting-persists-when-users-perform-other-actions-like-searching-creating-new-cases-updating-cases-or-toggling-checklist-items",
+      "featureTitle": "Ensure the sorting persists when users perform other actions like searching, creating new cases, updating cases, or toggling checklist items",
       "files": [
-        "frontend/index.html"
+        "frontend/src/features/cases/components/CasesListView.tsx"
       ],
       "components": [
         "authorization@4.0.0",

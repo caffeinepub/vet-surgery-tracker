@@ -3,17 +3,22 @@ import { useGetAllCases } from '../../../hooks/useQueries';
 import CaseCard from './CaseCard';
 import CaseFormDialog from './CaseFormDialog';
 import CasesSearchBar from './CasesSearchBar';
+import CasesSortControl from './CasesSortControl';
 import CsvImportExportPanel from './CsvImportExportPanel';
 import { searchCases } from '../search';
+import { sortCases, type SortOption } from '../sorting';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 
 export default function CasesListView() {
   const { data: cases = [], isLoading } = useGetAllCases();
   const [searchQuery, setSearchQuery] = useState('');
+  const [sortOption, setSortOption] = useState<SortOption>('arrival-date-newest');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
+  // Apply search filter first, then sort
   const filteredCases = searchCases(cases, searchQuery);
+  const sortedCases = sortCases(filteredCases, sortOption);
 
   if (isLoading) {
     return (
@@ -49,14 +54,17 @@ export default function CasesListView() {
         </Button>
       </div>
 
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <div className="flex-1 max-w-2xl">
-          <CasesSearchBar value={searchQuery} onChange={setSearchQuery} />
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center flex-1 max-w-3xl">
+          <div className="flex-1">
+            <CasesSearchBar value={searchQuery} onChange={setSearchQuery} />
+          </div>
+          <CasesSortControl value={sortOption} onSortChange={setSortOption} />
         </div>
         <CsvImportExportPanel cases={cases} />
       </div>
 
-      {filteredCases.length === 0 ? (
+      {sortedCases.length === 0 ? (
         <div className="text-center py-12 bg-card rounded-lg border-2 border-dashed">
           <div className="text-6xl mb-4">🔍</div>
           <h3 className="text-xl font-semibold text-foreground mb-2">
@@ -76,7 +84,7 @@ export default function CasesListView() {
         </div>
       ) : (
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-          {filteredCases.map((surgeryCase) => (
+          {sortedCases.map((surgeryCase) => (
             <CaseCard key={surgeryCase.id.toString()} surgeryCase={surgeryCase} />
           ))}
         </div>

@@ -1,64 +1,48 @@
 {
   "kind": "build_request",
-  "title": "Add logo to header, landing page, and app icon",
+  "title": "Add sorting for case cards by arrival date and task status",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Display the uploaded logo image (image-1.png) in the header/navigation bar of the application",
+      "text": "Add a sorting control UI component to the CasesListView that allows users to select sort order with options: 'Arrival Date (Newest First)', 'Arrival Date (Oldest First)', 'Open Tasks (Most First)', and 'Open Tasks (Fewest First)'",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-latest"
         ],
         "quotes": [
-          "Display this image to the Header/Navigation bar"
+          "Add a method to sort the case cards by arrival date and task status/open tasks"
         ]
       },
       "acceptanceCriteria": [
-        "Logo appears in the header/navigation area",
-        "Logo is appropriately sized for the navigation bar",
-        "Logo is visible on all pages with the header"
+        "A visible sort dropdown or button group appears above the case cards grid",
+        "Users can select between at least 4 sorting options",
+        "The selected sort option persists visually while active"
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Display the uploaded logo image (image-1.png) on the landing page of the application",
+      "text": "Implement sorting logic that reorders the displayed case cards based on the selected sort option, using the arrivalDate field for date sorting and counting uncompleted checklist items for task status sorting",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-latest"
         ],
         "quotes": [
-          "Display this image to the Header/Navigation bar, the Landing page"
+          "Add a method to sort the case cards by arrival date and task status/open tasks"
         ]
       },
       "acceptanceCriteria": [
-        "Logo appears on the landing page",
-        "Logo is prominently displayed and appropriately sized"
+        "Cases sort correctly by arrival date in ascending and descending order",
+        "Cases sort correctly by number of open (uncompleted) checklist tasks in ascending and descending order",
+        "Sorting updates immediately when the user changes the selection",
+        "Sorting works correctly with the existing search filter"
       ]
     },
     {
       "id": "REQ-3",
-      "text": "Set the uploaded logo image (image-1.png) as the app icon/favicon",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-latest"
-        ],
-        "quotes": [
-          "Display this image to the Header/Navigation bar, the Landing page and teh App icon/favicon"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Favicon appears in browser tabs",
-        "Icon is properly formatted for browser display",
-        "Multiple favicon sizes are generated for different contexts (16x16, 32x32, etc.)"
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "text": "Save the uploaded logo image (image-1.png) as a static asset in frontend/public/assets",
+      "text": "Ensure the sorting persists when users perform other actions like searching, creating new cases, updating cases, or toggling checklist items",
       "target": "frontend",
       "source": {
         "messageIds": [
@@ -66,24 +50,25 @@
         ]
       },
       "acceptanceCriteria": [
-        "Logo is stored as a static asset",
-        "Logo file is accessible via public path"
+        "The selected sort order remains active after search queries change",
+        "Cases automatically re-sort when checklist items are toggled",
+        "New cases appear in the correct sorted position",
+        "Updated cases move to the correct sorted position"
       ]
     }
   ],
   "constraints": [
-    "Do not modify backend code",
-    "Use the exact uploaded image (image-1.png) without modifications"
+    "Do not modify the backend schema or add new backend endpoints",
+    "Preserve the existing grid layout and CaseCard component structure",
+    "Maintain compatibility with existing search and CSV import/export functionality"
   ],
   "nonGoals": [
-    "Creating new logo designs",
-    "Modifying the uploaded logo",
-    "Adding logo animation effects"
+    "Sorting by other fields like species, sex, or owner name",
+    "Saving user's preferred sort order across sessions",
+    "Multi-field sorting (e.g., first by date, then by tasks)"
   ],
   "imageRequirements": {
-    "required": [
-      "App icon/favicon in multiple sizes: 16x16, 32x32, 192x192, 512x512 (favicon-16x16.dim_16x16.png, favicon-32x32.dim_32x32.png, favicon-192x192.dim_192x192.png, favicon-512x512.dim_512x512.png)"
-    ],
+    "required": [],
     "edits": []
   }
 }
