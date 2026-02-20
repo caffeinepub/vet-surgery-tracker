@@ -4,14 +4,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useGetOpenAIConfig, useSetOpenAIConfig, useValidateOpenAIConfig } from '../../../hooks/useQueries';
+import { useGetOpenAIConfig, useSaveOpenAIConfig, useValidateOpenAIConfig } from '../../../hooks/useQueries';
 import { toast } from 'sonner';
 import { Sparkles, AlertCircle, CheckCircle2, Eye, EyeOff } from 'lucide-react';
 
 export default function SettingsView() {
   const { data: openAIConfig, isLoading: configLoading } = useGetOpenAIConfig();
   const { data: isConfigValid, isLoading: validationLoading } = useValidateOpenAIConfig();
-  const setOpenAIConfig = useSetOpenAIConfig();
+  const saveOpenAIConfig = useSaveOpenAIConfig();
 
   const [apiKey, setApiKey] = useState('');
   const [showApiKey, setShowApiKey] = useState(false);
@@ -23,7 +23,7 @@ export default function SettingsView() {
     }
 
     try {
-      await setOpenAIConfig.mutateAsync(apiKey.trim());
+      await saveOpenAIConfig.mutateAsync(apiKey.trim());
       toast.success('OpenAI API key saved successfully');
       setApiKey('');
     } catch (error) {
@@ -99,9 +99,9 @@ export default function SettingsView() {
               </div>
               <Button
                 onClick={handleSave}
-                disabled={setOpenAIConfig.isPending || !apiKey.trim()}
+                disabled={saveOpenAIConfig.isPending || !apiKey.trim()}
               >
-                {setOpenAIConfig.isPending ? 'Saving...' : 'Save'}
+                {saveOpenAIConfig.isPending ? 'Saving...' : 'Save'}
               </Button>
             </div>
             <p className="text-xs text-muted-foreground">

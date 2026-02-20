@@ -1,79 +1,65 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Fix backend actor availability issue preventing case creation",
+  "title": "Add task checklist selection during case creation",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Diagnose and fix the backend actor initialization issue that prevents the actor from being available when users attempt to add cases through the web interface",
+      "summary": "Add checkboxes to the case creation form for seven task items with default states",
       "acceptanceCriteria": [
-        "Backend actor successfully initializes and becomes available after login",
-        "Users can create new cases without encountering 'actor not available' errors",
-        "Actor connection is maintained throughout the user session"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/App.tsx",
-          "operation": "modify",
-          "description": "Add actor availability check before rendering the main application content. Display a loading state while the actor is initializing, and show an error state with retry mechanism if actor initialization fails. Ensure the profile setup modal and main views only render when the actor is confirmed available and not in a fetching state."
-        }
-      ]
-    },
-    {
-      "id": "REQ-2",
-      "summary": "Verify that the useActor hook properly recreates the actor instance when the Internet Identity authentication state changes",
-      "acceptanceCriteria": [
-        "Actor is recreated immediately after successful authentication",
-        "React Query cache is properly invalidated when actor changes",
-        "No race conditions occur between authentication and actor initialization"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/hooks/useQueries.ts",
-          "operation": "modify",
-          "description": "Update all query hooks (useGetCallerUserProfile, useIsCallerAdmin, useGetAllCases, etc.) to include actorFetching state from useActor in their enabled conditions. Ensure queries wait for both actor availability and completion of actor initialization (i.e., enabled: !!actor && !actorFetching) to prevent premature query execution during actor recreation."
-        }
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "summary": "Add error boundary and user-friendly error messaging for backend actor connection failures with retry mechanism",
-      "acceptanceCriteria": [
-        "Clear error message displays when backend actor is unavailable",
-        "Users can trigger a manual retry to reconnect to the backend",
-        "Loading states accurately reflect actor initialization status"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/ActorErrorBoundary.tsx",
-          "operation": "create",
-          "description": "Create a new component that wraps the application content and displays user-friendly error messages when the backend actor fails to initialize. Include a retry button that re-triggers actor initialization by clearing the React Query cache and calling the login flow again. Show different messages for different error types (network errors, authentication errors, timeout errors). Display a loading spinner during actor initialization and retry attempts."
-        },
-        {
-          "path": "frontend/src/App.tsx",
-          "operation": "modify",
-          "description": "Wrap the main application content with the ActorErrorBoundary component to catch and display actor initialization errors. Pass actor, isFetching, and error state from useActor to the error boundary. Ensure the error boundary displays before any queries are attempted."
-        }
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "summary": "Ensure the CaseFormDialog component properly waits for actor availability before attempting to create cases",
-      "acceptanceCriteria": [
-        "Form submission is disabled when actor is unavailable",
-        "Form displays loading or disabled state during actor initialization",
-        "Case creation mutation only executes when actor is confirmed available"
+        "Case creation form displays all seven task checkboxes",
+        "Discharge Notes and pDVM Notified are checked by default",
+        "Labs, Histo, Surgery Report, Imaging, and Culture are unchecked by default",
+        "User can toggle any checkbox before submitting the case"
       ],
       "file_operations": [
         {
           "path": "frontend/src/features/cases/components/CaseFormDialog.tsx",
           "operation": "modify",
-          "description": "Add actor availability and fetching state checks from useActor hook. Disable the form submit button when actor is unavailable or still initializing (isFetching). Display a loading indicator or disabled state message within the dialog when the actor is not ready. Ensure the createCase and updateCase mutations from useQueries only execute when actor is confirmed available. Add a check at the start of the form submission handler to prevent submission if actor is null or isFetching is true."
+          "description": "Add ChecklistEditor component to the case creation/edit form. Initialize completedTasks state with default values (dischargeNotes: false, pdvmNotified: false, labs: false, histo: false, surgeryReport: false, imaging: false, culture: false). Pass completedTasks and onChange handler to ChecklistEditor. Ensure the completedTasks data is included when calling createCase or updateCase mutations."
         },
         {
-          "path": "frontend/src/features/cases/components/CasesListView.tsx",
+          "path": "frontend/src/features/cases/components/ChecklistEditor.tsx",
           "operation": "modify",
-          "description": "Add actor availability check from useActor hook. Disable the 'New Case' button when actor is unavailable or still initializing (isFetching). Show a tooltip or disabled state message indicating the backend is initializing if the user hovers over the disabled button. Ensure the button only becomes clickable after actor initialization is complete."
+          "description": "Update ChecklistEditor to accept an optional 'mode' prop that distinguishes between 'creation' and 'completion' modes. In 'creation' mode, display checkboxes for selecting which tasks to include in the case (default unchecked state). In 'completion' mode (default), use existing behavior for marking tasks as complete. Update checkbox labels and help text accordingly. Remove the disabled prop requirement for creation mode."
+        }
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "summary": "Store only the tasks that were checked during case creation in the case data structure",
+      "acceptanceCriteria": [
+        "Backend SurgeryCase type stores only the selected tasks",
+        "Unchecked tasks during creation are not stored in the case",
+        "Selected tasks are persisted correctly when creating a new case"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/features/cases/components/CaseFormDialog.tsx",
+          "operation": "modify",
+          "description": "Transform the completedTasks object before sending to backend. Filter out tasks that were not selected during creation (set their values to exclude them from the stored structure). Ensure the createCase mutation receives only the selected tasks in the completedTasks parameter."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Display only the tasks that were selected during case creation on the case card as open checkboxes that can be marked as complete",
+      "acceptanceCriteria": [
+        "Case card shows only the tasks that were selected during creation",
+        "Each displayed task appears as an unchecked checkbox initially",
+        "Tasks not selected during creation do not appear on the case card",
+        "Users can check off tasks as they complete them"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/features/cases/components/CaseCard.tsx",
+          "operation": "modify",
+          "description": "Update the checklist rendering logic to only display tasks that exist in the case's completedTasks object (were selected during creation). Filter the checklist items to show only those present in the case data. Ensure the completion checkboxes continue to work for the filtered list of tasks."
+        },
+        {
+          "path": "frontend/src/features/cases/checklist.ts",
+          "operation": "modify",
+          "description": "Add a utility function to get only the selected checklist items from a CompletedTasks object. This function should return an array of ChecklistItem objects that correspond to tasks that were selected during case creation (exist in the completedTasks structure). Update getRemainingItems to work with filtered task lists."
         }
       ]
     }

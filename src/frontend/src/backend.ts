@@ -89,6 +89,15 @@ export class ExternalBlob {
         return this;
     }
 }
+export interface CompletedTasks {
+    pdvmNotified: boolean;
+    histo: boolean;
+    labs: boolean;
+    culture: boolean;
+    surgeryReport: boolean;
+    imaging: boolean;
+    dischargeNotes: boolean;
+}
 export type Time = bigint;
 export interface OpenAIConfig {
     initialized: boolean;
@@ -98,24 +107,15 @@ export interface SurgeryCase {
     id: bigint;
     sex: Sex;
     arrivalDate: Time;
+    completedTasks: CompletedTasks;
     presentingComplaint: string;
     dateOfBirth?: Time;
     medicalRecordNumber: string;
     petName: string;
     notes: string;
-    checklist: Checklist;
     ownerLastName: string;
     breed: string;
     species: Species;
-}
-export interface Checklist {
-    pdvmNotified: boolean;
-    histo: boolean;
-    labs: boolean;
-    culture: boolean;
-    surgeryReport: boolean;
-    imaging: boolean;
-    dischargeNotes: boolean;
 }
 export interface UserProfile {
     name: string;
@@ -139,7 +139,7 @@ export enum UserRole {
 export interface backendInterface {
     _initializeAccessControlWithSecret(userSecret: string): Promise<void>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
-    createCase(medicalRecordNumber: string, arrivalDate: Time, petName: string, ownerLastName: string, species: Species, breed: string, sex: Sex, dateOfBirth: Time | null, presentingComplaint: string, notes: string, checklist: Checklist): Promise<SurgeryCase>;
+    createCase(medicalRecordNumber: string, arrivalDate: Time, petName: string, ownerLastName: string, species: Species, breed: string, sex: Sex, dateOfBirth: Time | null, presentingComplaint: string, notes: string, completedTasks: CompletedTasks): Promise<SurgeryCase>;
     deleteCase(id: bigint): Promise<void>;
     getAllCases(): Promise<Array<SurgeryCase>>;
     getCallerUserProfile(): Promise<UserProfile | null>;
@@ -147,7 +147,7 @@ export interface backendInterface {
     getCase(id: bigint): Promise<SurgeryCase>;
     getCaseByMedicalRecordNumber(medicalRecordNumber: string): Promise<SurgeryCase | null>;
     getCasesByOwner(ownerLastName: string): Promise<Array<SurgeryCase>>;
-    getChecklist(id: bigint): Promise<Checklist>;
+    getCompletedTasks(id: bigint): Promise<CompletedTasks>;
     getOpenAIConfig(): Promise<OpenAIConfig | null>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
     isCallerAdmin(): Promise<boolean>;
@@ -155,12 +155,12 @@ export interface backendInterface {
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     searchCasesByMedicalRecordNumber(searchTerm: string): Promise<Array<SurgeryCase>>;
     setOpenAIConfig(apiKey: string): Promise<void>;
-    updateCase(id: bigint, medicalRecordNumber: string, arrivalDate: Time, petName: string, ownerLastName: string, species: Species, breed: string, sex: Sex, dateOfBirth: Time | null, presentingComplaint: string, notes: string, checklist: Checklist): Promise<void>;
+    updateCase(id: bigint, medicalRecordNumber: string, arrivalDate: Time, petName: string, ownerLastName: string, species: Species, breed: string, sex: Sex, dateOfBirth: Time | null, presentingComplaint: string, notes: string, completedTasks: CompletedTasks): Promise<void>;
     updateCaseNotes(id: bigint, notes: string): Promise<void>;
-    updateChecklist(id: bigint, checklist: Checklist): Promise<void>;
+    updateCompletedTasks(id: bigint, completedTasks: CompletedTasks): Promise<void>;
     validateOpenAIConfig(): Promise<boolean>;
 }
-import type { Checklist as _Checklist, OpenAIConfig as _OpenAIConfig, Sex as _Sex, Species as _Species, SurgeryCase as _SurgeryCase, Time as _Time, UserProfile as _UserProfile, UserRole as _UserRole } from "./declarations/backend.did.d.ts";
+import type { CompletedTasks as _CompletedTasks, OpenAIConfig as _OpenAIConfig, Sex as _Sex, Species as _Species, SurgeryCase as _SurgeryCase, Time as _Time, UserProfile as _UserProfile, UserRole as _UserRole } from "./declarations/backend.did.d.ts";
 export class Backend implements backendInterface {
     constructor(private actor: ActorSubclass<_SERVICE>, private _uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, private _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, private processError?: (error: unknown) => never){}
     async _initializeAccessControlWithSecret(arg0: string): Promise<void> {
@@ -191,7 +191,7 @@ export class Backend implements backendInterface {
             return result;
         }
     }
-    async createCase(arg0: string, arg1: Time, arg2: string, arg3: string, arg4: Species, arg5: string, arg6: Sex, arg7: Time | null, arg8: string, arg9: string, arg10: Checklist): Promise<SurgeryCase> {
+    async createCase(arg0: string, arg1: Time, arg2: string, arg3: string, arg4: Species, arg5: string, arg6: Sex, arg7: Time | null, arg8: string, arg9: string, arg10: CompletedTasks): Promise<SurgeryCase> {
         if (this.processError) {
             try {
                 const result = await this.actor.createCase(arg0, arg1, arg2, arg3, to_candid_Species_n3(this._uploadFile, this._downloadFile, arg4), arg5, to_candid_Sex_n5(this._uploadFile, this._downloadFile, arg6), to_candid_opt_n7(this._uploadFile, this._downloadFile, arg7), arg8, arg9, arg10);
@@ -303,17 +303,17 @@ export class Backend implements backendInterface {
             return from_candid_vec_n15(this._uploadFile, this._downloadFile, result);
         }
     }
-    async getChecklist(arg0: bigint): Promise<Checklist> {
+    async getCompletedTasks(arg0: bigint): Promise<CompletedTasks> {
         if (this.processError) {
             try {
-                const result = await this.actor.getChecklist(arg0);
+                const result = await this.actor.getCompletedTasks(arg0);
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.getChecklist(arg0);
+            const result = await this.actor.getCompletedTasks(arg0);
             return result;
         }
     }
@@ -415,7 +415,7 @@ export class Backend implements backendInterface {
             return result;
         }
     }
-    async updateCase(arg0: bigint, arg1: string, arg2: Time, arg3: string, arg4: string, arg5: Species, arg6: string, arg7: Sex, arg8: Time | null, arg9: string, arg10: string, arg11: Checklist): Promise<void> {
+    async updateCase(arg0: bigint, arg1: string, arg2: Time, arg3: string, arg4: string, arg5: Species, arg6: string, arg7: Sex, arg8: Time | null, arg9: string, arg10: string, arg11: CompletedTasks): Promise<void> {
         if (this.processError) {
             try {
                 const result = await this.actor.updateCase(arg0, arg1, arg2, arg3, arg4, to_candid_Species_n3(this._uploadFile, this._downloadFile, arg5), arg6, to_candid_Sex_n5(this._uploadFile, this._downloadFile, arg7), to_candid_opt_n7(this._uploadFile, this._downloadFile, arg8), arg9, arg10, arg11);
@@ -443,17 +443,17 @@ export class Backend implements backendInterface {
             return result;
         }
     }
-    async updateChecklist(arg0: bigint, arg1: Checklist): Promise<void> {
+    async updateCompletedTasks(arg0: bigint, arg1: CompletedTasks): Promise<void> {
         if (this.processError) {
             try {
-                const result = await this.actor.updateChecklist(arg0, arg1);
+                const result = await this.actor.updateCompletedTasks(arg0, arg1);
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.updateChecklist(arg0, arg1);
+            const result = await this.actor.updateCompletedTasks(arg0, arg1);
             return result;
         }
     }
@@ -500,12 +500,12 @@ function from_candid_record_n9(_uploadFile: (file: ExternalBlob) => Promise<Uint
     id: bigint;
     sex: _Sex;
     arrivalDate: _Time;
+    completedTasks: _CompletedTasks;
     presentingComplaint: string;
     dateOfBirth: [] | [_Time];
     medicalRecordNumber: string;
     petName: string;
     notes: string;
-    checklist: _Checklist;
     ownerLastName: string;
     breed: string;
     species: _Species;
@@ -513,12 +513,12 @@ function from_candid_record_n9(_uploadFile: (file: ExternalBlob) => Promise<Uint
     id: bigint;
     sex: Sex;
     arrivalDate: Time;
+    completedTasks: CompletedTasks;
     presentingComplaint: string;
     dateOfBirth?: Time;
     medicalRecordNumber: string;
     petName: string;
     notes: string;
-    checklist: Checklist;
     ownerLastName: string;
     breed: string;
     species: Species;
@@ -527,12 +527,12 @@ function from_candid_record_n9(_uploadFile: (file: ExternalBlob) => Promise<Uint
         id: value.id,
         sex: from_candid_Sex_n10(_uploadFile, _downloadFile, value.sex),
         arrivalDate: value.arrivalDate,
+        completedTasks: value.completedTasks,
         presentingComplaint: value.presentingComplaint,
         dateOfBirth: record_opt_to_undefined(from_candid_opt_n12(_uploadFile, _downloadFile, value.dateOfBirth)),
         medicalRecordNumber: value.medicalRecordNumber,
         petName: value.petName,
         notes: value.notes,
-        checklist: value.checklist,
         ownerLastName: value.ownerLastName,
         breed: value.breed,
         species: from_candid_Species_n13(_uploadFile, _downloadFile, value.species)

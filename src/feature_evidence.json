@@ -2,10 +2,11 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-diagnose-and-fix-the-backend-actor-initialization-issue-that-prevents-the-actor-from-being-available-when-users-attempt-to-add-cases-through-the-web-interface",
-      "featureTitle": "Diagnose and fix the backend actor initialization issue that prevents the actor from being available when users attempt to add cases through the web interface",
+      "featureId": "feature-add-checkboxes-to-the-case-creation-form-for-seven-task-items-discharge-notes-default-checked-pdvm-notified-default-checked-labs-default-unchecked-histo-default-unchecked-surgery-report-default-unchecked-imaging-default-unchecked-culture-default-unchecked",
+      "featureTitle": "Add checkboxes to the case creation form for seven task items: Discharge Notes (default checked), pDVM Notified (default checked), Labs (default unchecked), Histo (default unchecked), Surgery Report (default unchecked), Imaging (default unchecked), Culture (default unchecked)",
       "files": [
-        "frontend/src/App.tsx"
+        "frontend/src/features/cases/components/CaseFormDialog.tsx",
+        "frontend/src/features/cases/components/ChecklistEditor.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -23,10 +24,32 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-add-error-boundary-and-user-friendly-error-messaging-for-backend-actor-connection-failures-with-retry-mechanism",
-      "featureTitle": "Add error boundary and user-friendly error messaging for backend actor connection failures with retry mechanism",
+      "featureId": "feature-store-only-the-tasks-that-were-checked-during-case-creation-in-the-case-data-structure",
+      "featureTitle": "Store only the tasks that were checked during case creation in the case data structure",
       "files": [
-        "frontend/src/App.tsx"
+        "frontend/src/features/cases/components/CaseFormDialog.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "camera@1.0.0",
+        "http-outcalls@3.0.0"
+      ],
+      "testIds": [
+        "REQ-2"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-display-only-the-tasks-that-were-selected-during-case-creation-on-the-case-card-as-open-checkboxes-that-can-be-marked-as-complete",
+      "featureTitle": "Display only the tasks that were selected during case creation on the case card as open checkboxes that can be marked as complete",
+      "files": [
+        "frontend/src/features/cases/checklist.ts",
+        "frontend/src/features/cases/components/CaseCard.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -40,28 +63,6 @@
       ],
       "testIds": [
         "REQ-3"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-ensure-the-caseformdialog-component-properly-waits-for-actor-availability-before-attempting-to-create-cases",
-      "featureTitle": "Ensure the CaseFormDialog component properly waits for actor availability before attempting to create cases",
-      "files": [
-        "frontend/src/features/cases/components/CaseFormDialog.tsx",
-        "frontend/src/features/cases/components/CasesListView.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "camera@1.0.0",
-        "http-outcalls@3.0.0"
-      ],
-      "testIds": [
-        "REQ-4"
       ],
       "confidence": "high"
     }

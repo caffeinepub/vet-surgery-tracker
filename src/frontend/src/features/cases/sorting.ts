@@ -20,7 +20,7 @@ export const SORT_OPTIONS: SortOptionConfig[] = [
 ];
 
 function countOpenTasks(surgeryCase: SurgeryCase): number {
-  return getRemainingItems(surgeryCase.checklist).length;
+  return getRemainingItems(surgeryCase.completedTasks).length;
 }
 
 export function sortCases(cases: SurgeryCase[], sortOption: SortOption): SurgeryCase[] {

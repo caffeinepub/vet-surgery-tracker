@@ -13,13 +13,13 @@ import { useActor } from '../../../hooks/useActor';
 import { useDebouncedValue } from '../../../hooks/useDebouncedValue';
 import { SPECIES_OPTIONS, SEX_OPTIONS } from '../types';
 import type { CaseFormData } from '../types';
-import { getDefaultChecklist } from '../checklist';
+import { getDefaultTaskSelection } from '../checklist';
 import { dateToNanoseconds, nanosecondsToDate, validateMedicalRecordNumber, validatePetName, validateOwnerLastName, validateBreed } from '../validation';
 import { parseStructuredText } from '../parsing/parseStructuredText';
 import { toast } from 'sonner';
 import DateField from './DateField';
 import ChecklistEditor from './ChecklistEditor';
-import type { Checklist } from '../../../backend';
+import type { CompletedTasks } from '../../../backend';
 import { ChevronDown, Sparkles, AlertCircle, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -45,7 +45,9 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
   const [dateOfBirth, setDateOfBirth] = useState<Date | null>(null);
   const [presentingComplaint, setPresentingComplaint] = useState('');
   const [notes, setNotes] = useState('');
-  const [checklist, setChecklist] = useState<Checklist>(getDefaultChecklist());
+  
+  // Task selection state - tracks which tasks to include in the case
+  const [taskSelection, setTaskSelection] = useState<CompletedTasks>(getDefaultTaskSelection());
 
   // AI parsing state
   const [structuredText, setStructuredText] = useState('');
@@ -128,7 +130,7 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
       setDateOfBirth(existingCase.dateOfBirth ? nanosecondsToDate(existingCase.dateOfBirth) : null);
       setPresentingComplaint(existingCase.presentingComplaint);
       setNotes(existingCase.notes);
-      setChecklist(existingCase.checklist);
+      setTaskSelection(existingCase.completedTasks);
     }
   }, [existingCase]);
 
@@ -146,7 +148,7 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
         setDateOfBirth(null);
         setPresentingComplaint('');
         setNotes('');
-        setChecklist(getDefaultChecklist());
+        setTaskSelection(getDefaultTaskSelection());
         setStructuredText('');
         setIsParseOpen(false);
       }
@@ -294,6 +296,20 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
       const arrivalDateNs = dateToNanoseconds(arrivalDate);
       const dateOfBirthNs = dateOfBirth ? dateToNanoseconds(dateOfBirth) : null;
 
+      // When creating, only include selected tasks (set to false = incomplete)
+      // When editing, use the current task selection state
+      const completedTasks: CompletedTasks = isEditing 
+        ? taskSelection 
+        : {
+            dischargeNotes: taskSelection.dischargeNotes ? false : taskSelection.dischargeNotes,
+            pdvmNotified: taskSelection.pdvmNotified ? false : taskSelection.pdvmNotified,
+            labs: taskSelection.labs ? false : taskSelection.labs,
+            histo: taskSelection.histo ? false : taskSelection.histo,
+            surgeryReport: taskSelection.surgeryReport ? false : taskSelection.surgeryReport,
+            imaging: taskSelection.imaging ? false : taskSelection.imaging,
+            culture: taskSelection.culture ? false : taskSelection.culture,
+          };
+
       if (isEditing && existingCase) {
         await updateCase.mutateAsync({
           id: existingCase.id,
@@ -307,7 +323,7 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
           dateOfBirth: dateOfBirthNs,
           presentingComplaint,
           notes,
-          checklist,
+          completedTasks,
         });
         toast.success('Case updated successfully');
       } else {
@@ -322,7 +338,7 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
           dateOfBirth: dateOfBirthNs,
           presentingComplaint,
           notes,
-          checklist,
+          completedTasks,
         });
         toast.success('Case created successfully');
       }
@@ -600,22 +616,36 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
           </div>
 
           <div className="space-y-2">
-            <Label>Checklist</Label>
+            <Label>
+              {isEditing ? 'Task Completion Status' : 'Select Tasks to Include'}
+            </Label>
+            <p className="text-sm text-muted-foreground mb-2">
+              {isEditing 
+                ? 'Update the completion status of tasks for this case.' 
+                : 'Check the tasks that need to be completed for this case. They will appear as open checkboxes on the case card.'}
+            </p>
             <ChecklistEditor
-              checklist={checklist}
-              onChange={setChecklist}
+              checklist={taskSelection}
+              onChange={setTaskSelection}
               disabled={!actorReady}
+              mode={isEditing ? 'completion' : 'creation'}
             />
           </div>
 
-          <div className="flex justify-end gap-3">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+          <div className="flex gap-3 pt-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              className="flex-1"
+              disabled={isSubmitting}
+            >
               Cancel
             </Button>
-            <Button type="submit" disabled={!actorReady || isSubmitting}>
+            <Button type="submit" className="flex-1" disabled={!actorReady || isSubmitting}>
               {isSubmitting ? (
                 <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   {isEditing ? 'Updating...' : 'Creating...'}
                 </>
               ) : (

@@ -1,49 +1,56 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Liver app project with web-based case management system",
-  "architectural_notes": [],
-  "known_issues": [
-    "Backend actor not available preventing case addition in web page"
+  "summary": "Medical case management app with task tracking for discharge items",
+  "architectural_notes": [
+    "Case creation includes configurable task checklist with 7 medical discharge items",
+    "Tasks selected during creation persist and display as checkboxes on case cards"
   ],
-  "isFixRequest": true,
+  "known_issues": [],
+  "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-diagnose-and-fix-the-backend-actor-initialization-issue-that-prevents-the-actor-from-being-available-when-users-attempt-to-add-cases-through-the-web-interface",
-      "title": "Diagnose and fix the backend actor initialization issue that prevents the actor from being available when users attempt to add cases through the web interface",
+      "id": "feature-add-checkboxes-to-the-case-creation-form-for-seven-task-items-discharge-notes-default-checked-pdvm-notified-default-checked-labs-default-unchecked-histo-default-unchecked-surgery-report-default-unchecked-imaging-default-unchecked-culture-default-unchecked",
+      "title": "Add checkboxes to the case creation form for seven task items: Discharge Notes (default checked), pDVM Notified (default checked), Labs (default unchecked), Histo (default unchecked), Surgery Report (default unchecked), Imaging (default unchecked), Culture (default unchecked)",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-add-error-boundary-and-user-friendly-error-messaging-for-backend-actor-connection-failures-with-retry-mechanism",
-      "title": "Add error boundary and user-friendly error messaging for backend actor connection failures with retry mechanism",
+      "id": "feature-store-only-the-tasks-that-were-checked-during-case-creation-in-the-case-data-structure",
+      "title": "Store only the tasks that were checked during case creation in the case data structure",
       "reqIds": [
-        "REQ-3"
+        "REQ-2"
       ],
       "version": 1
     },
     {
-      "id": "feature-ensure-the-caseformdialog-component-properly-waits-for-actor-availability-before-attempting-to-create-cases",
-      "title": "Ensure the CaseFormDialog component properly waits for actor availability before attempting to create cases",
+      "id": "feature-display-only-the-tasks-that-were-selected-during-case-creation-on-the-case-card-as-open-checkboxes-that-can-be-marked-as-complete",
+      "title": "Display only the tasks that were selected during case creation on the case card as open checkboxes that can be marked as complete",
       "reqIds": [
-        "REQ-4"
+        "REQ-3"
       ],
       "version": 1
     }
   ],
   "new_feature_requests": [
     {
+      "id": "AR-1",
+      "summary": "Add task checklist when creating a case with 7 items (Discharge Notes, pDVM Notified, Labs, Histo, Surgery Report, Imaging, Culture) with specified defaults",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
       "id": "AR-2",
-      "summary": "Verify that the useActor hook properly recreates the actor instance when the Internet Identity authentication state changes",
+      "summary": "Display selected tasks from creation on case card as open checkboxes",
       "reqIds": [
-        "REQ-2"
+        "AR-1"
       ],
       "status": "pending"
     }
   ],
-  "projectName": "Liver App",
+  "projectName": "Surgery Case Log",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

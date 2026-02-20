@@ -10,7 +10,7 @@ import type { ActorMethod } from '@icp-sdk/core/agent';
 import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
-export interface Checklist {
+export interface CompletedTasks {
   'pdvmNotified' : boolean,
   'histo' : boolean,
   'labs' : boolean,
@@ -31,12 +31,12 @@ export interface SurgeryCase {
   'id' : bigint,
   'sex' : Sex,
   'arrivalDate' : Time,
+  'completedTasks' : CompletedTasks,
   'presentingComplaint' : string,
   'dateOfBirth' : [] | [Time],
   'medicalRecordNumber' : string,
   'petName' : string,
   'notes' : string,
-  'checklist' : Checklist,
   'ownerLastName' : string,
   'breed' : string,
   'species' : Species,
@@ -61,7 +61,7 @@ export interface _SERVICE {
       [] | [Time],
       string,
       string,
-      Checklist,
+      CompletedTasks,
     ],
     SurgeryCase
   >,
@@ -72,7 +72,7 @@ export interface _SERVICE {
   'getCase' : ActorMethod<[bigint], SurgeryCase>,
   'getCaseByMedicalRecordNumber' : ActorMethod<[string], [] | [SurgeryCase]>,
   'getCasesByOwner' : ActorMethod<[string], Array<SurgeryCase>>,
-  'getChecklist' : ActorMethod<[bigint], Checklist>,
+  'getCompletedTasks' : ActorMethod<[bigint], CompletedTasks>,
   'getOpenAIConfig' : ActorMethod<[], [] | [OpenAIConfig]>,
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
@@ -96,12 +96,12 @@ export interface _SERVICE {
       [] | [Time],
       string,
       string,
-      Checklist,
+      CompletedTasks,
     ],
     undefined
   >,
   'updateCaseNotes' : ActorMethod<[bigint, string], undefined>,
-  'updateChecklist' : ActorMethod<[bigint, Checklist], undefined>,
+  'updateCompletedTasks' : ActorMethod<[bigint, CompletedTasks], undefined>,
   'validateOpenAIConfig' : ActorMethod<[], boolean>,
 }
 export declare const idlService: IDL.ServiceClass;

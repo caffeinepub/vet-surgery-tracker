@@ -1,58 +1,50 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-20T00:08:49.460Z",
+  "generatedAt": "2026-02-20T00:29:16.224Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 4,
+    "total": 3,
     "implemented": 3,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Diagnose and fix the backend actor initialization issue that prevents the actor from being available when users attempt to add cases through the web interface",
+        "summary": "Add checkboxes to the case creation form for seven task items: Discharge Notes (default checked), pDVM Notified (default checked), Labs (default unchecked), Histo (default unchecked), Surgery Report (default unchecked), Imaging (default unchecked), Culture (default unchecked)",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/App.tsx"
+          "frontend/src/features/cases/components/CaseFormDialog.tsx",
+          "frontend/src/features/cases/components/ChecklistEditor.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/App.tsx"
+          "frontend/src/features/cases/components/CaseFormDialog.tsx",
+          "frontend/src/features/cases/components/ChecklistEditor.tsx"
         ]
       },
       {
         "id": "REQ-2",
-        "summary": "Verify that the useActor hook properly recreates the actor instance when the Internet Identity authentication state changes",
-        "status": "missing",
-        "plannedFiles": [
-          "frontend/src/hooks/useQueries.ts"
-        ],
-        "matchedFiles": []
-      },
-      {
-        "id": "REQ-3",
-        "summary": "Add error boundary and user-friendly error messaging for backend actor connection failures with retry mechanism",
+        "summary": "Store only the tasks that were checked during case creation in the case data structure",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/components/ActorErrorBoundary.tsx",
-          "frontend/src/App.tsx"
+          "frontend/src/features/cases/components/CaseFormDialog.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/App.tsx"
+          "frontend/src/features/cases/components/CaseFormDialog.tsx"
         ]
       },
       {
-        "id": "REQ-4",
-        "summary": "Ensure the CaseFormDialog component properly waits for actor availability before attempting to create cases",
+        "id": "REQ-3",
+        "summary": "Display only the tasks that were selected during case creation on the case card as open checkboxes that can be marked as complete",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/features/cases/components/CaseFormDialog.tsx",
-          "frontend/src/features/cases/components/CasesListView.tsx"
+          "frontend/src/features/cases/components/CaseCard.tsx",
+          "frontend/src/features/cases/checklist.ts"
         ],
         "matchedFiles": [
-          "frontend/src/features/cases/components/CaseFormDialog.tsx",
-          "frontend/src/features/cases/components/CasesListView.tsx"
+          "frontend/src/features/cases/components/CaseCard.tsx",
+          "frontend/src/features/cases/checklist.ts"
         ]
       }
     ]
@@ -64,15 +56,23 @@
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/App.tsx",
     "frontend/src/backend.d.ts",
     "frontend/src/backend.ts",
     "frontend/src/declarations/backend.did.d.ts",
     "frontend/src/declarations/backend.did.js",
+    "frontend/src/features/cases/checklist.ts",
+    "frontend/src/features/cases/components/CaseCard.tsx",
     "frontend/src/features/cases/components/CaseFormDialog.tsx",
     "frontend/src/features/cases/components/CasesListView.tsx",
+    "frontend/src/features/cases/components/CasesTasksFilter.tsx",
     "frontend/src/features/cases/components/ChecklistEditor.tsx",
-    "frontend/src/features/cases/components/DateField.tsx",
+    "frontend/src/features/cases/components/CsvImportExportPanel.tsx",
+    "frontend/src/features/cases/csv/caseCsv.ts",
+    "frontend/src/features/cases/filtering.ts",
+    "frontend/src/features/cases/search.ts",
+    "frontend/src/features/cases/sorting.ts",
+    "frontend/src/features/settings/components/SettingsView.tsx",
+    "frontend/src/hooks/useQueries.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

@@ -1,82 +1,75 @@
 {
   "kind": "build_request",
-  "title": "Fix backend actor availability issue preventing case creation",
-  "projectName": "Liver Surgery Log",
-  "priority": "high",
+  "title": "Add task checklist selection during case creation",
+  "projectName": "Surgery Case Log",
+  "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Diagnose and fix the backend actor initialization issue that prevents the actor from being available when users attempt to add cases through the web interface",
-      "target": "both",
+      "text": "Add checkboxes to the case creation form for seven task items: Discharge Notes (default checked), pDVM Notified (default checked), Labs (default unchecked), Histo (default unchecked), Surgery Report (default unchecked), Imaging (default unchecked), Culture (default unchecked)",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-last"
+          "msg-8"
         ],
         "quotes": [
-          "unable to add case in liver app web page; backend actor not available"
+          "when adding the case; each item will have a check box; Discharge Notes (default yes) pDVM Notified (default yes) Labs (default no) Histo (default no) Surgery Report (default no) Imaging (default no) Culture (default no)"
         ]
       },
       "acceptanceCriteria": [
-        "Backend actor successfully initializes and becomes available after login",
-        "Users can create new cases without encountering 'actor not available' errors",
-        "Actor connection is maintained throughout the user session"
+        "Case creation form displays all seven task checkboxes",
+        "Discharge Notes and pDVM Notified are checked by default",
+        "Labs, Histo, Surgery Report, Imaging, and Culture are unchecked by default",
+        "User can toggle any checkbox before submitting the case"
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Verify that the useActor hook properly recreates the actor instance when the Internet Identity authentication state changes",
-      "target": "frontend",
+      "text": "Store only the tasks that were checked during case creation in the case data structure",
+      "target": "both",
       "source": {
         "messageIds": [
-          "msg-last"
+          "msg-8"
+        ],
+        "quotes": [
+          "Each item you check when creating the case will appear on the case card"
         ]
       },
       "acceptanceCriteria": [
-        "Actor is recreated immediately after successful authentication",
-        "React Query cache is properly invalidated when actor changes",
-        "No race conditions occur between authentication and actor initialization"
+        "Backend SurgeryCase type stores only the selected tasks",
+        "Unchecked tasks during creation are not stored in the case",
+        "Selected tasks are persisted correctly when creating a new case"
       ]
     },
     {
       "id": "REQ-3",
-      "text": "Add error boundary and user-friendly error messaging for backend actor connection failures with retry mechanism",
+      "text": "Display only the tasks that were selected during case creation on the case card as open checkboxes that can be marked as complete",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-last"
+          "msg-8"
+        ],
+        "quotes": [
+          "Each item you check when creating the case will appear on the case card as an open check box that still needs to be done"
         ]
       },
       "acceptanceCriteria": [
-        "Clear error message displays when backend actor is unavailable",
-        "Users can trigger a manual retry to reconnect to the backend",
-        "Loading states accurately reflect actor initialization status"
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "text": "Ensure the CaseFormDialog component properly waits for actor availability before attempting to create cases",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-last"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Form submission is disabled when actor is unavailable",
-        "Form displays loading or disabled state during actor initialization",
-        "Case creation mutation only executes when actor is confirmed available"
+        "Case card shows only the tasks that were selected during creation",
+        "Each displayed task appears as an unchecked checkbox initially",
+        "Tasks not selected during creation do not appear on the case card",
+        "Users can check off tasks as they complete them"
       ]
     }
   ],
   "constraints": [
-    "Maintain single-actor architecture in backend/main.mo",
-    "Do not modify immutable frontend paths: useInternetIdentity.ts, useActor.ts, main.tsx, components/ui",
-    "Preserve existing authentication flow using Internet Identity"
+    "Maintain compatibility with existing case data structure and checklist system",
+    "Preserve the current task completion tracking functionality",
+    "Do not modify the ChecklistEditor component location or read-only UI components"
   ],
   "nonGoals": [
-    "Implementing alternative authentication methods",
-    "Restructuring the backend into multiple actors",
-    "Adding offline functionality or service worker caching for mutations"
+    "Changing the list of available task types",
+    "Adding ability to modify task list after case creation",
+    "Changing task completion tracking behavior"
   ],
   "imageRequirements": {
     "required": [],

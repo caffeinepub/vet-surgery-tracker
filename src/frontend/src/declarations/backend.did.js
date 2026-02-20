@@ -25,7 +25,7 @@ export const Sex = IDL.Variant({
   'femaleSpayed' : IDL.Null,
   'maleNeutered' : IDL.Null,
 });
-export const Checklist = IDL.Record({
+export const CompletedTasks = IDL.Record({
   'pdvmNotified' : IDL.Bool,
   'histo' : IDL.Bool,
   'labs' : IDL.Bool,
@@ -38,12 +38,12 @@ export const SurgeryCase = IDL.Record({
   'id' : IDL.Nat,
   'sex' : Sex,
   'arrivalDate' : Time,
+  'completedTasks' : CompletedTasks,
   'presentingComplaint' : IDL.Text,
   'dateOfBirth' : IDL.Opt(Time),
   'medicalRecordNumber' : IDL.Text,
   'petName' : IDL.Text,
   'notes' : IDL.Text,
-  'checklist' : Checklist,
   'ownerLastName' : IDL.Text,
   'breed' : IDL.Text,
   'species' : Species,
@@ -69,7 +69,7 @@ export const idlService = IDL.Service({
         IDL.Opt(Time),
         IDL.Text,
         IDL.Text,
-        Checklist,
+        CompletedTasks,
       ],
       [SurgeryCase],
       [],
@@ -85,7 +85,7 @@ export const idlService = IDL.Service({
       ['query'],
     ),
   'getCasesByOwner' : IDL.Func([IDL.Text], [IDL.Vec(SurgeryCase)], ['query']),
-  'getChecklist' : IDL.Func([IDL.Nat], [Checklist], ['query']),
+  'getCompletedTasks' : IDL.Func([IDL.Nat], [CompletedTasks], ['query']),
   'getOpenAIConfig' : IDL.Func([], [IDL.Opt(OpenAIConfig)], ['query']),
   'getUserProfile' : IDL.Func(
       [IDL.Principal],
@@ -114,13 +114,13 @@ export const idlService = IDL.Service({
         IDL.Opt(Time),
         IDL.Text,
         IDL.Text,
-        Checklist,
+        CompletedTasks,
       ],
       [],
       [],
     ),
   'updateCaseNotes' : IDL.Func([IDL.Nat, IDL.Text], [], []),
-  'updateChecklist' : IDL.Func([IDL.Nat, Checklist], [], []),
+  'updateCompletedTasks' : IDL.Func([IDL.Nat, CompletedTasks], [], []),
   'validateOpenAIConfig' : IDL.Func([], [IDL.Bool], ['query']),
 });
 
@@ -144,7 +144,7 @@ export const idlFactory = ({ IDL }) => {
     'femaleSpayed' : IDL.Null,
     'maleNeutered' : IDL.Null,
   });
-  const Checklist = IDL.Record({
+  const CompletedTasks = IDL.Record({
     'pdvmNotified' : IDL.Bool,
     'histo' : IDL.Bool,
     'labs' : IDL.Bool,
@@ -157,12 +157,12 @@ export const idlFactory = ({ IDL }) => {
     'id' : IDL.Nat,
     'sex' : Sex,
     'arrivalDate' : Time,
+    'completedTasks' : CompletedTasks,
     'presentingComplaint' : IDL.Text,
     'dateOfBirth' : IDL.Opt(Time),
     'medicalRecordNumber' : IDL.Text,
     'petName' : IDL.Text,
     'notes' : IDL.Text,
-    'checklist' : Checklist,
     'ownerLastName' : IDL.Text,
     'breed' : IDL.Text,
     'species' : Species,
@@ -188,7 +188,7 @@ export const idlFactory = ({ IDL }) => {
           IDL.Opt(Time),
           IDL.Text,
           IDL.Text,
-          Checklist,
+          CompletedTasks,
         ],
         [SurgeryCase],
         [],
@@ -204,7 +204,7 @@ export const idlFactory = ({ IDL }) => {
         ['query'],
       ),
     'getCasesByOwner' : IDL.Func([IDL.Text], [IDL.Vec(SurgeryCase)], ['query']),
-    'getChecklist' : IDL.Func([IDL.Nat], [Checklist], ['query']),
+    'getCompletedTasks' : IDL.Func([IDL.Nat], [CompletedTasks], ['query']),
     'getOpenAIConfig' : IDL.Func([], [IDL.Opt(OpenAIConfig)], ['query']),
     'getUserProfile' : IDL.Func(
         [IDL.Principal],
@@ -233,13 +233,13 @@ export const idlFactory = ({ IDL }) => {
           IDL.Opt(Time),
           IDL.Text,
           IDL.Text,
-          Checklist,
+          CompletedTasks,
         ],
         [],
         [],
       ),
     'updateCaseNotes' : IDL.Func([IDL.Nat, IDL.Text], [], []),
-    'updateChecklist' : IDL.Func([IDL.Nat, Checklist], [], []),
+    'updateCompletedTasks' : IDL.Func([IDL.Nat, CompletedTasks], [], []),
     'validateOpenAIConfig' : IDL.Func([], [IDL.Bool], ['query']),
   });
 };

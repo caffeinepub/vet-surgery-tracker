@@ -1,162 +1,17 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useActor } from './useActor';
-import type { SurgeryCase, Checklist, UserProfile, OpenAIConfig } from '../backend';
+import type { SurgeryCase, UserProfile, CompletedTasks } from '../backend';
 
-// User Profile Queries
-export function useGetCallerUserProfile() {
-  const { actor, isFetching: actorFetching } = useActor();
-
-  const query = useQuery<UserProfile | null>({
-    queryKey: ['currentUserProfile'],
-    queryFn: async () => {
-      console.log('[useGetCallerUserProfile] Fetching caller user profile', {
-        actorAvailable: !!actor,
-        timestamp: new Date().toISOString(),
-      });
-
-      if (!actor) throw new Error('Actor not available');
-      const profile = await actor.getCallerUserProfile();
-
-      console.log('[useGetCallerUserProfile] Profile fetched:', {
-        hasProfile: !!profile,
-        timestamp: new Date().toISOString(),
-      });
-
-      return profile;
-    },
-    enabled: !!actor && !actorFetching,
-    retry: false,
-  });
-
-  return {
-    ...query,
-    isLoading: actorFetching || query.isLoading,
-    isFetched: !!actor && query.isFetched,
-  };
-}
-
-export function useSaveCallerUserProfile() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (profile: UserProfile) => {
-      console.log('[useSaveCallerUserProfile] Saving profile:', {
-        profile,
-        actorAvailable: !!actor,
-        timestamp: new Date().toISOString(),
-      });
-
-      if (!actor) throw new Error('Actor not available');
-      await actor.saveCallerUserProfile(profile);
-
-      console.log('[useSaveCallerUserProfile] Profile saved successfully');
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['currentUserProfile'] });
-    },
-  });
-}
-
-// Admin Check Query
-export function useIsCallerAdmin() {
-  const { actor, isFetching } = useActor();
-
-  return useQuery<boolean>({
-    queryKey: ['isCallerAdmin'],
-    queryFn: async () => {
-      if (!actor) return false;
-      return actor.isCallerAdmin();
-    },
-    enabled: !!actor && !isFetching,
-    retry: false,
-  });
-}
-
-// OpenAI Configuration Queries
-export function useGetOpenAIConfig() {
-  const { actor, isFetching } = useActor();
-
-  return useQuery<OpenAIConfig | null>({
-    queryKey: ['openAIConfig'],
-    queryFn: async () => {
-      console.log('[useGetOpenAIConfig] Fetching OpenAI configuration', {
-        actorAvailable: !!actor,
-        timestamp: new Date().toISOString(),
-      });
-
-      if (!actor) return null;
-      const config = await actor.getOpenAIConfig();
-
-      console.log('[useGetOpenAIConfig] Config fetched:', {
-        hasConfig: !!config,
-        timestamp: new Date().toISOString(),
-      });
-
-      return config;
-    },
-    enabled: !!actor && !isFetching,
-    retry: false,
-  });
-}
-
-export function useValidateOpenAIConfig() {
-  const { actor, isFetching } = useActor();
-
-  return useQuery<boolean>({
-    queryKey: ['validateOpenAIConfig'],
-    queryFn: async () => {
-      if (!actor) return false;
-      return actor.validateOpenAIConfig();
-    },
-    enabled: !!actor && !isFetching,
-    retry: false,
-  });
-}
-
-export function useSetOpenAIConfig() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (apiKey: string) => {
-      console.log('[useSetOpenAIConfig] Setting OpenAI configuration', {
-        actorAvailable: !!actor,
-        timestamp: new Date().toISOString(),
-      });
-
-      if (!actor) throw new Error('Actor not available');
-      await actor.setOpenAIConfig(apiKey);
-
-      console.log('[useSetOpenAIConfig] Configuration saved successfully');
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['openAIConfig'] });
-      queryClient.invalidateQueries({ queryKey: ['validateOpenAIConfig'] });
-    },
-  });
-}
-
-// Case Queries
 export function useGetAllCases() {
   const { actor, isFetching } = useActor();
 
   return useQuery<SurgeryCase[]>({
     queryKey: ['cases'],
     queryFn: async () => {
-      console.log('[useGetAllCases] Fetching all cases', {
-        actorAvailable: !!actor,
-        timestamp: new Date().toISOString(),
-      });
-
       if (!actor) return [];
+      console.log('[useGetAllCases] Fetching all cases');
       const cases = await actor.getAllCases();
-
-      console.log('[useGetAllCases] Cases fetched:', {
-        count: cases.length,
-        timestamp: new Date().toISOString(),
-      });
-
+      console.log('[useGetAllCases] Fetched cases:', cases.length);
       return cases;
     },
     enabled: !!actor && !isFetching,
@@ -169,23 +24,14 @@ export function useGetCaseByMedicalRecordNumber(mrn: string, enabled: boolean = 
   return useQuery<SurgeryCase | null>({
     queryKey: ['case', 'mrn', mrn],
     queryFn: async () => {
-      console.log('[useGetCaseByMedicalRecordNumber] Fetching case by MRN:', {
-        mrn,
-        actorAvailable: !!actor,
-        timestamp: new Date().toISOString(),
-      });
-
-      if (!actor) return null;
-      const surgeryCase = await actor.getCaseByMedicalRecordNumber(mrn);
-
-      console.log('[useGetCaseByMedicalRecordNumber] Case fetched:', {
-        found: !!surgeryCase,
-        timestamp: new Date().toISOString(),
-      });
-
-      return surgeryCase;
+      if (!actor || !mrn) return null;
+      console.log('[useGetCaseByMedicalRecordNumber] Fetching case by MRN:', mrn);
+      const result = await actor.getCaseByMedicalRecordNumber(mrn);
+      console.log('[useGetCaseByMedicalRecordNumber] Result:', result);
+      return result;
     },
     enabled: !!actor && !isFetching && enabled && mrn.trim().length > 0,
+    retry: false,
   });
 }
 
@@ -205,25 +51,14 @@ export function useCreateCase() {
       dateOfBirth: bigint | null;
       presentingComplaint: string;
       notes: string;
-      checklist: Checklist;
+      completedTasks: CompletedTasks;
     }) => {
-      console.log('[useCreateCase] Creating case:', {
-        medicalRecordNumber: data.medicalRecordNumber,
+      if (!actor) throw new Error('Actor not available');
+      console.log('[useCreateCase] Creating case with data:', {
+        ...data,
         arrivalDate: data.arrivalDate.toString(),
-        petName: data.petName,
-        species: data.species,
-        sex: data.sex,
-        actorAvailable: !!actor,
-        timestamp: new Date().toISOString(),
+        dateOfBirth: data.dateOfBirth?.toString(),
       });
-
-      if (!actor) {
-        const error = new Error('Actor not available - backend connection failed');
-        console.error('[useCreateCase] Actor not available:', {
-          timestamp: new Date().toISOString(),
-        });
-        throw error;
-      }
 
       try {
         const result = await actor.createCase(
@@ -237,57 +72,25 @@ export function useCreateCase() {
           data.dateOfBirth,
           data.presentingComplaint,
           data.notes,
-          data.checklist
+          data.completedTasks
         );
-
-        console.log('[useCreateCase] Case created successfully:', {
-          caseId: result.id.toString(),
-          medicalRecordNumber: result.medicalRecordNumber,
-          timestamp: new Date().toISOString(),
-        });
-
+        console.log('[useCreateCase] Case created successfully:', result);
         return result;
-      } catch (error) {
-        console.error('[useCreateCase] Backend call failed:', {
+      } catch (error: any) {
+        console.error('[useCreateCase] Error creating case:', {
           error,
-          errorMessage: error instanceof Error ? error.message : String(error),
-          errorStack: error instanceof Error ? error.stack : undefined,
-          data,
-          timestamp: new Date().toISOString(),
+          message: error?.message,
+          stack: error?.stack,
         });
         throw error;
       }
     },
-    onSuccess: (result) => {
-      console.log('[useCreateCase] Invalidating cases cache after successful creation');
+    onSuccess: () => {
+      console.log('[useCreateCase] Invalidating cases query');
       queryClient.invalidateQueries({ queryKey: ['cases'] });
     },
-    onError: (error, variables) => {
-      console.error('[useCreateCase] Mutation error:', {
-        error,
-        errorMessage: error instanceof Error ? error.message : String(error),
-        errorType: error instanceof Error ? error.constructor.name : typeof error,
-        variables,
-        timestamp: new Date().toISOString(),
-      });
-    },
-    retry: (failureCount, error) => {
-      // Retry up to 2 times for network errors, but not for validation errors
-      const shouldRetry = failureCount < 2 && 
-        error instanceof Error && 
-        !error.message.includes('validation') &&
-        !error.message.includes('Invalid') &&
-        !error.message.includes('Required');
-      
-      console.log('[useCreateCase] Retry decision:', {
-        failureCount,
-        shouldRetry,
-        errorMessage: error instanceof Error ? error.message : String(error),
-      });
-      
-      return shouldRetry;
-    },
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 5000),
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
 }
 
@@ -308,22 +111,15 @@ export function useUpdateCase() {
       dateOfBirth: bigint | null;
       presentingComplaint: string;
       notes: string;
-      checklist: Checklist;
+      completedTasks: CompletedTasks;
     }) => {
-      console.log('[useUpdateCase] Updating case:', {
-        caseId: data.id.toString(),
-        medicalRecordNumber: data.medicalRecordNumber,
-        actorAvailable: !!actor,
-        timestamp: new Date().toISOString(),
+      if (!actor) throw new Error('Actor not available');
+      console.log('[useUpdateCase] Updating case with data:', {
+        ...data,
+        id: data.id.toString(),
+        arrivalDate: data.arrivalDate.toString(),
+        dateOfBirth: data.dateOfBirth?.toString(),
       });
-
-      if (!actor) {
-        const error = new Error('Actor not available - backend connection failed');
-        console.error('[useUpdateCase] Actor not available:', {
-          timestamp: new Date().toISOString(),
-        });
-        throw error;
-      }
 
       try {
         await actor.updateCase(
@@ -338,55 +134,24 @@ export function useUpdateCase() {
           data.dateOfBirth,
           data.presentingComplaint,
           data.notes,
-          data.checklist
+          data.completedTasks
         );
-
-        console.log('[useUpdateCase] Case updated successfully:', {
-          caseId: data.id.toString(),
-          timestamp: new Date().toISOString(),
-        });
-      } catch (error) {
-        console.error('[useUpdateCase] Backend call failed:', {
+        console.log('[useUpdateCase] Case updated successfully');
+      } catch (error: any) {
+        console.error('[useUpdateCase] Error updating case:', {
           error,
-          errorMessage: error instanceof Error ? error.message : String(error),
-          errorStack: error instanceof Error ? error.stack : undefined,
-          data,
-          timestamp: new Date().toISOString(),
+          message: error?.message,
+          stack: error?.stack,
         });
         throw error;
       }
     },
-    onSuccess: (_, variables) => {
-      console.log('[useUpdateCase] Invalidating cases cache after successful update');
+    onSuccess: () => {
+      console.log('[useUpdateCase] Invalidating cases query');
       queryClient.invalidateQueries({ queryKey: ['cases'] });
     },
-    onError: (error, variables) => {
-      console.error('[useUpdateCase] Mutation error:', {
-        error,
-        errorMessage: error instanceof Error ? error.message : String(error),
-        errorType: error instanceof Error ? error.constructor.name : typeof error,
-        variables,
-        timestamp: new Date().toISOString(),
-      });
-    },
-    retry: (failureCount, error) => {
-      // Retry up to 2 times for network errors, but not for validation errors
-      const shouldRetry = failureCount < 2 && 
-        error instanceof Error && 
-        !error.message.includes('validation') &&
-        !error.message.includes('Invalid') &&
-        !error.message.includes('Required') &&
-        !error.message.includes('not found');
-      
-      console.log('[useUpdateCase] Retry decision:', {
-        failureCount,
-        shouldRetry,
-        errorMessage: error instanceof Error ? error.message : String(error),
-      });
-      
-      return shouldRetry;
-    },
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 5000),
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
 }
 
@@ -396,88 +161,186 @@ export function useDeleteCase() {
 
   return useMutation({
     mutationFn: async (id: bigint) => {
-      console.log('[useDeleteCase] Deleting case:', {
-        caseId: id,
-        actorAvailable: !!actor,
-        timestamp: new Date().toISOString(),
-      });
-
       if (!actor) throw new Error('Actor not available');
-      await actor.deleteCase(id);
+      console.log('[useDeleteCase] Deleting case:', id.toString());
 
-      console.log('[useDeleteCase] Case deleted successfully');
+      try {
+        await actor.deleteCase(id);
+        console.log('[useDeleteCase] Case deleted successfully');
+      } catch (error: any) {
+        console.error('[useDeleteCase] Error deleting case:', {
+          error,
+          message: error?.message,
+          stack: error?.stack,
+        });
+        throw error;
+      }
     },
     onSuccess: () => {
+      console.log('[useDeleteCase] Invalidating cases query');
       queryClient.invalidateQueries({ queryKey: ['cases'] });
     },
-    onError: (error) => {
-      console.error('[useDeleteCase] Error deleting case:', {
-        error,
-        errorMessage: error instanceof Error ? error.message : String(error),
-        timestamp: new Date().toISOString(),
-      });
-    },
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
 }
 
-export function useUpdateChecklist() {
+export function useUpdateCompletedTasks() {
   const { actor } = useActor();
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id, checklist }: { id: bigint; checklist: Checklist }) => {
-      console.log('[useUpdateChecklist] Updating checklist:', {
-        caseId: id,
-        checklist,
-        actorAvailable: !!actor,
-        timestamp: new Date().toISOString(),
+    mutationFn: async (data: { id: bigint; completedTasks: CompletedTasks }) => {
+      if (!actor) throw new Error('Actor not available');
+      console.log('[useUpdateCompletedTasks] Updating completed tasks:', {
+        id: data.id.toString(),
+        completedTasks: data.completedTasks,
       });
 
-      if (!actor) throw new Error('Actor not available');
-      await actor.updateChecklist(id, checklist);
-
-      console.log('[useUpdateChecklist] Checklist updated successfully');
+      try {
+        await actor.updateCompletedTasks(data.id, data.completedTasks);
+        console.log('[useUpdateCompletedTasks] Completed tasks updated successfully');
+      } catch (error: any) {
+        console.error('[useUpdateCompletedTasks] Error updating completed tasks:', {
+          error,
+          message: error?.message,
+          stack: error?.stack,
+        });
+        throw error;
+      }
     },
     onSuccess: () => {
+      console.log('[useUpdateCompletedTasks] Invalidating cases query');
       queryClient.invalidateQueries({ queryKey: ['cases'] });
     },
-    onError: (error) => {
-      console.error('[useUpdateChecklist] Error updating checklist:', {
-        error,
-        errorMessage: error instanceof Error ? error.message : String(error),
-        timestamp: new Date().toISOString(),
-      });
-    },
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
 }
 
-export function useUpdateCaseNotes() {
+export function useGetCallerUserProfile() {
+  const { actor, isFetching: actorFetching } = useActor();
+
+  const query = useQuery<UserProfile | null>({
+    queryKey: ['currentUserProfile'],
+    queryFn: async () => {
+      if (!actor) throw new Error('Actor not available');
+      console.log('[useGetCallerUserProfile] Fetching caller user profile');
+      const profile = await actor.getCallerUserProfile();
+      console.log('[useGetCallerUserProfile] Profile:', profile);
+      return profile;
+    },
+    enabled: !!actor && !actorFetching,
+    retry: false,
+  });
+
+  return {
+    ...query,
+    isLoading: actorFetching || query.isLoading,
+    isFetched: !!actor && query.isFetched,
+  };
+}
+
+export function useSaveCallerUserProfile() {
   const { actor } = useActor();
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id, notes }: { id: bigint; notes: string }) => {
-      console.log('[useUpdateCaseNotes] Updating notes:', {
-        caseId: id,
-        notesLength: notes.length,
-        actorAvailable: !!actor,
-        timestamp: new Date().toISOString(),
-      });
-
+    mutationFn: async (profile: UserProfile) => {
       if (!actor) throw new Error('Actor not available');
-      await actor.updateCaseNotes(id, notes);
+      console.log('[useSaveCallerUserProfile] Saving profile:', profile);
 
-      console.log('[useUpdateCaseNotes] Notes updated successfully');
+      try {
+        await actor.saveCallerUserProfile(profile);
+        console.log('[useSaveCallerUserProfile] Profile saved successfully');
+      } catch (error: any) {
+        console.error('[useSaveCallerUserProfile] Error saving profile:', {
+          error,
+          message: error?.message,
+          stack: error?.stack,
+        });
+        throw error;
+      }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['cases'] });
+      console.log('[useSaveCallerUserProfile] Invalidating currentUserProfile query');
+      queryClient.invalidateQueries({ queryKey: ['currentUserProfile'] });
     },
-    onError: (error) => {
-      console.error('[useUpdateCaseNotes] Error updating notes:', {
-        error,
-        errorMessage: error instanceof Error ? error.message : String(error),
-        timestamp: new Date().toISOString(),
-      });
+  });
+}
+
+export function useIsCallerAdmin() {
+  const { actor, isFetching } = useActor();
+
+  return useQuery<boolean>({
+    queryKey: ['isAdmin'],
+    queryFn: async () => {
+      if (!actor) return false;
+      console.log('[useIsCallerAdmin] Checking admin status');
+      const isAdmin = await actor.isCallerAdmin();
+      console.log('[useIsCallerAdmin] Is admin:', isAdmin);
+      return isAdmin;
     },
+    enabled: !!actor && !isFetching,
+  });
+}
+
+export function useGetOpenAIConfig() {
+  const { actor, isFetching } = useActor();
+
+  return useQuery({
+    queryKey: ['openAIConfig'],
+    queryFn: async () => {
+      if (!actor) return null;
+      console.log('[useGetOpenAIConfig] Fetching OpenAI config');
+      const config = await actor.getOpenAIConfig();
+      console.log('[useGetOpenAIConfig] Config:', config ? 'exists' : 'null');
+      return config;
+    },
+    enabled: !!actor && !isFetching,
+  });
+}
+
+export function useSaveOpenAIConfig() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (apiKey: string) => {
+      if (!actor) throw new Error('Actor not available');
+      console.log('[useSaveOpenAIConfig] Saving OpenAI config');
+
+      try {
+        await actor.setOpenAIConfig(apiKey);
+        console.log('[useSaveOpenAIConfig] Config saved successfully');
+      } catch (error: any) {
+        console.error('[useSaveOpenAIConfig] Error saving config:', {
+          error,
+          message: error?.message,
+          stack: error?.stack,
+        });
+        throw error;
+      }
+    },
+    onSuccess: () => {
+      console.log('[useSaveOpenAIConfig] Invalidating openAIConfig query');
+      queryClient.invalidateQueries({ queryKey: ['openAIConfig'] });
+    },
+  });
+}
+
+export function useValidateOpenAIConfig() {
+  const { actor, isFetching } = useActor();
+
+  return useQuery<boolean>({
+    queryKey: ['validateOpenAIConfig'],
+    queryFn: async () => {
+      if (!actor) return false;
+      console.log('[useValidateOpenAIConfig] Validating OpenAI config');
+      const isValid = await actor.validateOpenAIConfig();
+      console.log('[useValidateOpenAIConfig] Is valid:', isValid);
+      return isValid;
+    },
+    enabled: !!actor && !isFetching,
   });
 }

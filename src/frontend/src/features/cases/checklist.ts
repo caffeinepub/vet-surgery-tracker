@@ -1,7 +1,7 @@
-import type { Checklist } from '../../backend';
+import type { CompletedTasks } from '../../backend';
 
 export interface ChecklistItem {
-  key: keyof Checklist;
+  key: keyof CompletedTasks;
   label: string;
   defaultChecked: boolean;
 }
@@ -16,7 +16,7 @@ export const CHECKLIST_ITEMS: ChecklistItem[] = [
   { key: 'culture', label: 'Culture', defaultChecked: false },
 ];
 
-export function getDefaultChecklist(): Checklist {
+export function getDefaultTaskSelection(): CompletedTasks {
   return {
     dischargeNotes: true,
     pdvmNotified: true,
@@ -29,17 +29,27 @@ export function getDefaultChecklist(): Checklist {
 }
 
 export interface RemainingItem {
-  key: keyof Checklist;
+  key: keyof CompletedTasks;
   label: string;
 }
 
-export function getRemainingItems(checklist: Checklist): RemainingItem[] {
-  return CHECKLIST_ITEMS.filter((item) => !checklist[item.key]).map((item) => ({
+export function getSelectedTasks(completedTasks: CompletedTasks): ChecklistItem[] {
+  return CHECKLIST_ITEMS.filter((item) => {
+    const taskValue = completedTasks[item.key];
+    return taskValue !== undefined;
+  });
+}
+
+export function getRemainingItems(completedTasks: CompletedTasks): RemainingItem[] {
+  return CHECKLIST_ITEMS.filter((item) => {
+    const taskValue = completedTasks[item.key];
+    return taskValue === false;
+  }).map((item) => ({
     key: item.key,
     label: item.label,
   }));
 }
 
-export function getRemainingTaskCount(checklist: Checklist): number {
-  return CHECKLIST_ITEMS.filter((item) => !checklist[item.key]).length;
+export function getRemainingTaskCount(completedTasks: CompletedTasks): number {
+  return CHECKLIST_ITEMS.filter((item) => completedTasks[item.key] === false).length;
 }

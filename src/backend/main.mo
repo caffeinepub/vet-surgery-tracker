@@ -26,6 +26,16 @@ actor {
     culture : Bool;
   };
 
+  public type CompletedTasks = {
+    dischargeNotes : Bool;
+    pdvmNotified : Bool;
+    labs : Bool;
+    histo : Bool;
+    surgeryReport : Bool;
+    imaging : Bool;
+    culture : Bool;
+  };
+
   public type SurgeryCase = {
     id : Nat;
     medicalRecordNumber : Text;
@@ -38,7 +48,7 @@ actor {
     dateOfBirth : ?Time.Time;
     presentingComplaint : Text;
     notes : Text;
-    checklist : Checklist;
+    completedTasks : CompletedTasks;
   };
 
   module SurgeryCase {
@@ -94,7 +104,7 @@ actor {
     dateOfBirth : ?Time.Time,
     presentingComplaint : Text,
     notes : Text,
-    checklist : Checklist,
+    completedTasks : CompletedTasks,
   ) : async SurgeryCase {
     checkUserPermission(caller);
 
@@ -110,7 +120,7 @@ actor {
       dateOfBirth;
       presentingComplaint;
       notes;
-      checklist;
+      completedTasks;
     };
 
     cases.add(nextId, newCase);
@@ -150,7 +160,7 @@ actor {
     dateOfBirth : ?Time.Time,
     presentingComplaint : Text,
     notes : Text,
-    checklist : Checklist,
+    completedTasks : CompletedTasks,
   ) : async () {
     checkUserPermission(caller);
 
@@ -171,7 +181,7 @@ actor {
       dateOfBirth;
       presentingComplaint;
       notes;
-      checklist;
+      completedTasks;
     };
 
     cases.add(id, updatedCase);
@@ -186,15 +196,15 @@ actor {
     };
   };
 
-  public query ({ caller }) func getChecklist(id : Nat) : async Checklist {
+  public query ({ caller }) func getCompletedTasks(id : Nat) : async CompletedTasks {
     checkUserPermission(caller);
     switch (cases.get(id)) {
       case (null) { Runtime.trap("Case not found") };
-      case (?surgeryCase) { surgeryCase.checklist };
+      case (?surgeryCase) { surgeryCase.completedTasks };
     };
   };
 
-  public shared ({ caller }) func updateChecklist(id : Nat, checklist : Checklist) : async () {
+  public shared ({ caller }) func updateCompletedTasks(id : Nat, completedTasks : CompletedTasks) : async () {
     checkUserPermission(caller);
 
     switch (cases.get(id)) {
@@ -202,7 +212,7 @@ actor {
       case (?existingCase) {
         let updatedCase : SurgeryCase = {
           existingCase with
-          checklist
+          completedTasks
         };
         cases.add(id, updatedCase);
       };

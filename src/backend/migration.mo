@@ -1,23 +1,8 @@
 import Map "mo:core/Map";
 import Nat "mo:core/Nat";
-import Text "mo:core/Text";
-import Time "mo:core/Time";
 
 module {
-  type OldOpenAIConfig = {
-    apiKey : Text;
-  };
-
-  type OldActor = {
-    cases : Map.Map<Nat, SurgeryCase>;
-    nextId : Nat;
-    openAIConfig : ?OldOpenAIConfig;
-  };
-
-  public type Species = { #canine; #feline; #other };
-  public type Sex = { #male; #maleNeutered; #female; #femaleSpayed };
-
-  public type Checklist = {
+  type OldChecklist = {
     dischargeNotes : Bool;
     pdvmNotified : Bool;
     labs : Bool;
@@ -27,46 +12,60 @@ module {
     culture : Bool;
   };
 
-  public type SurgeryCase = {
+  type OldSurgeryCase = {
     id : Nat;
     medicalRecordNumber : Text;
-    arrivalDate : Time.Time;
+    arrivalDate : Int;
     petName : Text;
     ownerLastName : Text;
-    species : Species;
+    species : { #canine; #feline; #other };
     breed : Text;
-    sex : Sex;
-    dateOfBirth : ?Time.Time;
+    sex : { #male; #maleNeutered; #female; #femaleSpayed };
+    dateOfBirth : ?Int;
     presentingComplaint : Text;
     notes : Text;
-    checklist : Checklist;
+    checklist : OldChecklist;
   };
 
-  type NewOpenAIConfig = {
-    apiKey : Text;
-    initialized : Bool;
+  type OldActor = {
+    cases : Map.Map<Nat, OldSurgeryCase>;
+  };
+
+  type NewCompletedTasks = {
+    dischargeNotes : Bool;
+    pdvmNotified : Bool;
+    labs : Bool;
+    histo : Bool;
+    surgeryReport : Bool;
+    imaging : Bool;
+    culture : Bool;
+  };
+
+  type NewSurgeryCase = {
+    id : Nat;
+    medicalRecordNumber : Text;
+    arrivalDate : Int;
+    petName : Text;
+    ownerLastName : Text;
+    species : { #canine; #feline; #other };
+    breed : Text;
+    sex : { #male; #maleNeutered; #female; #femaleSpayed };
+    dateOfBirth : ?Int;
+    presentingComplaint : Text;
+    notes : Text;
+    completedTasks : NewCompletedTasks;
   };
 
   type NewActor = {
-    cases : Map.Map<Nat, SurgeryCase>;
-    nextId : Nat;
-    openAIConfig : ?NewOpenAIConfig;
+    cases : Map.Map<Nat, NewSurgeryCase>;
   };
 
   public func run(old : OldActor) : NewActor {
-    let newOpenAIConfig = switch (old.openAIConfig) {
-      case (null) { null };
-      case (?oldConfig) {
-        ?{
-          apiKey = oldConfig.apiKey;
-          initialized = true;
-        };
-      };
-    };
-    {
-      cases = old.cases;
-      nextId = old.nextId;
-      openAIConfig = newOpenAIConfig;
-    };
+    let newCases = old.cases.map<Nat, OldSurgeryCase, NewSurgeryCase>(
+      func(_id, oldCase) {
+        { oldCase with completedTasks = oldCase.checklist };
+      }
+    );
+    { cases = newCases };
   };
 };

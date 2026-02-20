@@ -255,12 +255,6 @@ export default function CsvImportExportPanel({ cases }: CsvImportExportPanelProp
           </AlertDescription>
         </Alert>
       )}
-
-      {!isImporting && importErrors.length === 0 && importProgress === null && (
-        <div className="text-xs text-muted-foreground">
-          <strong>CSV Format:</strong> Expected 17 columns with M/D/YYYY date format and TRUE/FALSE for checklist items.
-        </div>
-      )}
     </div>
   );
 }

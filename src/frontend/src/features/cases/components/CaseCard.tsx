@@ -9,7 +9,7 @@ import { Edit, Trash2, CheckCircle2 } from 'lucide-react';
 import { formatDate, calculateAge } from '../validation';
 import { getRemainingItems } from '../checklist';
 import { SPECIES_OPTIONS, SEX_OPTIONS } from '../types';
-import { useDeleteCase, useUpdateChecklist } from '../../../hooks/useQueries';
+import { useDeleteCase, useUpdateCompletedTasks } from '../../../hooks/useQueries';
 import { toast } from 'sonner';
 import CaseFormDialog from './CaseFormDialog';
 
@@ -21,9 +21,9 @@ export default function CaseCard({ surgeryCase }: CaseCardProps) {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const deleteCase = useDeleteCase();
-  const updateChecklist = useUpdateChecklist();
+  const updateCompletedTasks = useUpdateCompletedTasks();
 
-  const remainingItems = getRemainingItems(surgeryCase.checklist);
+  const remainingItems = getRemainingItems(surgeryCase.completedTasks);
   const speciesLabel = SPECIES_OPTIONS.find((opt) => opt.value === surgeryCase.species)?.label || surgeryCase.species;
   const sexLabel = SEX_OPTIONS.find((opt) => opt.value === surgeryCase.sex)?.label || surgeryCase.sex;
 
@@ -38,15 +38,15 @@ export default function CaseCard({ surgeryCase }: CaseCardProps) {
     }
   };
 
-  const handleTaskToggle = async (taskKey: keyof typeof surgeryCase.checklist) => {
+  const handleTaskToggle = async (taskKey: keyof typeof surgeryCase.completedTasks) => {
     try {
-      const updatedChecklist = {
-        ...surgeryCase.checklist,
-        [taskKey]: false,
+      const updatedCompletedTasks = {
+        ...surgeryCase.completedTasks,
+        [taskKey]: true,
       };
-      await updateChecklist.mutateAsync({
+      await updateCompletedTasks.mutateAsync({
         id: surgeryCase.id,
-        checklist: updatedChecklist,
+        completedTasks: updatedCompletedTasks,
       });
       toast.success('Task completed');
     } catch (error) {
@@ -152,7 +152,7 @@ export default function CaseCard({ surgeryCase }: CaseCardProps) {
                         id={`task-${surgeryCase.id}-${item.key}`}
                         checked={false}
                         onCheckedChange={() => handleTaskToggle(item.key)}
-                        disabled={updateChecklist.isPending}
+                        disabled={updateCompletedTasks.isPending}
                       />
                       <Label
                         htmlFor={`task-${surgeryCase.id}-${item.key}`}

@@ -34,8 +34,8 @@ export function searchCases(cases: SurgeryCase[], query: string): SurgeryCase[] 
     // Search in checklist items
     for (const item of CHECKLIST_ITEMS) {
       if (item.label.toLowerCase().includes(lowerQuery)) {
-        // If searching for a checklist item name, show cases where it's checked (remaining task)
-        if (surgeryCase.checklist[item.key]) return true;
+        // If searching for a checklist item name, show cases where it's incomplete (false)
+        if (surgeryCase.completedTasks[item.key] === false) return true;
       }
     }
 

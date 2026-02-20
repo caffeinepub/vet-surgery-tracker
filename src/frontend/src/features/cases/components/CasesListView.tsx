@@ -13,7 +13,7 @@ import { Plus, AlertCircle } from 'lucide-react';
 import { filterCasesBySpecies, filterCasesByTaskTypes } from '../filtering';
 import { searchCases } from '../search';
 import { sortCases, type SortOption } from '../sorting';
-import type { Species, Checklist } from '../../../backend';
+import type { Species, CompletedTasks } from '../../../backend';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
@@ -24,7 +24,7 @@ export default function CasesListView() {
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOption, setSortOption] = useState<SortOption>('arrival-date-newest');
   const [selectedSpecies, setSelectedSpecies] = useState<Set<Species>>(new Set());
-  const [selectedTasks, setSelectedTasks] = useState<Set<keyof Checklist>>(new Set());
+  const [selectedTasks, setSelectedTasks] = useState<Set<keyof CompletedTasks>>(new Set());
 
   const filteredAndSortedCases = useMemo(() => {
     let result = cases;

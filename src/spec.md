@@ -1,12 +1,12 @@
 # Specification
 
 ## Summary
-**Goal:** Fix the backend actor availability issue that prevents users from creating new surgery cases through the web interface.
+**Goal:** Allow users to select which tasks to track when creating a new surgery case.
 
 **Planned changes:**
-- Diagnose and resolve backend actor initialization problems that cause "actor not available" errors
-- Ensure the useActor hook properly recreates the actor instance after Internet Identity authentication
-- Add error boundary with user-friendly error messaging and retry mechanism for actor connection failures
-- Update CaseFormDialog to wait for actor availability before enabling case submission
+- Add seven task checkboxes to the case creation form (Discharge Notes, pDVM Notified, Labs, Histo, Surgery Report, Imaging, Culture)
+- Set default checked state for Discharge Notes and pDVM Notified; others default unchecked
+- Store only the selected tasks in the case data
+- Display only the selected tasks as checkboxes on the case card for completion tracking
 
-**User-visible outcome:** Users can successfully add new surgery cases without encountering "actor not available" errors, with clear feedback when the backend is initializing and the ability to retry if connection issues occur.
+**User-visible outcome:** When creating a new case, users can choose which tasks to track by checking/unchecking boxes. Only the selected tasks will appear on the case card as items to complete.
