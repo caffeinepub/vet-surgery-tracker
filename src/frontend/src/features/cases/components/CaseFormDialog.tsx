@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import type { SurgeryCase } from '../../../backend';
+import type { SurgeryCase, Task } from '../../../backend';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,13 +13,12 @@ import { useActor } from '../../../hooks/useActor';
 import { useDebouncedValue } from '../../../hooks/useDebouncedValue';
 import { SPECIES_OPTIONS, SEX_OPTIONS } from '../types';
 import type { CaseFormData } from '../types';
-import { getDefaultTaskSelection } from '../checklist';
+import { getDefaultTaskSelections } from '../checklist';
 import { dateToNanoseconds, nanosecondsToDate, validateMedicalRecordNumber, validatePetName, validateOwnerLastName, validateBreed } from '../validation';
 import { parseStructuredText } from '../parsing/parseStructuredText';
 import { toast } from 'sonner';
 import DateField from './DateField';
 import ChecklistEditor from './ChecklistEditor';
-import type { CompletedTasks } from '../../../backend';
 import { ChevronDown, Sparkles, AlertCircle, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -46,8 +45,8 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
   const [presentingComplaint, setPresentingComplaint] = useState('');
   const [notes, setNotes] = useState('');
   
-  // Task selection state - tracks which tasks to include in the case
-  const [taskSelection, setTaskSelection] = useState<CompletedTasks>(getDefaultTaskSelection());
+  // Task selection state - tracks which tasks to include and their completion status
+  const [task, setTask] = useState<Task>(getDefaultTaskSelections());
 
   // AI parsing state
   const [structuredText, setStructuredText] = useState('');
@@ -59,6 +58,11 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
 
   // Track which fields have been edited by the user in this dialog session
   const [editedFields, setEditedFields] = useState<Set<string>>(new Set());
+
+  // Refs for date field auto-advance
+  const arrivalDateRef = useRef<HTMLInputElement>(null);
+  const dateOfBirthRef = useRef<HTMLInputElement>(null);
+  const petNameRef = useRef<HTMLInputElement>(null);
 
   // Debounce the MRN input for lookup
   const debouncedMRN = useDebouncedValue(medicalRecordNumber, 500);
@@ -130,7 +134,7 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
       setDateOfBirth(existingCase.dateOfBirth ? nanosecondsToDate(existingCase.dateOfBirth) : null);
       setPresentingComplaint(existingCase.presentingComplaint);
       setNotes(existingCase.notes);
-      setTaskSelection(existingCase.completedTasks);
+      setTask(existingCase.task);
     }
   }, [existingCase]);
 
@@ -148,7 +152,7 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
         setDateOfBirth(null);
         setPresentingComplaint('');
         setNotes('');
-        setTaskSelection(getDefaultTaskSelection());
+        setTask(getDefaultTaskSelections());
         setStructuredText('');
         setIsParseOpen(false);
       }
@@ -296,18 +300,19 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
       const arrivalDateNs = dateToNanoseconds(arrivalDate);
       const dateOfBirthNs = dateOfBirth ? dateToNanoseconds(dateOfBirth) : null;
 
-      // When creating, only include selected tasks (set to false = incomplete)
-      // When editing, use the current task selection state
-      const completedTasks: CompletedTasks = isEditing 
-        ? taskSelection 
+      // When creating, ensure all *Completed fields are false
+      // When editing, use the current task state as-is
+      const taskToSubmit: Task = isEditing 
+        ? task 
         : {
-            dischargeNotes: taskSelection.dischargeNotes ? false : taskSelection.dischargeNotes,
-            pdvmNotified: taskSelection.pdvmNotified ? false : taskSelection.pdvmNotified,
-            labs: taskSelection.labs ? false : taskSelection.labs,
-            histo: taskSelection.histo ? false : taskSelection.histo,
-            surgeryReport: taskSelection.surgeryReport ? false : taskSelection.surgeryReport,
-            imaging: taskSelection.imaging ? false : taskSelection.imaging,
-            culture: taskSelection.culture ? false : taskSelection.culture,
+            ...task,
+            dischargeNotesCompleted: false,
+            pdvmNotifiedCompleted: false,
+            labsCompleted: false,
+            histoCompleted: false,
+            surgeryReportCompleted: false,
+            imagingCompleted: false,
+            cultureCompleted: false,
           };
 
       if (isEditing && existingCase) {
@@ -323,7 +328,7 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
           dateOfBirth: dateOfBirthNs,
           presentingComplaint,
           notes,
-          completedTasks,
+          task: taskToSubmit,
         });
         toast.success('Case updated successfully');
       } else {
@@ -338,7 +343,7 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
           dateOfBirth: dateOfBirthNs,
           presentingComplaint,
           notes,
-          completedTasks,
+          task: taskToSubmit,
         });
         toast.success('Case created successfully');
       }
@@ -380,40 +385,48 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Quick Actions */}
-          {!isEditing && (
-            <div className="flex gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setIsParseOpen(!isParseOpen)}
-                className="flex-1"
-                disabled={!actorReady}
-              >
-                <Sparkles className="h-4 w-4 mr-2" />
-                Quick Fill
-              </Button>
-            </div>
-          )}
-
-          {/* Quick Fill Collapsible */}
+          {/* Quick Fill Section */}
           {!isEditing && (
             <Collapsible open={isParseOpen} onOpenChange={setIsParseOpen}>
-              <CollapsibleContent className="space-y-3">
-                <div className="space-y-2">
-                  <Label htmlFor="structuredText">Paste Case Information</Label>
-                  <Textarea
-                    id="structuredText"
-                    value={structuredText}
-                    onChange={(e) => setStructuredText(e.target.value)}
-                    placeholder="Paste case information here (e.g., from a document or email)&#10;&#10;Example:&#10;MRN: 12345&#10;Pet Name: Max&#10;Owner: Smith&#10;Species: Canine&#10;..."
-                    rows={6}
-                    className="font-mono text-sm"
-                    disabled={!actorReady}
-                  />
-                </div>
-                <Button type="button" onClick={handleQuickFill} disabled={isParsing || !actorReady} className="w-full">
-                  {isParsing ? 'Parsing...' : 'Parse and Fill Fields'}
+              <CollapsibleTrigger asChild>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full justify-between"
+                  disabled={!actorReady}
+                >
+                  <span className="flex items-center gap-2">
+                    <Sparkles className="h-4 w-4" />
+                    Quick Fill from Text
+                  </span>
+                  <ChevronDown className={cn('h-4 w-4 transition-transform', isParseOpen && 'rotate-180')} />
+                </Button>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="space-y-3 pt-3">
+                <Textarea
+                  placeholder="Paste case information here (e.g., from a document or email)..."
+                  value={structuredText}
+                  onChange={(e) => setStructuredText(e.target.value)}
+                  className="min-h-[120px]"
+                  disabled={!actorReady}
+                />
+                <Button
+                  type="button"
+                  onClick={handleQuickFill}
+                  disabled={!structuredText.trim() || isParsing || !actorReady}
+                  className="w-full"
+                >
+                  {isParsing ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Parsing...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="mr-2 h-4 w-4" />
+                      Parse and Fill
+                    </>
+                  )}
                 </Button>
               </CollapsibleContent>
             </Collapsible>
@@ -428,221 +441,235 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
             </Alert>
           )}
 
-          {/* Form Fields */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="medicalRecordNumber">
-                Medical Record Number <span className="text-destructive">*</span>
-              </Label>
-              <Input
-                id="medicalRecordNumber"
-                value={medicalRecordNumber}
-                onChange={(e) => {
-                  setMedicalRecordNumber(e.target.value);
-                  markFieldAsEdited('medicalRecordNumber');
-                }}
-                required
-                disabled={!actorReady}
-                className={cn(isAutoFilled('medicalRecordNumber') && 'bg-blue-50 dark:bg-blue-950')}
-              />
-            </div>
+          {/* Basic Information */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Basic Information</h3>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="mrn">Medical Record Number *</Label>
+                <Input
+                  id="mrn"
+                  value={medicalRecordNumber}
+                  onChange={(e) => {
+                    setMedicalRecordNumber(e.target.value);
+                    markFieldAsEdited('medicalRecordNumber');
+                  }}
+                  placeholder="e.g., MRN12345"
+                  disabled={!actorReady || isSubmitting}
+                  className={cn(isAutoFilled('medicalRecordNumber') && 'bg-blue-50 dark:bg-blue-950')}
+                />
+              </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="arrivalDate">
-                Arrival Date <span className="text-destructive">*</span>
-              </Label>
-              <DateField
-                value={arrivalDate}
-                onChange={(date) => {
-                  setArrivalDate(date);
-                  markFieldAsEdited('arrivalDate');
-                }}
-                disabled={!actorReady}
-                className={cn(isAutoFilled('arrivalDate') && 'bg-blue-50 dark:bg-blue-950')}
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="petName">
-                Pet Name <span className="text-destructive">*</span>
-              </Label>
-              <Input
-                id="petName"
-                value={petName}
-                onChange={(e) => {
-                  setPetName(e.target.value);
-                  markFieldAsEdited('petName');
-                }}
-                required
-                disabled={!actorReady}
-                className={cn(isAutoFilled('petName') && 'bg-blue-50 dark:bg-blue-950')}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="ownerLastName">
-                Owner Last Name <span className="text-destructive">*</span>
-              </Label>
-              <Input
-                id="ownerLastName"
-                value={ownerLastName}
-                onChange={(e) => {
-                  setOwnerLastName(e.target.value);
-                  markFieldAsEdited('ownerLastName');
-                }}
-                required
-                disabled={!actorReady}
-                className={cn(isAutoFilled('ownerLastName') && 'bg-blue-50 dark:bg-blue-950')}
-              />
+              <div className="space-y-2">
+                <Label htmlFor="arrivalDate">Arrival Date *</Label>
+                <DateField
+                  id="arrivalDate"
+                  value={arrivalDate}
+                  onChange={(date) => {
+                    setArrivalDate(date);
+                    markFieldAsEdited('arrivalDate');
+                  }}
+                  disabled={!actorReady || isSubmitting}
+                  className={cn(isAutoFilled('arrivalDate') && 'bg-blue-50 dark:bg-blue-950')}
+                  onComplete={() => {
+                    // Auto-advance to date of birth field
+                    if (dateOfBirthRef.current) {
+                      dateOfBirthRef.current.focus();
+                    }
+                  }}
+                  inputRef={arrivalDateRef}
+                />
+              </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="species">
-                Species <span className="text-destructive">*</span>
-              </Label>
-              <Select
-                value={species}
-                onValueChange={(value) => {
-                  setSpecies(value);
-                  markFieldAsEdited('species');
-                }}
-                disabled={!actorReady}
-              >
-                <SelectTrigger
-                  id="species"
-                  className={cn(isAutoFilled('species') && 'bg-blue-50 dark:bg-blue-950')}
+          {/* Patient Information */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Patient Information</h3>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="petName">Pet Name *</Label>
+                <Input
+                  id="petName"
+                  ref={petNameRef}
+                  value={petName}
+                  onChange={(e) => {
+                    setPetName(e.target.value);
+                    markFieldAsEdited('petName');
+                  }}
+                  placeholder="e.g., Max"
+                  disabled={!actorReady || isSubmitting}
+                  className={cn(isAutoFilled('petName') && 'bg-blue-50 dark:bg-blue-950')}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="ownerLastName">Owner Last Name *</Label>
+                <Input
+                  id="ownerLastName"
+                  value={ownerLastName}
+                  onChange={(e) => {
+                    setOwnerLastName(e.target.value);
+                    markFieldAsEdited('ownerLastName');
+                  }}
+                  placeholder="e.g., Smith"
+                  disabled={!actorReady || isSubmitting}
+                  className={cn(isAutoFilled('ownerLastName') && 'bg-blue-50 dark:bg-blue-950')}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="species">Species *</Label>
+                <Select
+                  value={species}
+                  onValueChange={(value) => {
+                    setSpecies(value);
+                    markFieldAsEdited('species');
+                  }}
+                  disabled={!actorReady || isSubmitting}
                 >
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {SPECIES_OPTIONS.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                  <SelectTrigger
+                    id="species"
+                    className={cn(isAutoFilled('species') && 'bg-blue-50 dark:bg-blue-950')}
+                  >
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {SPECIES_OPTIONS.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="breed">Breed *</Label>
+                <Input
+                  id="breed"
+                  value={breed}
+                  onChange={(e) => {
+                    setBreed(e.target.value);
+                    markFieldAsEdited('breed');
+                  }}
+                  placeholder="e.g., Labrador Retriever"
+                  disabled={!actorReady || isSubmitting}
+                  className={cn(isAutoFilled('breed') && 'bg-blue-50 dark:bg-blue-950')}
+                />
+              </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="breed">
-                Breed <span className="text-destructive">*</span>
-              </Label>
-              <Input
-                id="breed"
-                value={breed}
-                onChange={(e) => {
-                  setBreed(e.target.value);
-                  markFieldAsEdited('breed');
-                }}
-                required
-                disabled={!actorReady}
-                className={cn(isAutoFilled('breed') && 'bg-blue-50 dark:bg-blue-950')}
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="sex">
-                Sex <span className="text-destructive">*</span>
-              </Label>
-              <Select
-                value={sex}
-                onValueChange={(value) => {
-                  setSex(value);
-                  markFieldAsEdited('sex');
-                }}
-                disabled={!actorReady}
-              >
-                <SelectTrigger
-                  id="sex"
-                  className={cn(isAutoFilled('sex') && 'bg-blue-50 dark:bg-blue-950')}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="sex">Sex *</Label>
+                <Select
+                  value={sex}
+                  onValueChange={(value) => {
+                    setSex(value);
+                    markFieldAsEdited('sex');
+                  }}
+                  disabled={!actorReady || isSubmitting}
                 >
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {SEX_OPTIONS.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                  <SelectTrigger
+                    id="sex"
+                    className={cn(isAutoFilled('sex') && 'bg-blue-50 dark:bg-blue-950')}
+                  >
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {SEX_OPTIONS.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="dateOfBirth">Date of Birth</Label>
+                <DateField
+                  id="dateOfBirth"
+                  value={dateOfBirth}
+                  onChange={(date) => {
+                    setDateOfBirth(date);
+                    markFieldAsEdited('dateOfBirth');
+                  }}
+                  disabled={!actorReady || isSubmitting}
+                  className={cn(isAutoFilled('dateOfBirth') && 'bg-blue-50 dark:bg-blue-950')}
+                  onComplete={() => {
+                    // Auto-advance to pet name field if it's empty
+                    if (!petName && petNameRef.current) {
+                      petNameRef.current.focus();
+                    }
+                  }}
+                  inputRef={dateOfBirthRef}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Clinical Information */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Clinical Information</h3>
+            
+            <div className="space-y-2">
+              <Label htmlFor="presentingComplaint">Presenting Complaint</Label>
+              <Textarea
+                id="presentingComplaint"
+                value={presentingComplaint}
+                onChange={(e) => {
+                  setPresentingComplaint(e.target.value);
+                  markFieldAsEdited('presentingComplaint');
+                }}
+                placeholder="Brief description of the presenting complaint..."
+                className={cn('min-h-[80px]', isAutoFilled('presentingComplaint') && 'bg-blue-50 dark:bg-blue-950')}
+                disabled={!actorReady || isSubmitting}
+              />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="dateOfBirth">Date of Birth</Label>
-              <DateField
-                value={dateOfBirth}
-                onChange={(date) => {
-                  setDateOfBirth(date);
-                  markFieldAsEdited('dateOfBirth');
-                }}
-                disabled={!actorReady}
-                className={cn(isAutoFilled('dateOfBirth') && 'bg-blue-50 dark:bg-blue-950')}
+              <Label htmlFor="notes">Notes</Label>
+              <Textarea
+                id="notes"
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="Additional notes..."
+                className="min-h-[100px]"
+                disabled={!actorReady || isSubmitting}
               />
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="presentingComplaint">Presenting Complaint</Label>
-            <Textarea
-              id="presentingComplaint"
-              value={presentingComplaint}
-              onChange={(e) => {
-                setPresentingComplaint(e.target.value);
-                markFieldAsEdited('presentingComplaint');
-              }}
-              rows={3}
-              disabled={!actorReady}
-              className={cn(isAutoFilled('presentingComplaint') && 'bg-blue-50 dark:bg-blue-950')}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="notes">Notes</Label>
-            <Textarea
-              id="notes"
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              rows={3}
-              disabled={!actorReady}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label>
-              {isEditing ? 'Task Completion Status' : 'Select Tasks to Include'}
-            </Label>
-            <p className="text-sm text-muted-foreground mb-2">
-              {isEditing 
-                ? 'Update the completion status of tasks for this case.' 
-                : 'Check the tasks that need to be completed for this case. They will appear as open checkboxes on the case card.'}
-            </p>
+          {/* Task Selection */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">
+              {isEditing ? 'Task Status' : 'Select Tasks to Include'}
+            </h3>
             <ChecklistEditor
-              checklist={taskSelection}
-              onChange={setTaskSelection}
-              disabled={!actorReady}
+              task={task}
+              onChange={setTask}
+              disabled={!actorReady || isSubmitting}
               mode={isEditing ? 'completion' : 'creation'}
             />
           </div>
 
-          <div className="flex gap-3 pt-4">
+          {/* Form Actions */}
+          <div className="flex justify-end gap-3 pt-4 border-t">
             <Button
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
-              className="flex-1"
               disabled={isSubmitting}
             >
               Cancel
             </Button>
-            <Button type="submit" className="flex-1" disabled={!actorReady || isSubmitting}>
+            <Button type="submit" disabled={!actorReady || isSubmitting}>
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />

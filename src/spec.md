@@ -1,12 +1,11 @@
 # Specification
 
 ## Summary
-**Goal:** Allow users to select which tasks to track when creating a new surgery case.
+**Goal:** Fix task selection workflow during case creation and improve date field formatting with auto-advance behavior.
 
 **Planned changes:**
-- Add seven task checkboxes to the case creation form (Discharge Notes, pDVM Notified, Labs, Histo, Surgery Report, Imaging, Culture)
-- Set default checked state for Discharge Notes and pDVM Notified; others default unchecked
-- Store only the selected tasks in the case data
-- Display only the selected tasks as checkboxes on the case card for completion tracking
+- Fix task selection so checked items during case creation appear as unchecked checkboxes in "Remaining Tasks" on the case card
+- Set default checkbox states: Discharge Notes (checked), pDVM Notified (checked), Labs (unchecked), Histo (unchecked), Surgery Report (unchecked), Imaging (unchecked), Culture (unchecked)
+- Change all date fields to MM/DD/YYYY format with auto-advance to next field when date entry is complete
 
-**User-visible outcome:** When creating a new case, users can choose which tasks to track by checking/unchecking boxes. Only the selected tasks will appear on the case card as items to complete.
+**User-visible outcome:** Users can select tasks during case creation that properly appear as incomplete tasks on case cards, default task selections reduce repetitive clicking, and date entry becomes faster with consistent formatting and automatic field navigation.

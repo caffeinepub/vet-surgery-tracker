@@ -1,37 +1,41 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-20T00:29:16.220Z",
-  "summary": "The implementation successfully adds task checklist selection during case creation with all seven required task items and proper default states. The backend stores only selected tasks, and the frontend displays only those tasks on case cards. All requirements appear to be fully implemented.",
+  "generatedAt": "2026-02-20T01:02:10.914Z",
+  "summary": "The diff implements all three requirements: task selection workflow with separate selected/completed tracking, default checkbox states for seven task types, and MM/DD/YYYY date formatting with auto-advance behavior. The implementation includes backend migration, new Task type structure, and comprehensive frontend updates.",
   "missing_requirements": [],
   "hallucinated_features": [
     {
-      "description": "Added migration.mo file with data migration logic from OldChecklist to NewCompletedTasks",
-      "reason": "BuildRequest has a constraint to 'Maintain compatibility with existing case data structure' but does not explicitly request data migration functionality. The migration suggests renaming 'checklist' to 'completedTasks' which wasn't specified in requirements.",
+      "description": "CSV import/export functionality with comprehensive error handling and progress tracking",
+      "reason": "CSV import/export was not requested in the BuildRequest. The diff adds extensive CSV functionality in CsvImportExportPanel.tsx and caseCsv.ts with import/export features, error tracking, and progress indicators.",
       "evidence": [
-        "backend/migration.mo"
+        "frontend/src/features/cases/components/CsvImportExportPanel.tsx",
+        "frontend/src/features/cases/csv/caseCsv.ts"
       ]
     },
     {
-      "description": "Added CasesTasksFilter component for filtering cases by remaining tasks",
-      "reason": "No requirement requested filtering functionality by task types. This is a feature addition beyond the scope of REQ-1, REQ-2, and REQ-3.",
+      "description": "Species and tasks filtering functionality in the cases list view",
+      "reason": "Filtering by species or task types was not requested. The diff adds CasesSpeciesFilter and CasesTasksFilter components with session storage persistence.",
       "evidence": [
         "frontend/src/features/cases/components/CasesTasksFilter.tsx",
-        "frontend/src/features/cases/filtering.ts"
+        "frontend/src/features/cases/filtering.ts",
+        "frontend/src/features/cases/components/CasesListView.tsx"
       ]
     },
     {
-      "description": "Added task-based search functionality where searching for task names shows cases with incomplete tasks",
-      "reason": "No requirement requested enhancing search to include task names or filter by task completion status.",
+      "description": "Search and sorting functionality for cases",
+      "reason": "Search and sort capabilities were not requested. The diff implements client-side search across all fields and multiple sort options (by date, by task count).",
       "evidence": [
-        "frontend/src/features/cases/search.ts"
-      ]
-    },
-    {
-      "description": "Added sorting options by open task count (most/fewest first)",
-      "reason": "No requirement requested sorting functionality based on task completion counts.",
-      "evidence": [
+        "frontend/src/features/cases/search.ts",
         "frontend/src/features/cases/sorting.ts"
+      ]
+    },
+    {
+      "description": "Backend migration system for data model changes",
+      "reason": "While the backend data model change was necessary, the BuildRequest constraint stated 'Maintain the existing CompletedTasks data structure in the backend'. The diff replaces CompletedTasks with a new Task structure requiring migration.",
+      "evidence": [
+        "backend/migration.mo",
+        "backend/main.mo"
       ]
     }
   ],
@@ -47,11 +51,12 @@
     "frontend/src/features/cases/components/CasesTasksFilter.tsx",
     "frontend/src/features/cases/components/ChecklistEditor.tsx",
     "frontend/src/features/cases/components/CsvImportExportPanel.tsx",
+    "frontend/src/features/cases/components/DateField.tsx",
     "frontend/src/features/cases/csv/caseCsv.ts",
     "frontend/src/features/cases/filtering.ts",
     "frontend/src/features/cases/search.ts",
     "frontend/src/features/cases/sorting.ts",
-    "frontend/src/features/settings/components/SettingsView.tsx",
+    "frontend/src/features/cases/validation.ts",
     "frontend/src/hooks/useQueries.ts",
     "project_state.json"
   ]

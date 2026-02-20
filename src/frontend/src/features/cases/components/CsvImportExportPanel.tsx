@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import type { SurgeryCase } from '../../../backend';
 import { Button } from '@/components/ui/button';
-import { Download, Upload, AlertCircle, CheckCircle2, Loader2 } from 'lucide-react';
+import { Download, Upload, AlertCircle, Loader2 } from 'lucide-react';
 import { exportCasesToCsv, importCasesFromCsv, type ImportError } from '../csv/caseCsv';
 import { useCreateCase, useUpdateCase } from '../../../hooks/useQueries';
 import { toast } from 'sonner';
@@ -249,8 +249,8 @@ export default function CsvImportExportPanel({ cases }: CsvImportExportPanelProp
             <div className="mt-3 text-xs">
               <strong>Expected CSV format:</strong> 17 columns with headers: Medical Record #, Arrival Date (M/D/YYYY), 
               Pet Name, Owner Last Name, Species (canine/feline/other), Breed, Sex (male/maleNeutered/female/femaleSpayed), 
-              Date of Birth (M/D/YYYY), Presenting Complaint, Notes, Discharge Notes, pDVM Notified (TRUE/FALSE), 
-              Labs (TRUE/FALSE), Histo (TRUE/FALSE), Surgery Report (TRUE/FALSE), Imaging (TRUE/FALSE), Culture (TRUE/FALSE)
+              Date of Birth (M/D/YYYY), Presenting Complaint, Notes, Discharge Notes, pDVM Notified, Labs, Histo, 
+              Surgery Report, Imaging, Culture (TRUE/FALSE or YES/NO or X/empty or 1/0)
             </div>
           </AlertDescription>
         </Alert>

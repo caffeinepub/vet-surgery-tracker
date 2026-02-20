@@ -5,11 +5,10 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Button } from '@/components/ui/button';
 import { ListTodo } from 'lucide-react';
 import { CHECKLIST_ITEMS } from '../checklist';
-import type { CompletedTasks } from '../../../backend';
 
 interface CasesTasksFilterProps {
-  selectedTaskTypes: Set<keyof CompletedTasks>;
-  onTaskTypesChange: (taskTypes: Set<keyof CompletedTasks>) => void;
+  selectedTaskTypes: Set<string>;
+  onTaskTypesChange: (taskTypes: Set<string>) => void;
 }
 
 const STORAGE_KEY = 'surgery-cases-task-types-filter';
@@ -23,7 +22,7 @@ export default function CasesTasksFilter({
     const stored = sessionStorage.getItem(STORAGE_KEY);
     if (stored) {
       try {
-        const parsed = JSON.parse(stored) as (keyof CompletedTasks)[];
+        const parsed = JSON.parse(stored) as string[];
         onTaskTypesChange(new Set(parsed));
       } catch (e) {
         console.error('Failed to parse stored task types filter:', e);
@@ -36,7 +35,7 @@ export default function CasesTasksFilter({
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(selectedTaskTypes)));
   }, [selectedTaskTypes]);
 
-  const handleToggle = (taskKey: keyof CompletedTasks) => {
+  const handleToggle = (taskKey: string) => {
     const newSet = new Set(selectedTaskTypes);
     if (newSet.has(taskKey)) {
       newSet.delete(taskKey);

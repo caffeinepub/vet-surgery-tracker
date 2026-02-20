@@ -1,33 +1,35 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Medical case management app with task tracking for discharge items",
+  "summary": "Veterinary case management system with task tracking and date field improvements",
   "architectural_notes": [
-    "Case creation includes configurable task checklist with 7 medical discharge items",
-    "Tasks selected during creation persist and display as checkboxes on case cards"
+    "Task management system with selectable items that flow from 'Select Tasks to Include' to 'Remaining Tasks'",
+    "Seven predefined task types for veterinary case workflow"
   ],
-  "known_issues": [],
-  "isFixRequest": false,
+  "known_issues": [
+    "Task selection not properly transferring checked items to Remaining Tasks"
+  ],
+  "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-add-checkboxes-to-the-case-creation-form-for-seven-task-items-discharge-notes-default-checked-pdvm-notified-default-checked-labs-default-unchecked-histo-default-unchecked-surgery-report-default-unchecked-imaging-default-unchecked-culture-default-unchecked",
-      "title": "Add checkboxes to the case creation form for seven task items: Discharge Notes (default checked), pDVM Notified (default checked), Labs (default unchecked), Histo (default unchecked), Surgery Report (default unchecked), Imaging (default unchecked), Culture (default unchecked)",
+      "id": "feature-fix-the-task-selection-workflow-so-that-items-checked-under-select-tasks-to-include-during-case-creation-properly-appear-in-remaining-tasks-on-the-case-card-with-unchecked-checkboxes-ready-to-be-completed",
+      "title": "Fix the task selection workflow so that items checked under 'Select Tasks to Include' during case creation properly appear in 'Remaining Tasks' on the case card with unchecked checkboxes ready to be completed",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-store-only-the-tasks-that-were-checked-during-case-creation-in-the-case-data-structure",
-      "title": "Store only the tasks that were checked during case creation in the case data structure",
+      "id": "feature-implement-task-checkboxes-with-correct-default-states-during-case-creation-discharge-notes-checked-by-default-pdvm-notified-checked-by-default-labs-unchecked-by-default-histo-unchecked-by-default-surgery-report-unchecked-by-default-imaging-unchecked-by-default-culture-unchecked-by-default",
+      "title": "Implement task checkboxes with correct default states during case creation: Discharge Notes (checked by default), pDVM Notified (checked by default), Labs (unchecked by default), Histo (unchecked by default), Surgery Report (unchecked by default), Imaging (unchecked by default), Culture (unchecked by default)",
       "reqIds": [
         "REQ-2"
       ],
       "version": 1
     },
     {
-      "id": "feature-display-only-the-tasks-that-were-selected-during-case-creation-on-the-case-card-as-open-checkboxes-that-can-be-marked-as-complete",
-      "title": "Display only the tasks that were selected during case creation on the case card as open checkboxes that can be marked as complete",
+      "id": "feature-format-all-date-input-fields-to-use-month-day-year-format-mm-dd-yyyy-and-implement-auto-advance-behavior-that-automatically-moves-focus-to-the-next-input-field-when-the-current-date-field-is-completed",
+      "title": "Format all date input fields to use month/day/year format (MM/DD/YYYY) and implement auto-advance behavior that automatically moves focus to the next input field when the current date field is completed",
       "reqIds": [
         "REQ-3"
       ],
@@ -37,20 +39,25 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Add task checklist when creating a case with 7 items (Discharge Notes, pDVM Notified, Labs, Histo, Surgery Report, Imaging, Culture) with specified defaults",
+      "summary": "Fix task selection: items checked in 'Select Tasks to Include' should appear in 'Remaining Tasks' with proper checkboxes",
       "reqIds": [],
       "status": "pending"
     },
     {
       "id": "AR-2",
-      "summary": "Display selected tasks from creation on case card as open checkboxes",
-      "reqIds": [
-        "AR-1"
-      ],
+      "summary": "Implement task checkboxes with defaults: Discharge Notes (yes), pDVM Notified (yes), Labs (no), Histo (no), Surgery Report (no), Imaging (no), Culture (no)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Format date fields as month/day/year with auto-advance to next field",
+      "reqIds": [],
       "status": "pending"
     }
   ],
-  "projectName": "Surgery Case Log",
+  "gameProjectType": "none",
+  "projectName": "Fix task selection workflow and improve date field formatting",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

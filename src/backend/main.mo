@@ -16,24 +16,27 @@ actor {
   public type Species = { #canine; #feline; #other };
   public type Sex = { #male; #maleNeutered; #female; #femaleSpayed };
 
-  public type Checklist = {
-    dischargeNotes : Bool;
-    pdvmNotified : Bool;
-    labs : Bool;
-    histo : Bool;
-    surgeryReport : Bool;
-    imaging : Bool;
-    culture : Bool;
-  };
+  public type Task = {
+    dischargeNotesSelected : Bool;
+    dischargeNotesCompleted : Bool;
 
-  public type CompletedTasks = {
-    dischargeNotes : Bool;
-    pdvmNotified : Bool;
-    labs : Bool;
-    histo : Bool;
-    surgeryReport : Bool;
-    imaging : Bool;
-    culture : Bool;
+    pdvmNotifiedSelected : Bool;
+    pdvmNotifiedCompleted : Bool;
+
+    labsSelected : Bool;
+    labsCompleted : Bool;
+
+    histoSelected : Bool;
+    histoCompleted : Bool;
+
+    surgeryReportSelected : Bool;
+    surgeryReportCompleted : Bool;
+
+    imagingSelected : Bool;
+    imagingCompleted : Bool;
+
+    cultureSelected : Bool;
+    cultureCompleted : Bool;
   };
 
   public type SurgeryCase = {
@@ -48,7 +51,7 @@ actor {
     dateOfBirth : ?Time.Time;
     presentingComplaint : Text;
     notes : Text;
-    completedTasks : CompletedTasks;
+    task : Task;
   };
 
   module SurgeryCase {
@@ -104,7 +107,7 @@ actor {
     dateOfBirth : ?Time.Time,
     presentingComplaint : Text,
     notes : Text,
-    completedTasks : CompletedTasks,
+    task : Task,
   ) : async SurgeryCase {
     checkUserPermission(caller);
 
@@ -120,7 +123,7 @@ actor {
       dateOfBirth;
       presentingComplaint;
       notes;
-      completedTasks;
+      task;
     };
 
     cases.add(nextId, newCase);
@@ -160,7 +163,7 @@ actor {
     dateOfBirth : ?Time.Time,
     presentingComplaint : Text,
     notes : Text,
-    completedTasks : CompletedTasks,
+    task : Task,
   ) : async () {
     checkUserPermission(caller);
 
@@ -181,7 +184,7 @@ actor {
       dateOfBirth;
       presentingComplaint;
       notes;
-      completedTasks;
+      task;
     };
 
     cases.add(id, updatedCase);
@@ -196,15 +199,15 @@ actor {
     };
   };
 
-  public query ({ caller }) func getCompletedTasks(id : Nat) : async CompletedTasks {
+  public query ({ caller }) func getTask(id : Nat) : async Task {
     checkUserPermission(caller);
     switch (cases.get(id)) {
       case (null) { Runtime.trap("Case not found") };
-      case (?surgeryCase) { surgeryCase.completedTasks };
+      case (?surgeryCase) { surgeryCase.task };
     };
   };
 
-  public shared ({ caller }) func updateCompletedTasks(id : Nat, completedTasks : CompletedTasks) : async () {
+  public shared ({ caller }) func updateTask(id : Nat, task : Task) : async () {
     checkUserPermission(caller);
 
     switch (cases.get(id)) {
@@ -212,7 +215,7 @@ actor {
       case (?existingCase) {
         let updatedCase : SurgeryCase = {
           existingCase with
-          completedTasks
+          task
         };
         cases.add(id, updatedCase);
       };

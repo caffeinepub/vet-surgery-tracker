@@ -7,27 +7,34 @@ export interface None {
     __kind__: "None";
 }
 export type Option<T> = Some<T> | None;
-export interface CompletedTasks {
-    pdvmNotified: boolean;
-    histo: boolean;
-    labs: boolean;
-    culture: boolean;
-    surgeryReport: boolean;
-    imaging: boolean;
-    dischargeNotes: boolean;
-}
 export type Time = bigint;
 export interface OpenAIConfig {
     initialized: boolean;
     apiKey: string;
 }
+export interface Task {
+    cultureCompleted: boolean;
+    cultureSelected: boolean;
+    pdvmNotifiedCompleted: boolean;
+    histoSelected: boolean;
+    labsSelected: boolean;
+    imagingCompleted: boolean;
+    surgeryReportCompleted: boolean;
+    imagingSelected: boolean;
+    dischargeNotesCompleted: boolean;
+    surgeryReportSelected: boolean;
+    dischargeNotesSelected: boolean;
+    histoCompleted: boolean;
+    pdvmNotifiedSelected: boolean;
+    labsCompleted: boolean;
+}
 export interface SurgeryCase {
     id: bigint;
     sex: Sex;
     arrivalDate: Time;
-    completedTasks: CompletedTasks;
     presentingComplaint: string;
     dateOfBirth?: Time;
+    task: Task;
     medicalRecordNumber: string;
     petName: string;
     notes: string;
@@ -56,7 +63,7 @@ export enum UserRole {
 }
 export interface backendInterface {
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
-    createCase(medicalRecordNumber: string, arrivalDate: Time, petName: string, ownerLastName: string, species: Species, breed: string, sex: Sex, dateOfBirth: Time | null, presentingComplaint: string, notes: string, completedTasks: CompletedTasks): Promise<SurgeryCase>;
+    createCase(medicalRecordNumber: string, arrivalDate: Time, petName: string, ownerLastName: string, species: Species, breed: string, sex: Sex, dateOfBirth: Time | null, presentingComplaint: string, notes: string, task: Task): Promise<SurgeryCase>;
     deleteCase(id: bigint): Promise<void>;
     getAllCases(): Promise<Array<SurgeryCase>>;
     getCallerUserProfile(): Promise<UserProfile | null>;
@@ -64,16 +71,16 @@ export interface backendInterface {
     getCase(id: bigint): Promise<SurgeryCase>;
     getCaseByMedicalRecordNumber(medicalRecordNumber: string): Promise<SurgeryCase | null>;
     getCasesByOwner(ownerLastName: string): Promise<Array<SurgeryCase>>;
-    getCompletedTasks(id: bigint): Promise<CompletedTasks>;
     getOpenAIConfig(): Promise<OpenAIConfig | null>;
+    getTask(id: bigint): Promise<Task>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
     isCallerAdmin(): Promise<boolean>;
     isCaseCreationAllowed(): Promise<boolean>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     searchCasesByMedicalRecordNumber(searchTerm: string): Promise<Array<SurgeryCase>>;
     setOpenAIConfig(apiKey: string): Promise<void>;
-    updateCase(id: bigint, medicalRecordNumber: string, arrivalDate: Time, petName: string, ownerLastName: string, species: Species, breed: string, sex: Sex, dateOfBirth: Time | null, presentingComplaint: string, notes: string, completedTasks: CompletedTasks): Promise<void>;
+    updateCase(id: bigint, medicalRecordNumber: string, arrivalDate: Time, petName: string, ownerLastName: string, species: Species, breed: string, sex: Sex, dateOfBirth: Time | null, presentingComplaint: string, notes: string, task: Task): Promise<void>;
     updateCaseNotes(id: bigint, notes: string): Promise<void>;
-    updateCompletedTasks(id: bigint, completedTasks: CompletedTasks): Promise<void>;
+    updateTask(id: bigint, task: Task): Promise<void>;
     validateOpenAIConfig(): Promise<boolean>;
 }

@@ -1,220 +1,252 @@
 import { useState } from 'react';
 import type { SurgeryCase } from '../../../backend';
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { Edit, Trash2, CheckCircle2 } from 'lucide-react';
-import { formatDate, calculateAge } from '../validation';
-import { getRemainingItems } from '../checklist';
-import { SPECIES_OPTIONS, SEX_OPTIONS } from '../types';
-import { useDeleteCase, useUpdateCompletedTasks } from '../../../hooks/useQueries';
+import { Textarea } from '@/components/ui/textarea';
+import { Pencil, Trash2, FileText } from 'lucide-react';
+import { useUpdateTask, useUpdateCaseNotes, useDeleteCase } from '../../../hooks/useQueries';
+import { getRemainingChecklistItems, getCompletedTaskCount, getTotalSelectedTaskCount } from '../checklist';
+import { nanosecondsToDate } from '../validation';
 import { toast } from 'sonner';
-import CaseFormDialog from './CaseFormDialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 interface CaseCardProps {
   surgeryCase: SurgeryCase;
+  onEdit: (surgeryCase: SurgeryCase) => void;
 }
 
-export default function CaseCard({ surgeryCase }: CaseCardProps) {
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const deleteCase = useDeleteCase();
-  const updateCompletedTasks = useUpdateCompletedTasks();
+export default function CaseCard({ surgeryCase, onEdit }: CaseCardProps) {
+  const [isNotesExpanded, setIsNotesExpanded] = useState(false);
+  const [editedNotes, setEditedNotes] = useState(surgeryCase.notes);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
-  const remainingItems = getRemainingItems(surgeryCase.completedTasks);
-  const speciesLabel = SPECIES_OPTIONS.find((opt) => opt.value === surgeryCase.species)?.label || surgeryCase.species;
-  const sexLabel = SEX_OPTIONS.find((opt) => opt.value === surgeryCase.sex)?.label || surgeryCase.sex;
+  const updateTask = useUpdateTask();
+  const updateNotes = useUpdateCaseNotes();
+  const deleteCase = useDeleteCase();
+
+  const remainingItems = getRemainingChecklistItems(surgeryCase.task);
+  const completedCount = getCompletedTaskCount(surgeryCase.task);
+  const totalSelectedCount = getTotalSelectedTaskCount(surgeryCase.task);
+
+  const handleTaskToggle = async (completedField: keyof typeof surgeryCase.task) => {
+    const currentValue = surgeryCase.task[completedField];
+    const updatedTask = {
+      ...surgeryCase.task,
+      [completedField]: !currentValue,
+    };
+
+    try {
+      await updateTask.mutateAsync({
+        id: surgeryCase.id,
+        task: updatedTask,
+      });
+      toast.success('Task updated');
+    } catch (error) {
+      console.error('[CaseCard] Error updating task', { error });
+      toast.error('Failed to update task');
+    }
+  };
+
+  const handleSaveNotes = async () => {
+    if (editedNotes === surgeryCase.notes) {
+      setIsNotesExpanded(false);
+      return;
+    }
+
+    try {
+      await updateNotes.mutateAsync({
+        id: surgeryCase.id,
+        notes: editedNotes,
+      });
+      toast.success('Notes updated');
+      setIsNotesExpanded(false);
+    } catch (error) {
+      console.error('[CaseCard] Error updating notes', { error });
+      toast.error('Failed to update notes');
+    }
+  };
 
   const handleDelete = async () => {
     try {
       await deleteCase.mutateAsync(surgeryCase.id);
-      toast.success('Case deleted successfully');
-      setIsDeleteDialogOpen(false);
+      toast.success('Case deleted');
+      setShowDeleteDialog(false);
     } catch (error) {
+      console.error('[CaseCard] Error deleting case', { error });
       toast.error('Failed to delete case');
-      console.error('Delete error:', error);
     }
   };
 
-  const handleTaskToggle = async (taskKey: keyof typeof surgeryCase.completedTasks) => {
-    try {
-      const updatedCompletedTasks = {
-        ...surgeryCase.completedTasks,
-        [taskKey]: true,
-      };
-      await updateCompletedTasks.mutateAsync({
-        id: surgeryCase.id,
-        completedTasks: updatedCompletedTasks,
-      });
-      toast.success('Task completed');
-    } catch (error) {
-      toast.error('Failed to update task');
-      console.error('Update error:', error);
-    }
-  };
+  const arrivalDateFormatted = nanosecondsToDate(surgeryCase.arrivalDate).toLocaleDateString('en-US', {
+    month: '2-digit',
+    day: '2-digit',
+    year: 'numeric',
+  });
+
+  const dateOfBirthFormatted = surgeryCase.dateOfBirth
+    ? nanosecondsToDate(surgeryCase.dateOfBirth).toLocaleDateString('en-US', {
+        month: '2-digit',
+        day: '2-digit',
+        year: 'numeric',
+      })
+    : 'N/A';
 
   return (
     <>
-      <Card className="hover:shadow-lg transition-shadow bg-white dark:bg-card">
+      <Card className="bg-white dark:bg-card">
         <CardHeader className="pb-3">
-          <div className="flex items-start justify-between gap-2 mb-2">
-            <CardTitle className="text-xl truncate flex-1" style={{ color: 'oklch(var(--patient-name))' }}>
-              {surgeryCase.petName}
-            </CardTitle>
-            <p className="text-sm text-muted-foreground shrink-0">
-              {formatDate(surgeryCase.arrivalDate)}
-            </p>
-          </div>
-          <div className="space-y-1">
-            <p className="text-sm text-muted-foreground">
-              MR# {surgeryCase.medicalRecordNumber}
-            </p>
-            <div className="inline-flex items-center px-2.5 py-1 rounded-full bg-primary/10 text-primary border-2 border-primary/40 text-sm font-medium">
-              {speciesLabel}
+          <div className="flex items-start justify-between">
+            <div className="flex-1">
+              <CardTitle className="text-xl text-primary">{surgeryCase.petName}</CardTitle>
+              <p className="text-sm text-muted-foreground mt-1">
+                MRN: {surgeryCase.medicalRecordNumber} | Owner: {surgeryCase.ownerLastName}
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <Button variant="ghost" size="icon" onClick={() => onEdit(surgeryCase)}>
+                <Pencil className="h-4 w-4" />
+              </Button>
+              <Button variant="ghost" size="icon" onClick={() => setShowDeleteDialog(true)}>
+                <Trash2 className="h-4 w-4" />
+              </Button>
             </div>
           </div>
         </CardHeader>
-        <CardContent className="space-y-3 text-sm">
-          <div className="grid grid-cols-2 gap-2">
+
+        <CardContent className="space-y-4">
+          {/* Patient Details */}
+          <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
             <div>
-              <p className="text-muted-foreground font-medium">Owner</p>
-              <p className="text-foreground">{surgeryCase.ownerLastName}</p>
+              <span className="font-medium">Species:</span> {surgeryCase.species}
             </div>
             <div>
-              <p className="text-muted-foreground font-medium">Sex</p>
-              <p className="text-foreground">{sexLabel}</p>
+              <span className="font-medium">Breed:</span> {surgeryCase.breed}
+            </div>
+            <div>
+              <span className="font-medium">Sex:</span> {surgeryCase.sex}
+            </div>
+            <div>
+              <span className="font-medium">DOB:</span> {dateOfBirthFormatted}
             </div>
             <div className="col-span-2">
-              <p className="text-muted-foreground font-medium">Breed</p>
-              <p className="text-foreground">{surgeryCase.breed}</p>
+              <span className="font-medium">Arrival:</span> {arrivalDateFormatted}
             </div>
-            {surgeryCase.dateOfBirth && (
-              <>
-                <div>
-                  <p className="text-muted-foreground font-medium">Date of Birth</p>
-                  <p className="text-foreground">{formatDate(surgeryCase.dateOfBirth)}</p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground font-medium">Age</p>
-                  <p className="text-foreground">{calculateAge(surgeryCase.dateOfBirth)}</p>
-                </div>
-              </>
-            )}
           </div>
 
+          {/* Presenting Complaint */}
           {surgeryCase.presentingComplaint && (
-            <div>
-              <p className="text-muted-foreground font-medium mb-1">Presenting Complaint</p>
-              <div 
-                className="p-3 rounded-md border-2" 
-                style={{ 
-                  backgroundColor: 'oklch(var(--complaint-bg))',
-                  borderColor: 'oklch(var(--complaint-border))',
-                  color: 'oklch(var(--complaint-text))'
-                }}
-              >
-                <p className="text-xs line-clamp-2">
-                  {surgeryCase.presentingComplaint}
-                </p>
-              </div>
+            <div className="rounded-lg bg-complaint p-3 border border-complaint-border">
+              <p className="text-sm font-medium text-complaint-foreground mb-1">Presenting Complaint</p>
+              <p className="text-sm text-foreground">{surgeryCase.presentingComplaint}</p>
             </div>
           )}
 
-          {surgeryCase.notes && (
-            <div>
-              <p className="text-muted-foreground font-medium mb-1">Notes</p>
-              <div className="p-3 rounded-md border-2 border-muted bg-muted/50">
-                <p className="text-foreground text-xs line-clamp-3">
-                  {surgeryCase.notes}
-                </p>
+          {/* Remaining Tasks */}
+          {totalSelectedCount > 0 && (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-medium">Remaining Tasks</p>
+                <Badge variant={remainingItems.length === 0 ? 'default' : 'secondary'}>
+                  {completedCount}/{totalSelectedCount}
+                </Badge>
               </div>
-            </div>
-          )}
-
-          <div>
-            <p className="text-muted-foreground font-medium mb-2">Remaining Tasks</p>
-            {remainingItems.length === 0 ? (
-              <div className="flex items-center gap-2 text-primary">
-                <CheckCircle2 className="h-4 w-4" />
-                <span className="text-sm font-medium">All tasks completed</span>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                {remainingItems.map((item) => {
-                  const isHisto = item.label === 'Histo';
-                  const isImaging = item.label === 'Imaging';
-                  
-                  return (
+              {remainingItems.length > 0 ? (
+                <div className="space-y-2 pl-1">
+                  {remainingItems.map((item) => (
                     <div key={item.key} className="flex items-center space-x-2">
                       <Checkbox
                         id={`task-${surgeryCase.id}-${item.key}`}
                         checked={false}
-                        onCheckedChange={() => handleTaskToggle(item.key)}
-                        disabled={updateCompletedTasks.isPending}
+                        onCheckedChange={() => handleTaskToggle(item.completedField)}
+                        disabled={updateTask.isPending}
                       />
                       <Label
                         htmlFor={`task-${surgeryCase.id}-${item.key}`}
-                        className={`text-sm font-normal cursor-pointer ${
-                          isHisto
-                            ? 'px-2 py-0.5 border-2 border-purple-500 rounded bg-purple-100 text-purple-700 dark:border-purple-400 dark:bg-purple-900/30 dark:text-purple-300'
-                            : isImaging
-                            ? 'px-2 py-0.5 border-2 border-primary/60 rounded bg-primary/10 text-primary'
-                            : 'text-foreground'
-                        }`}
+                        className="text-sm font-normal cursor-pointer"
                       >
                         {item.label}
                       </Label>
                     </div>
-                  );
-                })}
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground italic">All tasks completed! 🎉</p>
+              )}
+            </div>
+          )}
+
+          {/* Notes Section */}
+          <div className="space-y-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsNotesExpanded(!isNotesExpanded)}
+              className="w-full justify-start"
+            >
+              <FileText className="h-4 w-4 mr-2" />
+              {isNotesExpanded ? 'Hide Notes' : 'Show Notes'}
+            </Button>
+
+            {isNotesExpanded && (
+              <div className="space-y-2">
+                <Textarea
+                  value={editedNotes}
+                  onChange={(e) => setEditedNotes(e.target.value)}
+                  placeholder="Add notes..."
+                  className="min-h-[100px]"
+                  disabled={updateNotes.isPending}
+                />
+                <div className="flex justify-end gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setEditedNotes(surgeryCase.notes);
+                      setIsNotesExpanded(false);
+                    }}
+                    disabled={updateNotes.isPending}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    size="sm"
+                    onClick={handleSaveNotes}
+                    disabled={updateNotes.isPending || editedNotes === surgeryCase.notes}
+                  >
+                    {updateNotes.isPending ? 'Saving...' : 'Save Notes'}
+                  </Button>
+                </div>
               </div>
             )}
           </div>
         </CardContent>
-        <CardFooter className="pt-3 flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setIsEditDialogOpen(true)}
-            className="flex-1"
-          >
-            <Edit className="mr-2 h-3.5 w-3.5" />
-            Edit
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setIsDeleteDialogOpen(true)}
-            className="border-destructive/50 text-destructive hover:bg-destructive/10 dark:border-destructive dark:text-destructive dark:hover:bg-destructive/20"
-          >
-            <Trash2 className="h-3.5 w-3.5" />
-          </Button>
-        </CardFooter>
       </Card>
 
-      <CaseFormDialog
-        open={isEditDialogOpen}
-        onOpenChange={setIsEditDialogOpen}
-        existingCase={surgeryCase}
-      />
-
-      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Case</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete the case for <strong>{surgeryCase.petName}</strong> (MR# {surgeryCase.medicalRecordNumber})? This action cannot be undone.
+              Are you sure you want to delete the case for {surgeryCase.petName}? This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDelete}
-              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
-            >
-              {deleteCase.isPending ? 'Deleting...' : 'Delete'}
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground">
+              Delete
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

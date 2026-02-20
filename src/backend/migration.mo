@@ -2,7 +2,17 @@ import Map "mo:core/Map";
 import Nat "mo:core/Nat";
 
 module {
-  type OldChecklist = {
+  type Checklist = {
+    dischargeNotes : Bool;
+    pdvmNotified : Bool;
+    labs : Bool;
+    histo : Bool;
+    surgeryReport : Bool;
+    imaging : Bool;
+    culture : Bool;
+  };
+
+  type CompletedTasks = {
     dischargeNotes : Bool;
     pdvmNotified : Bool;
     labs : Bool;
@@ -18,27 +28,39 @@ module {
     arrivalDate : Int;
     petName : Text;
     ownerLastName : Text;
-    species : { #canine; #feline; #other };
+    species : {
+      #canine;
+      #feline;
+      #other;
+    };
     breed : Text;
-    sex : { #male; #maleNeutered; #female; #femaleSpayed };
+    sex : {
+      #male;
+      #maleNeutered;
+      #female;
+      #femaleSpayed;
+    };
     dateOfBirth : ?Int;
     presentingComplaint : Text;
     notes : Text;
-    checklist : OldChecklist;
+    completedTasks : CompletedTasks;
   };
 
-  type OldActor = {
-    cases : Map.Map<Nat, OldSurgeryCase>;
-  };
-
-  type NewCompletedTasks = {
-    dischargeNotes : Bool;
-    pdvmNotified : Bool;
-    labs : Bool;
-    histo : Bool;
-    surgeryReport : Bool;
-    imaging : Bool;
-    culture : Bool;
+  type Task = {
+    dischargeNotesSelected : Bool;
+    dischargeNotesCompleted : Bool;
+    pdvmNotifiedSelected : Bool;
+    pdvmNotifiedCompleted : Bool;
+    labsSelected : Bool;
+    labsCompleted : Bool;
+    histoSelected : Bool;
+    histoCompleted : Bool;
+    surgeryReportSelected : Bool;
+    surgeryReportCompleted : Bool;
+    imagingSelected : Bool;
+    imagingCompleted : Bool;
+    cultureSelected : Bool;
+    cultureCompleted : Bool;
   };
 
   type NewSurgeryCase = {
@@ -47,25 +69,80 @@ module {
     arrivalDate : Int;
     petName : Text;
     ownerLastName : Text;
-    species : { #canine; #feline; #other };
+    species : {
+      #canine;
+      #feline;
+      #other;
+    };
     breed : Text;
-    sex : { #male; #maleNeutered; #female; #femaleSpayed };
+    sex : {
+      #male;
+      #maleNeutered;
+      #female;
+      #femaleSpayed;
+    };
     dateOfBirth : ?Int;
     presentingComplaint : Text;
     notes : Text;
-    completedTasks : NewCompletedTasks;
+    task : Task;
+  };
+
+  type OldActor = {
+    nextId : Nat;
+    cases : Map.Map<Nat, OldSurgeryCase>;
+    userProfiles : Map.Map<Principal, { name : Text }>;
+    openAIConfig : ?{
+      apiKey : Text;
+      initialized : Bool;
+    };
   };
 
   type NewActor = {
+    nextId : Nat;
     cases : Map.Map<Nat, NewSurgeryCase>;
+    userProfiles : Map.Map<Principal, { name : Text }>;
+    openAIConfig : ?{
+      apiKey : Text;
+      initialized : Bool;
+    };
   };
 
   public func run(old : OldActor) : NewActor {
     let newCases = old.cases.map<Nat, OldSurgeryCase, NewSurgeryCase>(
       func(_id, oldCase) {
-        { oldCase with completedTasks = oldCase.checklist };
+        let task = {
+          dischargeNotesSelected = true;
+          dischargeNotesCompleted = oldCase.completedTasks.dischargeNotes;
+
+          pdvmNotifiedSelected = true;
+          pdvmNotifiedCompleted = oldCase.completedTasks.pdvmNotified;
+
+          labsSelected = true;
+          labsCompleted = oldCase.completedTasks.labs;
+
+          histoSelected = true;
+          histoCompleted = oldCase.completedTasks.histo;
+
+          surgeryReportSelected = true;
+          surgeryReportCompleted = oldCase.completedTasks.surgeryReport;
+
+          imagingSelected = true;
+          imagingCompleted = oldCase.completedTasks.imaging;
+
+          cultureSelected = true;
+          cultureCompleted = oldCase.completedTasks.culture;
+        };
+
+        {
+          oldCase with
+          task;
+        };
       }
     );
-    { cases = newCases };
+
+    {
+      old with
+      cases = newCases;
+    };
   };
 };

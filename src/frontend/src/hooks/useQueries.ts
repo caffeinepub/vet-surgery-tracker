@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useActor } from './useActor';
-import type { SurgeryCase, UserProfile, CompletedTasks } from '../backend';
+import type { SurgeryCase, UserProfile, Task } from '../backend';
 
 export function useGetAllCases() {
   const { actor, isFetching } = useActor();
@@ -51,7 +51,7 @@ export function useCreateCase() {
       dateOfBirth: bigint | null;
       presentingComplaint: string;
       notes: string;
-      completedTasks: CompletedTasks;
+      task: Task;
     }) => {
       if (!actor) throw new Error('Actor not available');
       console.log('[useCreateCase] Creating case with data:', {
@@ -72,7 +72,7 @@ export function useCreateCase() {
           data.dateOfBirth,
           data.presentingComplaint,
           data.notes,
-          data.completedTasks
+          data.task
         );
         console.log('[useCreateCase] Case created successfully:', result);
         return result;
@@ -111,7 +111,7 @@ export function useUpdateCase() {
       dateOfBirth: bigint | null;
       presentingComplaint: string;
       notes: string;
-      completedTasks: CompletedTasks;
+      task: Task;
     }) => {
       if (!actor) throw new Error('Actor not available');
       console.log('[useUpdateCase] Updating case with data:', {
@@ -134,7 +134,7 @@ export function useUpdateCase() {
           data.dateOfBirth,
           data.presentingComplaint,
           data.notes,
-          data.completedTasks
+          data.task
         );
         console.log('[useUpdateCase] Case updated successfully');
       } catch (error: any) {
@@ -185,23 +185,23 @@ export function useDeleteCase() {
   });
 }
 
-export function useUpdateCompletedTasks() {
+export function useUpdateTask() {
   const { actor } = useActor();
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: { id: bigint; completedTasks: CompletedTasks }) => {
+    mutationFn: async (data: { id: bigint; task: Task }) => {
       if (!actor) throw new Error('Actor not available');
-      console.log('[useUpdateCompletedTasks] Updating completed tasks:', {
+      console.log('[useUpdateTask] Updating task:', {
         id: data.id.toString(),
-        completedTasks: data.completedTasks,
+        task: data.task,
       });
 
       try {
-        await actor.updateCompletedTasks(data.id, data.completedTasks);
-        console.log('[useUpdateCompletedTasks] Completed tasks updated successfully');
+        await actor.updateTask(data.id, data.task);
+        console.log('[useUpdateTask] Task updated successfully');
       } catch (error: any) {
-        console.error('[useUpdateCompletedTasks] Error updating completed tasks:', {
+        console.error('[useUpdateTask] Error updating task:', {
           error,
           message: error?.message,
           stack: error?.stack,
@@ -210,7 +210,40 @@ export function useUpdateCompletedTasks() {
       }
     },
     onSuccess: () => {
-      console.log('[useUpdateCompletedTasks] Invalidating cases query');
+      console.log('[useUpdateTask] Invalidating cases query');
+      queryClient.invalidateQueries({ queryKey: ['cases'] });
+    },
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+  });
+}
+
+export function useUpdateCaseNotes() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: { id: bigint; notes: string }) => {
+      if (!actor) throw new Error('Actor not available');
+      console.log('[useUpdateCaseNotes] Updating notes:', {
+        id: data.id.toString(),
+        notesLength: data.notes.length,
+      });
+
+      try {
+        await actor.updateCaseNotes(data.id, data.notes);
+        console.log('[useUpdateCaseNotes] Notes updated successfully');
+      } catch (error: any) {
+        console.error('[useUpdateCaseNotes] Error updating notes:', {
+          error,
+          message: error?.message,
+          stack: error?.stack,
+        });
+        throw error;
+      }
+    },
+    onSuccess: () => {
+      console.log('[useUpdateCaseNotes] Invalidating cases query');
       queryClient.invalidateQueries({ queryKey: ['cases'] });
     },
     retry: 2,

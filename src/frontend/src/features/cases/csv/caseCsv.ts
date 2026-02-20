@@ -1,40 +1,8 @@
-import type { SurgeryCase, Species, Sex, CompletedTasks } from '../../../backend';
+import type { SurgeryCase, Species, Sex, Task } from '../../../backend';
 import { CSV_HEADERS } from './caseCsvSchema';
-import { parseDate, parseSpecies, parseSex } from '../validation';
-
-export function exportCasesToCsv(cases: SurgeryCase[]): void {
-  const headers = CSV_HEADERS.join(',');
-  const rows = cases.map((surgeryCase) => [
-    surgeryCase.medicalRecordNumber,
-    new Date(Number(surgeryCase.arrivalDate) / 1_000_000).toLocaleDateString('en-US'),
-    surgeryCase.petName,
-    surgeryCase.ownerLastName,
-    surgeryCase.species,
-    surgeryCase.breed,
-    surgeryCase.sex,
-    surgeryCase.dateOfBirth ? new Date(Number(surgeryCase.dateOfBirth) / 1_000_000).toLocaleDateString('en-US') : '',
-    surgeryCase.presentingComplaint,
-    surgeryCase.notes,
-    surgeryCase.completedTasks.dischargeNotes ? 'TRUE' : 'FALSE',
-    surgeryCase.completedTasks.pdvmNotified ? 'TRUE' : 'FALSE',
-    surgeryCase.completedTasks.labs ? 'TRUE' : 'FALSE',
-    surgeryCase.completedTasks.histo ? 'TRUE' : 'FALSE',
-    surgeryCase.completedTasks.surgeryReport ? 'TRUE' : 'FALSE',
-    surgeryCase.completedTasks.imaging ? 'TRUE' : 'FALSE',
-    surgeryCase.completedTasks.culture ? 'TRUE' : 'FALSE',
-  ].map((field) => `"${String(field).replace(/"/g, '""')}"`).join(','));
-
-  const csv = [headers, ...rows].join('\n');
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-  const link = document.createElement('a');
-  const url = URL.createObjectURL(blob);
-  link.setAttribute('href', url);
-  link.setAttribute('download', `vet-surgery-cases-${new Date().toISOString().split('T')[0]}.csv`);
-  link.style.visibility = 'hidden';
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-}
+import { parseDate, parseSpecies, parseSex, parseBoolean } from '../validation';
+import { dateToNanoseconds } from '../validation';
+import { getDefaultTaskSelections } from '../checklist';
 
 export interface ImportError {
   row: number;
@@ -56,42 +24,66 @@ export interface ImportResult {
       dateOfBirth: bigint | null;
       presentingComplaint: string;
       notes: string;
-      completedTasks: CompletedTasks;
+      task: Task;
     };
     existingCase?: SurgeryCase;
   }>;
   errors: ImportError[];
 }
 
-function parseBool(value: string): boolean {
-  const normalized = value.trim().toUpperCase();
-  if (normalized === 'TRUE' || normalized === 'YES' || normalized === '1' || normalized === 'X') {
-    return true;
-  }
-  if (normalized === 'FALSE' || normalized === 'NO' || normalized === '0' || normalized === '') {
-    return false;
-  }
-  throw new Error(`Invalid boolean value: "${value}". Expected TRUE/FALSE, YES/NO, 1/0, X/empty`);
+export function exportCasesToCsv(cases: SurgeryCase[]): void {
+  const rows: string[][] = [CSV_HEADERS.slice()];
+
+  cases.forEach((surgeryCase) => {
+    const arrivalDate = new Date(Number(surgeryCase.arrivalDate / 1_000_000n));
+    const dateOfBirth = surgeryCase.dateOfBirth
+      ? new Date(Number(surgeryCase.dateOfBirth / 1_000_000n))
+      : null;
+
+    rows.push([
+      surgeryCase.medicalRecordNumber,
+      `${arrivalDate.getMonth() + 1}/${arrivalDate.getDate()}/${arrivalDate.getFullYear()}`,
+      surgeryCase.petName,
+      surgeryCase.ownerLastName,
+      surgeryCase.species,
+      surgeryCase.breed,
+      surgeryCase.sex,
+      dateOfBirth ? `${dateOfBirth.getMonth() + 1}/${dateOfBirth.getDate()}/${dateOfBirth.getFullYear()}` : '',
+      surgeryCase.presentingComplaint,
+      surgeryCase.notes,
+      surgeryCase.task.dischargeNotesCompleted ? 'TRUE' : 'FALSE',
+      surgeryCase.task.pdvmNotifiedCompleted ? 'TRUE' : 'FALSE',
+      surgeryCase.task.labsCompleted ? 'TRUE' : 'FALSE',
+      surgeryCase.task.histoCompleted ? 'TRUE' : 'FALSE',
+      surgeryCase.task.surgeryReportCompleted ? 'TRUE' : 'FALSE',
+      surgeryCase.task.imagingCompleted ? 'TRUE' : 'FALSE',
+      surgeryCase.task.cultureCompleted ? 'TRUE' : 'FALSE',
+    ]);
+  });
+
+  const csvContent = rows.map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  const url = URL.createObjectURL(blob);
+  link.setAttribute('href', url);
+  link.setAttribute('download', `vet-surgery-cases-${new Date().toISOString().split('T')[0]}.csv`);
+  link.style.visibility = 'hidden';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 }
 
 export async function importCasesFromCsv(file: File, existingCases: SurgeryCase[]): Promise<ImportResult> {
+  const text = await file.text();
+  const lines = text.split(/\r?\n/).filter((line) => line.trim());
+
   console.log('[CSV Import] Starting import', {
-    fileName: file.name,
-    fileSize: file.size,
-    existingCasesCount: existingCases.length,
+    totalLines: lines.length,
     timestamp: new Date().toISOString(),
   });
 
-  const text = await file.text();
-  const lines = text.split('\n').filter((line) => line.trim());
-
-  console.log('[CSV Import] File parsed', {
-    totalLines: lines.length,
-    headerLine: lines[0]?.substring(0, 100),
-  });
-
-  if (lines.length < 2) {
-    throw new Error('CSV file is empty or has no data rows');
+  if (lines.length === 0) {
+    throw new Error('CSV file is empty');
   }
 
   const errors: ImportError[] = [];
@@ -103,324 +95,202 @@ export async function importCasesFromCsv(file: File, existingCases: SurgeryCase[
     const line = lines[i];
 
     console.log(`[CSV Import] Processing row ${rowNumber}`, {
-      linePreview: line.substring(0, 100),
+      lineLength: line.length,
+      timestamp: new Date().toISOString(),
     });
 
-    try {
-      // Parse CSV row (handle quoted fields)
-      const fields: string[] = [];
-      let currentField = '';
-      let inQuotes = false;
+    // Parse CSV row (handle quoted fields)
+    const fields: string[] = [];
+    let currentField = '';
+    let inQuotes = false;
 
-      for (let j = 0; j < line.length; j++) {
-        const char = line[j];
-        const nextChar = line[j + 1];
+    for (let j = 0; j < line.length; j++) {
+      const char = line[j];
+      const nextChar = line[j + 1];
 
-        if (char === '"') {
-          if (inQuotes && nextChar === '"') {
-            currentField += '"';
-            j++;
-          } else {
-            inQuotes = !inQuotes;
-          }
-        } else if (char === ',' && !inQuotes) {
-          fields.push(currentField.trim());
-          currentField = '';
+      if (char === '"') {
+        if (inQuotes && nextChar === '"') {
+          currentField += '"';
+          j++;
         } else {
-          currentField += char;
+          inQuotes = !inQuotes;
         }
+      } else if (char === ',' && !inQuotes) {
+        fields.push(currentField.trim());
+        currentField = '';
+      } else {
+        currentField += char;
       }
-      fields.push(currentField.trim());
+    }
+    fields.push(currentField.trim());
 
-      console.log(`[CSV Import] Row ${rowNumber} parsed into ${fields.length} fields`);
+    console.log(`[CSV Import] Row ${rowNumber} parsed into ${fields.length} fields`);
 
-      if (fields.length !== CSV_HEADERS.length) {
-        errors.push({
-          row: rowNumber,
-          field: 'row',
-          message: `Expected ${CSV_HEADERS.length} columns, found ${fields.length}`,
-        });
-        console.error(`[CSV Import] Row ${rowNumber} column count mismatch`, {
-          expected: CSV_HEADERS.length,
-          actual: fields.length,
-        });
-        continue;
-      }
-
-      const [
-        medicalRecordNumber,
-        arrivalDateStr,
-        petName,
-        ownerLastName,
-        speciesStr,
-        breed,
-        sexStr,
-        dateOfBirthStr,
-        presentingComplaint,
-        notes,
-        dischargeNotesStr,
-        pdvmNotifiedStr,
-        labsStr,
-        histoStr,
-        surgeryReportStr,
-        imagingStr,
-        cultureStr,
-      ] = fields;
-
-      console.log(`[CSV Import] Row ${rowNumber} checklist fields`, {
-        dischargeNotesStr,
-        pdvmNotifiedStr,
-        labsStr,
-        histoStr,
-        surgeryReportStr,
-        imagingStr,
-        cultureStr,
-      });
-
-      // Validate required fields
-      if (!medicalRecordNumber) {
-        errors.push({
-          row: rowNumber,
-          field: 'Medical Record #',
-          message: 'Medical Record Number is required',
-        });
-        continue;
-      }
-
-      if (!arrivalDateStr) {
-        errors.push({
-          row: rowNumber,
-          field: 'Arrival Date',
-          message: 'Arrival Date is required',
-        });
-        continue;
-      }
-
-      if (!petName) {
-        errors.push({
-          row: rowNumber,
-          field: 'Pet Name',
-          message: 'Pet Name is required',
-        });
-        continue;
-      }
-
-      if (!ownerLastName) {
-        errors.push({
-          row: rowNumber,
-          field: 'Owner Last Name',
-          message: 'Owner Last Name is required',
-        });
-        continue;
-      }
-
-      if (!breed) {
-        errors.push({
-          row: rowNumber,
-          field: 'Breed',
-          message: 'Breed is required',
-        });
-        continue;
-      }
-
-      // Parse dates
-      const arrivalDateParsed = parseDate(arrivalDateStr);
-      if (!arrivalDateParsed) {
-        errors.push({
-          row: rowNumber,
-          field: 'Arrival Date',
-          message: 'Invalid date format. Expected M/D/YYYY',
-          value: arrivalDateStr,
-        });
-        continue;
-      }
-
-      let dateOfBirth: Date | null = null;
-      if (dateOfBirthStr) {
-        dateOfBirth = parseDate(dateOfBirthStr);
-        if (!dateOfBirth) {
-          errors.push({
-            row: rowNumber,
-            field: 'Date of Birth',
-            message: 'Invalid date format. Expected M/D/YYYY',
-            value: dateOfBirthStr,
-          });
-        }
-      }
-
-      // Parse species
-      const speciesParsed = parseSpecies(speciesStr);
-      if (!speciesParsed) {
-        errors.push({
-          row: rowNumber,
-          field: 'Species',
-          message: 'Invalid species. Expected: canine, feline, or other',
-          value: speciesStr,
-        });
-        continue;
-      }
-
-      // Parse sex
-      const sexParsed = parseSex(sexStr);
-      if (!sexParsed) {
-        errors.push({
-          row: rowNumber,
-          field: 'Sex',
-          message: 'Invalid sex. Expected: male, maleNeutered, female, or femaleSpayed',
-          value: sexStr,
-        });
-        continue;
-      }
-
-      // Parse checklist fields individually
-      let dischargeNotes: boolean;
-      let pdvmNotified: boolean;
-      let labs: boolean;
-      let histo: boolean;
-      let surgeryReport: boolean;
-      let imaging: boolean;
-      let culture: boolean;
-
-      try {
-        dischargeNotes = parseBool(dischargeNotesStr);
-        console.log(`[CSV Import] Row ${rowNumber} dischargeNotes parsed:`, dischargeNotes);
-      } catch (error) {
-        errors.push({
-          row: rowNumber,
-          field: 'Discharge Notes',
-          message: error instanceof Error ? error.message : 'Invalid boolean value',
-          value: dischargeNotesStr,
-        });
-        continue;
-      }
-
-      try {
-        pdvmNotified = parseBool(pdvmNotifiedStr);
-        console.log(`[CSV Import] Row ${rowNumber} pdvmNotified parsed:`, pdvmNotified);
-      } catch (error) {
-        errors.push({
-          row: rowNumber,
-          field: 'pDVM Notified',
-          message: error instanceof Error ? error.message : 'Invalid boolean value',
-          value: pdvmNotifiedStr,
-        });
-        continue;
-      }
-
-      try {
-        labs = parseBool(labsStr);
-        console.log(`[CSV Import] Row ${rowNumber} labs parsed:`, labs);
-      } catch (error) {
-        errors.push({
-          row: rowNumber,
-          field: 'Labs',
-          message: error instanceof Error ? error.message : 'Invalid boolean value',
-          value: labsStr,
-        });
-        continue;
-      }
-
-      try {
-        histo = parseBool(histoStr);
-        console.log(`[CSV Import] Row ${rowNumber} histo parsed:`, histo);
-      } catch (error) {
-        errors.push({
-          row: rowNumber,
-          field: 'Histo',
-          message: error instanceof Error ? error.message : 'Invalid boolean value',
-          value: histoStr,
-        });
-        continue;
-      }
-
-      try {
-        surgeryReport = parseBool(surgeryReportStr);
-        console.log(`[CSV Import] Row ${rowNumber} surgeryReport parsed:`, surgeryReport);
-      } catch (error) {
-        errors.push({
-          row: rowNumber,
-          field: 'Surgery Report',
-          message: error instanceof Error ? error.message : 'Invalid boolean value',
-          value: surgeryReportStr,
-        });
-        continue;
-      }
-
-      try {
-        imaging = parseBool(imagingStr);
-        console.log(`[CSV Import] Row ${rowNumber} imaging parsed:`, imaging);
-      } catch (error) {
-        errors.push({
-          row: rowNumber,
-          field: 'Imaging',
-          message: error instanceof Error ? error.message : 'Invalid boolean value',
-          value: imagingStr,
-        });
-        continue;
-      }
-
-      try {
-        culture = parseBool(cultureStr);
-        console.log(`[CSV Import] Row ${rowNumber} culture parsed:`, culture);
-      } catch (error) {
-        errors.push({
-          row: rowNumber,
-          field: 'Culture',
-          message: error instanceof Error ? error.message : 'Invalid boolean value',
-          value: cultureStr,
-        });
-        continue;
-      }
-
-      const completedTasks: CompletedTasks = {
-        dischargeNotes,
-        pdvmNotified,
-        labs,
-        histo,
-        surgeryReport,
-        imaging,
-        culture,
-      };
-
-      console.log(`[CSV Import] Row ${rowNumber} completedTasks object:`, completedTasks);
-
-      // Check if case already exists
-      const existingCase = existingCases.find(
-        (c) => c.medicalRecordNumber === medicalRecordNumber
-      );
-
-      cases.push({
-        data: {
-          medicalRecordNumber,
-          arrivalDate: BigInt(arrivalDateParsed.getTime()) * BigInt(1_000_000),
-          petName,
-          ownerLastName,
-          species: speciesParsed,
-          breed,
-          sex: sexParsed,
-          dateOfBirth: dateOfBirth ? BigInt(dateOfBirth.getTime()) * BigInt(1_000_000) : null,
-          presentingComplaint,
-          notes,
-          completedTasks,
-        },
-        existingCase,
-      });
-
-      console.log(`[CSV Import] Row ${rowNumber} successfully parsed`, {
-        medicalRecordNumber,
-        isUpdate: !!existingCase,
-      });
-    } catch (error) {
+    if (fields.length !== 17) {
       errors.push({
         row: rowNumber,
         field: 'row',
-        message: error instanceof Error ? error.message : 'Unknown parsing error',
+        message: `Expected 17 columns, found ${fields.length}`,
       });
-      console.error(`[CSV Import] Row ${rowNumber} parsing error:`, error);
+      continue;
     }
+
+    const [
+      medicalRecordNumber,
+      arrivalDateStr,
+      petName,
+      ownerLastName,
+      speciesStr,
+      breed,
+      sexStr,
+      dateOfBirthStr,
+      presentingComplaint,
+      notes,
+      dischargeNotesStr,
+      pdvmNotifiedStr,
+      labsStr,
+      histoStr,
+      surgeryReportStr,
+      imagingStr,
+      cultureStr,
+    ] = fields;
+
+    // Validate and parse fields
+    let hasError = false;
+
+    if (!medicalRecordNumber) {
+      errors.push({ row: rowNumber, field: 'Medical Record #', message: 'Required field is empty' });
+      hasError = true;
+    }
+
+    const arrivalDate = parseDate(arrivalDateStr);
+    if (!arrivalDate) {
+      errors.push({
+        row: rowNumber,
+        field: 'Arrival Date',
+        message: 'Invalid date format (expected M/D/YYYY)',
+        value: arrivalDateStr,
+      });
+      hasError = true;
+    }
+
+    if (!petName) {
+      errors.push({ row: rowNumber, field: 'Pet Name', message: 'Required field is empty' });
+      hasError = true;
+    }
+
+    if (!ownerLastName) {
+      errors.push({ row: rowNumber, field: 'Owner Last Name', message: 'Required field is empty' });
+      hasError = true;
+    }
+
+    const species = parseSpecies(speciesStr);
+    if (!species) {
+      errors.push({
+        row: rowNumber,
+        field: 'Species',
+        message: 'Invalid species (expected canine, feline, or other)',
+        value: speciesStr,
+      });
+      hasError = true;
+    }
+
+    if (!breed) {
+      errors.push({ row: rowNumber, field: 'Breed', message: 'Required field is empty' });
+      hasError = true;
+    }
+
+    const sex = parseSex(sexStr);
+    if (!sex) {
+      errors.push({
+        row: rowNumber,
+        field: 'Sex',
+        message: 'Invalid sex (expected male, maleNeutered, female, or femaleSpayed)',
+        value: sexStr,
+      });
+      hasError = true;
+    }
+
+    const dateOfBirth = dateOfBirthStr ? parseDate(dateOfBirthStr) : null;
+    if (dateOfBirthStr && !dateOfBirth) {
+      errors.push({
+        row: rowNumber,
+        field: 'Date of Birth',
+        message: 'Invalid date format (expected M/D/YYYY)',
+        value: dateOfBirthStr,
+      });
+    }
+
+    // Parse task completion fields
+    const dischargeNotesCompleted = parseBoolean(dischargeNotesStr);
+    const pdvmNotifiedCompleted = parseBoolean(pdvmNotifiedStr);
+    const labsCompleted = parseBoolean(labsStr);
+    const histoCompleted = parseBoolean(histoStr);
+    const surgeryReportCompleted = parseBoolean(surgeryReportStr);
+    const imagingCompleted = parseBoolean(imagingStr);
+    const cultureCompleted = parseBoolean(cultureStr);
+
+    console.log(`[CSV Import] Row ${rowNumber} task fields parsed`, {
+      dischargeNotesCompleted,
+      pdvmNotifiedCompleted,
+      labsCompleted,
+      histoCompleted,
+      surgeryReportCompleted,
+      imagingCompleted,
+      cultureCompleted,
+    });
+
+    if (hasError) {
+      console.warn(`[CSV Import] Row ${rowNumber} has validation errors, skipping`);
+      continue;
+    }
+
+    // Check if case already exists
+    const existingCase = existingCases.find((c) => c.medicalRecordNumber === medicalRecordNumber);
+
+    // Create task object with both selected and completed fields
+    // For CSV import, we assume all tasks are selected if they have any value
+    const task: Task = {
+      dischargeNotesSelected: true,
+      dischargeNotesCompleted,
+      pdvmNotifiedSelected: true,
+      pdvmNotifiedCompleted,
+      labsSelected: true,
+      labsCompleted,
+      histoSelected: true,
+      histoCompleted,
+      surgeryReportSelected: true,
+      surgeryReportCompleted,
+      imagingSelected: true,
+      imagingCompleted,
+      cultureSelected: true,
+      cultureCompleted,
+    };
+
+    cases.push({
+      data: {
+        medicalRecordNumber,
+        arrivalDate: dateToNanoseconds(arrivalDate!),
+        petName,
+        ownerLastName,
+        species: species!,
+        breed,
+        sex: sex!,
+        dateOfBirth: dateOfBirth ? dateToNanoseconds(dateOfBirth) : null,
+        presentingComplaint,
+        notes,
+        task,
+      },
+      existingCase,
+    });
+
+    console.log(`[CSV Import] Row ${rowNumber} successfully parsed`, {
+      medicalRecordNumber,
+      isUpdate: !!existingCase,
+    });
   }
 
-  console.log('[CSV Import] Import complete', {
+  console.log('[CSV Import] Import parsing complete', {
     totalRows: lines.length - 1,
     successfulCases: cases.length,
     errors: errors.length,

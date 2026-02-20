@@ -2,9 +2,11 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-add-checkboxes-to-the-case-creation-form-for-seven-task-items-discharge-notes-default-checked-pdvm-notified-default-checked-labs-default-unchecked-histo-default-unchecked-surgery-report-default-unchecked-imaging-default-unchecked-culture-default-unchecked",
-      "featureTitle": "Add checkboxes to the case creation form for seven task items: Discharge Notes (default checked), pDVM Notified (default checked), Labs (default unchecked), Histo (default unchecked), Surgery Report (default unchecked), Imaging (default unchecked), Culture (default unchecked)",
+      "featureId": "feature-fix-the-task-selection-workflow-so-that-items-checked-under-select-tasks-to-include-during-case-creation-properly-appear-in-remaining-tasks-on-the-case-card-with-unchecked-checkboxes-ready-to-be-completed",
+      "featureTitle": "Fix the task selection workflow so that items checked under 'Select Tasks to Include' during case creation properly appear in 'Remaining Tasks' on the case card with unchecked checkboxes ready to be completed",
       "files": [
+        "frontend/src/features/cases/checklist.ts",
+        "frontend/src/features/cases/components/CaseCard.tsx",
         "frontend/src/features/cases/components/CaseFormDialog.tsx",
         "frontend/src/features/cases/components/ChecklistEditor.tsx"
       ],
@@ -24,9 +26,10 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-store-only-the-tasks-that-were-checked-during-case-creation-in-the-case-data-structure",
-      "featureTitle": "Store only the tasks that were checked during case creation in the case data structure",
+      "featureId": "feature-implement-task-checkboxes-with-correct-default-states-during-case-creation-discharge-notes-checked-by-default-pdvm-notified-checked-by-default-labs-unchecked-by-default-histo-unchecked-by-default-surgery-report-unchecked-by-default-imaging-unchecked-by-default-culture-unchecked-by-default",
+      "featureTitle": "Implement task checkboxes with correct default states during case creation: Discharge Notes (checked by default), pDVM Notified (checked by default), Labs (unchecked by default), Histo (unchecked by default), Surgery Report (unchecked by default), Imaging (unchecked by default), Culture (unchecked by default)",
       "files": [
+        "frontend/src/features/cases/checklist.ts",
         "frontend/src/features/cases/components/CaseFormDialog.tsx"
       ],
       "components": [
@@ -45,11 +48,11 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-display-only-the-tasks-that-were-selected-during-case-creation-on-the-case-card-as-open-checkboxes-that-can-be-marked-as-complete",
-      "featureTitle": "Display only the tasks that were selected during case creation on the case card as open checkboxes that can be marked as complete",
+      "featureId": "feature-format-all-date-input-fields-to-use-month-day-year-format-mm-dd-yyyy-and-implement-auto-advance-behavior-that-automatically-moves-focus-to-the-next-input-field-when-the-current-date-field-is-completed",
+      "featureTitle": "Format all date input fields to use month/day/year format (MM/DD/YYYY) and implement auto-advance behavior that automatically moves focus to the next input field when the current date field is completed",
       "files": [
-        "frontend/src/features/cases/checklist.ts",
-        "frontend/src/features/cases/components/CaseCard.tsx"
+        "frontend/src/features/cases/components/CaseFormDialog.tsx",
+        "frontend/src/features/cases/components/DateField.tsx"
       ],
       "components": [
         "authorization@4.0.0",

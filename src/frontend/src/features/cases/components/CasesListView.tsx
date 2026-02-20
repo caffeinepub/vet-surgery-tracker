@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useGetAllCases } from '../../../hooks/useQueries';
 import { useActor } from '../../../hooks/useActor';
+import type { SurgeryCase } from '../../../backend';
 import CaseCard from './CaseCard';
 import CaseFormDialog from './CaseFormDialog';
 import CasesSearchBar from './CasesSearchBar';
@@ -13,7 +14,7 @@ import { Plus, AlertCircle } from 'lucide-react';
 import { filterCasesBySpecies, filterCasesByTaskTypes } from '../filtering';
 import { searchCases } from '../search';
 import { sortCases, type SortOption } from '../sorting';
-import type { Species, CompletedTasks } from '../../../backend';
+import type { Species } from '../../../backend';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
@@ -21,10 +22,11 @@ export default function CasesListView() {
   const { actor, isFetching: actorFetching } = useActor();
   const { data: cases = [], isLoading, error } = useGetAllCases();
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingCase, setEditingCase] = useState<SurgeryCase | undefined>(undefined);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOption, setSortOption] = useState<SortOption>('arrival-date-newest');
   const [selectedSpecies, setSelectedSpecies] = useState<Set<Species>>(new Set());
-  const [selectedTasks, setSelectedTasks] = useState<Set<keyof CompletedTasks>>(new Set());
+  const [selectedTasks, setSelectedTasks] = useState<Set<string>>(new Set());
 
   const filteredAndSortedCases = useMemo(() => {
     let result = cases;
@@ -51,6 +53,18 @@ export default function CasesListView() {
   const filteredCount = filteredAndSortedCases.length;
 
   const actorReady = !!actor && !actorFetching;
+
+  const handleEdit = (surgeryCase: SurgeryCase) => {
+    setEditingCase(surgeryCase);
+    setIsFormOpen(true);
+  };
+
+  const handleFormClose = (open: boolean) => {
+    setIsFormOpen(open);
+    if (!open) {
+      setEditingCase(undefined);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -144,13 +158,21 @@ export default function CasesListView() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredAndSortedCases.map((surgeryCase) => (
-            <CaseCard key={surgeryCase.id.toString()} surgeryCase={surgeryCase} />
+            <CaseCard 
+              key={surgeryCase.id.toString()} 
+              surgeryCase={surgeryCase}
+              onEdit={handleEdit}
+            />
           ))}
         </div>
       )}
 
       {/* Dialogs */}
-      <CaseFormDialog open={isFormOpen} onOpenChange={setIsFormOpen} />
+      <CaseFormDialog 
+        open={isFormOpen} 
+        onOpenChange={handleFormClose}
+        existingCase={editingCase}
+      />
     </div>
   );
 }

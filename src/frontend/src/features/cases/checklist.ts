@@ -1,55 +1,112 @@
-import type { CompletedTasks } from '../../backend';
+import type { Task } from '../../backend';
 
 export interface ChecklistItem {
-  key: keyof CompletedTasks;
+  key: string;
   label: string;
-  defaultChecked: boolean;
+  defaultSelected: boolean;
+  selectedField: keyof Task;
+  completedField: keyof Task;
 }
 
 export const CHECKLIST_ITEMS: ChecklistItem[] = [
-  { key: 'dischargeNotes', label: 'Discharge Notes', defaultChecked: true },
-  { key: 'pdvmNotified', label: 'pDVM Notified', defaultChecked: true },
-  { key: 'labs', label: 'Labs', defaultChecked: false },
-  { key: 'histo', label: 'Histo', defaultChecked: false },
-  { key: 'surgeryReport', label: 'Surgery Report', defaultChecked: false },
-  { key: 'imaging', label: 'Imaging', defaultChecked: false },
-  { key: 'culture', label: 'Culture', defaultChecked: false },
+  { 
+    key: 'dischargeNotes', 
+    label: 'Discharge Notes', 
+    defaultSelected: true,
+    selectedField: 'dischargeNotesSelected',
+    completedField: 'dischargeNotesCompleted'
+  },
+  { 
+    key: 'pdvmNotified', 
+    label: 'pDVM Notified', 
+    defaultSelected: true,
+    selectedField: 'pdvmNotifiedSelected',
+    completedField: 'pdvmNotifiedCompleted'
+  },
+  { 
+    key: 'labs', 
+    label: 'Labs', 
+    defaultSelected: false,
+    selectedField: 'labsSelected',
+    completedField: 'labsCompleted'
+  },
+  { 
+    key: 'histo', 
+    label: 'Histo', 
+    defaultSelected: false,
+    selectedField: 'histoSelected',
+    completedField: 'histoCompleted'
+  },
+  { 
+    key: 'surgeryReport', 
+    label: 'Surgery Report', 
+    defaultSelected: false,
+    selectedField: 'surgeryReportSelected',
+    completedField: 'surgeryReportCompleted'
+  },
+  { 
+    key: 'imaging', 
+    label: 'Imaging', 
+    defaultSelected: false,
+    selectedField: 'imagingSelected',
+    completedField: 'imagingCompleted'
+  },
+  { 
+    key: 'culture', 
+    label: 'Culture', 
+    defaultSelected: false,
+    selectedField: 'cultureSelected',
+    completedField: 'cultureCompleted'
+  },
 ];
 
-export function getDefaultTaskSelection(): CompletedTasks {
+export function getDefaultTaskSelections(): Task {
   return {
-    dischargeNotes: true,
-    pdvmNotified: true,
-    labs: false,
-    histo: false,
-    surgeryReport: false,
-    imaging: false,
-    culture: false,
+    dischargeNotesSelected: true,
+    dischargeNotesCompleted: false,
+    pdvmNotifiedSelected: true,
+    pdvmNotifiedCompleted: false,
+    labsSelected: false,
+    labsCompleted: false,
+    histoSelected: false,
+    histoCompleted: false,
+    surgeryReportSelected: false,
+    surgeryReportCompleted: false,
+    imagingSelected: false,
+    imagingCompleted: false,
+    cultureSelected: false,
+    cultureCompleted: false,
   };
 }
 
 export interface RemainingItem {
-  key: keyof CompletedTasks;
+  key: string;
   label: string;
+  selectedField: keyof Task;
+  completedField: keyof Task;
 }
 
-export function getSelectedTasks(completedTasks: CompletedTasks): ChecklistItem[] {
+export function getRemainingChecklistItems(task: Task): RemainingItem[] {
   return CHECKLIST_ITEMS.filter((item) => {
-    const taskValue = completedTasks[item.key];
-    return taskValue !== undefined;
-  });
-}
-
-export function getRemainingItems(completedTasks: CompletedTasks): RemainingItem[] {
-  return CHECKLIST_ITEMS.filter((item) => {
-    const taskValue = completedTasks[item.key];
-    return taskValue === false;
+    const isSelected = task[item.selectedField];
+    const isCompleted = task[item.completedField];
+    return isSelected === true && isCompleted === false;
   }).map((item) => ({
     key: item.key,
     label: item.label,
+    selectedField: item.selectedField,
+    completedField: item.completedField,
   }));
 }
 
-export function getRemainingTaskCount(completedTasks: CompletedTasks): number {
-  return CHECKLIST_ITEMS.filter((item) => completedTasks[item.key] === false).length;
+export function getCompletedTaskCount(task: Task): number {
+  return CHECKLIST_ITEMS.filter((item) => {
+    const isSelected = task[item.selectedField];
+    const isCompleted = task[item.completedField];
+    return isSelected === true && isCompleted === true;
+  }).length;
+}
+
+export function getTotalSelectedTaskCount(task: Task): number {
+  return CHECKLIST_ITEMS.filter((item) => task[item.selectedField] === true).length;
 }

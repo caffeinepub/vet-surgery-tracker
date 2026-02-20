@@ -1,24 +1,41 @@
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
-import type { CompletedTasks } from '../../../backend';
+import type { Task } from '../../../backend';
 import { CHECKLIST_ITEMS } from '../checklist';
 
 interface ChecklistEditorProps {
-  checklist: CompletedTasks;
-  onChange: (checklist: CompletedTasks) => void;
+  task: Task;
+  onChange: (task: Task) => void;
   disabled?: boolean;
   mode?: 'creation' | 'completion';
 }
 
-export default function ChecklistEditor({ checklist, onChange, disabled, mode = 'completion' }: ChecklistEditorProps) {
-  const handleCheckboxChange = (field: keyof CompletedTasks, checked: boolean) => {
-    onChange({
-      ...checklist,
-      [field]: checked,
-    });
+export default function ChecklistEditor({ task, onChange, disabled, mode = 'completion' }: ChecklistEditorProps) {
+  const isCreationMode = mode === 'creation';
+
+  const handleCheckboxChange = (item: typeof CHECKLIST_ITEMS[0], checked: boolean) => {
+    if (isCreationMode) {
+      // In creation mode, toggle the *Selected field
+      onChange({
+        ...task,
+        [item.selectedField]: checked,
+      });
+    } else {
+      // In completion mode, toggle the *Completed field
+      onChange({
+        ...task,
+        [item.completedField]: checked,
+      });
+    }
   };
 
-  const isCreationMode = mode === 'creation';
+  const getCheckboxState = (item: typeof CHECKLIST_ITEMS[0]): boolean => {
+    if (isCreationMode) {
+      return task[item.selectedField] as boolean;
+    } else {
+      return task[item.completedField] as boolean;
+    }
+  };
 
   return (
     <div className="space-y-3 rounded-lg border border-border bg-card p-4">
@@ -27,8 +44,8 @@ export default function ChecklistEditor({ checklist, onChange, disabled, mode = 
           <div key={item.key} className="flex items-center space-x-2">
             <Checkbox
               id={`checklist-${item.key}`}
-              checked={checklist[item.key]}
-              onCheckedChange={(checked) => handleCheckboxChange(item.key, checked as boolean)}
+              checked={getCheckboxState(item)}
+              onCheckedChange={(checked) => handleCheckboxChange(item, checked as boolean)}
               disabled={disabled}
             />
             <Label
@@ -39,7 +56,7 @@ export default function ChecklistEditor({ checklist, onChange, disabled, mode = 
               )}
             >
               {item.label}
-              {isCreationMode && item.defaultChecked && (
+              {isCreationMode && item.defaultSelected && (
                 <span className="ml-2 text-xs text-muted-foreground">(default)</span>
               )}
             </Label>

@@ -107,6 +107,19 @@ export function validateSex(value: string): Sex | null {
   return parseSex(value);
 }
 
+export function parseBoolean(value: string): boolean {
+  const normalized = value.trim().toLowerCase();
+  console.log('[validation] parseBoolean:', value, '-> normalized:', normalized);
+  
+  // True values
+  if (normalized === 'true' || normalized === '1' || normalized === 'yes' || normalized === 'x') {
+    return true;
+  }
+  
+  // False values (including empty)
+  return false;
+}
+
 export function validateDate(value: Date | null): string | null {
   if (!value) {
     return null;

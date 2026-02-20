@@ -1,65 +1,82 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Add task checklist selection during case creation",
+  "title": "Fix task selection workflow and improve date field formatting",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Add checkboxes to the case creation form for seven task items with default states",
+      "summary": "Fix task selection workflow so checked tasks during case creation appear as unchecked items in 'Remaining Tasks' on the case card",
       "acceptanceCriteria": [
-        "Case creation form displays all seven task checkboxes",
-        "Discharge Notes and pDVM Notified are checked by default",
-        "Labs, Histo, Surgery Report, Imaging, and Culture are unchecked by default",
-        "User can toggle any checkbox before submitting the case"
+        "When creating a case, checking a task under 'Select Tasks to Include' adds it to the case's task list",
+        "The case card displays all selected tasks as unchecked checkboxes under 'Remaining Tasks'",
+        "Only tasks that were checked during creation appear in 'Remaining Tasks'",
+        "Tasks can be checked off individually to mark them as complete"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/features/cases/components/CaseFormDialog.tsx",
-          "operation": "modify",
-          "description": "Add ChecklistEditor component to the case creation/edit form. Initialize completedTasks state with default values (dischargeNotes: false, pdvmNotified: false, labs: false, histo: false, surgeryReport: false, imaging: false, culture: false). Pass completedTasks and onChange handler to ChecklistEditor. Ensure the completedTasks data is included when calling createCase or updateCase mutations."
-        },
-        {
           "path": "frontend/src/features/cases/components/ChecklistEditor.tsx",
           "operation": "modify",
-          "description": "Update ChecklistEditor to accept an optional 'mode' prop that distinguishes between 'creation' and 'completion' modes. In 'creation' mode, display checkboxes for selecting which tasks to include in the case (default unchecked state). In 'completion' mode (default), use existing behavior for marking tasks as complete. Update checkbox labels and help text accordingly. Remove the disabled prop requirement for creation mode."
+          "description": "Update the ChecklistEditor component to properly distinguish between 'selected' fields (for creation) and 'completed' fields (for completion). In creation mode, the component should toggle the *Selected fields (e.g., dischargeNotesSelected) when checkboxes are clicked. The completed fields should remain false during creation. Ensure the component correctly reads the mode prop and applies the right field updates."
+        },
+        {
+          "path": "frontend/src/features/cases/components/CaseFormDialog.tsx",
+          "operation": "modify",
+          "description": "Modify the CaseFormDialog to initialize task state with all *Selected fields set according to defaults (dischargeNotesSelected: true, pdvmNotifiedSelected: true, others: false) and all *Completed fields set to false. When the form is submitted, ensure the Task object sent to createCase has *Selected fields reflecting user choices and *Completed fields all set to false. Update the handleChecklistChange callback to properly update the *Selected fields in the task state."
+        },
+        {
+          "path": "frontend/src/features/cases/components/CaseCard.tsx",
+          "operation": "modify",
+          "description": "Update the CaseCard to correctly display 'Remaining Tasks' by checking both *Selected and *Completed fields. A task should appear in 'Remaining Tasks' if its *Selected field is true AND its *Completed field is false. The checkbox state should reflect the *Completed field value. When a user checks a task checkbox, update only the *Completed field to true via the updateTask mutation. Ensure the task count badge and remaining tasks list are computed from tasks where *Selected is true and *Completed is false."
+        },
+        {
+          "path": "frontend/src/features/cases/checklist.ts",
+          "operation": "modify",
+          "description": "Update the getDefaultTaskSelections function to return an object with *Selected fields set to the correct defaults (dischargeNotesSelected: true, pdvmNotifiedSelected: true, all others: false) and all *Completed fields set to false. Update getRemainingChecklistItems to filter items where task[item.selectedField] is true AND task[item.completedField] is false. Update getCompletedTaskCount and getTotalSelectedTaskCount to work with both *Selected and *Completed fields correctly."
         }
       ]
     },
     {
       "id": "REQ-2",
-      "summary": "Store only the tasks that were checked during case creation in the case data structure",
+      "summary": "Set correct default checkbox states in case creation form: Discharge Notes and pDVM Notified checked, all others unchecked",
       "acceptanceCriteria": [
-        "Backend SurgeryCase type stores only the selected tasks",
-        "Unchecked tasks during creation are not stored in the case",
-        "Selected tasks are persisted correctly when creating a new case"
+        "The case creation form displays all seven task checkboxes",
+        "Discharge Notes checkbox is checked by default",
+        "pDVM Notified checkbox is checked by default",
+        "Labs, Histo, Surgery Report, Imaging, and Culture checkboxes are unchecked by default",
+        "Users can toggle any checkbox before creating the case"
       ],
       "file_operations": [
         {
+          "path": "frontend/src/features/cases/checklist.ts",
+          "operation": "modify",
+          "description": "Update the getDefaultTaskSelections function to return the Task object with dischargeNotesSelected: true, pdvmNotifiedSelected: true, and all other *Selected fields (labsSelected, histoSelected, surgeryReportSelected, imagingSelected, cultureSelected) set to false. Set all *Completed fields to false. This establishes the correct default state for new case creation."
+        },
+        {
           "path": "frontend/src/features/cases/components/CaseFormDialog.tsx",
           "operation": "modify",
-          "description": "Transform the completedTasks object before sending to backend. Filter out tasks that were not selected during creation (set their values to exclude them from the stored structure). Ensure the createCase mutation receives only the selected tasks in the completedTasks parameter."
+          "description": "Ensure the initial task state in the form uses getDefaultTaskSelections() from checklist.ts to initialize with the correct defaults. Verify that the ChecklistEditor component in creation mode displays these defaults correctly when the dialog opens."
         }
       ]
     },
     {
       "id": "REQ-3",
-      "summary": "Display only the tasks that were selected during case creation on the case card as open checkboxes that can be marked as complete",
+      "summary": "Format date fields to MM/DD/YYYY and implement auto-advance to next field on completion",
       "acceptanceCriteria": [
-        "Case card shows only the tasks that were selected during creation",
-        "Each displayed task appears as an unchecked checkbox initially",
-        "Tasks not selected during creation do not appear on the case card",
-        "Users can check off tasks as they complete them"
+        "All date fields display and accept dates in MM/DD/YYYY format",
+        "When a user completes entering a date (8 digits entered), focus automatically advances to the next form field",
+        "Date validation ensures proper month/day/year format",
+        "The auto-advance behavior works smoothly without disrupting user input"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/features/cases/components/CaseCard.tsx",
+          "path": "frontend/src/features/cases/components/DateField.tsx",
           "operation": "modify",
-          "description": "Update the checklist rendering logic to only display tasks that exist in the case's completedTasks object (were selected during creation). Filter the checklist items to show only those present in the case data. Ensure the completion checkboxes continue to work for the filtered list of tasks."
+          "description": "Update the DateField component to enforce MM/DD/YYYY format with input masking. Add logic to automatically advance focus to the next form field when the user completes entering 8 numeric digits (excluding slashes). Implement validation to ensure month is 01-12, day is 01-31, and year is four digits. Use a ref callback or onBlur/onChange handlers to detect completion and trigger focus advancement. Ensure the calendar popover still works correctly alongside the auto-advance behavior. Consider using a library like react-input-mask or implementing custom masking logic for smooth UX."
         },
         {
-          "path": "frontend/src/features/cases/checklist.ts",
+          "path": "frontend/src/features/cases/components/CaseFormDialog.tsx",
           "operation": "modify",
-          "description": "Add a utility function to get only the selected checklist items from a CompletedTasks object. This function should return an array of ChecklistItem objects that correspond to tasks that were selected during case creation (exist in the completedTasks structure). Update getRemainingItems to work with filtered task lists."
+          "description": "Ensure all DateField components in the form have proper refs or IDs that enable the auto-advance behavior. Add logic to determine the next focusable field after each date input (e.g., arrivalDate -> dateOfBirth, or to the next non-date field if no more date fields exist). Pass an onComplete callback or similar prop to DateField components to handle focus advancement when a date is fully entered."
         }
       ]
     }

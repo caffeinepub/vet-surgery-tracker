@@ -1,7 +1,7 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-20T00:29:16.224Z",
+  "generatedAt": "2026-02-20T01:02:10.917Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
@@ -12,39 +12,45 @@
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Add checkboxes to the case creation form for seven task items: Discharge Notes (default checked), pDVM Notified (default checked), Labs (default unchecked), Histo (default unchecked), Surgery Report (default unchecked), Imaging (default unchecked), Culture (default unchecked)",
+        "summary": "Fix the task selection workflow so that items checked under 'Select Tasks to Include' during case creation properly appear in 'Remaining Tasks' on the case card with unchecked checkboxes ready to be completed",
         "status": "implemented",
         "plannedFiles": [
+          "frontend/src/features/cases/components/ChecklistEditor.tsx",
           "frontend/src/features/cases/components/CaseFormDialog.tsx",
-          "frontend/src/features/cases/components/ChecklistEditor.tsx"
+          "frontend/src/features/cases/components/CaseCard.tsx",
+          "frontend/src/features/cases/checklist.ts"
         ],
         "matchedFiles": [
+          "frontend/src/features/cases/components/ChecklistEditor.tsx",
           "frontend/src/features/cases/components/CaseFormDialog.tsx",
-          "frontend/src/features/cases/components/ChecklistEditor.tsx"
+          "frontend/src/features/cases/components/CaseCard.tsx",
+          "frontend/src/features/cases/checklist.ts"
         ]
       },
       {
         "id": "REQ-2",
-        "summary": "Store only the tasks that were checked during case creation in the case data structure",
+        "summary": "Implement task checkboxes with correct default states during case creation: Discharge Notes (checked by default), pDVM Notified (checked by default), Labs (unchecked by default), Histo (unchecked by default), Surgery Report (unchecked by default), Imaging (unchecked by default), Culture (unchecked by default)",
         "status": "implemented",
         "plannedFiles": [
+          "frontend/src/features/cases/checklist.ts",
           "frontend/src/features/cases/components/CaseFormDialog.tsx"
         ],
         "matchedFiles": [
+          "frontend/src/features/cases/checklist.ts",
           "frontend/src/features/cases/components/CaseFormDialog.tsx"
         ]
       },
       {
         "id": "REQ-3",
-        "summary": "Display only the tasks that were selected during case creation on the case card as open checkboxes that can be marked as complete",
+        "summary": "Format all date input fields to use month/day/year format (MM/DD/YYYY) and implement auto-advance behavior that automatically moves focus to the next input field when the current date field is completed",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/features/cases/components/CaseCard.tsx",
-          "frontend/src/features/cases/checklist.ts"
+          "frontend/src/features/cases/components/DateField.tsx",
+          "frontend/src/features/cases/components/CaseFormDialog.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/features/cases/components/CaseCard.tsx",
-          "frontend/src/features/cases/checklist.ts"
+          "frontend/src/features/cases/components/DateField.tsx",
+          "frontend/src/features/cases/components/CaseFormDialog.tsx"
         ]
       }
     ]
@@ -67,11 +73,12 @@
     "frontend/src/features/cases/components/CasesTasksFilter.tsx",
     "frontend/src/features/cases/components/ChecklistEditor.tsx",
     "frontend/src/features/cases/components/CsvImportExportPanel.tsx",
+    "frontend/src/features/cases/components/DateField.tsx",
     "frontend/src/features/cases/csv/caseCsv.ts",
     "frontend/src/features/cases/filtering.ts",
     "frontend/src/features/cases/search.ts",
     "frontend/src/features/cases/sorting.ts",
-    "frontend/src/features/settings/components/SettingsView.tsx",
+    "frontend/src/features/cases/validation.ts",
     "frontend/src/hooks/useQueries.ts",
     "project_state.json",
     "scratch/component-selection.json",
