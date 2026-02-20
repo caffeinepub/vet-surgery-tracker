@@ -45,7 +45,7 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
   const [presentingComplaint, setPresentingComplaint] = useState('');
   const [notes, setNotes] = useState('');
   
-  // Task selection state - tracks which tasks to include and their completion status
+  // Task selection state - initialized with defaults
   const [task, setTask] = useState<Task>(getDefaultTaskSelections());
 
   // AI parsing state
@@ -300,22 +300,8 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
       const arrivalDateNs = dateToNanoseconds(arrivalDate);
       const dateOfBirthNs = dateOfBirth ? dateToNanoseconds(dateOfBirth) : null;
 
-      // When creating, ensure all *Completed fields are false
-      // When editing, use the current task state as-is
-      const taskToSubmit: Task = isEditing 
-        ? task 
-        : {
-            ...task,
-            dischargeNotesCompleted: false,
-            pdvmNotifiedCompleted: false,
-            labsCompleted: false,
-            histoCompleted: false,
-            surgeryReportCompleted: false,
-            imagingCompleted: false,
-            cultureCompleted: false,
-          };
-
       if (isEditing && existingCase) {
+        // When editing, use the current task state as-is
         await updateCase.mutateAsync({
           id: existingCase.id,
           medicalRecordNumber,
@@ -328,10 +314,21 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
           dateOfBirth: dateOfBirthNs,
           presentingComplaint,
           notes,
-          task: taskToSubmit,
+          task,
         });
         toast.success('Case updated successfully');
       } else {
+        // When creating, convert Task to TaskOptions and ensure all *Completed fields are false
+        const taskOptions = {
+          dischargeNotes: task.dischargeNotesSelected,
+          pdvmNotified: task.pdvmNotifiedSelected,
+          labs: task.labsSelected,
+          histo: task.histoSelected,
+          surgeryReport: task.surgeryReportSelected,
+          imaging: task.imagingSelected,
+          culture: task.cultureSelected,
+        };
+
         await createCase.mutateAsync({
           medicalRecordNumber,
           arrivalDate: arrivalDateNs,
@@ -343,7 +340,7 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
           dateOfBirth: dateOfBirthNs,
           presentingComplaint,
           notes,
-          task: taskToSubmit,
+          taskOptions,
         });
         toast.success('Case created successfully');
       }
@@ -519,9 +516,7 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
                   className={cn(isAutoFilled('ownerLastName') && 'bg-blue-50 dark:bg-blue-950')}
                 />
               </div>
-            </div>
 
-            <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="species">Species *</Label>
                 <Select
@@ -557,14 +552,12 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
                     setBreed(e.target.value);
                     markFieldAsEdited('breed');
                   }}
-                  placeholder="e.g., Labrador Retriever"
+                  placeholder="e.g., Labrador"
                   disabled={!actorReady || isSubmitting}
                   className={cn(isAutoFilled('breed') && 'bg-blue-50 dark:bg-blue-950')}
                 />
               </div>
-            </div>
 
-            <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="sex">Sex *</Label>
                 <Select
@@ -602,12 +595,6 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
                   }}
                   disabled={!actorReady || isSubmitting}
                   className={cn(isAutoFilled('dateOfBirth') && 'bg-blue-50 dark:bg-blue-950')}
-                  onComplete={() => {
-                    // Auto-advance to pet name field if it's empty
-                    if (!petName && petNameRef.current) {
-                      petNameRef.current.focus();
-                    }
-                  }}
                   inputRef={dateOfBirthRef}
                 />
               </div>
@@ -627,8 +614,8 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
                   setPresentingComplaint(e.target.value);
                   markFieldAsEdited('presentingComplaint');
                 }}
-                placeholder="Brief description of the presenting complaint..."
-                className={cn('min-h-[80px]', isAutoFilled('presentingComplaint') && 'bg-blue-50 dark:bg-blue-950')}
+                placeholder="Describe the presenting complaint..."
+                className="min-h-[100px]"
                 disabled={!actorReady || isSubmitting}
               />
             </div>
@@ -639,25 +626,25 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
                 id="notes"
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                placeholder="Additional notes..."
+                placeholder="Add any additional notes..."
                 className="min-h-[100px]"
                 disabled={!actorReady || isSubmitting}
               />
             </div>
           </div>
 
-          {/* Task Selection */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">
-              {isEditing ? 'Task Status' : 'Select Tasks to Include'}
-            </h3>
-            <ChecklistEditor
-              task={task}
-              onChange={setTask}
-              disabled={!actorReady || isSubmitting}
-              mode={isEditing ? 'completion' : 'creation'}
-            />
-          </div>
+          {/* Task Selection Section - Only show in creation mode */}
+          {!isEditing && (
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Select Tasks to Include</h3>
+              <ChecklistEditor
+                task={task}
+                onChange={setTask}
+                disabled={!actorReady || isSubmitting}
+                mode="creation"
+              />
+            </div>
+          )}
 
           {/* Form Actions */}
           <div className="flex justify-end gap-3 pt-4 border-t">

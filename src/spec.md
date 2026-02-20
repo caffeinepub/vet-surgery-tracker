@@ -1,13 +1,14 @@
 # Specification
 
 ## Summary
-**Goal:** Enhance visual distinction of key patient card fields by adding colored borders and a species badge.
+**Goal:** Refine the case card layout by removing the grey box from the species field, repositioning the remaining tasks section below notes, adding colored boxes around specific tasks (purple for histo, blue for imaging), and enabling users to edit the task selection for existing cases.
 
 **Planned changes:**
-- Add colored border around notes field and make it always visible (not collapsible)
-- Add purple border around the Histo task in the task checklist
-- Add blue border around the Imaging task in the task checklist
-- Add orange border around the presenting complaint field
-- Add species badge in rounded box below medical record number
+- Remove grey box styling from species field in case cards
+- Move remaining tasks section to appear below the notes field
+- Add purple box with shading around the histo task item
+- Add blue box with shading around the imaging task item
+- Ensure all task checkboxes remain properly aligned despite colored boxes
+- Add functionality to edit remaining tasks for existing cases (toggle task selection and save changes)
 
-**User-visible outcome:** Key information on patient cards (notes, presenting complaint, specific tasks, and species) will be visually highlighted with colored borders and badges for easier identification.
+**User-visible outcome:** Users will see a cleaner case card layout with the species field unboxed, tasks relocated below notes, and histo/imaging tasks visually distinguished with colored boxes. Users can now edit which tasks are selected for existing cases, not just complete them.

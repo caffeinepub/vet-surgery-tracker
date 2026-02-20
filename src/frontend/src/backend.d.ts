@@ -12,6 +12,15 @@ export interface OpenAIConfig {
     initialized: boolean;
     apiKey: string;
 }
+export interface TaskOptions {
+    pdvmNotified: boolean;
+    histo: boolean;
+    labs: boolean;
+    culture: boolean;
+    surgeryReport: boolean;
+    imaging: boolean;
+    dischargeNotes: boolean;
+}
 export interface Task {
     cultureCompleted: boolean;
     cultureSelected: boolean;
@@ -63,7 +72,7 @@ export enum UserRole {
 }
 export interface backendInterface {
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
-    createCase(medicalRecordNumber: string, arrivalDate: Time, petName: string, ownerLastName: string, species: Species, breed: string, sex: Sex, dateOfBirth: Time | null, presentingComplaint: string, notes: string, task: Task): Promise<SurgeryCase>;
+    createCase(medicalRecordNumber: string, arrivalDate: Time, petName: string, ownerLastName: string, species: Species, breed: string, sex: Sex, dateOfBirth: Time | null, presentingComplaint: string, notes: string, taskOptions: TaskOptions): Promise<SurgeryCase>;
     deleteCase(id: bigint): Promise<void>;
     getAllCases(): Promise<Array<SurgeryCase>>;
     getCallerUserProfile(): Promise<UserProfile | null>;
@@ -81,6 +90,7 @@ export interface backendInterface {
     setOpenAIConfig(apiKey: string): Promise<void>;
     updateCase(id: bigint, medicalRecordNumber: string, arrivalDate: Time, petName: string, ownerLastName: string, species: Species, breed: string, sex: Sex, dateOfBirth: Time | null, presentingComplaint: string, notes: string, task: Task): Promise<void>;
     updateCaseNotes(id: bigint, notes: string): Promise<void>;
+    updateRemainingTasks(id: bigint, taskOptions: TaskOptions): Promise<void>;
     updateTask(id: bigint, task: Task): Promise<void>;
     validateOpenAIConfig(): Promise<boolean>;
 }

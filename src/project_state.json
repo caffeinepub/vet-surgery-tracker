@@ -7,42 +7,50 @@
   "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-add-a-colored-box-border-around-the-notes-field-in-the-patient-card-and-make-the-notes-field-always-visible-not-collapsible-so-it-stands-out-more",
-      "title": "Add a colored box border around the notes field in the patient card and make the notes field always visible (not collapsible) so it stands out more",
+      "id": "feature-remove-the-inner-grey-box-styling-from-the-species-field-in-the-case-card-display",
+      "title": "Remove the inner grey box styling from the species field in the case card display",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-add-a-purple-colored-box-border-around-the-histo-histopathology-task-in-the-patient-card-task-checklist",
-      "title": "Add a purple colored box border around the Histo (histopathology) task in the patient card task checklist",
+      "id": "feature-move-the-remaining-task-list-section-to-appear-below-the-notes-field-in-the-case-card-layout",
+      "title": "Move the remaining task list section to appear below the notes field in the case card layout",
       "reqIds": [
         "REQ-2"
       ],
       "version": 1
     },
     {
-      "id": "feature-add-a-blue-colored-box-border-around-the-imaging-task-in-the-patient-card-task-checklist",
-      "title": "Add a blue colored box border around the Imaging task in the patient card task checklist",
+      "id": "feature-add-functionality-to-edit-remaining-tasks-for-existing-cases-allowing-users-to-modify-which-tasks-are-selected",
+      "title": "Add functionality to edit remaining tasks for existing cases, allowing users to modify which tasks are selected",
       "reqIds": [
         "REQ-3"
       ],
       "version": 1
     },
     {
-      "id": "feature-add-an-orange-colored-box-border-around-the-presenting-complaint-field-in-the-patient-card",
-      "title": "Add an orange colored box border around the presenting complaint field in the patient card",
+      "id": "feature-add-a-purple-box-with-matching-shading-around-the-histo-task-item-in-the-remaining-tasks-checklist",
+      "title": "Add a purple box with matching shading around the histo task item in the remaining tasks checklist",
       "reqIds": [
         "REQ-4"
       ],
       "version": 1
     },
     {
-      "id": "feature-add-the-species-information-displayed-in-a-rounded-box-badge-below-the-medical-record-number-field-in-the-patient-card",
-      "title": "Add the species information displayed in a rounded box badge below the medical record number field in the patient card",
+      "id": "feature-add-a-blue-box-with-matching-shading-around-the-imaging-task-item-in-the-remaining-tasks-checklist",
+      "title": "Add a blue box with matching shading around the imaging task item in the remaining tasks checklist",
       "reqIds": [
         "REQ-5"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-colored-boxes-around-histo-and-imaging-tasks-maintain-proper-alignment-of-all-checkboxes-in-the-remaining-tasks-list",
+      "title": "Ensure colored boxes around histo and imaging tasks maintain proper alignment of all checkboxes in the remaining tasks list",
+      "reqIds": [
+        "REQ-6"
       ],
       "version": 1
     }
@@ -50,12 +58,42 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Add color boxes around fields in patient card: notes (always visible), Histo task (purple), Imaging task (blue), presenting complaint (orange); add species in rounded box below medical record number",
+      "summary": "Remove inner grey box from species field",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Move remaining task list to below notes field",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Add option to edit remaining tasks",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "Add purple box with matching shading around histo section",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-5",
+      "summary": "Add blue box with matching shading around imaging section",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-6",
+      "summary": "Maintain checkbox alignment when adding colored boxes",
       "reqIds": [],
       "status": "pending"
     }
   ],
-  "projectName": "Add colored boxes and species badge to patient card",
+  "projectName": "Refine case card layout with colored task sections and edit capability",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

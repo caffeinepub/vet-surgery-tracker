@@ -1,82 +1,105 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Add colored boxes and species badge to patient card",
+  "title": "Refine case card layout with colored task sections and edit capability",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Add colored border around notes field and make it always visible",
+      "summary": "Remove the inner grey box styling from the species field in the case card display",
       "acceptanceCriteria": [
-        "Notes field has a visible colored border",
-        "Notes field is always expanded and visible on the patient card",
-        "Notes field is visually distinct from other fields"
+        "Species field displays without a grey box background",
+        "Species field maintains proper spacing and alignment with other fields"
       ],
       "file_operations": [
         {
           "path": "frontend/src/features/cases/components/CaseCard.tsx",
           "operation": "modify",
-          "description": "Remove collapsible/expandable behavior from notes field and add a colored border (e.g., border-2 border-blue-500) to make the notes field always visible and stand out. Update the rendering logic to display notes directly without the Collapsible wrapper."
+          "description": "Remove the grey box background styling (likely bg-gray-100 or bg-muted class) from the species field display element while maintaining proper spacing and alignment with other patient detail fields"
         }
       ]
     },
     {
       "id": "REQ-2",
-      "summary": "Add purple colored border around Histo task in checklist",
+      "summary": "Move the remaining task list section to appear below the notes field in the case card layout",
       "acceptanceCriteria": [
-        "Histo task has a purple border when displayed in the patient card",
-        "Purple color is clearly distinguishable from other task colors"
+        "Remaining tasks section appears after the notes field",
+        "Layout maintains visual hierarchy and proper spacing"
       ],
       "file_operations": [
         {
           "path": "frontend/src/features/cases/components/CaseCard.tsx",
           "operation": "modify",
-          "description": "Add conditional styling logic to apply a purple border (e.g., border-2 border-purple-500) around the Histo (histopathology) task item when it is rendered in the checklist section of the patient card."
+          "description": "Reorder the JSX structure to render the remaining tasks checklist section after the notes field section, ensuring proper spacing between sections and maintaining the existing visual hierarchy"
         }
       ]
     },
     {
       "id": "REQ-3",
-      "summary": "Add blue colored border around Imaging task in checklist",
+      "summary": "Add functionality to edit remaining tasks for existing cases, allowing users to modify which tasks are selected",
       "acceptanceCriteria": [
-        "Imaging task has a blue border when displayed in the patient card",
-        "Blue color is clearly distinguishable from other task colors"
+        "Users can click to edit the task selection for an existing case",
+        "Task checkboxes can be toggled on/off when editing",
+        "Changes to task selection are saved to the backend",
+        "UI provides clear indication when in edit mode vs completion mode"
       ],
       "file_operations": [
         {
           "path": "frontend/src/features/cases/components/CaseCard.tsx",
           "operation": "modify",
-          "description": "Add conditional styling logic to apply a blue border (e.g., border-2 border-blue-600) around the Imaging task item when it is rendered in the checklist section of the patient card."
+          "description": "Add an 'Edit Tasks' button that toggles edit mode state. When in edit mode, render the ChecklistEditor component in creation mode (mode='create') to allow toggling task selections. Add a 'Save' button that calls the updateRemainingTasks backend mutation with the modified TaskOptions. Display visual indicators (button labels, styling) to distinguish edit mode from completion mode. Preserve existing task completion functionality when not in edit mode."
+        },
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Add a useUpdateRemainingTasks mutation hook that calls actor.updateRemainingTasks(id, taskOptions) and invalidates the cases cache on success. Include proper error handling and loading states."
         }
       ]
     },
     {
       "id": "REQ-4",
-      "summary": "Add orange colored border around presenting complaint field",
+      "summary": "Add a purple box with matching shading around the histo task item in the remaining tasks checklist",
       "acceptanceCriteria": [
-        "Presenting complaint field has an orange border",
-        "Orange color is clearly distinguishable from other field colors"
+        "Histo task displays with a purple background box",
+        "Purple shading matches the app's design system",
+        "Box does not break checkbox alignment"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/features/cases/components/CaseCard.tsx",
+          "path": "frontend/src/features/cases/components/ChecklistEditor.tsx",
           "operation": "modify",
-          "description": "Add an orange colored border (e.g., border-2 border-orange-500) to the presenting complaint field display section to make it visually distinct from other fields on the patient card."
+          "description": "Add conditional styling to wrap the histo task item in a purple background box (e.g., bg-purple-100 with border-purple-300). Apply padding and rounded corners while ensuring checkbox alignment remains intact using flexbox or grid layout. Use Tailwind classes that match the app's design system color palette."
         }
       ]
     },
     {
       "id": "REQ-5",
-      "summary": "Add species badge below medical record number field",
+      "summary": "Add a blue box with matching shading around the imaging task item in the remaining tasks checklist",
       "acceptanceCriteria": [
-        "Species is displayed in a rounded badge-style box",
-        "Species badge appears directly below the medical record number",
-        "Badge has rounded corners and stands out visually"
+        "Imaging task displays with a blue background box",
+        "Blue shading matches the app's design system",
+        "Box does not break checkbox alignment"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/features/cases/components/CaseCard.tsx",
+          "path": "frontend/src/features/cases/components/ChecklistEditor.tsx",
           "operation": "modify",
-          "description": "Add a rounded badge component displaying the species information positioned directly below the medical record number field. Use Tailwind classes like 'rounded-full px-3 py-1 text-sm font-medium' with appropriate background color to create a visually distinct badge with rounded corners."
+          "description": "Add conditional styling to wrap the imaging task item in a blue background box (e.g., bg-blue-100 with border-blue-300). Apply padding and rounded corners while ensuring checkbox alignment remains intact using flexbox or grid layout. Use Tailwind classes that match the app's design system color palette."
+        }
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "summary": "Ensure colored boxes around histo and imaging tasks maintain proper alignment of all checkboxes in the remaining tasks list",
+      "acceptanceCriteria": [
+        "All checkboxes in the task list remain vertically aligned",
+        "Colored boxes do not cause layout shift or misalignment",
+        "Text labels remain properly aligned with their respective checkboxes"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/features/cases/components/ChecklistEditor.tsx",
+          "operation": "modify",
+          "description": "Refactor the checklist item rendering to use consistent flexbox or grid layout for all items. Apply colored box styling (for histo and imaging) as wrapper elements that maintain the same structural layout as non-colored items. Ensure all checkboxes use consistent left alignment and label text uses consistent padding regardless of background styling."
         }
       ]
     }

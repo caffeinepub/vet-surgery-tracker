@@ -1,50 +1,11 @@
 import Map "mo:core/Map";
 import Nat "mo:core/Nat";
+import Principal "mo:core/Principal";
+import Time "mo:core/Time";
 
 module {
-  type Checklist = {
-    dischargeNotes : Bool;
-    pdvmNotified : Bool;
-    labs : Bool;
-    histo : Bool;
-    surgeryReport : Bool;
-    imaging : Bool;
-    culture : Bool;
-  };
-
-  type CompletedTasks = {
-    dischargeNotes : Bool;
-    pdvmNotified : Bool;
-    labs : Bool;
-    histo : Bool;
-    surgeryReport : Bool;
-    imaging : Bool;
-    culture : Bool;
-  };
-
-  type OldSurgeryCase = {
-    id : Nat;
-    medicalRecordNumber : Text;
-    arrivalDate : Int;
-    petName : Text;
-    ownerLastName : Text;
-    species : {
-      #canine;
-      #feline;
-      #other;
-    };
-    breed : Text;
-    sex : {
-      #male;
-      #maleNeutered;
-      #female;
-      #femaleSpayed;
-    };
-    dateOfBirth : ?Int;
-    presentingComplaint : Text;
-    notes : Text;
-    completedTasks : CompletedTasks;
-  };
+  type Species = { #canine; #feline; #other };
+  type Sex = { #male; #maleNeutered; #female; #femaleSpayed };
 
   type Task = {
     dischargeNotesSelected : Bool;
@@ -63,86 +24,40 @@ module {
     cultureCompleted : Bool;
   };
 
-  type NewSurgeryCase = {
+  type SurgeryCase = {
     id : Nat;
     medicalRecordNumber : Text;
-    arrivalDate : Int;
+    arrivalDate : Time.Time;
     petName : Text;
     ownerLastName : Text;
-    species : {
-      #canine;
-      #feline;
-      #other;
-    };
+    species : Species;
     breed : Text;
-    sex : {
-      #male;
-      #maleNeutered;
-      #female;
-      #femaleSpayed;
-    };
-    dateOfBirth : ?Int;
+    sex : Sex;
+    dateOfBirth : ?Time.Time;
     presentingComplaint : Text;
     notes : Text;
     task : Task;
   };
 
-  type OldActor = {
-    nextId : Nat;
-    cases : Map.Map<Nat, OldSurgeryCase>;
-    userProfiles : Map.Map<Principal, { name : Text }>;
-    openAIConfig : ?{
-      apiKey : Text;
-      initialized : Bool;
-    };
+  type UserProfile = {
+    name : Text;
   };
 
-  type NewActor = {
-    nextId : Nat;
-    cases : Map.Map<Nat, NewSurgeryCase>;
-    userProfiles : Map.Map<Principal, { name : Text }>;
-    openAIConfig : ?{
-      apiKey : Text;
-      initialized : Bool;
-    };
+  type OpenAIConfig = {
+    apiKey : Text;
+    initialized : Bool;
   };
+
+  public type OldActor = {
+    openAIConfig : ?OpenAIConfig;
+    nextId : Nat;
+    cases : Map.Map<Nat, SurgeryCase>;
+    userProfiles : Map.Map<Principal, UserProfile>;
+  };
+
+  public type NewActor = OldActor;
 
   public func run(old : OldActor) : NewActor {
-    let newCases = old.cases.map<Nat, OldSurgeryCase, NewSurgeryCase>(
-      func(_id, oldCase) {
-        let task = {
-          dischargeNotesSelected = true;
-          dischargeNotesCompleted = oldCase.completedTasks.dischargeNotes;
-
-          pdvmNotifiedSelected = true;
-          pdvmNotifiedCompleted = oldCase.completedTasks.pdvmNotified;
-
-          labsSelected = true;
-          labsCompleted = oldCase.completedTasks.labs;
-
-          histoSelected = true;
-          histoCompleted = oldCase.completedTasks.histo;
-
-          surgeryReportSelected = true;
-          surgeryReportCompleted = oldCase.completedTasks.surgeryReport;
-
-          imagingSelected = true;
-          imagingCompleted = oldCase.completedTasks.imaging;
-
-          cultureSelected = true;
-          cultureCompleted = oldCase.completedTasks.culture;
-        };
-
-        {
-          oldCase with
-          task;
-        };
-      }
-    );
-
-    {
-      old with
-      cases = newCases;
-    };
+    old;
   };
 };

@@ -1,18 +1,18 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-20T02:29:50.411Z",
+  "generatedAt": "2026-02-20T14:17:36.332Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 5,
-    "implemented": 5,
+    "total": 6,
+    "implemented": 6,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Add a colored box border around the notes field in the patient card and make the notes field always visible (not collapsible) so it stands out more",
+        "summary": "Remove the inner grey box styling from the species field in the case card display",
         "status": "implemented",
         "plannedFiles": [
           "frontend/src/features/cases/components/CaseCard.tsx"
@@ -23,7 +23,7 @@
       },
       {
         "id": "REQ-2",
-        "summary": "Add a purple colored box border around the Histo (histopathology) task in the patient card task checklist",
+        "summary": "Move the remaining task list section to appear below the notes field in the case card layout",
         "status": "implemented",
         "plannedFiles": [
           "frontend/src/features/cases/components/CaseCard.tsx"
@@ -34,45 +34,66 @@
       },
       {
         "id": "REQ-3",
-        "summary": "Add a blue colored box border around the Imaging task in the patient card task checklist",
+        "summary": "Add functionality to edit remaining tasks for existing cases, allowing users to modify which tasks are selected",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/features/cases/components/CaseCard.tsx"
+          "frontend/src/features/cases/components/CaseCard.tsx",
+          "frontend/src/hooks/useQueries.ts"
         ],
         "matchedFiles": [
-          "frontend/src/features/cases/components/CaseCard.tsx"
+          "frontend/src/features/cases/components/CaseCard.tsx",
+          "frontend/src/hooks/useQueries.ts"
         ]
       },
       {
         "id": "REQ-4",
-        "summary": "Add an orange colored box border around the presenting complaint field in the patient card",
+        "summary": "Add a purple box with matching shading around the histo task item in the remaining tasks checklist",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/features/cases/components/CaseCard.tsx"
+          "frontend/src/features/cases/components/ChecklistEditor.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/features/cases/components/CaseCard.tsx"
+          "frontend/src/features/cases/components/ChecklistEditor.tsx"
         ]
       },
       {
         "id": "REQ-5",
-        "summary": "Add the species information displayed in a rounded box badge below the medical record number field in the patient card",
+        "summary": "Add a blue box with matching shading around the imaging task item in the remaining tasks checklist",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/features/cases/components/CaseCard.tsx"
+          "frontend/src/features/cases/components/ChecklistEditor.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/features/cases/components/CaseCard.tsx"
+          "frontend/src/features/cases/components/ChecklistEditor.tsx"
+        ]
+      },
+      {
+        "id": "REQ-6",
+        "summary": "Ensure colored boxes around histo and imaging tasks maintain proper alignment of all checkboxes in the remaining tasks list",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/features/cases/components/ChecklistEditor.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/features/cases/components/ChecklistEditor.tsx"
         ]
       }
     ]
   },
   "changedFiles": [
+    "backend/main.mo",
+    "backend/migration.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
+    "frontend/src/backend.d.ts",
+    "frontend/src/backend.ts",
+    "frontend/src/declarations/backend.did.d.ts",
+    "frontend/src/declarations/backend.did.js",
     "frontend/src/features/cases/components/CaseCard.tsx",
+    "frontend/src/features/cases/components/ChecklistEditor.tsx",
+    "frontend/src/hooks/useQueries.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

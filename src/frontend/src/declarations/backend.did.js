@@ -25,6 +25,15 @@ export const Sex = IDL.Variant({
   'femaleSpayed' : IDL.Null,
   'maleNeutered' : IDL.Null,
 });
+export const TaskOptions = IDL.Record({
+  'pdvmNotified' : IDL.Bool,
+  'histo' : IDL.Bool,
+  'labs' : IDL.Bool,
+  'culture' : IDL.Bool,
+  'surgeryReport' : IDL.Bool,
+  'imaging' : IDL.Bool,
+  'dischargeNotes' : IDL.Bool,
+});
 export const Task = IDL.Record({
   'cultureCompleted' : IDL.Bool,
   'cultureSelected' : IDL.Bool,
@@ -76,7 +85,7 @@ export const idlService = IDL.Service({
         IDL.Opt(Time),
         IDL.Text,
         IDL.Text,
-        Task,
+        TaskOptions,
       ],
       [SurgeryCase],
       [],
@@ -127,6 +136,7 @@ export const idlService = IDL.Service({
       [],
     ),
   'updateCaseNotes' : IDL.Func([IDL.Nat, IDL.Text], [], []),
+  'updateRemainingTasks' : IDL.Func([IDL.Nat, TaskOptions], [], []),
   'updateTask' : IDL.Func([IDL.Nat, Task], [], []),
   'validateOpenAIConfig' : IDL.Func([], [IDL.Bool], ['query']),
 });
@@ -150,6 +160,15 @@ export const idlFactory = ({ IDL }) => {
     'male' : IDL.Null,
     'femaleSpayed' : IDL.Null,
     'maleNeutered' : IDL.Null,
+  });
+  const TaskOptions = IDL.Record({
+    'pdvmNotified' : IDL.Bool,
+    'histo' : IDL.Bool,
+    'labs' : IDL.Bool,
+    'culture' : IDL.Bool,
+    'surgeryReport' : IDL.Bool,
+    'imaging' : IDL.Bool,
+    'dischargeNotes' : IDL.Bool,
   });
   const Task = IDL.Record({
     'cultureCompleted' : IDL.Bool,
@@ -202,7 +221,7 @@ export const idlFactory = ({ IDL }) => {
           IDL.Opt(Time),
           IDL.Text,
           IDL.Text,
-          Task,
+          TaskOptions,
         ],
         [SurgeryCase],
         [],
@@ -253,6 +272,7 @@ export const idlFactory = ({ IDL }) => {
         [],
       ),
     'updateCaseNotes' : IDL.Func([IDL.Nat, IDL.Text], [], []),
+    'updateRemainingTasks' : IDL.Func([IDL.Nat, TaskOptions], [], []),
     'updateTask' : IDL.Func([IDL.Nat, Task], [], []),
     'validateOpenAIConfig' : IDL.Func([], [IDL.Bool], ['query']),
   });

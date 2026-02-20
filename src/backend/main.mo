@@ -7,11 +7,11 @@ import Runtime "mo:core/Runtime";
 import Text "mo:core/Text";
 import Time "mo:core/Time";
 import Nat "mo:core/Nat";
+import Migration "migration";
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
 
-
-
+(with migration = Migration.run)
 actor {
   public type Species = { #canine; #feline; #other };
   public type Sex = { #male; #maleNeutered; #female; #femaleSpayed };
@@ -37,6 +37,16 @@ actor {
 
     cultureSelected : Bool;
     cultureCompleted : Bool;
+  };
+
+  public type TaskOptions = {
+    dischargeNotes : Bool;
+    pdvmNotified : Bool;
+    labs : Bool;
+    histo : Bool;
+    surgeryReport : Bool;
+    imaging : Bool;
+    culture : Bool;
   };
 
   public type SurgeryCase = {
@@ -107,9 +117,32 @@ actor {
     dateOfBirth : ?Time.Time,
     presentingComplaint : Text,
     notes : Text,
-    task : Task,
+    taskOptions : TaskOptions,
   ) : async SurgeryCase {
     checkUserPermission(caller);
+
+    let newTask : Task = {
+      dischargeNotesSelected = taskOptions.dischargeNotes;
+      dischargeNotesCompleted = false;
+
+      pdvmNotifiedSelected = taskOptions.pdvmNotified;
+      pdvmNotifiedCompleted = false;
+
+      labsSelected = taskOptions.labs;
+      labsCompleted = false;
+
+      histoSelected = taskOptions.histo;
+      histoCompleted = false;
+
+      surgeryReportSelected = taskOptions.surgeryReport;
+      surgeryReportCompleted = false;
+
+      imagingSelected = taskOptions.imaging;
+      imagingCompleted = false;
+
+      cultureSelected = taskOptions.culture;
+      cultureCompleted = false;
+    };
 
     let newCase : SurgeryCase = {
       id = nextId;
@@ -123,7 +156,7 @@ actor {
       dateOfBirth;
       presentingComplaint;
       notes;
-      task;
+      task = newTask;
     };
 
     cases.add(nextId, newCase);
@@ -216,6 +249,43 @@ actor {
         let updatedCase : SurgeryCase = {
           existingCase with
           task
+        };
+        cases.add(id, updatedCase);
+      };
+    };
+  };
+
+  public shared ({ caller }) func updateRemainingTasks(id : Nat, taskOptions : TaskOptions) : async () {
+    checkUserPermission(caller);
+
+    switch (cases.get(id)) {
+      case (null) { Runtime.trap("Case not found") };
+      case (?existingCase) {
+        let updatedTask : Task = {
+          dischargeNotesSelected = taskOptions.dischargeNotes;
+          dischargeNotesCompleted = false;
+
+          pdvmNotifiedSelected = taskOptions.pdvmNotified;
+          pdvmNotifiedCompleted = false;
+
+          labsSelected = taskOptions.labs;
+          labsCompleted = false;
+
+          histoSelected = taskOptions.histo;
+          histoCompleted = false;
+
+          surgeryReportSelected = taskOptions.surgeryReport;
+          surgeryReportCompleted = false;
+
+          imagingSelected = taskOptions.imaging;
+          imagingCompleted = false;
+
+          cultureSelected = taskOptions.culture;
+          cultureCompleted = false;
+        };
+        let updatedCase : SurgeryCase = {
+          existingCase with
+          task = updatedTask;
         };
         cases.add(id, updatedCase);
       };

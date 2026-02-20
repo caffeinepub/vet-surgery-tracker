@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useActor } from './useActor';
-import type { SurgeryCase, UserProfile, Task } from '../backend';
+import type { SurgeryCase, UserProfile, Task, TaskOptions, OpenAIConfig } from '../backend';
 
 export function useGetAllCases() {
   const { actor, isFetching } = useActor();
@@ -51,7 +51,7 @@ export function useCreateCase() {
       dateOfBirth: bigint | null;
       presentingComplaint: string;
       notes: string;
-      task: Task;
+      taskOptions: TaskOptions;
     }) => {
       if (!actor) throw new Error('Actor not available');
       console.log('[useCreateCase] Creating case with data:', {
@@ -72,7 +72,7 @@ export function useCreateCase() {
           data.dateOfBirth,
           data.presentingComplaint,
           data.notes,
-          data.task
+          data.taskOptions
         );
         console.log('[useCreateCase] Case created successfully:', result);
         return result;
@@ -163,25 +163,13 @@ export function useDeleteCase() {
     mutationFn: async (id: bigint) => {
       if (!actor) throw new Error('Actor not available');
       console.log('[useDeleteCase] Deleting case:', id.toString());
-
-      try {
-        await actor.deleteCase(id);
-        console.log('[useDeleteCase] Case deleted successfully');
-      } catch (error: any) {
-        console.error('[useDeleteCase] Error deleting case:', {
-          error,
-          message: error?.message,
-          stack: error?.stack,
-        });
-        throw error;
-      }
+      await actor.deleteCase(id);
+      console.log('[useDeleteCase] Case deleted successfully');
     },
     onSuccess: () => {
       console.log('[useDeleteCase] Invalidating cases query');
       queryClient.invalidateQueries({ queryKey: ['cases'] });
     },
-    retry: 2,
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
 }
 
@@ -192,7 +180,7 @@ export function useUpdateTask() {
   return useMutation({
     mutationFn: async (data: { id: bigint; task: Task }) => {
       if (!actor) throw new Error('Actor not available');
-      console.log('[useUpdateTask] Updating task:', {
+      console.log('[useUpdateTask] Updating task for case:', {
         id: data.id.toString(),
         task: data.task,
       });
@@ -218,23 +206,23 @@ export function useUpdateTask() {
   });
 }
 
-export function useUpdateCaseNotes() {
+export function useUpdateRemainingTasks() {
   const { actor } = useActor();
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: { id: bigint; notes: string }) => {
+    mutationFn: async (data: { id: bigint; taskOptions: TaskOptions }) => {
       if (!actor) throw new Error('Actor not available');
-      console.log('[useUpdateCaseNotes] Updating notes:', {
+      console.log('[useUpdateRemainingTasks] Updating remaining tasks for case:', {
         id: data.id.toString(),
-        notesLength: data.notes.length,
+        taskOptions: data.taskOptions,
       });
 
       try {
-        await actor.updateCaseNotes(data.id, data.notes);
-        console.log('[useUpdateCaseNotes] Notes updated successfully');
+        await actor.updateRemainingTasks(data.id, data.taskOptions);
+        console.log('[useUpdateRemainingTasks] Remaining tasks updated successfully');
       } catch (error: any) {
-        console.error('[useUpdateCaseNotes] Error updating notes:', {
+        console.error('[useUpdateRemainingTasks] Error updating remaining tasks:', {
           error,
           message: error?.message,
           stack: error?.stack,
@@ -243,11 +231,29 @@ export function useUpdateCaseNotes() {
       }
     },
     onSuccess: () => {
-      console.log('[useUpdateCaseNotes] Invalidating cases query');
+      console.log('[useUpdateRemainingTasks] Invalidating cases query');
       queryClient.invalidateQueries({ queryKey: ['cases'] });
     },
     retry: 2,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+  });
+}
+
+export function useUpdateCaseNotes() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: { id: bigint; notes: string }) => {
+      if (!actor) throw new Error('Actor not available');
+      console.log('[useUpdateCaseNotes] Updating notes for case:', data.id.toString());
+      await actor.updateCaseNotes(data.id, data.notes);
+      console.log('[useUpdateCaseNotes] Notes updated successfully');
+    },
+    onSuccess: () => {
+      console.log('[useUpdateCaseNotes] Invalidating cases query');
+      queryClient.invalidateQueries({ queryKey: ['cases'] });
+    },
   });
 }
 
@@ -258,10 +264,7 @@ export function useGetCallerUserProfile() {
     queryKey: ['currentUserProfile'],
     queryFn: async () => {
       if (!actor) throw new Error('Actor not available');
-      console.log('[useGetCallerUserProfile] Fetching caller user profile');
-      const profile = await actor.getCallerUserProfile();
-      console.log('[useGetCallerUserProfile] Profile:', profile);
-      return profile;
+      return actor.getCallerUserProfile();
     },
     enabled: !!actor && !actorFetching,
     retry: false,
@@ -281,22 +284,9 @@ export function useSaveCallerUserProfile() {
   return useMutation({
     mutationFn: async (profile: UserProfile) => {
       if (!actor) throw new Error('Actor not available');
-      console.log('[useSaveCallerUserProfile] Saving profile:', profile);
-
-      try {
-        await actor.saveCallerUserProfile(profile);
-        console.log('[useSaveCallerUserProfile] Profile saved successfully');
-      } catch (error: any) {
-        console.error('[useSaveCallerUserProfile] Error saving profile:', {
-          error,
-          message: error?.message,
-          stack: error?.stack,
-        });
-        throw error;
-      }
+      await actor.saveCallerUserProfile(profile);
     },
     onSuccess: () => {
-      console.log('[useSaveCallerUserProfile] Invalidating currentUserProfile query');
       queryClient.invalidateQueries({ queryKey: ['currentUserProfile'] });
     },
   });
@@ -306,13 +296,10 @@ export function useIsCallerAdmin() {
   const { actor, isFetching } = useActor();
 
   return useQuery<boolean>({
-    queryKey: ['isAdmin'],
+    queryKey: ['isCallerAdmin'],
     queryFn: async () => {
       if (!actor) return false;
-      console.log('[useIsCallerAdmin] Checking admin status');
-      const isAdmin = await actor.isCallerAdmin();
-      console.log('[useIsCallerAdmin] Is admin:', isAdmin);
-      return isAdmin;
+      return actor.isCallerAdmin();
     },
     enabled: !!actor && !isFetching,
   });
@@ -321,14 +308,24 @@ export function useIsCallerAdmin() {
 export function useGetOpenAIConfig() {
   const { actor, isFetching } = useActor();
 
-  return useQuery({
+  return useQuery<OpenAIConfig | null>({
     queryKey: ['openAIConfig'],
     queryFn: async () => {
       if (!actor) return null;
-      console.log('[useGetOpenAIConfig] Fetching OpenAI config');
-      const config = await actor.getOpenAIConfig();
-      console.log('[useGetOpenAIConfig] Config:', config ? 'exists' : 'null');
-      return config;
+      return actor.getOpenAIConfig();
+    },
+    enabled: !!actor && !isFetching,
+  });
+}
+
+export function useValidateOpenAIConfig() {
+  const { actor, isFetching } = useActor();
+
+  return useQuery<boolean>({
+    queryKey: ['validateOpenAIConfig'],
+    queryFn: async () => {
+      if (!actor) return false;
+      return actor.validateOpenAIConfig();
     },
     enabled: !!actor && !isFetching,
   });
@@ -341,39 +338,11 @@ export function useSaveOpenAIConfig() {
   return useMutation({
     mutationFn: async (apiKey: string) => {
       if (!actor) throw new Error('Actor not available');
-      console.log('[useSaveOpenAIConfig] Saving OpenAI config');
-
-      try {
-        await actor.setOpenAIConfig(apiKey);
-        console.log('[useSaveOpenAIConfig] Config saved successfully');
-      } catch (error: any) {
-        console.error('[useSaveOpenAIConfig] Error saving config:', {
-          error,
-          message: error?.message,
-          stack: error?.stack,
-        });
-        throw error;
-      }
+      await actor.setOpenAIConfig(apiKey);
     },
     onSuccess: () => {
-      console.log('[useSaveOpenAIConfig] Invalidating openAIConfig query');
+      queryClient.invalidateQueries({ queryKey: ['validateOpenAIConfig'] });
       queryClient.invalidateQueries({ queryKey: ['openAIConfig'] });
     },
-  });
-}
-
-export function useValidateOpenAIConfig() {
-  const { actor, isFetching } = useActor();
-
-  return useQuery<boolean>({
-    queryKey: ['validateOpenAIConfig'],
-    queryFn: async () => {
-      if (!actor) return false;
-      console.log('[useValidateOpenAIConfig] Validating OpenAI config');
-      const isValid = await actor.validateOpenAIConfig();
-      console.log('[useValidateOpenAIConfig] Is valid:', isValid);
-      return isValid;
-    },
-    enabled: !!actor && !isFetching,
   });
 }

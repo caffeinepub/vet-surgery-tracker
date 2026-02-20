@@ -1,106 +1,125 @@
 {
   "kind": "build_request",
-  "title": "Add colored boxes and species badge to patient card",
+  "title": "Refine case card layout with colored task sections and edit capability",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Add a colored box border around the notes field in the patient card and make the notes field always visible (not collapsible) so it stands out more",
+      "text": "Remove the inner grey box styling from the species field in the case card display",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-last"
+          "msg-5"
         ],
         "quotes": [
-          "put a color box around notes field and make the field always visible so it stands out more"
+          "Remove inner grey box from species field"
         ]
       },
       "acceptanceCriteria": [
-        "Notes field has a visible colored border",
-        "Notes field is always expanded and visible on the patient card",
-        "Notes field is visually distinct from other fields"
+        "Species field displays without a grey box background",
+        "Species field maintains proper spacing and alignment with other fields"
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Add a purple colored box border around the Histo (histopathology) task in the patient card task checklist",
+      "text": "Move the remaining task list section to appear below the notes field in the case card layout",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-last"
+          "msg-5"
         ],
         "quotes": [
-          "Purple box around the Histo task"
+          "move remaining task list to below notes field"
         ]
       },
       "acceptanceCriteria": [
-        "Histo task has a purple border when displayed in the patient card",
-        "Purple color is clearly distinguishable from other task colors"
+        "Remaining tasks section appears after the notes field",
+        "Layout maintains visual hierarchy and proper spacing"
       ]
     },
     {
       "id": "REQ-3",
-      "text": "Add a blue colored box border around the Imaging task in the patient card task checklist",
-      "target": "frontend",
+      "text": "Add functionality to edit remaining tasks for existing cases, allowing users to modify which tasks are selected",
+      "target": "both",
       "source": {
         "messageIds": [
-          "msg-last"
+          "msg-5"
         ],
         "quotes": [
-          "Blue box around the Imaging task"
+          "add option to edit remaining tasks"
         ]
       },
       "acceptanceCriteria": [
-        "Imaging task has a blue border when displayed in the patient card",
-        "Blue color is clearly distinguishable from other task colors"
+        "Users can click to edit the task selection for an existing case",
+        "Task checkboxes can be toggled on/off when editing",
+        "Changes to task selection are saved to the backend",
+        "UI provides clear indication when in edit mode vs completion mode"
       ]
     },
     {
       "id": "REQ-4",
-      "text": "Add an orange colored box border around the presenting complaint field in the patient card",
+      "text": "Add a purple box with matching shading around the histo task item in the remaining tasks checklist",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-last"
+          "msg-5"
         ],
         "quotes": [
-          "orange box around presenting complaint"
+          "place purple box with matching shading around histo"
         ]
       },
       "acceptanceCriteria": [
-        "Presenting complaint field has an orange border",
-        "Orange color is clearly distinguishable from other field colors"
+        "Histo task displays with a purple background box",
+        "Purple shading matches the app's design system",
+        "Box does not break checkbox alignment"
       ]
     },
     {
       "id": "REQ-5",
-      "text": "Add the species information displayed in a rounded box badge below the medical record number field in the patient card",
+      "text": "Add a blue box with matching shading around the imaging task item in the remaining tasks checklist",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-last"
+          "msg-5"
         ],
         "quotes": [
-          "add species in rounded box below medical record number"
+          "place blue box with matching shading around imaging"
         ]
       },
       "acceptanceCriteria": [
-        "Species is displayed in a rounded badge-style box",
-        "Species badge appears directly below the medical record number",
-        "Badge has rounded corners and stands out visually"
+        "Imaging task displays with a blue background box",
+        "Blue shading matches the app's design system",
+        "Box does not break checkbox alignment"
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "text": "Ensure colored boxes around histo and imaging tasks maintain proper alignment of all checkboxes in the remaining tasks list",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-5"
+        ],
+        "quotes": [
+          "add these boxes in a way that maintains alignment of the check boxes"
+        ]
+      },
+      "acceptanceCriteria": [
+        "All checkboxes in the task list remain vertically aligned",
+        "Colored boxes do not cause layout shift or misalignment",
+        "Text labels remain properly aligned with their respective checkboxes"
       ]
     }
   ],
   "constraints": [
-    "Do not modify the CaseCard component's data structure or props",
-    "Maintain existing task checkbox functionality",
-    "Keep all other patient card fields and layout intact"
+    "Do not modify the ChecklistEditor component used in creation mode",
+    "Preserve existing task completion functionality",
+    "Maintain the existing checklist item definitions and default states"
   ],
   "nonGoals": [
-    "Changing the backend data model",
-    "Modifying task types or checklist items",
-    "Altering the color scheme of other UI components",
-    "Changing the overall layout structure of the patient card"
+    "Changing the color scheme for other UI elements",
+    "Modifying task types or adding new task categories",
+    "Altering the case creation form layout"
   ],
   "imageRequirements": {
     "required": [],

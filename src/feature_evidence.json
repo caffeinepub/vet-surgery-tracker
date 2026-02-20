@@ -2,8 +2,8 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-add-a-colored-box-border-around-the-notes-field-in-the-patient-card-and-make-the-notes-field-always-visible-not-collapsible-so-it-stands-out-more",
-      "featureTitle": "Add a colored box border around the notes field in the patient card and make the notes field always visible (not collapsible) so it stands out more",
+      "featureId": "feature-remove-the-inner-grey-box-styling-from-the-species-field-in-the-case-card-display",
+      "featureTitle": "Remove the inner grey box styling from the species field in the case card display",
       "files": [
         "frontend/src/features/cases/components/CaseCard.tsx"
       ],
@@ -23,8 +23,8 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-add-a-purple-colored-box-border-around-the-histo-histopathology-task-in-the-patient-card-task-checklist",
-      "featureTitle": "Add a purple colored box border around the Histo (histopathology) task in the patient card task checklist",
+      "featureId": "feature-move-the-remaining-task-list-section-to-appear-below-the-notes-field-in-the-case-card-layout",
+      "featureTitle": "Move the remaining task list section to appear below the notes field in the case card layout",
       "files": [
         "frontend/src/features/cases/components/CaseCard.tsx"
       ],
@@ -44,10 +44,11 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-add-a-blue-colored-box-border-around-the-imaging-task-in-the-patient-card-task-checklist",
-      "featureTitle": "Add a blue colored box border around the Imaging task in the patient card task checklist",
+      "featureId": "feature-add-functionality-to-edit-remaining-tasks-for-existing-cases-allowing-users-to-modify-which-tasks-are-selected",
+      "featureTitle": "Add functionality to edit remaining tasks for existing cases, allowing users to modify which tasks are selected",
       "files": [
-        "frontend/src/features/cases/components/CaseCard.tsx"
+        "frontend/src/features/cases/components/CaseCard.tsx",
+        "frontend/src/hooks/useQueries.ts"
       ],
       "components": [
         "authorization@4.0.0",
@@ -65,10 +66,10 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-add-an-orange-colored-box-border-around-the-presenting-complaint-field-in-the-patient-card",
-      "featureTitle": "Add an orange colored box border around the presenting complaint field in the patient card",
+      "featureId": "feature-add-a-purple-box-with-matching-shading-around-the-histo-task-item-in-the-remaining-tasks-checklist",
+      "featureTitle": "Add a purple box with matching shading around the histo task item in the remaining tasks checklist",
       "files": [
-        "frontend/src/features/cases/components/CaseCard.tsx"
+        "frontend/src/features/cases/components/ChecklistEditor.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -86,10 +87,10 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-add-the-species-information-displayed-in-a-rounded-box-badge-below-the-medical-record-number-field-in-the-patient-card",
-      "featureTitle": "Add the species information displayed in a rounded box badge below the medical record number field in the patient card",
+      "featureId": "feature-add-a-blue-box-with-matching-shading-around-the-imaging-task-item-in-the-remaining-tasks-checklist",
+      "featureTitle": "Add a blue box with matching shading around the imaging task item in the remaining tasks checklist",
       "files": [
-        "frontend/src/features/cases/components/CaseCard.tsx"
+        "frontend/src/features/cases/components/ChecklistEditor.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -103,6 +104,27 @@
       ],
       "testIds": [
         "REQ-5"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-ensure-colored-boxes-around-histo-and-imaging-tasks-maintain-proper-alignment-of-all-checkboxes-in-the-remaining-tasks-list",
+      "featureTitle": "Ensure colored boxes around histo and imaging tasks maintain proper alignment of all checkboxes in the remaining tasks list",
+      "files": [
+        "frontend/src/features/cases/components/ChecklistEditor.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "camera@1.0.0",
+        "http-outcalls@3.0.0"
+      ],
+      "testIds": [
+        "REQ-6"
       ],
       "confidence": "high"
     }

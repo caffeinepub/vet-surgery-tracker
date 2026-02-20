@@ -37,31 +37,49 @@ export default function ChecklistEditor({ task, onChange, disabled, mode = 'comp
     }
   };
 
+  // In completion mode, only show tasks that are selected
+  const itemsToDisplay = isCreationMode 
+    ? CHECKLIST_ITEMS 
+    : CHECKLIST_ITEMS.filter(item => task[item.selectedField] === true);
+
   return (
     <div className="space-y-3 rounded-lg border border-border bg-card p-4">
       <div className="space-y-2">
-        {CHECKLIST_ITEMS.map((item) => (
-          <div key={item.key} className="flex items-center space-x-2">
-            <Checkbox
-              id={`checklist-${item.key}`}
-              checked={getCheckboxState(item)}
-              onCheckedChange={(checked) => handleCheckboxChange(item, checked as boolean)}
-              disabled={disabled}
-            />
-            <Label
-              htmlFor={`checklist-${item.key}`}
+        {itemsToDisplay.map((item) => {
+          // Determine if this item needs colored background
+          const isHisto = item.key === 'histo';
+          const isImaging = item.key === 'imaging';
+          
+          return (
+            <div 
+              key={item.key} 
               className={cn(
-                'text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70',
-                disabled && 'opacity-50 cursor-not-allowed'
+                'flex items-center space-x-2 rounded-md p-2 -mx-2',
+                isHisto && 'bg-purple-100 dark:bg-purple-950/30',
+                isImaging && 'bg-blue-100 dark:bg-blue-950/30'
               )}
             >
-              {item.label}
-              {isCreationMode && item.defaultSelected && (
-                <span className="ml-2 text-xs text-muted-foreground">(default)</span>
-              )}
-            </Label>
-          </div>
-        ))}
+              <Checkbox
+                id={`checklist-${mode}-${item.key}`}
+                checked={getCheckboxState(item)}
+                onCheckedChange={(checked) => handleCheckboxChange(item, checked as boolean)}
+                disabled={disabled}
+              />
+              <Label
+                htmlFor={`checklist-${mode}-${item.key}`}
+                className={cn(
+                  'text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70',
+                  disabled && 'opacity-50 cursor-not-allowed'
+                )}
+              >
+                {item.label}
+                {isCreationMode && item.defaultSelected && (
+                  <span className="ml-2 text-xs text-muted-foreground">(default)</span>
+                )}
+              </Label>
+            </div>
+          );
+        })}
       </div>
       {isCreationMode && (
         <p className="text-xs text-muted-foreground mt-3 pt-3 border-t border-border">

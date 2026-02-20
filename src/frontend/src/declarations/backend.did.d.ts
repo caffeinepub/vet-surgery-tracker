@@ -48,6 +48,15 @@ export interface Task {
   'pdvmNotifiedSelected' : boolean,
   'labsCompleted' : boolean,
 }
+export interface TaskOptions {
+  'pdvmNotified' : boolean,
+  'histo' : boolean,
+  'labs' : boolean,
+  'culture' : boolean,
+  'surgeryReport' : boolean,
+  'imaging' : boolean,
+  'dischargeNotes' : boolean,
+}
 export type Time = bigint;
 export interface UserProfile { 'name' : string }
 export type UserRole = { 'admin' : null } |
@@ -68,7 +77,7 @@ export interface _SERVICE {
       [] | [Time],
       string,
       string,
-      Task,
+      TaskOptions,
     ],
     SurgeryCase
   >,
@@ -108,6 +117,7 @@ export interface _SERVICE {
     undefined
   >,
   'updateCaseNotes' : ActorMethod<[bigint, string], undefined>,
+  'updateRemainingTasks' : ActorMethod<[bigint, TaskOptions], undefined>,
   'updateTask' : ActorMethod<[bigint, Task], undefined>,
   'validateOpenAIConfig' : ActorMethod<[], boolean>,
 }

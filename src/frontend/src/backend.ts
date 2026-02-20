@@ -94,6 +94,15 @@ export interface OpenAIConfig {
     initialized: boolean;
     apiKey: string;
 }
+export interface TaskOptions {
+    pdvmNotified: boolean;
+    histo: boolean;
+    labs: boolean;
+    culture: boolean;
+    surgeryReport: boolean;
+    imaging: boolean;
+    dischargeNotes: boolean;
+}
 export interface Task {
     cultureCompleted: boolean;
     cultureSelected: boolean;
@@ -146,7 +155,7 @@ export enum UserRole {
 export interface backendInterface {
     _initializeAccessControlWithSecret(userSecret: string): Promise<void>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
-    createCase(medicalRecordNumber: string, arrivalDate: Time, petName: string, ownerLastName: string, species: Species, breed: string, sex: Sex, dateOfBirth: Time | null, presentingComplaint: string, notes: string, task: Task): Promise<SurgeryCase>;
+    createCase(medicalRecordNumber: string, arrivalDate: Time, petName: string, ownerLastName: string, species: Species, breed: string, sex: Sex, dateOfBirth: Time | null, presentingComplaint: string, notes: string, taskOptions: TaskOptions): Promise<SurgeryCase>;
     deleteCase(id: bigint): Promise<void>;
     getAllCases(): Promise<Array<SurgeryCase>>;
     getCallerUserProfile(): Promise<UserProfile | null>;
@@ -164,6 +173,7 @@ export interface backendInterface {
     setOpenAIConfig(apiKey: string): Promise<void>;
     updateCase(id: bigint, medicalRecordNumber: string, arrivalDate: Time, petName: string, ownerLastName: string, species: Species, breed: string, sex: Sex, dateOfBirth: Time | null, presentingComplaint: string, notes: string, task: Task): Promise<void>;
     updateCaseNotes(id: bigint, notes: string): Promise<void>;
+    updateRemainingTasks(id: bigint, taskOptions: TaskOptions): Promise<void>;
     updateTask(id: bigint, task: Task): Promise<void>;
     validateOpenAIConfig(): Promise<boolean>;
 }
@@ -198,7 +208,7 @@ export class Backend implements backendInterface {
             return result;
         }
     }
-    async createCase(arg0: string, arg1: Time, arg2: string, arg3: string, arg4: Species, arg5: string, arg6: Sex, arg7: Time | null, arg8: string, arg9: string, arg10: Task): Promise<SurgeryCase> {
+    async createCase(arg0: string, arg1: Time, arg2: string, arg3: string, arg4: Species, arg5: string, arg6: Sex, arg7: Time | null, arg8: string, arg9: string, arg10: TaskOptions): Promise<SurgeryCase> {
         if (this.processError) {
             try {
                 const result = await this.actor.createCase(arg0, arg1, arg2, arg3, to_candid_Species_n3(this._uploadFile, this._downloadFile, arg4), arg5, to_candid_Sex_n5(this._uploadFile, this._downloadFile, arg6), to_candid_opt_n7(this._uploadFile, this._downloadFile, arg7), arg8, arg9, arg10);
@@ -447,6 +457,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.updateCaseNotes(arg0, arg1);
+            return result;
+        }
+    }
+    async updateRemainingTasks(arg0: bigint, arg1: TaskOptions): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.updateRemainingTasks(arg0, arg1);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.updateRemainingTasks(arg0, arg1);
             return result;
         }
     }

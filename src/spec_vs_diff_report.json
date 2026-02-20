@@ -1,14 +1,18 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-20T02:29:50.408Z",
-  "summary": "All five requirements from the BuildRequest have been implemented in the CaseCard.tsx component. The diff shows evidence of colored borders for notes (green), Histo task (purple), Imaging task (blue), presenting complaint (orange), and a species badge below the medical record number. No missing requirements or hallucinated features were identified.",
+  "generatedAt": "2026-02-20T14:17:36.329Z",
+  "summary": "All requirements have been implemented. The diff shows removal of grey box styling from species field, reordering of UI sections with remaining tasks moved below notes, addition of edit functionality for remaining tasks with backend support (useUpdateRemainingTasks hook), purple background for histo tasks, blue background for imaging tasks, and proper alignment maintained through consistent padding and negative margins in the ChecklistEditor component.",
   "missing_requirements": [],
   "hallucinated_features": [],
   "confidence": 0.95,
   "changed_files": [
+    "backend/main.mo",
+    "backend/migration.mo",
     "frontend-file-summaries.txt",
     "frontend/src/features/cases/components/CaseCard.tsx",
+    "frontend/src/features/cases/components/ChecklistEditor.tsx",
+    "frontend/src/hooks/useQueries.ts",
     "project_state.json"
   ]
 }

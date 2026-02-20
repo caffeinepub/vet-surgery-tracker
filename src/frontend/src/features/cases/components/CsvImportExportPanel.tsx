@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import type { SurgeryCase } from '../../../backend';
+import type { SurgeryCase, TaskOptions } from '../../../backend';
 import { Button } from '@/components/ui/button';
 import { Download, Upload, AlertCircle, Loader2 } from 'lucide-react';
 import { exportCasesToCsv, importCasesFromCsv, type ImportError } from '../csv/caseCsv';
@@ -105,7 +105,30 @@ export default function CsvImportExportPanel({ cases }: CsvImportExportPanelProp
             console.log(`[CSV Import UI] Case ${caseData.existingCase.id} updated successfully`);
           } else {
             console.log('[CSV Import UI] Creating new case');
-            const newCase = await createCase.mutateAsync(caseData.data);
+            // Convert Task to TaskOptions for new case creation
+            const taskOptions: TaskOptions = {
+              dischargeNotes: caseData.data.task.dischargeNotesSelected,
+              pdvmNotified: caseData.data.task.pdvmNotifiedSelected,
+              labs: caseData.data.task.labsSelected,
+              histo: caseData.data.task.histoSelected,
+              surgeryReport: caseData.data.task.surgeryReportSelected,
+              imaging: caseData.data.task.imagingSelected,
+              culture: caseData.data.task.cultureSelected,
+            };
+            
+            const newCase = await createCase.mutateAsync({
+              medicalRecordNumber: caseData.data.medicalRecordNumber,
+              arrivalDate: caseData.data.arrivalDate,
+              petName: caseData.data.petName,
+              ownerLastName: caseData.data.ownerLastName,
+              species: caseData.data.species,
+              breed: caseData.data.breed,
+              sex: caseData.data.sex,
+              dateOfBirth: caseData.data.dateOfBirth,
+              presentingComplaint: caseData.data.presentingComplaint,
+              notes: caseData.data.notes,
+              taskOptions,
+            });
             console.log(`[CSV Import UI] New case created with ID ${newCase.id}`);
           }
           successCount++;

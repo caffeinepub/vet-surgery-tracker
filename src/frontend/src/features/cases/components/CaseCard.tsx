@@ -1,16 +1,15 @@
 import { useState } from 'react';
-import type { SurgeryCase } from '../../../backend';
+import type { SurgeryCase, TaskOptions } from '../../../backend';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Pencil, Trash2 } from 'lucide-react';
-import { useUpdateTask, useUpdateCaseNotes, useDeleteCase } from '../../../hooks/useQueries';
-import { getRemainingChecklistItems, getCompletedTaskCount, getTotalSelectedTaskCount } from '../checklist';
+import { Pencil, Trash2, Save } from 'lucide-react';
+import { useUpdateCaseNotes, useDeleteCase, useUpdateTask, useUpdateRemainingTasks } from '../../../hooks/useQueries';
 import { nanosecondsToDate } from '../validation';
 import { toast } from 'sonner';
+import { getRemainingChecklistItems, getCompletedTaskCount, getTotalSelectedTaskCount, CHECKLIST_ITEMS } from '../checklist';
+import ChecklistEditor from './ChecklistEditor';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -29,23 +28,52 @@ interface CaseCardProps {
 
 export default function CaseCard({ surgeryCase, onEdit }: CaseCardProps) {
   const [editedNotes, setEditedNotes] = useState(surgeryCase.notes);
+  const [isEditingNotes, setIsEditingNotes] = useState(false);
+  const [isEditingTasks, setIsEditingTasks] = useState(false);
+  const [editedTask, setEditedTask] = useState(surgeryCase.task);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
-  const updateTask = useUpdateTask();
   const updateNotes = useUpdateCaseNotes();
   const deleteCase = useDeleteCase();
+  const updateTask = useUpdateTask();
+  const updateRemainingTasks = useUpdateRemainingTasks();
 
-  const remainingItems = getRemainingChecklistItems(surgeryCase.task);
-  const completedCount = getCompletedTaskCount(surgeryCase.task);
-  const totalSelectedCount = getTotalSelectedTaskCount(surgeryCase.task);
+  const handleSaveNotes = async () => {
+    if (editedNotes === surgeryCase.notes) {
+      setIsEditingNotes(false);
+      return;
+    }
 
-  const handleTaskToggle = async (completedField: keyof typeof surgeryCase.task) => {
-    const currentValue = surgeryCase.task[completedField];
-    const updatedTask = {
-      ...surgeryCase.task,
-      [completedField]: !currentValue,
-    };
+    try {
+      await updateNotes.mutateAsync({
+        id: surgeryCase.id,
+        notes: editedNotes,
+      });
+      toast.success('Notes updated');
+      setIsEditingNotes(false);
+    } catch (error) {
+      console.error('[CaseCard] Error updating notes', { error });
+      toast.error('Failed to update notes');
+    }
+  };
 
+  const handleCancelEditNotes = () => {
+    setEditedNotes(surgeryCase.notes);
+    setIsEditingNotes(false);
+  };
+
+  const handleDelete = async () => {
+    try {
+      await deleteCase.mutateAsync(surgeryCase.id);
+      toast.success('Case deleted');
+      setShowDeleteDialog(false);
+    } catch (error) {
+      console.error('[CaseCard] Error deleting case', { error });
+      toast.error('Failed to delete case');
+    }
+  };
+
+  const handleTaskChange = async (updatedTask: typeof surgeryCase.task) => {
     try {
       await updateTask.mutateAsync({
         id: surgeryCase.id,
@@ -58,32 +86,39 @@ export default function CaseCard({ surgeryCase, onEdit }: CaseCardProps) {
     }
   };
 
-  const handleSaveNotes = async () => {
-    if (editedNotes === surgeryCase.notes) {
-      return;
-    }
+  const handleEditTasks = () => {
+    setEditedTask(surgeryCase.task);
+    setIsEditingTasks(true);
+  };
+
+  const handleSaveTasks = async () => {
+    // Convert Task to TaskOptions for the backend
+    const taskOptions: TaskOptions = {
+      dischargeNotes: editedTask.dischargeNotesSelected,
+      pdvmNotified: editedTask.pdvmNotifiedSelected,
+      labs: editedTask.labsSelected,
+      histo: editedTask.histoSelected,
+      surgeryReport: editedTask.surgeryReportSelected,
+      imaging: editedTask.imagingSelected,
+      culture: editedTask.cultureSelected,
+    };
 
     try {
-      await updateNotes.mutateAsync({
+      await updateRemainingTasks.mutateAsync({
         id: surgeryCase.id,
-        notes: editedNotes,
+        taskOptions,
       });
-      toast.success('Notes updated');
+      toast.success('Tasks updated');
+      setIsEditingTasks(false);
     } catch (error) {
-      console.error('[CaseCard] Error updating notes', { error });
-      toast.error('Failed to update notes');
+      console.error('[CaseCard] Error updating tasks', { error });
+      toast.error('Failed to update tasks');
     }
   };
 
-  const handleDelete = async () => {
-    try {
-      await deleteCase.mutateAsync(surgeryCase.id);
-      toast.success('Case deleted');
-      setShowDeleteDialog(false);
-    } catch (error) {
-      console.error('[CaseCard] Error deleting case', { error });
-      toast.error('Failed to delete case');
-    }
+  const handleCancelEditTasks = () => {
+    setEditedTask(surgeryCase.task);
+    setIsEditingTasks(false);
   };
 
   const arrivalDateFormatted = nanosecondsToDate(surgeryCase.arrivalDate).toLocaleDateString('en-US', {
@@ -100,16 +135,37 @@ export default function CaseCard({ surgeryCase, onEdit }: CaseCardProps) {
       })
     : 'N/A';
 
-  // Helper function to get task border color
-  const getTaskBorderClass = (taskKey: string) => {
-    if (taskKey === 'histo') {
-      return 'border-2 border-purple-500 rounded-lg p-2';
+  // Calculate age from date of birth
+  const calculateAge = () => {
+    if (!surgeryCase.dateOfBirth) return 'N/A';
+    
+    const birthDate = nanosecondsToDate(surgeryCase.dateOfBirth);
+    const today = new Date();
+    const ageInYears = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    
+    // Adjust if birthday hasn't occurred this year
+    const adjustedAge = monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())
+      ? ageInYears - 1
+      : ageInYears;
+    
+    if (adjustedAge < 1) {
+      const ageInMonths = Math.floor((today.getTime() - birthDate.getTime()) / (1000 * 60 * 60 * 24 * 30.44));
+      return ageInMonths === 1 ? '1 month' : `${ageInMonths} months`;
     }
-    if (taskKey === 'imaging') {
-      return 'border-2 border-blue-600 rounded-lg p-2';
-    }
-    return '';
+    
+    return adjustedAge === 1 ? '1 year' : `${adjustedAge} years`;
   };
+
+  const age = calculateAge();
+
+  // Check if notes should be displayed (not empty or whitespace only)
+  const hasNotes = surgeryCase.notes && surgeryCase.notes.trim().length > 0;
+
+  // Get remaining tasks
+  const remainingItems = getRemainingChecklistItems(surgeryCase.task);
+  const completedCount = getCompletedTaskCount(surgeryCase.task);
+  const totalCount = getTotalSelectedTaskCount(surgeryCase.task);
 
   return (
     <>
@@ -121,9 +177,12 @@ export default function CaseCard({ surgeryCase, onEdit }: CaseCardProps) {
               <p className="text-sm text-muted-foreground mt-1">
                 MRN: {surgeryCase.medicalRecordNumber} | Owner: {surgeryCase.ownerLastName}
               </p>
-              <Badge variant="secondary" className="mt-2 rounded-full">
-                {surgeryCase.species}
-              </Badge>
+              {/* Species field without grey box wrapper */}
+              <div className="mt-2">
+                <Badge variant="secondary" className="rounded-full bg-[oklch(var(--species-bg))]">
+                  {surgeryCase.species}
+                </Badge>
+              </div>
             </div>
             <div className="flex gap-2">
               <Button variant="ghost" size="icon" onClick={() => onEdit(surgeryCase)}>
@@ -146,6 +205,9 @@ export default function CaseCard({ surgeryCase, onEdit }: CaseCardProps) {
               <span className="font-medium">Sex:</span> {surgeryCase.sex}
             </div>
             <div>
+              <span className="font-medium">Age:</span> {age}
+            </div>
+            <div>
               <span className="font-medium">DOB:</span> {dateOfBirthFormatted}
             </div>
             <div>
@@ -153,65 +215,135 @@ export default function CaseCard({ surgeryCase, onEdit }: CaseCardProps) {
             </div>
           </div>
 
-          {/* Presenting Complaint with Orange Border */}
+          {/* Presenting Complaint with orange border and orange background */}
           {surgeryCase.presentingComplaint && (
-            <div className="rounded-lg bg-complaint p-3 border-2 border-orange-500">
-              <p className="text-sm font-medium text-complaint-foreground mb-1">Presenting Complaint</p>
+            <div className="rounded-lg border-2 border-[oklch(var(--complaint-border))] bg-[oklch(var(--complaint-bg))] p-3">
+              <p className="text-sm font-medium text-foreground mb-1">Presenting Complaint</p>
               <p className="text-sm text-foreground">{surgeryCase.presentingComplaint}</p>
             </div>
           )}
 
-          {/* Remaining Tasks */}
-          {totalSelectedCount > 0 && (
+          {/* Notes Section - Only visible if there are notes, with green border and background */}
+          {hasNotes && (
+            <div className="space-y-2 border-2 border-[oklch(var(--notes-border))] bg-[oklch(var(--notes-bg))] rounded-lg p-3">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-medium">Notes</p>
+                {!isEditingNotes && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setIsEditingNotes(true)}
+                    className="h-7 px-2"
+                  >
+                    <Pencil className="h-3 w-3 mr-1" />
+                    Edit
+                  </Button>
+                )}
+              </div>
+              {isEditingNotes ? (
+                <>
+                  <Textarea
+                    value={editedNotes}
+                    onChange={(e) => setEditedNotes(e.target.value)}
+                    placeholder="Add notes..."
+                    className="min-h-[100px] bg-white border-[oklch(var(--notes-border))]"
+                    disabled={updateNotes.isPending}
+                  />
+                  <div className="flex gap-2 justify-end">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleCancelEditNotes}
+                      disabled={updateNotes.isPending}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={handleSaveNotes}
+                      disabled={updateNotes.isPending}
+                    >
+                      {updateNotes.isPending ? (
+                        <>Saving...</>
+                      ) : (
+                        <>
+                          <Save className="h-3 w-3 mr-1" />
+                          Save
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </>
+              ) : (
+                <p className="text-sm text-foreground whitespace-pre-wrap">{surgeryCase.notes}</p>
+              )}
+            </div>
+          )}
+
+          {/* Remaining Tasks Section - Moved below notes */}
+          {totalCount > 0 && (
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <p className="text-sm font-medium">Remaining Tasks</p>
-                <Badge variant={remainingItems.length === 0 ? 'default' : 'secondary'}>
-                  {completedCount}/{totalSelectedCount}
-                </Badge>
+                <p className="text-sm font-medium">
+                  Remaining Tasks ({completedCount}/{totalCount})
+                </p>
+                {!isEditingTasks && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleEditTasks}
+                    className="h-7 px-2"
+                  >
+                    <Pencil className="h-3 w-3 mr-1" />
+                    Edit Tasks
+                  </Button>
+                )}
               </div>
-              {remainingItems.length > 0 ? (
-                <div className="space-y-2 pl-1">
-                  {remainingItems.map((item) => (
-                    <div key={item.key} className={getTaskBorderClass(item.key)}>
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`task-${surgeryCase.id}-${item.key}`}
-                          checked={false}
-                          onCheckedChange={() => handleTaskToggle(item.completedField)}
-                          disabled={updateTask.isPending}
-                        />
-                        <Label
-                          htmlFor={`task-${surgeryCase.id}-${item.key}`}
-                          className="text-sm font-normal cursor-pointer"
-                        >
-                          {item.label}
-                        </Label>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+              {isEditingTasks ? (
+                <>
+                  <ChecklistEditor
+                    task={editedTask}
+                    onChange={setEditedTask}
+                    disabled={updateRemainingTasks.isPending}
+                    mode="creation"
+                  />
+                  <div className="flex gap-2 justify-end">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleCancelEditTasks}
+                      disabled={updateRemainingTasks.isPending}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={handleSaveTasks}
+                      disabled={updateRemainingTasks.isPending}
+                    >
+                      {updateRemainingTasks.isPending ? (
+                        <>Saving...</>
+                      ) : (
+                        <>
+                          <Save className="h-3 w-3 mr-1" />
+                          Save
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </>
+              ) : remainingItems.length > 0 ? (
+                <ChecklistEditor
+                  task={surgeryCase.task}
+                  onChange={handleTaskChange}
+                  disabled={updateTask.isPending}
+                  mode="completion"
+                />
               ) : (
                 <p className="text-sm text-muted-foreground italic">All tasks completed! 🎉</p>
               )}
             </div>
           )}
-
-          {/* Notes Section - Always Visible with Colored Border */}
-          <div className="space-y-2 border-2 border-green-500 rounded-lg p-3">
-            <p className="text-sm font-medium">Notes</p>
-            <Textarea
-              value={editedNotes}
-              onChange={(e) => setEditedNotes(e.target.value)}
-              onBlur={handleSaveNotes}
-              placeholder="Add notes..."
-              className="min-h-[100px]"
-              disabled={updateNotes.isPending}
-            />
-            {editedNotes !== surgeryCase.notes && (
-              <p className="text-xs text-muted-foreground">Changes will be saved automatically when you click outside</p>
-            )}
-          </div>
         </CardContent>
       </Card>
 
