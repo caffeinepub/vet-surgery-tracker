@@ -1,65 +1,79 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Add sorting for case cards by arrival date and task status",
+  "title": "Fix backend actor availability issue preventing case creation",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Add a sorting control UI component to the CasesListView that allows users to select sort order with options: 'Arrival Date (Newest First)', 'Arrival Date (Oldest First)', 'Open Tasks (Most First)', and 'Open Tasks (Fewest First)'",
+      "summary": "Diagnose and fix the backend actor initialization issue that prevents the actor from being available when users attempt to add cases through the web interface",
       "acceptanceCriteria": [
-        "A visible sort dropdown or button group appears above the case cards grid",
-        "Users can select between at least 4 sorting options",
-        "The selected sort option persists visually while active"
+        "Backend actor successfully initializes and becomes available after login",
+        "Users can create new cases without encountering 'actor not available' errors",
+        "Actor connection is maintained throughout the user session"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/features/cases/components/CasesSortControl.tsx",
-          "operation": "create",
-          "description": "Create a sorting control component using shadcn/ui Select component. Provide four sort options: 'Arrival Date (Newest First)', 'Arrival Date (Oldest First)', 'Open Tasks (Most First)', and 'Open Tasks (Fewest First)'. Accept onSortChange callback prop and current sortBy value prop. Use consistent styling with the existing search bar component."
-        },
-        {
-          "path": "frontend/src/features/cases/components/CasesListView.tsx",
+          "path": "frontend/src/App.tsx",
           "operation": "modify",
-          "description": "Add the CasesSortControl component above the case cards grid, positioned next to the existing CasesSearchBar. Add state to track the current sort selection. Wire the sort control's callback to update the sort state."
+          "description": "Add actor availability check before rendering the main application content. Display a loading state while the actor is initializing, and show an error state with retry mechanism if actor initialization fails. Ensure the profile setup modal and main views only render when the actor is confirmed available and not in a fetching state."
         }
       ]
     },
     {
       "id": "REQ-2",
-      "summary": "Implement sorting logic that reorders the displayed case cards based on the selected sort option, using the arrivalDate field for date sorting and counting uncompleted checklist items for task status sorting",
+      "summary": "Verify that the useActor hook properly recreates the actor instance when the Internet Identity authentication state changes",
       "acceptanceCriteria": [
-        "Cases sort correctly by arrival date in ascending and descending order",
-        "Cases sort correctly by number of open (uncompleted) checklist tasks in ascending and descending order",
-        "Sorting updates immediately when the user changes the selection",
-        "Sorting works correctly with the existing search filter"
+        "Actor is recreated immediately after successful authentication",
+        "React Query cache is properly invalidated when actor changes",
+        "No race conditions occur between authentication and actor initialization"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/features/cases/sorting.ts",
-          "operation": "create",
-          "description": "Create sorting utility functions. Define a SortOption type with values 'arrival-date-newest', 'arrival-date-oldest', 'open-tasks-most', 'open-tasks-fewest'. Implement a sortCases function that accepts an array of SurgeryCase objects and a SortOption, returning a sorted array. For arrival date sorting, compare arrivalDate timestamps. For task status sorting, count uncompleted checklist items using the getRemainingChecklistItems function from frontend/src/features/cases/checklist.ts and compare counts. Use stable sorting to maintain relative order for equal values."
-        },
-        {
-          "path": "frontend/src/features/cases/components/CasesListView.tsx",
+          "path": "frontend/src/hooks/useQueries.ts",
           "operation": "modify",
-          "description": "Import the sortCases function from frontend/src/features/cases/sorting.ts. Apply sorting after search filtering but before rendering the case cards grid. Pass the filtered cases and the current sort state to sortCases and use the sorted result for rendering. Ensure sorting updates immediately when the sort selection changes."
+          "description": "Update all query hooks (useGetCallerUserProfile, useIsCallerAdmin, useGetAllCases, etc.) to include actorFetching state from useActor in their enabled conditions. Ensure queries wait for both actor availability and completion of actor initialization (i.e., enabled: !!actor && !actorFetching) to prevent premature query execution during actor recreation."
         }
       ]
     },
     {
       "id": "REQ-3",
-      "summary": "Ensure the sorting persists when users perform other actions like searching, creating new cases, updating cases, or toggling checklist items",
+      "summary": "Add error boundary and user-friendly error messaging for backend actor connection failures with retry mechanism",
       "acceptanceCriteria": [
-        "The selected sort order remains active after search queries change",
-        "Cases automatically re-sort when checklist items are toggled",
-        "New cases appear in the correct sorted position",
-        "Updated cases move to the correct sorted position"
+        "Clear error message displays when backend actor is unavailable",
+        "Users can trigger a manual retry to reconnect to the backend",
+        "Loading states accurately reflect actor initialization status"
       ],
       "file_operations": [
         {
+          "path": "frontend/src/components/ActorErrorBoundary.tsx",
+          "operation": "create",
+          "description": "Create a new component that wraps the application content and displays user-friendly error messages when the backend actor fails to initialize. Include a retry button that re-triggers actor initialization by clearing the React Query cache and calling the login flow again. Show different messages for different error types (network errors, authentication errors, timeout errors). Display a loading spinner during actor initialization and retry attempts."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Wrap the main application content with the ActorErrorBoundary component to catch and display actor initialization errors. Pass actor, isFetching, and error state from useActor to the error boundary. Ensure the error boundary displays before any queries are attempted."
+        }
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "summary": "Ensure the CaseFormDialog component properly waits for actor availability before attempting to create cases",
+      "acceptanceCriteria": [
+        "Form submission is disabled when actor is unavailable",
+        "Form displays loading or disabled state during actor initialization",
+        "Case creation mutation only executes when actor is confirmed available"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/features/cases/components/CaseFormDialog.tsx",
+          "operation": "modify",
+          "description": "Add actor availability and fetching state checks from useActor hook. Disable the form submit button when actor is unavailable or still initializing (isFetching). Display a loading indicator or disabled state message within the dialog when the actor is not ready. Ensure the createCase and updateCase mutations from useQueries only execute when actor is confirmed available. Add a check at the start of the form submission handler to prevent submission if actor is null or isFetching is true."
+        },
+        {
           "path": "frontend/src/features/cases/components/CasesListView.tsx",
           "operation": "modify",
-          "description": "Ensure the sort state is maintained independently from search state. When cases data is refetched due to mutations (create, update, delete, checklist toggle), reapply the current sort order to the updated case list. The sorting logic should run whenever the cases data changes or when the sort selection changes, ensuring cases always appear in the correct sorted position."
+          "description": "Add actor availability check from useActor hook. Disable the 'New Case' button when actor is unavailable or still initializing (isFetching). Show a tooltip or disabled state message indicating the backend is initializing if the user hovers over the disabled button. Ensure the button only becomes clickable after actor initialization is complete."
         }
       ]
     }

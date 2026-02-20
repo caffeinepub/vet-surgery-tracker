@@ -34,8 +34,12 @@ export interface RemainingItem {
 }
 
 export function getRemainingItems(checklist: Checklist): RemainingItem[] {
-  return CHECKLIST_ITEMS.filter((item) => checklist[item.key]).map((item) => ({
+  return CHECKLIST_ITEMS.filter((item) => !checklist[item.key]).map((item) => ({
     key: item.key,
     label: item.label,
   }));
+}
+
+export function getRemainingTaskCount(checklist: Checklist): number {
+  return CHECKLIST_ITEMS.filter((item) => !checklist[item.key]).length;
 }

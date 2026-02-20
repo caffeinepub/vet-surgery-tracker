@@ -1,66 +1,57 @@
 import { useState, useEffect } from 'react';
-import { format } from 'date-fns';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
 import { CalendarIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface DateFieldProps {
-  id?: string;
   value: Date | null;
   onChange: (date: Date | null) => void;
+  className?: string;
   disabled?: boolean;
 }
 
-export default function DateField({ id, value, onChange, disabled }: DateFieldProps) {
-  const [inputValue, setInputValue] = useState(value ? format(value, 'yyyy-MM-dd') : '');
+export default function DateField({ value, onChange, className, disabled }: DateFieldProps) {
+  const [inputValue, setInputValue] = useState('');
   const [isOpen, setIsOpen] = useState(false);
 
-  // Sync inputValue with value prop changes (e.g., from MRN auto-prefill)
   useEffect(() => {
-    setInputValue(value ? format(value, 'yyyy-MM-dd') : '');
+    if (value) {
+      const month = String(value.getMonth() + 1).padStart(2, '0');
+      const day = String(value.getDate()).padStart(2, '0');
+      const year = value.getFullYear();
+      setInputValue(`${month}/${day}/${year}`);
+    } else {
+      setInputValue('');
+    }
   }, [value]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     setInputValue(newValue);
 
-    // If empty, set to null
-    if (!newValue) {
-      onChange(null);
-      return;
-    }
+    const dateRegex = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/;
+    const match = newValue.match(dateRegex);
 
-    // Parse YYYY-MM-DD format explicitly to avoid browser-dependent parsing
-    // The native date input always provides values in YYYY-MM-DD format
-    const match = newValue.match(/^(\d{4})-(\d{2})-(\d{2})$/);
     if (match) {
-      const year = parseInt(match[1], 10);
-      const month = parseInt(match[2], 10) - 1; // Month is 0-indexed
-      const day = parseInt(match[3], 10);
-      
-      // Create date in local timezone
-      const date = new Date(year, month, day);
-      
-      // Validate that the date is valid (e.g., not Feb 31)
+      const [, month, day, year] = match;
+      const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+
       if (
-        date.getFullYear() === year &&
-        date.getMonth() === month &&
-        date.getDate() === day
+        date.getFullYear() === parseInt(year) &&
+        date.getMonth() === parseInt(month) - 1 &&
+        date.getDate() === parseInt(day)
       ) {
         onChange(date);
       }
     }
-    // If the format doesn't match or is incomplete, don't call onChange
-    // This allows the user to type without triggering invalid states
   };
 
   const handleCalendarSelect = (date: Date | undefined) => {
     if (date) {
       onChange(date);
-      setInputValue(format(date, 'yyyy-MM-dd'));
       setIsOpen(false);
     }
   };
@@ -68,19 +59,21 @@ export default function DateField({ id, value, onChange, disabled }: DateFieldPr
   return (
     <div className="flex gap-2">
       <Input
-        id={id}
-        type="date"
+        type="text"
         value={inputValue}
         onChange={handleInputChange}
+        placeholder="MM/DD/YYYY"
         disabled={disabled}
-        className="flex-1"
+        className={cn('flex-1', className)}
       />
       <Popover open={isOpen} onOpenChange={setIsOpen}>
         <PopoverTrigger asChild>
           <Button
+            type="button"
             variant="outline"
+            size="icon"
             disabled={disabled}
-            className={cn('px-3', !value && 'text-muted-foreground')}
+            className={cn(className)}
           >
             <CalendarIcon className="h-4 w-4" />
           </Button>

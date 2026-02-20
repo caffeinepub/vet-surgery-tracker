@@ -1,45 +1,49 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Case management system with sorting functionality for case cards",
+  "summary": "Liver app project with web-based case management system",
   "architectural_notes": [],
-  "known_issues": [],
-  "isFixRequest": false,
+  "known_issues": [
+    "Backend actor not available preventing case addition in web page"
+  ],
+  "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-add-a-sorting-control-ui-component-to-the-caseslistview-that-allows-users-to-select-sort-order-with-options-arrival-date-newest-first-arrival-date-oldest-first-open-tasks-most-first-and-open-tasks-fewest-first",
-      "title": "Add a sorting control UI component to the CasesListView that allows users to select sort order with options: 'Arrival Date (Newest First)', 'Arrival Date (Oldest First)', 'Open Tasks (Most First)', and 'Open Tasks (Fewest First)'",
+      "id": "feature-diagnose-and-fix-the-backend-actor-initialization-issue-that-prevents-the-actor-from-being-available-when-users-attempt-to-add-cases-through-the-web-interface",
+      "title": "Diagnose and fix the backend actor initialization issue that prevents the actor from being available when users attempt to add cases through the web interface",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-implement-sorting-logic-that-reorders-the-displayed-case-cards-based-on-the-selected-sort-option-using-the-arrivaldate-field-for-date-sorting-and-counting-uncompleted-checklist-items-for-task-status-sorting",
-      "title": "Implement sorting logic that reorders the displayed case cards based on the selected sort option, using the arrivalDate field for date sorting and counting uncompleted checklist items for task status sorting",
+      "id": "feature-add-error-boundary-and-user-friendly-error-messaging-for-backend-actor-connection-failures-with-retry-mechanism",
+      "title": "Add error boundary and user-friendly error messaging for backend actor connection failures with retry mechanism",
       "reqIds": [
-        "REQ-2"
+        "REQ-3"
       ],
       "version": 1
     },
     {
-      "id": "feature-ensure-the-sorting-persists-when-users-perform-other-actions-like-searching-creating-new-cases-updating-cases-or-toggling-checklist-items",
-      "title": "Ensure the sorting persists when users perform other actions like searching, creating new cases, updating cases, or toggling checklist items",
+      "id": "feature-ensure-the-caseformdialog-component-properly-waits-for-actor-availability-before-attempting-to-create-cases",
+      "title": "Ensure the CaseFormDialog component properly waits for actor availability before attempting to create cases",
       "reqIds": [
-        "REQ-3"
+        "REQ-4"
       ],
       "version": 1
     }
   ],
   "new_feature_requests": [
     {
-      "id": "AR-1",
-      "summary": "Add sorting method for case cards by arrival date and task status/open tasks",
-      "reqIds": [],
+      "id": "AR-2",
+      "summary": "Verify that the useActor hook properly recreates the actor instance when the Internet Identity authentication state changes",
+      "reqIds": [
+        "REQ-2"
+      ],
       "status": "pending"
     }
   ],
-  "projectName": "Add sorting for case cards by arrival date and task status",
+  "projectName": "Liver App",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

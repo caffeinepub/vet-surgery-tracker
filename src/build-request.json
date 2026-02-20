@@ -1,71 +1,82 @@
 {
   "kind": "build_request",
-  "title": "Add sorting for case cards by arrival date and task status",
-  "priority": "normal",
+  "title": "Fix backend actor availability issue preventing case creation",
+  "projectName": "Liver Surgery Log",
+  "priority": "high",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Add a sorting control UI component to the CasesListView that allows users to select sort order with options: 'Arrival Date (Newest First)', 'Arrival Date (Oldest First)', 'Open Tasks (Most First)', and 'Open Tasks (Fewest First)'",
-      "target": "frontend",
+      "text": "Diagnose and fix the backend actor initialization issue that prevents the actor from being available when users attempt to add cases through the web interface",
+      "target": "both",
       "source": {
         "messageIds": [
-          "msg-latest"
+          "msg-last"
         ],
         "quotes": [
-          "Add a method to sort the case cards by arrival date and task status/open tasks"
+          "unable to add case in liver app web page; backend actor not available"
         ]
       },
       "acceptanceCriteria": [
-        "A visible sort dropdown or button group appears above the case cards grid",
-        "Users can select between at least 4 sorting options",
-        "The selected sort option persists visually while active"
+        "Backend actor successfully initializes and becomes available after login",
+        "Users can create new cases without encountering 'actor not available' errors",
+        "Actor connection is maintained throughout the user session"
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Implement sorting logic that reorders the displayed case cards based on the selected sort option, using the arrivalDate field for date sorting and counting uncompleted checklist items for task status sorting",
+      "text": "Verify that the useActor hook properly recreates the actor instance when the Internet Identity authentication state changes",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-latest"
-        ],
-        "quotes": [
-          "Add a method to sort the case cards by arrival date and task status/open tasks"
+          "msg-last"
         ]
       },
       "acceptanceCriteria": [
-        "Cases sort correctly by arrival date in ascending and descending order",
-        "Cases sort correctly by number of open (uncompleted) checklist tasks in ascending and descending order",
-        "Sorting updates immediately when the user changes the selection",
-        "Sorting works correctly with the existing search filter"
+        "Actor is recreated immediately after successful authentication",
+        "React Query cache is properly invalidated when actor changes",
+        "No race conditions occur between authentication and actor initialization"
       ]
     },
     {
       "id": "REQ-3",
-      "text": "Ensure the sorting persists when users perform other actions like searching, creating new cases, updating cases, or toggling checklist items",
+      "text": "Add error boundary and user-friendly error messaging for backend actor connection failures with retry mechanism",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-latest"
+          "msg-last"
         ]
       },
       "acceptanceCriteria": [
-        "The selected sort order remains active after search queries change",
-        "Cases automatically re-sort when checklist items are toggled",
-        "New cases appear in the correct sorted position",
-        "Updated cases move to the correct sorted position"
+        "Clear error message displays when backend actor is unavailable",
+        "Users can trigger a manual retry to reconnect to the backend",
+        "Loading states accurately reflect actor initialization status"
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Ensure the CaseFormDialog component properly waits for actor availability before attempting to create cases",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-last"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Form submission is disabled when actor is unavailable",
+        "Form displays loading or disabled state during actor initialization",
+        "Case creation mutation only executes when actor is confirmed available"
       ]
     }
   ],
   "constraints": [
-    "Do not modify the backend schema or add new backend endpoints",
-    "Preserve the existing grid layout and CaseCard component structure",
-    "Maintain compatibility with existing search and CSV import/export functionality"
+    "Maintain single-actor architecture in backend/main.mo",
+    "Do not modify immutable frontend paths: useInternetIdentity.ts, useActor.ts, main.tsx, components/ui",
+    "Preserve existing authentication flow using Internet Identity"
   ],
   "nonGoals": [
-    "Sorting by other fields like species, sex, or owner name",
-    "Saving user's preferred sort order across sessions",
-    "Multi-field sorting (e.g., first by date, then by tasks)"
+    "Implementing alternative authentication methods",
+    "Restructuring the backend into multiple actors",
+    "Adding offline functionality or service worker caching for mutations"
   ],
   "imageRequirements": {
     "required": [],

@@ -8,6 +8,10 @@ export interface None {
 }
 export type Option<T> = Some<T> | None;
 export type Time = bigint;
+export interface OpenAIConfig {
+    initialized: boolean;
+    apiKey: string;
+}
 export interface SurgeryCase {
     id: bigint;
     sex: Sex;
@@ -61,11 +65,15 @@ export interface backendInterface {
     getCaseByMedicalRecordNumber(medicalRecordNumber: string): Promise<SurgeryCase | null>;
     getCasesByOwner(ownerLastName: string): Promise<Array<SurgeryCase>>;
     getChecklist(id: bigint): Promise<Checklist>;
+    getOpenAIConfig(): Promise<OpenAIConfig | null>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
     isCallerAdmin(): Promise<boolean>;
+    isCaseCreationAllowed(): Promise<boolean>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     searchCasesByMedicalRecordNumber(searchTerm: string): Promise<Array<SurgeryCase>>;
+    setOpenAIConfig(apiKey: string): Promise<void>;
     updateCase(id: bigint, medicalRecordNumber: string, arrivalDate: Time, petName: string, ownerLastName: string, species: Species, breed: string, sex: Sex, dateOfBirth: Time | null, presentingComplaint: string, notes: string, checklist: Checklist): Promise<void>;
     updateCaseNotes(id: bigint, notes: string): Promise<void>;
     updateChecklist(id: bigint, checklist: Checklist): Promise<void>;
+    validateOpenAIConfig(): Promise<boolean>;
 }

@@ -90,6 +90,10 @@ export class ExternalBlob {
     }
 }
 export type Time = bigint;
+export interface OpenAIConfig {
+    initialized: boolean;
+    apiKey: string;
+}
 export interface SurgeryCase {
     id: bigint;
     sex: Sex;
@@ -144,15 +148,19 @@ export interface backendInterface {
     getCaseByMedicalRecordNumber(medicalRecordNumber: string): Promise<SurgeryCase | null>;
     getCasesByOwner(ownerLastName: string): Promise<Array<SurgeryCase>>;
     getChecklist(id: bigint): Promise<Checklist>;
+    getOpenAIConfig(): Promise<OpenAIConfig | null>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
     isCallerAdmin(): Promise<boolean>;
+    isCaseCreationAllowed(): Promise<boolean>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     searchCasesByMedicalRecordNumber(searchTerm: string): Promise<Array<SurgeryCase>>;
+    setOpenAIConfig(apiKey: string): Promise<void>;
     updateCase(id: bigint, medicalRecordNumber: string, arrivalDate: Time, petName: string, ownerLastName: string, species: Species, breed: string, sex: Sex, dateOfBirth: Time | null, presentingComplaint: string, notes: string, checklist: Checklist): Promise<void>;
     updateCaseNotes(id: bigint, notes: string): Promise<void>;
     updateChecklist(id: bigint, checklist: Checklist): Promise<void>;
+    validateOpenAIConfig(): Promise<boolean>;
 }
-import type { Checklist as _Checklist, Sex as _Sex, Species as _Species, SurgeryCase as _SurgeryCase, Time as _Time, UserProfile as _UserProfile, UserRole as _UserRole } from "./declarations/backend.did.d.ts";
+import type { Checklist as _Checklist, OpenAIConfig as _OpenAIConfig, Sex as _Sex, Species as _Species, SurgeryCase as _SurgeryCase, Time as _Time, UserProfile as _UserProfile, UserRole as _UserRole } from "./declarations/backend.did.d.ts";
 export class Backend implements backendInterface {
     constructor(private actor: ActorSubclass<_SERVICE>, private _uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, private _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, private processError?: (error: unknown) => never){}
     async _initializeAccessControlWithSecret(arg0: string): Promise<void> {
@@ -309,6 +317,20 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async getOpenAIConfig(): Promise<OpenAIConfig | null> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getOpenAIConfig();
+                return from_candid_opt_n20(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getOpenAIConfig();
+            return from_candid_opt_n20(this._uploadFile, this._downloadFile, result);
+        }
+    }
     async getUserProfile(arg0: Principal): Promise<UserProfile | null> {
         if (this.processError) {
             try {
@@ -334,6 +356,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.isCallerAdmin();
+            return result;
+        }
+    }
+    async isCaseCreationAllowed(): Promise<boolean> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.isCaseCreationAllowed();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.isCaseCreationAllowed();
             return result;
         }
     }
@@ -363,6 +399,20 @@ export class Backend implements backendInterface {
         } else {
             const result = await this.actor.searchCasesByMedicalRecordNumber(arg0);
             return from_candid_vec_n15(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async setOpenAIConfig(arg0: string): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.setOpenAIConfig(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.setOpenAIConfig(arg0);
+            return result;
         }
     }
     async updateCase(arg0: bigint, arg1: string, arg2: Time, arg3: string, arg4: string, arg5: Species, arg6: string, arg7: Sex, arg8: Time | null, arg9: string, arg10: string, arg11: Checklist): Promise<void> {
@@ -407,6 +457,20 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async validateOpenAIConfig(): Promise<boolean> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.validateOpenAIConfig();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.validateOpenAIConfig();
+            return result;
+        }
+    }
 }
 function from_candid_Sex_n10(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _Sex): Sex {
     return from_candid_variant_n11(_uploadFile, _downloadFile, value);
@@ -428,6 +492,9 @@ function from_candid_opt_n16(_uploadFile: (file: ExternalBlob) => Promise<Uint8A
 }
 function from_candid_opt_n19(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_SurgeryCase]): SurgeryCase | null {
     return value.length === 0 ? null : from_candid_SurgeryCase_n8(_uploadFile, _downloadFile, value[0]);
+}
+function from_candid_opt_n20(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_OpenAIConfig]): OpenAIConfig | null {
+    return value.length === 0 ? null : value[0];
 }
 function from_candid_record_n9(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
     id: bigint;

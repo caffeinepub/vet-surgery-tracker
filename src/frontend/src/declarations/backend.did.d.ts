@@ -19,6 +19,7 @@ export interface Checklist {
   'imaging' : boolean,
   'dischargeNotes' : boolean,
 }
+export interface OpenAIConfig { 'initialized' : boolean, 'apiKey' : string }
 export type Sex = { 'female' : null } |
   { 'male' : null } |
   { 'femaleSpayed' : null } |
@@ -72,13 +73,16 @@ export interface _SERVICE {
   'getCaseByMedicalRecordNumber' : ActorMethod<[string], [] | [SurgeryCase]>,
   'getCasesByOwner' : ActorMethod<[string], Array<SurgeryCase>>,
   'getChecklist' : ActorMethod<[bigint], Checklist>,
+  'getOpenAIConfig' : ActorMethod<[], [] | [OpenAIConfig]>,
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
+  'isCaseCreationAllowed' : ActorMethod<[], boolean>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
   'searchCasesByMedicalRecordNumber' : ActorMethod<
     [string],
     Array<SurgeryCase>
   >,
+  'setOpenAIConfig' : ActorMethod<[string], undefined>,
   'updateCase' : ActorMethod<
     [
       bigint,
@@ -98,6 +102,7 @@ export interface _SERVICE {
   >,
   'updateCaseNotes' : ActorMethod<[bigint, string], undefined>,
   'updateChecklist' : ActorMethod<[bigint, Checklist], undefined>,
+  'validateOpenAIConfig' : ActorMethod<[], boolean>,
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];

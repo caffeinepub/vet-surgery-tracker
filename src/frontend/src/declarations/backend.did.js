@@ -49,6 +49,10 @@ export const SurgeryCase = IDL.Record({
   'species' : Species,
 });
 export const UserProfile = IDL.Record({ 'name' : IDL.Text });
+export const OpenAIConfig = IDL.Record({
+  'initialized' : IDL.Bool,
+  'apiKey' : IDL.Text,
+});
 
 export const idlService = IDL.Service({
   '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
@@ -82,18 +86,21 @@ export const idlService = IDL.Service({
     ),
   'getCasesByOwner' : IDL.Func([IDL.Text], [IDL.Vec(SurgeryCase)], ['query']),
   'getChecklist' : IDL.Func([IDL.Nat], [Checklist], ['query']),
+  'getOpenAIConfig' : IDL.Func([], [IDL.Opt(OpenAIConfig)], ['query']),
   'getUserProfile' : IDL.Func(
       [IDL.Principal],
       [IDL.Opt(UserProfile)],
       ['query'],
     ),
   'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+  'isCaseCreationAllowed' : IDL.Func([], [IDL.Bool], ['query']),
   'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
   'searchCasesByMedicalRecordNumber' : IDL.Func(
       [IDL.Text],
       [IDL.Vec(SurgeryCase)],
       ['query'],
     ),
+  'setOpenAIConfig' : IDL.Func([IDL.Text], [], []),
   'updateCase' : IDL.Func(
       [
         IDL.Nat,
@@ -114,6 +121,7 @@ export const idlService = IDL.Service({
     ),
   'updateCaseNotes' : IDL.Func([IDL.Nat, IDL.Text], [], []),
   'updateChecklist' : IDL.Func([IDL.Nat, Checklist], [], []),
+  'validateOpenAIConfig' : IDL.Func([], [IDL.Bool], ['query']),
 });
 
 export const idlInitArgs = [];
@@ -160,6 +168,10 @@ export const idlFactory = ({ IDL }) => {
     'species' : Species,
   });
   const UserProfile = IDL.Record({ 'name' : IDL.Text });
+  const OpenAIConfig = IDL.Record({
+    'initialized' : IDL.Bool,
+    'apiKey' : IDL.Text,
+  });
   
   return IDL.Service({
     '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
@@ -193,18 +205,21 @@ export const idlFactory = ({ IDL }) => {
       ),
     'getCasesByOwner' : IDL.Func([IDL.Text], [IDL.Vec(SurgeryCase)], ['query']),
     'getChecklist' : IDL.Func([IDL.Nat], [Checklist], ['query']),
+    'getOpenAIConfig' : IDL.Func([], [IDL.Opt(OpenAIConfig)], ['query']),
     'getUserProfile' : IDL.Func(
         [IDL.Principal],
         [IDL.Opt(UserProfile)],
         ['query'],
       ),
     'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+    'isCaseCreationAllowed' : IDL.Func([], [IDL.Bool], ['query']),
     'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
     'searchCasesByMedicalRecordNumber' : IDL.Func(
         [IDL.Text],
         [IDL.Vec(SurgeryCase)],
         ['query'],
       ),
+    'setOpenAIConfig' : IDL.Func([IDL.Text], [], []),
     'updateCase' : IDL.Func(
         [
           IDL.Nat,
@@ -225,6 +240,7 @@ export const idlFactory = ({ IDL }) => {
       ),
     'updateCaseNotes' : IDL.Func([IDL.Nat, IDL.Text], [], []),
     'updateChecklist' : IDL.Func([IDL.Nat, Checklist], [], []),
+    'validateOpenAIConfig' : IDL.Func([], [IDL.Bool], ['query']),
   });
 };
 

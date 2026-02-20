@@ -2,11 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-add-a-sorting-control-ui-component-to-the-caseslistview-that-allows-users-to-select-sort-order-with-options-arrival-date-newest-first-arrival-date-oldest-first-open-tasks-most-first-and-open-tasks-fewest-first",
-      "featureTitle": "Add a sorting control UI component to the CasesListView that allows users to select sort order with options: 'Arrival Date (Newest First)', 'Arrival Date (Oldest First)', 'Open Tasks (Most First)', and 'Open Tasks (Fewest First)'",
+      "featureId": "feature-diagnose-and-fix-the-backend-actor-initialization-issue-that-prevents-the-actor-from-being-available-when-users-attempt-to-add-cases-through-the-web-interface",
+      "featureTitle": "Diagnose and fix the backend actor initialization issue that prevents the actor from being available when users attempt to add cases through the web interface",
       "files": [
-        "frontend/src/features/cases/components/CasesListView.tsx",
-        "frontend/src/features/cases/components/CasesSortControl.tsx"
+        "frontend/src/App.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -14,7 +13,9 @@
         "shadcn-ui@1.0.0",
         "build-template-react@1.0.0",
         "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
+        "github-export-icp-cli@1.0.0",
+        "camera@1.0.0",
+        "http-outcalls@3.0.0"
       ],
       "testIds": [
         "REQ-1"
@@ -22,11 +23,10 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-implement-sorting-logic-that-reorders-the-displayed-case-cards-based-on-the-selected-sort-option-using-the-arrivaldate-field-for-date-sorting-and-counting-uncompleted-checklist-items-for-task-status-sorting",
-      "featureTitle": "Implement sorting logic that reorders the displayed case cards based on the selected sort option, using the arrivalDate field for date sorting and counting uncompleted checklist items for task status sorting",
+      "featureId": "feature-add-error-boundary-and-user-friendly-error-messaging-for-backend-actor-connection-failures-with-retry-mechanism",
+      "featureTitle": "Add error boundary and user-friendly error messaging for backend actor connection failures with retry mechanism",
       "files": [
-        "frontend/src/features/cases/components/CasesListView.tsx",
-        "frontend/src/features/cases/sorting.ts"
+        "frontend/src/App.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -34,17 +34,20 @@
         "shadcn-ui@1.0.0",
         "build-template-react@1.0.0",
         "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
+        "github-export-icp-cli@1.0.0",
+        "camera@1.0.0",
+        "http-outcalls@3.0.0"
       ],
       "testIds": [
-        "REQ-2"
+        "REQ-3"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-ensure-the-sorting-persists-when-users-perform-other-actions-like-searching-creating-new-cases-updating-cases-or-toggling-checklist-items",
-      "featureTitle": "Ensure the sorting persists when users perform other actions like searching, creating new cases, updating cases, or toggling checklist items",
+      "featureId": "feature-ensure-the-caseformdialog-component-properly-waits-for-actor-availability-before-attempting-to-create-cases",
+      "featureTitle": "Ensure the CaseFormDialog component properly waits for actor availability before attempting to create cases",
       "files": [
+        "frontend/src/features/cases/components/CaseFormDialog.tsx",
         "frontend/src/features/cases/components/CasesListView.tsx"
       ],
       "components": [
@@ -53,10 +56,12 @@
         "shadcn-ui@1.0.0",
         "build-template-react@1.0.0",
         "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
+        "github-export-icp-cli@1.0.0",
+        "camera@1.0.0",
+        "http-outcalls@3.0.0"
       ],
       "testIds": [
-        "REQ-3"
+        "REQ-4"
       ],
       "confidence": "high"
     }

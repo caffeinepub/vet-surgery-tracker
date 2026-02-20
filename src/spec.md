@@ -1,11 +1,12 @@
 # Specification
 
 ## Summary
-**Goal:** Add sorting functionality to case cards by arrival date and open task count.
+**Goal:** Fix the backend actor availability issue that prevents users from creating new surgery cases through the web interface.
 
 **Planned changes:**
-- Add a sorting control UI (dropdown or button group) above the case cards grid with options for sorting by arrival date (newest/oldest first) and open tasks (most/fewest first)
-- Implement sorting logic that reorders case cards based on the selected option using arrivalDate and uncompleted checklist item counts
-- Ensure sorting persists and updates correctly when users search, create/update cases, or toggle checklist items
+- Diagnose and resolve backend actor initialization problems that cause "actor not available" errors
+- Ensure the useActor hook properly recreates the actor instance after Internet Identity authentication
+- Add error boundary with user-friendly error messaging and retry mechanism for actor connection failures
+- Update CaseFormDialog to wait for actor availability before enabling case submission
 
-**User-visible outcome:** Users can sort case cards by arrival date (newest or oldest first) or by number of open tasks (most or fewest first), with the sort order persisting across other actions like searching and updating cases.
+**User-visible outcome:** Users can successfully add new surgery cases without encountering "actor not available" errors, with clear feedback when the backend is initializing and the ability to retry if connection issues occur.

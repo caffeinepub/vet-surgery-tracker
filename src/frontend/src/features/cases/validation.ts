@@ -1,28 +1,36 @@
 import { Species, Sex } from '../../backend';
 
 export function validateMedicalRecordNumber(value: string): string | null {
+  console.log('[validation] validateMedicalRecordNumber:', value);
   if (!value.trim()) {
+    console.warn('[validation] MRN validation failed: empty value');
     return 'Medical Record # is required';
   }
   return null;
 }
 
 export function validatePetName(value: string): string | null {
+  console.log('[validation] validatePetName:', value);
   if (!value.trim()) {
+    console.warn('[validation] Pet name validation failed: empty value');
     return 'Pet Name is required';
   }
   return null;
 }
 
 export function validateOwnerLastName(value: string): string | null {
+  console.log('[validation] validateOwnerLastName:', value);
   if (!value.trim()) {
+    console.warn('[validation] Owner last name validation failed: empty value');
     return 'Owner Last Name is required';
   }
   return null;
 }
 
 export function validateBreed(value: string): string | null {
+  console.log('[validation] validateBreed:', value);
   if (!value.trim()) {
+    console.warn('[validation] Breed validation failed: empty value');
     return 'Breed is required';
   }
   return null;
@@ -30,6 +38,7 @@ export function validateBreed(value: string): string | null {
 
 export function parseSpecies(value: string): Species | null {
   const normalized = value.trim().toLowerCase();
+  console.log('[validation] parseSpecies:', value, '-> normalized:', normalized);
   
   // Direct matches
   if (normalized === 'canine' || normalized === 'dog' || normalized === 'dogs') {
@@ -50,6 +59,7 @@ export function parseSpecies(value: string): Species | null {
     return Species.feline;
   }
   
+  console.warn('[validation] parseSpecies failed: no match found for:', value);
   return null;
 }
 
@@ -59,6 +69,7 @@ export function validateSpecies(value: string): Species | null {
 
 export function parseSex(value: string): Sex | null {
   const normalized = value.trim().toLowerCase().replace(/[\s\-_()]/g, '');
+  console.log('[validation] parseSex:', value, '-> normalized:', normalized);
   
   // Direct matches
   if (normalized === 'male' || normalized === 'm') {
@@ -88,6 +99,7 @@ export function parseSex(value: string): Sex | null {
     return Sex.female;
   }
   
+  console.warn('[validation] parseSex failed: no match found for:', value);
   return null;
 }
 
@@ -100,6 +112,7 @@ export function validateDate(value: Date | null): string | null {
     return null;
   }
   if (isNaN(value.getTime())) {
+    console.warn('[validation] Date validation failed: invalid date');
     return 'Invalid date';
   }
   return null;
@@ -109,18 +122,39 @@ export function parseDateString(value: string): Date | null {
   if (!value || !value.trim()) return null;
   
   const trimmed = value.trim();
+  console.log('[validation] parseDateString:', trimmed);
   
-  // Try ISO format first (YYYY-MM-DD)
+  // Try M/D/YYYY format first (most common for CSV imports)
+  const mdyMatch = trimmed.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (mdyMatch) {
+    const [, month, day, year] = mdyMatch;
+    const monthNum = parseInt(month, 10);
+    const dayNum = parseInt(day, 10);
+    const yearNum = parseInt(year, 10);
+    
+    if (monthNum >= 1 && monthNum <= 12 && dayNum >= 1 && dayNum <= 31) {
+      const date = new Date(yearNum, monthNum - 1, dayNum);
+      if (date.getFullYear() === yearNum && 
+          date.getMonth() === monthNum - 1 && 
+          date.getDate() === dayNum) {
+        console.log('[validation] parseDateString M/D/YYYY format success:', date);
+        return date;
+      }
+    }
+  }
+  
+  // Try ISO format (YYYY-MM-DD)
   const isoMatch = trimmed.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
   if (isoMatch) {
     const [, year, month, day] = isoMatch;
     const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
     if (!isNaN(date.getTime()) && date.getFullYear() === parseInt(year)) {
+      console.log('[validation] parseDateString ISO format success:', date);
       return date;
     }
   }
   
-  // Try slash-separated formats (MM/DD/YYYY or DD/MM/YYYY)
+  // Try slash-separated formats (DD/MM/YYYY as fallback)
   const slashMatch = trimmed.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
   if (slashMatch) {
     const [, first, second, year] = slashMatch;
@@ -128,24 +162,14 @@ export function parseDateString(value: string): Date | null {
     const secondNum = parseInt(second);
     const yearNum = parseInt(year);
     
-    // Try US format (MM/DD/YYYY) first if first number could be a valid month
-    if (firstNum >= 1 && firstNum <= 12) {
-      const usDate = new Date(yearNum, firstNum - 1, secondNum);
-      if (!isNaN(usDate.getTime()) && 
-          usDate.getFullYear() === yearNum && 
-          usDate.getMonth() === firstNum - 1 && 
-          usDate.getDate() === secondNum) {
-        return usDate;
-      }
-    }
-    
-    // Try EU format (DD/MM/YYYY) if US format failed or first number is > 12
-    if (secondNum >= 1 && secondNum <= 12) {
+    // Try EU format (DD/MM/YYYY) if first number is > 12
+    if (firstNum > 12 && secondNum >= 1 && secondNum <= 12) {
       const euDate = new Date(yearNum, secondNum - 1, firstNum);
       if (!isNaN(euDate.getTime()) && 
           euDate.getFullYear() === yearNum && 
           euDate.getMonth() === secondNum - 1 && 
           euDate.getDate() === firstNum) {
+        console.log('[validation] parseDateString DD/MM/YYYY format success:', euDate);
         return euDate;
       }
     }
@@ -154,9 +178,11 @@ export function parseDateString(value: string): Date | null {
   // Try natural language parsing as last resort (e.g., "January 15, 2024")
   const naturalDate = new Date(trimmed);
   if (!isNaN(naturalDate.getTime())) {
+    console.log('[validation] parseDateString natural format success:', naturalDate);
     return naturalDate;
   }
   
+  console.warn('[validation] parseDateString failed: no valid format found for:', trimmed);
   return null;
 }
 
@@ -230,13 +256,4 @@ export function dateToNanoseconds(date: Date): bigint {
 
 export function nanosecondsToDate(nanoseconds: bigint): Date {
   return new Date(Number(nanoseconds / BigInt(1_000_000)));
-}
-
-export function normalizeText(text: string): string {
-  return text.trim().toLowerCase().replace(/[\s\-_()]/g, '');
-}
-
-export function extractPattern(text: string, pattern: RegExp): string | null {
-  const match = text.match(pattern);
-  return match ? match[1].trim() : null;
 }

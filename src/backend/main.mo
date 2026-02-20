@@ -9,7 +9,9 @@ import Time "mo:core/Time";
 import Nat "mo:core/Nat";
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
+import Migration "migration";
 
+(with migration = Migration.run)
 actor {
   public type Species = { #canine; #feline; #other };
   public type Sex = { #male; #maleNeutered; #female; #femaleSpayed };
@@ -49,6 +51,16 @@ actor {
     name : Text;
   };
 
+  public type OpenAIConfig = {
+    apiKey : Text;
+    initialized : Bool;
+  };
+
+  var openAIConfig : ?OpenAIConfig = ?{
+    apiKey = "";
+    initialized = false;
+  };
+
   var nextId = 0;
   let cases = Map.empty<Nat, SurgeryCase>();
   let userProfiles = Map.empty<Principal, UserProfile>();
@@ -57,23 +69,17 @@ actor {
   include MixinAuthorization(accessControlState);
 
   public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can access profiles");
-    };
+    checkUserPermission(caller);
     userProfiles.get(caller);
   };
 
   public query ({ caller }) func getUserProfile(user : Principal) : async ?UserProfile {
-    if (caller != user and not AccessControl.isAdmin(accessControlState, caller)) {
-      Runtime.trap("Unauthorized: Can only view your own profile");
-    };
+    if (caller != user) { checkAdminPermission(caller) };
     userProfiles.get(user);
   };
 
   public shared ({ caller }) func saveCallerUserProfile(profile : UserProfile) : async () {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can save profiles");
-    };
+    checkUserPermission(caller);
     userProfiles.add(caller, profile);
   };
 
@@ -90,9 +96,7 @@ actor {
     notes : Text,
     checklist : Checklist,
   ) : async SurgeryCase {
-    if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
-      Runtime.trap("Unauthorized: Only users can create cases");
-    };
+    checkUserPermission(caller);
 
     let newCase : SurgeryCase = {
       id = nextId;
@@ -115,16 +119,12 @@ actor {
   };
 
   public query ({ caller }) func getAllCases() : async [SurgeryCase] {
-    if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
-      Runtime.trap("Unauthorized: Only users can view cases");
-    };
+    checkUserPermission(caller);
     cases.values().toArray().sort();
   };
 
   public query ({ caller }) func getCase(id : Nat) : async SurgeryCase {
-    if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
-      Runtime.trap("Unauthorized: Only users can view cases");
-    };
+    checkUserPermission(caller);
     switch (cases.get(id)) {
       case (null) { Runtime.trap("Case not found") };
       case (?surgeryCase) { surgeryCase };
@@ -132,9 +132,7 @@ actor {
   };
 
   public query ({ caller }) func getCasesByOwner(ownerLastName : Text) : async [SurgeryCase] {
-    if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
-      Runtime.trap("Unauthorized: Only users can view cases");
-    };
+    checkUserPermission(caller);
     cases.values().toArray().filter(
       func(surgeryCase) { surgeryCase.ownerLastName == ownerLastName }
     ).sort();
@@ -154,9 +152,7 @@ actor {
     notes : Text,
     checklist : Checklist,
   ) : async () {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can update cases");
-    };
+    checkUserPermission(caller);
 
     switch (cases.get(id)) {
       case (null) { Runtime.trap("Case not found") };
@@ -182,9 +178,7 @@ actor {
   };
 
   public shared ({ caller }) func deleteCase(id : Nat) : async () {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can delete cases");
-    };
+    checkUserPermission(caller);
 
     switch (cases.get(id)) {
       case (null) { Runtime.trap("Case not found") };
@@ -193,9 +187,7 @@ actor {
   };
 
   public query ({ caller }) func getChecklist(id : Nat) : async Checklist {
-    if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
-      Runtime.trap("Unauthorized: Only users can view checklists");
-    };
+    checkUserPermission(caller);
     switch (cases.get(id)) {
       case (null) { Runtime.trap("Case not found") };
       case (?surgeryCase) { surgeryCase.checklist };
@@ -203,9 +195,7 @@ actor {
   };
 
   public shared ({ caller }) func updateChecklist(id : Nat, checklist : Checklist) : async () {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can update checklists");
-    };
+    checkUserPermission(caller);
 
     switch (cases.get(id)) {
       case (null) { Runtime.trap("Case not found") };
@@ -220,9 +210,7 @@ actor {
   };
 
   public shared ({ caller }) func updateCaseNotes(id : Nat, notes : Text) : async () {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can update notes");
-    };
+    checkUserPermission(caller);
 
     switch (cases.get(id)) {
       case (null) { Runtime.trap("Case not found") };
@@ -237,9 +225,7 @@ actor {
   };
 
   public query ({ caller }) func searchCasesByMedicalRecordNumber(searchTerm : Text) : async [SurgeryCase] {
-    if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
-      Runtime.trap("Unauthorized: Only users can search cases");
-    };
+    checkUserPermission(caller);
     cases.values().toArray().filter(
       func(surgeryCase) {
         surgeryCase.medicalRecordNumber.contains(#text searchTerm);
@@ -248,9 +234,7 @@ actor {
   };
 
   public query ({ caller }) func getCaseByMedicalRecordNumber(medicalRecordNumber : Text) : async ?SurgeryCase {
-    if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
-      Runtime.trap("Unauthorized: Only users can search cases");
-    };
+    checkUserPermission(caller);
     let caseEntry = cases.entries().find(
       func(id, surgeryCase) {
         surgeryCase.medicalRecordNumber == medicalRecordNumber;
@@ -261,5 +245,49 @@ actor {
       case (?(_, surgeryCase)) { ?surgeryCase };
     };
   };
-};
 
+  public query ({ caller }) func isCaseCreationAllowed() : async Bool {
+    checkUserPermission(caller);
+    switch (openAIConfig) {
+      case (null) { false };
+      case (?config) { config.initialized };
+    };
+  };
+
+  public shared ({ caller }) func setOpenAIConfig(apiKey : Text) : async () {
+    checkAdminPermission(caller);
+    if (apiKey.size() == 0) {
+      Runtime.trap("API key cannot be empty");
+    };
+    openAIConfig := ?{
+      apiKey;
+      initialized = true;
+    };
+  };
+
+  public query ({ caller }) func getOpenAIConfig() : async ?OpenAIConfig {
+    checkAdminPermission(caller);
+    openAIConfig;
+  };
+
+  func checkUserPermission(caller : Principal) {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can access this functionality");
+    };
+  };
+
+  func checkAdminPermission(caller : Principal) {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized: Only admins can perform this action");
+    };
+  };
+
+  public query ({ caller }) func validateOpenAIConfig() : async Bool {
+    checkUserPermission(caller);
+
+    switch (openAIConfig) {
+      case (null) { false };
+      case (?config) { config.apiKey.size() > 0 and config.initialized };
+    };
+  };
+};
