@@ -1,37 +1,48 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Veterinary case management system with task tracking and date field improvements",
-  "architectural_notes": [
-    "Task management system with selectable items that flow from 'Select Tasks to Include' to 'Remaining Tasks'",
-    "Seven predefined task types for veterinary case workflow"
-  ],
-  "known_issues": [
-    "Task selection not properly transferring checked items to Remaining Tasks"
-  ],
-  "isFixRequest": true,
+  "summary": "New project",
+  "architectural_notes": [],
+  "known_issues": [],
+  "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-fix-the-task-selection-workflow-so-that-items-checked-under-select-tasks-to-include-during-case-creation-properly-appear-in-remaining-tasks-on-the-case-card-with-unchecked-checkboxes-ready-to-be-completed",
-      "title": "Fix the task selection workflow so that items checked under 'Select Tasks to Include' during case creation properly appear in 'Remaining Tasks' on the case card with unchecked checkboxes ready to be completed",
+      "id": "feature-add-a-colored-box-border-around-the-notes-field-in-the-patient-card-and-make-the-notes-field-always-visible-not-collapsible-so-it-stands-out-more",
+      "title": "Add a colored box border around the notes field in the patient card and make the notes field always visible (not collapsible) so it stands out more",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-implement-task-checkboxes-with-correct-default-states-during-case-creation-discharge-notes-checked-by-default-pdvm-notified-checked-by-default-labs-unchecked-by-default-histo-unchecked-by-default-surgery-report-unchecked-by-default-imaging-unchecked-by-default-culture-unchecked-by-default",
-      "title": "Implement task checkboxes with correct default states during case creation: Discharge Notes (checked by default), pDVM Notified (checked by default), Labs (unchecked by default), Histo (unchecked by default), Surgery Report (unchecked by default), Imaging (unchecked by default), Culture (unchecked by default)",
+      "id": "feature-add-a-purple-colored-box-border-around-the-histo-histopathology-task-in-the-patient-card-task-checklist",
+      "title": "Add a purple colored box border around the Histo (histopathology) task in the patient card task checklist",
       "reqIds": [
         "REQ-2"
       ],
       "version": 1
     },
     {
-      "id": "feature-format-all-date-input-fields-to-use-month-day-year-format-mm-dd-yyyy-and-implement-auto-advance-behavior-that-automatically-moves-focus-to-the-next-input-field-when-the-current-date-field-is-completed",
-      "title": "Format all date input fields to use month/day/year format (MM/DD/YYYY) and implement auto-advance behavior that automatically moves focus to the next input field when the current date field is completed",
+      "id": "feature-add-a-blue-colored-box-border-around-the-imaging-task-in-the-patient-card-task-checklist",
+      "title": "Add a blue colored box border around the Imaging task in the patient card task checklist",
       "reqIds": [
         "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-an-orange-colored-box-border-around-the-presenting-complaint-field-in-the-patient-card",
+      "title": "Add an orange colored box border around the presenting complaint field in the patient card",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-the-species-information-displayed-in-a-rounded-box-badge-below-the-medical-record-number-field-in-the-patient-card",
+      "title": "Add the species information displayed in a rounded box badge below the medical record number field in the patient card",
+      "reqIds": [
+        "REQ-5"
       ],
       "version": 1
     }
@@ -39,25 +50,12 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Fix task selection: items checked in 'Select Tasks to Include' should appear in 'Remaining Tasks' with proper checkboxes",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-2",
-      "summary": "Implement task checkboxes with defaults: Discharge Notes (yes), pDVM Notified (yes), Labs (no), Histo (no), Surgery Report (no), Imaging (no), Culture (no)",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-3",
-      "summary": "Format date fields as month/day/year with auto-advance to next field",
+      "summary": "Add color boxes around fields in patient card: notes (always visible), Histo task (purple), Imaging task (blue), presenting complaint (orange); add species in rounded box below medical record number",
       "reqIds": [],
       "status": "pending"
     }
   ],
-  "gameProjectType": "none",
-  "projectName": "Fix task selection workflow and improve date field formatting",
+  "projectName": "Add colored boxes and species badge to patient card",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

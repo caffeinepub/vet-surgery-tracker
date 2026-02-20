@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Pencil, Trash2, FileText } from 'lucide-react';
+import { Pencil, Trash2 } from 'lucide-react';
 import { useUpdateTask, useUpdateCaseNotes, useDeleteCase } from '../../../hooks/useQueries';
 import { getRemainingChecklistItems, getCompletedTaskCount, getTotalSelectedTaskCount } from '../checklist';
 import { nanosecondsToDate } from '../validation';
@@ -28,7 +28,6 @@ interface CaseCardProps {
 }
 
 export default function CaseCard({ surgeryCase, onEdit }: CaseCardProps) {
-  const [isNotesExpanded, setIsNotesExpanded] = useState(false);
   const [editedNotes, setEditedNotes] = useState(surgeryCase.notes);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
@@ -61,7 +60,6 @@ export default function CaseCard({ surgeryCase, onEdit }: CaseCardProps) {
 
   const handleSaveNotes = async () => {
     if (editedNotes === surgeryCase.notes) {
-      setIsNotesExpanded(false);
       return;
     }
 
@@ -71,7 +69,6 @@ export default function CaseCard({ surgeryCase, onEdit }: CaseCardProps) {
         notes: editedNotes,
       });
       toast.success('Notes updated');
-      setIsNotesExpanded(false);
     } catch (error) {
       console.error('[CaseCard] Error updating notes', { error });
       toast.error('Failed to update notes');
@@ -103,6 +100,17 @@ export default function CaseCard({ surgeryCase, onEdit }: CaseCardProps) {
       })
     : 'N/A';
 
+  // Helper function to get task border color
+  const getTaskBorderClass = (taskKey: string) => {
+    if (taskKey === 'histo') {
+      return 'border-2 border-purple-500 rounded-lg p-2';
+    }
+    if (taskKey === 'imaging') {
+      return 'border-2 border-blue-600 rounded-lg p-2';
+    }
+    return '';
+  };
+
   return (
     <>
       <Card className="bg-white dark:bg-card">
@@ -113,6 +121,9 @@ export default function CaseCard({ surgeryCase, onEdit }: CaseCardProps) {
               <p className="text-sm text-muted-foreground mt-1">
                 MRN: {surgeryCase.medicalRecordNumber} | Owner: {surgeryCase.ownerLastName}
               </p>
+              <Badge variant="secondary" className="mt-2 rounded-full">
+                {surgeryCase.species}
+              </Badge>
             </div>
             <div className="flex gap-2">
               <Button variant="ghost" size="icon" onClick={() => onEdit(surgeryCase)}>
@@ -129,9 +140,6 @@ export default function CaseCard({ surgeryCase, onEdit }: CaseCardProps) {
           {/* Patient Details */}
           <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
             <div>
-              <span className="font-medium">Species:</span> {surgeryCase.species}
-            </div>
-            <div>
               <span className="font-medium">Breed:</span> {surgeryCase.breed}
             </div>
             <div>
@@ -140,14 +148,14 @@ export default function CaseCard({ surgeryCase, onEdit }: CaseCardProps) {
             <div>
               <span className="font-medium">DOB:</span> {dateOfBirthFormatted}
             </div>
-            <div className="col-span-2">
+            <div>
               <span className="font-medium">Arrival:</span> {arrivalDateFormatted}
             </div>
           </div>
 
-          {/* Presenting Complaint */}
+          {/* Presenting Complaint with Orange Border */}
           {surgeryCase.presentingComplaint && (
-            <div className="rounded-lg bg-complaint p-3 border border-complaint-border">
+            <div className="rounded-lg bg-complaint p-3 border-2 border-orange-500">
               <p className="text-sm font-medium text-complaint-foreground mb-1">Presenting Complaint</p>
               <p className="text-sm text-foreground">{surgeryCase.presentingComplaint}</p>
             </div>
@@ -165,19 +173,21 @@ export default function CaseCard({ surgeryCase, onEdit }: CaseCardProps) {
               {remainingItems.length > 0 ? (
                 <div className="space-y-2 pl-1">
                   {remainingItems.map((item) => (
-                    <div key={item.key} className="flex items-center space-x-2">
-                      <Checkbox
-                        id={`task-${surgeryCase.id}-${item.key}`}
-                        checked={false}
-                        onCheckedChange={() => handleTaskToggle(item.completedField)}
-                        disabled={updateTask.isPending}
-                      />
-                      <Label
-                        htmlFor={`task-${surgeryCase.id}-${item.key}`}
-                        className="text-sm font-normal cursor-pointer"
-                      >
-                        {item.label}
-                      </Label>
+                    <div key={item.key} className={getTaskBorderClass(item.key)}>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`task-${surgeryCase.id}-${item.key}`}
+                          checked={false}
+                          onCheckedChange={() => handleTaskToggle(item.completedField)}
+                          disabled={updateTask.isPending}
+                        />
+                        <Label
+                          htmlFor={`task-${surgeryCase.id}-${item.key}`}
+                          className="text-sm font-normal cursor-pointer"
+                        >
+                          {item.label}
+                        </Label>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -187,48 +197,19 @@ export default function CaseCard({ surgeryCase, onEdit }: CaseCardProps) {
             </div>
           )}
 
-          {/* Notes Section */}
-          <div className="space-y-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setIsNotesExpanded(!isNotesExpanded)}
-              className="w-full justify-start"
-            >
-              <FileText className="h-4 w-4 mr-2" />
-              {isNotesExpanded ? 'Hide Notes' : 'Show Notes'}
-            </Button>
-
-            {isNotesExpanded && (
-              <div className="space-y-2">
-                <Textarea
-                  value={editedNotes}
-                  onChange={(e) => setEditedNotes(e.target.value)}
-                  placeholder="Add notes..."
-                  className="min-h-[100px]"
-                  disabled={updateNotes.isPending}
-                />
-                <div className="flex justify-end gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      setEditedNotes(surgeryCase.notes);
-                      setIsNotesExpanded(false);
-                    }}
-                    disabled={updateNotes.isPending}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    size="sm"
-                    onClick={handleSaveNotes}
-                    disabled={updateNotes.isPending || editedNotes === surgeryCase.notes}
-                  >
-                    {updateNotes.isPending ? 'Saving...' : 'Save Notes'}
-                  </Button>
-                </div>
-              </div>
+          {/* Notes Section - Always Visible with Colored Border */}
+          <div className="space-y-2 border-2 border-green-500 rounded-lg p-3">
+            <p className="text-sm font-medium">Notes</p>
+            <Textarea
+              value={editedNotes}
+              onChange={(e) => setEditedNotes(e.target.value)}
+              onBlur={handleSaveNotes}
+              placeholder="Add notes..."
+              className="min-h-[100px]"
+              disabled={updateNotes.isPending}
+            />
+            {editedNotes !== surgeryCase.notes && (
+              <p className="text-xs text-muted-foreground">Changes will be saved automatically when you click outside</p>
             )}
           </div>
         </CardContent>

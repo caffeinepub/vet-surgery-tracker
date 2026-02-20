@@ -1,85 +1,78 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-20T01:02:10.917Z",
+  "generatedAt": "2026-02-20T02:29:50.411Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 3,
-    "implemented": 3,
+    "total": 5,
+    "implemented": 5,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Fix the task selection workflow so that items checked under 'Select Tasks to Include' during case creation properly appear in 'Remaining Tasks' on the case card with unchecked checkboxes ready to be completed",
+        "summary": "Add a colored box border around the notes field in the patient card and make the notes field always visible (not collapsible) so it stands out more",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/features/cases/components/ChecklistEditor.tsx",
-          "frontend/src/features/cases/components/CaseFormDialog.tsx",
-          "frontend/src/features/cases/components/CaseCard.tsx",
-          "frontend/src/features/cases/checklist.ts"
+          "frontend/src/features/cases/components/CaseCard.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/features/cases/components/ChecklistEditor.tsx",
-          "frontend/src/features/cases/components/CaseFormDialog.tsx",
-          "frontend/src/features/cases/components/CaseCard.tsx",
-          "frontend/src/features/cases/checklist.ts"
+          "frontend/src/features/cases/components/CaseCard.tsx"
         ]
       },
       {
         "id": "REQ-2",
-        "summary": "Implement task checkboxes with correct default states during case creation: Discharge Notes (checked by default), pDVM Notified (checked by default), Labs (unchecked by default), Histo (unchecked by default), Surgery Report (unchecked by default), Imaging (unchecked by default), Culture (unchecked by default)",
+        "summary": "Add a purple colored box border around the Histo (histopathology) task in the patient card task checklist",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/features/cases/checklist.ts",
-          "frontend/src/features/cases/components/CaseFormDialog.tsx"
+          "frontend/src/features/cases/components/CaseCard.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/features/cases/checklist.ts",
-          "frontend/src/features/cases/components/CaseFormDialog.tsx"
+          "frontend/src/features/cases/components/CaseCard.tsx"
         ]
       },
       {
         "id": "REQ-3",
-        "summary": "Format all date input fields to use month/day/year format (MM/DD/YYYY) and implement auto-advance behavior that automatically moves focus to the next input field when the current date field is completed",
+        "summary": "Add a blue colored box border around the Imaging task in the patient card task checklist",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/features/cases/components/DateField.tsx",
-          "frontend/src/features/cases/components/CaseFormDialog.tsx"
+          "frontend/src/features/cases/components/CaseCard.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/features/cases/components/DateField.tsx",
-          "frontend/src/features/cases/components/CaseFormDialog.tsx"
+          "frontend/src/features/cases/components/CaseCard.tsx"
+        ]
+      },
+      {
+        "id": "REQ-4",
+        "summary": "Add an orange colored box border around the presenting complaint field in the patient card",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/features/cases/components/CaseCard.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/features/cases/components/CaseCard.tsx"
+        ]
+      },
+      {
+        "id": "REQ-5",
+        "summary": "Add the species information displayed in a rounded box badge below the medical record number field in the patient card",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/features/cases/components/CaseCard.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/features/cases/components/CaseCard.tsx"
         ]
       }
     ]
   },
   "changedFiles": [
-    "backend/main.mo",
-    "backend/migration.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/backend.d.ts",
-    "frontend/src/backend.ts",
-    "frontend/src/declarations/backend.did.d.ts",
-    "frontend/src/declarations/backend.did.js",
-    "frontend/src/features/cases/checklist.ts",
     "frontend/src/features/cases/components/CaseCard.tsx",
-    "frontend/src/features/cases/components/CaseFormDialog.tsx",
-    "frontend/src/features/cases/components/CasesListView.tsx",
-    "frontend/src/features/cases/components/CasesTasksFilter.tsx",
-    "frontend/src/features/cases/components/ChecklistEditor.tsx",
-    "frontend/src/features/cases/components/CsvImportExportPanel.tsx",
-    "frontend/src/features/cases/components/DateField.tsx",
-    "frontend/src/features/cases/csv/caseCsv.ts",
-    "frontend/src/features/cases/filtering.ts",
-    "frontend/src/features/cases/search.ts",
-    "frontend/src/features/cases/sorting.ts",
-    "frontend/src/features/cases/validation.ts",
-    "frontend/src/hooks/useQueries.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

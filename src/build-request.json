@@ -1,82 +1,106 @@
 {
   "kind": "build_request",
-  "title": "Fix task selection workflow and improve date field formatting",
-  "priority": "high",
+  "title": "Add colored boxes and species badge to patient card",
+  "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Fix the task selection workflow so that items checked under 'Select Tasks to Include' during case creation properly appear in 'Remaining Tasks' on the case card with unchecked checkboxes ready to be completed",
-      "target": "both",
+      "text": "Add a colored box border around the notes field in the patient card and make the notes field always visible (not collapsible) so it stands out more",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-8"
+          "msg-last"
         ],
         "quotes": [
-          "Each item you check under \"Select Tasks to Include\" when creating the case should appear on the Remaining Tasks as an open check box that still needs to be done"
+          "put a color box around notes field and make the field always visible so it stands out more"
         ]
       },
       "acceptanceCriteria": [
-        "When creating a case, checking a task under 'Select Tasks to Include' adds it to the case's task list",
-        "The case card displays all selected tasks as unchecked checkboxes under 'Remaining Tasks'",
-        "Only tasks that were checked during creation appear in 'Remaining Tasks'",
-        "Tasks can be checked off individually to mark them as complete"
+        "Notes field has a visible colored border",
+        "Notes field is always expanded and visible on the patient card",
+        "Notes field is visually distinct from other fields"
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Implement task checkboxes with correct default states during case creation: Discharge Notes (checked by default), pDVM Notified (checked by default), Labs (unchecked by default), Histo (unchecked by default), Surgery Report (unchecked by default), Imaging (unchecked by default), Culture (unchecked by default)",
+      "text": "Add a purple colored box border around the Histo (histopathology) task in the patient card task checklist",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-8"
+          "msg-last"
         ],
         "quotes": [
-          "Discharge Notes (default yes)",
-          "pDVM Notified (default yes)",
-          "Labs (default no)",
-          "Histo (default no)",
-          "Surgery Report (default no)",
-          "Imaging (default no)",
-          "Culture (default no)"
+          "Purple box around the Histo task"
         ]
       },
       "acceptanceCriteria": [
-        "The case creation form displays all seven task checkboxes",
-        "Discharge Notes checkbox is checked by default",
-        "pDVM Notified checkbox is checked by default",
-        "Labs, Histo, Surgery Report, Imaging, and Culture checkboxes are unchecked by default",
-        "Users can toggle any checkbox before creating the case"
+        "Histo task has a purple border when displayed in the patient card",
+        "Purple color is clearly distinguishable from other task colors"
       ]
     },
     {
       "id": "REQ-3",
-      "text": "Format all date input fields to use month/day/year format (MM/DD/YYYY) and implement auto-advance behavior that automatically moves focus to the next input field when the current date field is completed",
+      "text": "Add a blue colored box border around the Imaging task in the patient card task checklist",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-8"
+          "msg-last"
         ],
         "quotes": [
-          "change date fields to set format month/day/year and auto advance to next from one to the next"
+          "Blue box around the Imaging task"
         ]
       },
       "acceptanceCriteria": [
-        "All date fields display and accept dates in MM/DD/YYYY format",
-        "When a user completes entering a date (8 digits entered), focus automatically advances to the next form field",
-        "Date validation ensures proper month/day/year format",
-        "The auto-advance behavior works smoothly without disrupting user input"
+        "Imaging task has a blue border when displayed in the patient card",
+        "Blue color is clearly distinguishable from other task colors"
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Add an orange colored box border around the presenting complaint field in the patient card",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-last"
+        ],
+        "quotes": [
+          "orange box around presenting complaint"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Presenting complaint field has an orange border",
+        "Orange color is clearly distinguishable from other field colors"
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "text": "Add the species information displayed in a rounded box badge below the medical record number field in the patient card",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-last"
+        ],
+        "quotes": [
+          "add species in rounded box below medical record number"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Species is displayed in a rounded badge-style box",
+        "Species badge appears directly below the medical record number",
+        "Badge has rounded corners and stands out visually"
       ]
     }
   ],
   "constraints": [
-    "Maintain the existing CompletedTasks data structure in the backend",
-    "Preserve the ChecklistEditor component's dual-mode functionality (creation vs. completion)",
-    "Keep the existing case card layout and styling consistent"
+    "Do not modify the CaseCard component's data structure or props",
+    "Maintain existing task checkbox functionality",
+    "Keep all other patient card fields and layout intact"
   ],
   "nonGoals": [
-    "Adding new task types beyond the seven specified",
-    "Changing the backend data model for cases",
-    "Modifying the authentication or profile setup flow"
+    "Changing the backend data model",
+    "Modifying task types or checklist items",
+    "Altering the color scheme of other UI components",
+    "Changing the overall layout structure of the patient card"
   ],
   "imageRequirements": {
     "required": [],

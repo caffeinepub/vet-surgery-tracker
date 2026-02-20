@@ -2,13 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-fix-the-task-selection-workflow-so-that-items-checked-under-select-tasks-to-include-during-case-creation-properly-appear-in-remaining-tasks-on-the-case-card-with-unchecked-checkboxes-ready-to-be-completed",
-      "featureTitle": "Fix the task selection workflow so that items checked under 'Select Tasks to Include' during case creation properly appear in 'Remaining Tasks' on the case card with unchecked checkboxes ready to be completed",
+      "featureId": "feature-add-a-colored-box-border-around-the-notes-field-in-the-patient-card-and-make-the-notes-field-always-visible-not-collapsible-so-it-stands-out-more",
+      "featureTitle": "Add a colored box border around the notes field in the patient card and make the notes field always visible (not collapsible) so it stands out more",
       "files": [
-        "frontend/src/features/cases/checklist.ts",
-        "frontend/src/features/cases/components/CaseCard.tsx",
-        "frontend/src/features/cases/components/CaseFormDialog.tsx",
-        "frontend/src/features/cases/components/ChecklistEditor.tsx"
+        "frontend/src/features/cases/components/CaseCard.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -26,11 +23,10 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-implement-task-checkboxes-with-correct-default-states-during-case-creation-discharge-notes-checked-by-default-pdvm-notified-checked-by-default-labs-unchecked-by-default-histo-unchecked-by-default-surgery-report-unchecked-by-default-imaging-unchecked-by-default-culture-unchecked-by-default",
-      "featureTitle": "Implement task checkboxes with correct default states during case creation: Discharge Notes (checked by default), pDVM Notified (checked by default), Labs (unchecked by default), Histo (unchecked by default), Surgery Report (unchecked by default), Imaging (unchecked by default), Culture (unchecked by default)",
+      "featureId": "feature-add-a-purple-colored-box-border-around-the-histo-histopathology-task-in-the-patient-card-task-checklist",
+      "featureTitle": "Add a purple colored box border around the Histo (histopathology) task in the patient card task checklist",
       "files": [
-        "frontend/src/features/cases/checklist.ts",
-        "frontend/src/features/cases/components/CaseFormDialog.tsx"
+        "frontend/src/features/cases/components/CaseCard.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -48,11 +44,10 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-format-all-date-input-fields-to-use-month-day-year-format-mm-dd-yyyy-and-implement-auto-advance-behavior-that-automatically-moves-focus-to-the-next-input-field-when-the-current-date-field-is-completed",
-      "featureTitle": "Format all date input fields to use month/day/year format (MM/DD/YYYY) and implement auto-advance behavior that automatically moves focus to the next input field when the current date field is completed",
+      "featureId": "feature-add-a-blue-colored-box-border-around-the-imaging-task-in-the-patient-card-task-checklist",
+      "featureTitle": "Add a blue colored box border around the Imaging task in the patient card task checklist",
       "files": [
-        "frontend/src/features/cases/components/CaseFormDialog.tsx",
-        "frontend/src/features/cases/components/DateField.tsx"
+        "frontend/src/features/cases/components/CaseCard.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -66,6 +61,48 @@
       ],
       "testIds": [
         "REQ-3"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-an-orange-colored-box-border-around-the-presenting-complaint-field-in-the-patient-card",
+      "featureTitle": "Add an orange colored box border around the presenting complaint field in the patient card",
+      "files": [
+        "frontend/src/features/cases/components/CaseCard.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "camera@1.0.0",
+        "http-outcalls@3.0.0"
+      ],
+      "testIds": [
+        "REQ-4"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-the-species-information-displayed-in-a-rounded-box-badge-below-the-medical-record-number-field-in-the-patient-card",
+      "featureTitle": "Add the species information displayed in a rounded box badge below the medical record number field in the patient card",
+      "files": [
+        "frontend/src/features/cases/components/CaseCard.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "camera@1.0.0",
+        "http-outcalls@3.0.0"
+      ],
+      "testIds": [
+        "REQ-5"
       ],
       "confidence": "high"
     }

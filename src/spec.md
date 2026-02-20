@@ -1,11 +1,13 @@
 # Specification
 
 ## Summary
-**Goal:** Fix task selection workflow during case creation and improve date field formatting with auto-advance behavior.
+**Goal:** Enhance visual distinction of key patient card fields by adding colored borders and a species badge.
 
 **Planned changes:**
-- Fix task selection so checked items during case creation appear as unchecked checkboxes in "Remaining Tasks" on the case card
-- Set default checkbox states: Discharge Notes (checked), pDVM Notified (checked), Labs (unchecked), Histo (unchecked), Surgery Report (unchecked), Imaging (unchecked), Culture (unchecked)
-- Change all date fields to MM/DD/YYYY format with auto-advance to next field when date entry is complete
+- Add colored border around notes field and make it always visible (not collapsible)
+- Add purple border around the Histo task in the task checklist
+- Add blue border around the Imaging task in the task checklist
+- Add orange border around the presenting complaint field
+- Add species badge in rounded box below medical record number
 
-**User-visible outcome:** Users can select tasks during case creation that properly appear as incomplete tasks on case cards, default task selections reduce repetitive clicking, and date entry becomes faster with consistent formatting and automatic field navigation.
+**User-visible outcome:** Key information on patient cards (notes, presenting complaint, specific tasks, and species) will be visually highlighted with colored borders and badges for easier identification.
