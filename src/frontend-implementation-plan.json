@@ -1,105 +1,70 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Refine case card layout with colored task sections and edit capability",
+  "title": "Update sex display format, rename app to SurgiPaw, and add dashboard with open tasks tally",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Remove the inner grey box styling from the species field in the case card display",
+      "summary": "Change the sex field display format on the Case Card to show 'Female', 'Female Spayed', 'Male', or 'Male Neutered'",
       "acceptanceCriteria": [
-        "Species field displays without a grey box background",
-        "Species field maintains proper spacing and alignment with other fields"
+        "The Case Card component displays sex as exactly 'Female', 'Female Spayed', 'Male', or 'Male Neutered'",
+        "The display matches the underlying data values (male, neutered, female, spayed) defined in types.ts",
+        "All existing cases show the updated format"
       ],
       "file_operations": [
         {
           "path": "frontend/src/features/cases/components/CaseCard.tsx",
           "operation": "modify",
-          "description": "Remove the grey box background styling (likely bg-gray-100 or bg-muted class) from the species field display element while maintaining proper spacing and alignment with other patient detail fields"
+          "description": "Update the sex field display logic to map backend sex enum values to user-friendly labels: 'male' -> 'Male', 'maleNeutered' -> 'Male Neutered', 'female' -> 'Female', 'femaleSpayed' -> 'Female Spayed'. Create a helper function formatSexDisplay that performs this mapping and use it in the sex field rendering section of the CaseCard component."
         }
       ]
     },
     {
       "id": "REQ-2",
-      "summary": "Move the remaining task list section to appear below the notes field in the case card layout",
+      "summary": "Update the application name from 'Surgery Case Log' to 'SurgiPaw' in all user-facing locations",
       "acceptanceCriteria": [
-        "Remaining tasks section appears after the notes field",
-        "Layout maintains visual hierarchy and proper spacing"
+        "The browser tab title shows 'SurgiPaw'",
+        "The PWA manifest displays 'SurgiPaw' as the app name",
+        "Any header or branding text in the UI shows 'SurgiPaw'"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/features/cases/components/CaseCard.tsx",
+          "path": "frontend/index.html",
           "operation": "modify",
-          "description": "Reorder the JSX structure to render the remaining tasks checklist section after the notes field section, ensuring proper spacing between sections and maintaining the existing visual hierarchy"
+          "description": "Update the <title> tag from 'Surgery Case Log' to 'SurgiPaw' to change the browser tab title."
+        },
+        {
+          "path": "frontend/public/manifest.json",
+          "operation": "modify",
+          "description": "Update the 'name' field from 'Surgery Case Log' to 'SurgiPaw' and update 'short_name' to 'SurgiPaw' to reflect the new app name in the PWA manifest."
         }
       ]
     },
     {
       "id": "REQ-3",
-      "summary": "Add functionality to edit remaining tasks for existing cases, allowing users to modify which tasks are selected",
+      "summary": "Create a new Dashboard view that displays a list of all open tasks across all cases and provides a tally count",
       "acceptanceCriteria": [
-        "Users can click to edit the task selection for an existing case",
-        "Task checkboxes can be toggled on/off when editing",
-        "Changes to task selection are saved to the backend",
-        "UI provides clear indication when in edit mode vs completion mode"
+        "A new Dashboard view is accessible from the main navigation",
+        "The dashboard shows a total count of open tasks across all surgery cases",
+        "The dashboard lists all open tasks with relevant case information (medical record, pet name, task type)",
+        "Tasks are considered 'open' if they are selected in the checklist but not yet completed",
+        "The dashboard updates in real-time when tasks are completed or cases are modified"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/features/cases/components/CaseCard.tsx",
-          "operation": "modify",
-          "description": "Add an 'Edit Tasks' button that toggles edit mode state. When in edit mode, render the ChecklistEditor component in creation mode (mode='create') to allow toggling task selections. Add a 'Save' button that calls the updateRemainingTasks backend mutation with the modified TaskOptions. Display visual indicators (button labels, styling) to distinguish edit mode from completion mode. Preserve existing task completion functionality when not in edit mode."
+          "path": "frontend/src/features/dashboard/components/DashboardView.tsx",
+          "operation": "create",
+          "description": "Create a new Dashboard view component that displays all open tasks across all surgery cases. Fetch all cases using the useGetAllCases hook and compute open tasks client-side by iterating through each case's task object to find tasks where Selected is true but Completed is false. Display a prominent tally count at the top showing total open tasks. Render a list of open task items, each showing the medical record number, pet name, task type label (e.g., 'Discharge Notes', 'Labs', 'Histo'), and a link to the case. Group or sort tasks by case or task type for better usability. Use shadcn/ui Card components for layout and ensure the view is responsive."
         },
         {
-          "path": "frontend/src/hooks/useQueries.ts",
-          "operation": "modify",
-          "description": "Add a useUpdateRemainingTasks mutation hook that calls actor.updateRemainingTasks(id, taskOptions) and invalidates the cases cache on success. Include proper error handling and loading states."
-        }
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "summary": "Add a purple box with matching shading around the histo task item in the remaining tasks checklist",
-      "acceptanceCriteria": [
-        "Histo task displays with a purple background box",
-        "Purple shading matches the app's design system",
-        "Box does not break checkbox alignment"
-      ],
-      "file_operations": [
+          "path": "frontend/src/features/dashboard/utils/openTasksCalculation.ts",
+          "operation": "create",
+          "description": "Create a utility module that provides functions to calculate open tasks from case data. Export a function getOpenTasksFromCase(surgeryCase: SurgeryCase) that returns an array of open task objects containing task type, case reference, and relevant case details. Export a function getTotalOpenTasksCount(cases: SurgeryCase[]) that sums all open tasks across all cases. An open task is defined as one where the task's Selected property is true and Completed property is false (e.g., task.labsSelected === true && task.labsCompleted === false). Reference the checklist items from frontend/src/features/cases/checklist.ts for task labels and field mappings."
+        },
         {
-          "path": "frontend/src/features/cases/components/ChecklistEditor.tsx",
+          "path": "frontend/src/App.tsx",
           "operation": "modify",
-          "description": "Add conditional styling to wrap the histo task item in a purple background box (e.g., bg-purple-100 with border-purple-300). Apply padding and rounded corners while ensuring checkbox alignment remains intact using flexbox or grid layout. Use Tailwind classes that match the app's design system color palette."
-        }
-      ]
-    },
-    {
-      "id": "REQ-5",
-      "summary": "Add a blue box with matching shading around the imaging task item in the remaining tasks checklist",
-      "acceptanceCriteria": [
-        "Imaging task displays with a blue background box",
-        "Blue shading matches the app's design system",
-        "Box does not break checkbox alignment"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/features/cases/components/ChecklistEditor.tsx",
-          "operation": "modify",
-          "description": "Add conditional styling to wrap the imaging task item in a blue background box (e.g., bg-blue-100 with border-blue-300). Apply padding and rounded corners while ensuring checkbox alignment remains intact using flexbox or grid layout. Use Tailwind classes that match the app's design system color palette."
-        }
-      ]
-    },
-    {
-      "id": "REQ-6",
-      "summary": "Ensure colored boxes around histo and imaging tasks maintain proper alignment of all checkboxes in the remaining tasks list",
-      "acceptanceCriteria": [
-        "All checkboxes in the task list remain vertically aligned",
-        "Colored boxes do not cause layout shift or misalignment",
-        "Text labels remain properly aligned with their respective checkboxes"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/features/cases/components/ChecklistEditor.tsx",
-          "operation": "modify",
-          "description": "Refactor the checklist item rendering to use consistent flexbox or grid layout for all items. Apply colored box styling (for histo and imaging) as wrapper elements that maintain the same structural layout as non-colored items. Ensure all checkboxes use consistent left alignment and label text uses consistent padding regardless of background styling."
+          "description": "Add a new 'dashboard' view option to the application's view state management. Update the view type to include 'dashboard' alongside 'cases' and 'settings'. Add navigation UI (e.g., a button or tab) that allows users to switch to the Dashboard view. Import and conditionally render the DashboardView component when the current view is 'dashboard'. Ensure the dashboard is accessible from the main navigation and defaults to an appropriate view on app load (e.g., keep 'cases' as default or introduce 'dashboard' as the landing view based on user preference)."
         }
       ]
     }

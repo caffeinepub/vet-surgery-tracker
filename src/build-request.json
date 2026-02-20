@@ -1,125 +1,75 @@
 {
   "kind": "build_request",
-  "title": "Refine case card layout with colored task sections and edit capability",
+  "title": "Update sex display format, rename app to SurgiPaw, and add dashboard with open tasks tally",
+  "projectName": "SurgiPaw",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Remove the inner grey box styling from the species field in the case card display",
+      "text": "Change the sex field display format on the Case Card to show 'Female', 'Female Spayed', 'Male', or 'Male Neutered' instead of the current format",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-5"
+          "msg-last"
         ],
         "quotes": [
-          "Remove inner grey box from species field"
+          "On the Case Card Display Sex as: Female, Female Spayed, Male, or Male Neutered"
         ]
       },
       "acceptanceCriteria": [
-        "Species field displays without a grey box background",
-        "Species field maintains proper spacing and alignment with other fields"
+        "The Case Card component displays sex as exactly 'Female', 'Female Spayed', 'Male', or 'Male Neutered'",
+        "The display matches the underlying data values (male, neutered, female, spayed) defined in types.ts",
+        "All existing cases show the updated format"
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Move the remaining task list section to appear below the notes field in the case card layout",
+      "text": "Update the application name from 'Surgery Case Log' to 'SurgiPaw' in all user-facing locations including the page title, manifest, and any branding text",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-5"
+          "msg-last"
         ],
         "quotes": [
-          "move remaining task list to below notes field"
+          "Change app name to SurgiPaw"
         ]
       },
       "acceptanceCriteria": [
-        "Remaining tasks section appears after the notes field",
-        "Layout maintains visual hierarchy and proper spacing"
+        "The browser tab title shows 'SurgiPaw'",
+        "The PWA manifest displays 'SurgiPaw' as the app name",
+        "Any header or branding text in the UI shows 'SurgiPaw'"
       ]
     },
     {
       "id": "REQ-3",
-      "text": "Add functionality to edit remaining tasks for existing cases, allowing users to modify which tasks are selected",
+      "text": "Create a new Dashboard view that displays a list of all open tasks across all cases and provides a tally count of how many open tasks exist",
       "target": "both",
       "source": {
         "messageIds": [
-          "msg-5"
+          "msg-last"
         ],
         "quotes": [
-          "add option to edit remaining tasks"
+          "Create Dashboard that lists/provides a tally of open tasks"
         ]
       },
       "acceptanceCriteria": [
-        "Users can click to edit the task selection for an existing case",
-        "Task checkboxes can be toggled on/off when editing",
-        "Changes to task selection are saved to the backend",
-        "UI provides clear indication when in edit mode vs completion mode"
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "text": "Add a purple box with matching shading around the histo task item in the remaining tasks checklist",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-5"
-        ],
-        "quotes": [
-          "place purple box with matching shading around histo"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Histo task displays with a purple background box",
-        "Purple shading matches the app's design system",
-        "Box does not break checkbox alignment"
-      ]
-    },
-    {
-      "id": "REQ-5",
-      "text": "Add a blue box with matching shading around the imaging task item in the remaining tasks checklist",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-5"
-        ],
-        "quotes": [
-          "place blue box with matching shading around imaging"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Imaging task displays with a blue background box",
-        "Blue shading matches the app's design system",
-        "Box does not break checkbox alignment"
-      ]
-    },
-    {
-      "id": "REQ-6",
-      "text": "Ensure colored boxes around histo and imaging tasks maintain proper alignment of all checkboxes in the remaining tasks list",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-5"
-        ],
-        "quotes": [
-          "add these boxes in a way that maintains alignment of the check boxes"
-        ]
-      },
-      "acceptanceCriteria": [
-        "All checkboxes in the task list remain vertically aligned",
-        "Colored boxes do not cause layout shift or misalignment",
-        "Text labels remain properly aligned with their respective checkboxes"
+        "A new Dashboard view is accessible from the main navigation",
+        "The dashboard shows a total count of open tasks across all surgery cases",
+        "The dashboard lists all open tasks with relevant case information (medical record, pet name, task type)",
+        "Tasks are considered 'open' if they are selected in the checklist but not yet completed",
+        "The dashboard updates in real-time when tasks are completed or cases are modified"
       ]
     }
   ],
   "constraints": [
-    "Do not modify the ChecklistEditor component used in creation mode",
-    "Preserve existing task completion functionality",
-    "Maintain the existing checklist item definitions and default states"
+    "Maintain the existing sex value options (male, neutered, female, spayed) in the backend schema",
+    "Do not modify Internet Identity authentication flow",
+    "Preserve all existing case management functionality"
   ],
   "nonGoals": [
-    "Changing the color scheme for other UI elements",
-    "Modifying task types or adding new task categories",
-    "Altering the case creation form layout"
+    "Changing the case form input for sex field",
+    "Modifying the CSV import/export format for sex values",
+    "Adding new task types beyond the existing seven"
   ],
   "imageRequirements": {
     "required": [],

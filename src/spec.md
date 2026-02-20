@@ -1,14 +1,11 @@
 # Specification
 
 ## Summary
-**Goal:** Refine the case card layout by removing the grey box from the species field, repositioning the remaining tasks section below notes, adding colored boxes around specific tasks (purple for histo, blue for imaging), and enabling users to edit the task selection for existing cases.
+**Goal:** Update sex field display format, rename the application to SurgiPaw, and add a dashboard showing open tasks across all surgery cases.
 
 **Planned changes:**
-- Remove grey box styling from species field in case cards
-- Move remaining tasks section to appear below the notes field
-- Add purple box with shading around the histo task item
-- Add blue box with shading around the imaging task item
-- Ensure all task checkboxes remain properly aligned despite colored boxes
-- Add functionality to edit remaining tasks for existing cases (toggle task selection and save changes)
+- Change sex field display on Case Card to show 'Female', 'Female Spayed', 'Male', or 'Male Neutered'
+- Rename application from 'Surgery Case Log' to 'SurgiPaw' in page title, manifest, and all branding
+- Create a new Dashboard view that lists all open tasks and displays a total count
 
-**User-visible outcome:** Users will see a cleaner case card layout with the species field unboxed, tasks relocated below notes, and histo/imaging tasks visually distinguished with colored boxes. Users can now edit which tasks are selected for existing cases, not just complete them.
+**User-visible outcome:** Users will see the updated sex format on case cards, the application will be branded as SurgiPaw, and they can access a new dashboard that provides a quick overview of all open tasks across their surgery cases with a total count.

@@ -1,18 +1,18 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-20T14:17:36.332Z",
+  "generatedAt": "2026-02-20T23:54:25.014Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 6,
-    "implemented": 6,
+    "total": 3,
+    "implemented": 3,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Remove the inner grey box styling from the species field in the case card display",
+        "summary": "Change the sex field display format on the Case Card to show 'Female', 'Female Spayed', 'Male', or 'Male Neutered' instead of the current format",
         "status": "implemented",
         "plannedFiles": [
           "frontend/src/features/cases/components/CaseCard.tsx"
@@ -23,59 +23,30 @@
       },
       {
         "id": "REQ-2",
-        "summary": "Move the remaining task list section to appear below the notes field in the case card layout",
+        "summary": "Update the application name from 'Surgery Case Log' to 'SurgiPaw' in all user-facing locations including the page title, manifest, and any branding text",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/features/cases/components/CaseCard.tsx"
+          "frontend/index.html",
+          "frontend/public/manifest.json"
         ],
         "matchedFiles": [
-          "frontend/src/features/cases/components/CaseCard.tsx"
+          "frontend/index.html",
+          "frontend/public/manifest.json"
         ]
       },
       {
         "id": "REQ-3",
-        "summary": "Add functionality to edit remaining tasks for existing cases, allowing users to modify which tasks are selected",
+        "summary": "Create a new Dashboard view that displays a list of all open tasks across all cases and provides a tally count of how many open tasks exist",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/features/cases/components/CaseCard.tsx",
-          "frontend/src/hooks/useQueries.ts"
+          "frontend/src/features/dashboard/components/DashboardView.tsx",
+          "frontend/src/features/dashboard/utils/openTasksCalculation.ts",
+          "frontend/src/App.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/features/cases/components/CaseCard.tsx",
-          "frontend/src/hooks/useQueries.ts"
-        ]
-      },
-      {
-        "id": "REQ-4",
-        "summary": "Add a purple box with matching shading around the histo task item in the remaining tasks checklist",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/features/cases/components/ChecklistEditor.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/features/cases/components/ChecklistEditor.tsx"
-        ]
-      },
-      {
-        "id": "REQ-5",
-        "summary": "Add a blue box with matching shading around the imaging task item in the remaining tasks checklist",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/features/cases/components/ChecklistEditor.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/features/cases/components/ChecklistEditor.tsx"
-        ]
-      },
-      {
-        "id": "REQ-6",
-        "summary": "Ensure colored boxes around histo and imaging tasks maintain proper alignment of all checkboxes in the remaining tasks list",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/features/cases/components/ChecklistEditor.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/features/cases/components/ChecklistEditor.tsx"
+          "frontend/src/features/dashboard/components/DashboardView.tsx",
+          "frontend/src/features/dashboard/utils/openTasksCalculation.ts",
+          "frontend/src/App.tsx"
         ]
       }
     ]
@@ -87,13 +58,16 @@
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
+    "frontend/index.html",
+    "frontend/public/manifest.json",
+    "frontend/src/App.tsx",
     "frontend/src/backend.d.ts",
     "frontend/src/backend.ts",
     "frontend/src/declarations/backend.did.d.ts",
     "frontend/src/declarations/backend.did.js",
     "frontend/src/features/cases/components/CaseCard.tsx",
-    "frontend/src/features/cases/components/ChecklistEditor.tsx",
-    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/features/dashboard/components/DashboardView.tsx",
+    "frontend/src/features/dashboard/utils/openTasksCalculation.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

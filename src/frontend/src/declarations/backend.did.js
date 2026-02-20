@@ -65,6 +65,7 @@ export const SurgeryCase = IDL.Record({
   'species' : Species,
 });
 export const UserProfile = IDL.Record({ 'name' : IDL.Text });
+export const Dashboard = IDL.Record({ 'openTasks' : IDL.Nat });
 export const OpenAIConfig = IDL.Record({
   'initialized' : IDL.Bool,
   'apiKey' : IDL.Text,
@@ -101,6 +102,7 @@ export const idlService = IDL.Service({
       ['query'],
     ),
   'getCasesByOwner' : IDL.Func([IDL.Text], [IDL.Vec(SurgeryCase)], ['query']),
+  'getDashboard' : IDL.Func([], [Dashboard], ['query']),
   'getOpenAIConfig' : IDL.Func([], [IDL.Opt(OpenAIConfig)], ['query']),
   'getTask' : IDL.Func([IDL.Nat], [Task], ['query']),
   'getUserProfile' : IDL.Func(
@@ -201,6 +203,7 @@ export const idlFactory = ({ IDL }) => {
     'species' : Species,
   });
   const UserProfile = IDL.Record({ 'name' : IDL.Text });
+  const Dashboard = IDL.Record({ 'openTasks' : IDL.Nat });
   const OpenAIConfig = IDL.Record({
     'initialized' : IDL.Bool,
     'apiKey' : IDL.Text,
@@ -237,6 +240,7 @@ export const idlFactory = ({ IDL }) => {
         ['query'],
       ),
     'getCasesByOwner' : IDL.Func([IDL.Text], [IDL.Vec(SurgeryCase)], ['query']),
+    'getDashboard' : IDL.Func([], [Dashboard], ['query']),
     'getOpenAIConfig' : IDL.Func([], [IDL.Opt(OpenAIConfig)], ['query']),
     'getTask' : IDL.Func([IDL.Nat], [Task], ['query']),
     'getUserProfile' : IDL.Func(

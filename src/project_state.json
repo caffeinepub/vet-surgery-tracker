@@ -1,56 +1,32 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "New project",
+  "summary": "SurgiPaw - A surgical case management application with case tracking, dashboard, and task management features",
   "architectural_notes": [],
   "known_issues": [],
   "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-remove-the-inner-grey-box-styling-from-the-species-field-in-the-case-card-display",
-      "title": "Remove the inner grey box styling from the species field in the case card display",
+      "id": "feature-change-the-sex-field-display-format-on-the-case-card-to-show-female-female-spayed-male-or-male-neutered-instead-of-the-current-format",
+      "title": "Change the sex field display format on the Case Card to show 'Female', 'Female Spayed', 'Male', or 'Male Neutered' instead of the current format",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-move-the-remaining-task-list-section-to-appear-below-the-notes-field-in-the-case-card-layout",
-      "title": "Move the remaining task list section to appear below the notes field in the case card layout",
+      "id": "feature-update-the-application-name-from-surgery-case-log-to-surgipaw-in-all-user-facing-locations-including-the-page-title-manifest-and-any-branding-text",
+      "title": "Update the application name from 'Surgery Case Log' to 'SurgiPaw' in all user-facing locations including the page title, manifest, and any branding text",
       "reqIds": [
         "REQ-2"
       ],
       "version": 1
     },
     {
-      "id": "feature-add-functionality-to-edit-remaining-tasks-for-existing-cases-allowing-users-to-modify-which-tasks-are-selected",
-      "title": "Add functionality to edit remaining tasks for existing cases, allowing users to modify which tasks are selected",
+      "id": "feature-create-a-new-dashboard-view-that-displays-a-list-of-all-open-tasks-across-all-cases-and-provides-a-tally-count-of-how-many-open-tasks-exist",
+      "title": "Create a new Dashboard view that displays a list of all open tasks across all cases and provides a tally count of how many open tasks exist",
       "reqIds": [
         "REQ-3"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-add-a-purple-box-with-matching-shading-around-the-histo-task-item-in-the-remaining-tasks-checklist",
-      "title": "Add a purple box with matching shading around the histo task item in the remaining tasks checklist",
-      "reqIds": [
-        "REQ-4"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-add-a-blue-box-with-matching-shading-around-the-imaging-task-item-in-the-remaining-tasks-checklist",
-      "title": "Add a blue box with matching shading around the imaging task item in the remaining tasks checklist",
-      "reqIds": [
-        "REQ-5"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-ensure-colored-boxes-around-histo-and-imaging-tasks-maintain-proper-alignment-of-all-checkboxes-in-the-remaining-tasks-list",
-      "title": "Ensure colored boxes around histo and imaging tasks maintain proper alignment of all checkboxes in the remaining tasks list",
-      "reqIds": [
-        "REQ-6"
       ],
       "version": 1
     }
@@ -58,42 +34,18 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Remove inner grey box from species field",
+      "summary": "Display sex on Case Card as: Female, Female Spayed, Male, or Male Neutered",
       "reqIds": [],
       "status": "pending"
     },
     {
       "id": "AR-2",
-      "summary": "Move remaining task list to below notes field",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-3",
-      "summary": "Add option to edit remaining tasks",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-4",
-      "summary": "Add purple box with matching shading around histo section",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-5",
-      "summary": "Add blue box with matching shading around imaging section",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-6",
-      "summary": "Maintain checkbox alignment when adding colored boxes",
+      "summary": "Create Dashboard that lists/provides a tally of open tasks",
       "reqIds": [],
       "status": "pending"
     }
   ],
-  "projectName": "Refine case card layout with colored task sections and edit capability",
+  "projectName": "SurgiPaw",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

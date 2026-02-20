@@ -2,8 +2,8 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-remove-the-inner-grey-box-styling-from-the-species-field-in-the-case-card-display",
-      "featureTitle": "Remove the inner grey box styling from the species field in the case card display",
+      "featureId": "feature-change-the-sex-field-display-format-on-the-case-card-to-show-female-female-spayed-male-or-male-neutered-instead-of-the-current-format",
+      "featureTitle": "Change the sex field display format on the Case Card to show 'Female', 'Female Spayed', 'Male', or 'Male Neutered' instead of the current format",
       "files": [
         "frontend/src/features/cases/components/CaseCard.tsx"
       ],
@@ -23,10 +23,11 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-move-the-remaining-task-list-section-to-appear-below-the-notes-field-in-the-case-card-layout",
-      "featureTitle": "Move the remaining task list section to appear below the notes field in the case card layout",
+      "featureId": "feature-update-the-application-name-from-surgery-case-log-to-surgipaw-in-all-user-facing-locations-including-the-page-title-manifest-and-any-branding-text",
+      "featureTitle": "Update the application name from 'Surgery Case Log' to 'SurgiPaw' in all user-facing locations including the page title, manifest, and any branding text",
       "files": [
-        "frontend/src/features/cases/components/CaseCard.tsx"
+        "frontend/index.html",
+        "frontend/public/manifest.json"
       ],
       "components": [
         "authorization@4.0.0",
@@ -44,11 +45,12 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-add-functionality-to-edit-remaining-tasks-for-existing-cases-allowing-users-to-modify-which-tasks-are-selected",
-      "featureTitle": "Add functionality to edit remaining tasks for existing cases, allowing users to modify which tasks are selected",
+      "featureId": "feature-create-a-new-dashboard-view-that-displays-a-list-of-all-open-tasks-across-all-cases-and-provides-a-tally-count-of-how-many-open-tasks-exist",
+      "featureTitle": "Create a new Dashboard view that displays a list of all open tasks across all cases and provides a tally count of how many open tasks exist",
       "files": [
-        "frontend/src/features/cases/components/CaseCard.tsx",
-        "frontend/src/hooks/useQueries.ts"
+        "frontend/src/App.tsx",
+        "frontend/src/features/dashboard/components/DashboardView.tsx",
+        "frontend/src/features/dashboard/utils/openTasksCalculation.ts"
       ],
       "components": [
         "authorization@4.0.0",
@@ -62,69 +64,6 @@
       ],
       "testIds": [
         "REQ-3"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-add-a-purple-box-with-matching-shading-around-the-histo-task-item-in-the-remaining-tasks-checklist",
-      "featureTitle": "Add a purple box with matching shading around the histo task item in the remaining tasks checklist",
-      "files": [
-        "frontend/src/features/cases/components/ChecklistEditor.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "camera@1.0.0",
-        "http-outcalls@3.0.0"
-      ],
-      "testIds": [
-        "REQ-4"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-add-a-blue-box-with-matching-shading-around-the-imaging-task-item-in-the-remaining-tasks-checklist",
-      "featureTitle": "Add a blue box with matching shading around the imaging task item in the remaining tasks checklist",
-      "files": [
-        "frontend/src/features/cases/components/ChecklistEditor.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "camera@1.0.0",
-        "http-outcalls@3.0.0"
-      ],
-      "testIds": [
-        "REQ-5"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-ensure-colored-boxes-around-histo-and-imaging-tasks-maintain-proper-alignment-of-all-checkboxes-in-the-remaining-tasks-list",
-      "featureTitle": "Ensure colored boxes around histo and imaging tasks maintain proper alignment of all checkboxes in the remaining tasks list",
-      "files": [
-        "frontend/src/features/cases/components/ChecklistEditor.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "camera@1.0.0",
-        "http-outcalls@3.0.0"
-      ],
-      "testIds": [
-        "REQ-6"
       ],
       "confidence": "high"
     }

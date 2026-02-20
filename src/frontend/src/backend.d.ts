@@ -51,6 +51,9 @@ export interface SurgeryCase {
     breed: string;
     species: Species;
 }
+export interface Dashboard {
+    openTasks: bigint;
+}
 export interface UserProfile {
     name: string;
 }
@@ -80,6 +83,7 @@ export interface backendInterface {
     getCase(id: bigint): Promise<SurgeryCase>;
     getCaseByMedicalRecordNumber(medicalRecordNumber: string): Promise<SurgeryCase | null>;
     getCasesByOwner(ownerLastName: string): Promise<Array<SurgeryCase>>;
+    getDashboard(): Promise<Dashboard>;
     getOpenAIConfig(): Promise<OpenAIConfig | null>;
     getTask(id: bigint): Promise<Task>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;

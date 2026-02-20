@@ -1,12 +1,11 @@
 {
-  "name": "Surgery Case Log",
-  "short_name": "Case Log",
-  "description": "Veterinary surgery case tracking and management application",
+  "name": "SurgiPaw",
+  "short_name": "SurgiPaw",
+  "description": "Track and manage veterinary surgery cases",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#60a5fa",
-  "orientation": "any",
+  "theme_color": "#3B82F6",
   "icons": [
     {
       "src": "/assets/generated/icon-192.dim_192x192.png",
@@ -20,7 +19,5 @@
       "type": "image/png",
       "purpose": "any maskable"
     }
-  ],
-  "categories": ["medical", "productivity", "business"],
-  "screenshots": []
+  ]
 }

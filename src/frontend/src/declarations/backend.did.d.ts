@@ -10,6 +10,7 @@ import type { ActorMethod } from '@icp-sdk/core/agent';
 import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
+export interface Dashboard { 'openTasks' : bigint }
 export interface OpenAIConfig { 'initialized' : boolean, 'apiKey' : string }
 export type Sex = { 'female' : null } |
   { 'male' : null } |
@@ -88,6 +89,7 @@ export interface _SERVICE {
   'getCase' : ActorMethod<[bigint], SurgeryCase>,
   'getCaseByMedicalRecordNumber' : ActorMethod<[string], [] | [SurgeryCase]>,
   'getCasesByOwner' : ActorMethod<[string], Array<SurgeryCase>>,
+  'getDashboard' : ActorMethod<[], Dashboard>,
   'getOpenAIConfig' : ActorMethod<[], [] | [OpenAIConfig]>,
   'getTask' : ActorMethod<[bigint], Task>,
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { SurgeryCase, TaskOptions } from '../../../backend';
+import type { SurgeryCase, TaskOptions, Sex } from '../../../backend';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -24,6 +24,21 @@ import {
 interface CaseCardProps {
   surgeryCase: SurgeryCase;
   onEdit: (surgeryCase: SurgeryCase) => void;
+}
+
+function formatSexDisplay(sex: Sex): string {
+  switch (sex) {
+    case 'male':
+      return 'Male';
+    case 'maleNeutered':
+      return 'Male Neutered';
+    case 'female':
+      return 'Female';
+    case 'femaleSpayed':
+      return 'Female Spayed';
+    default:
+      return sex;
+  }
 }
 
 export default function CaseCard({ surgeryCase, onEdit }: CaseCardProps) {
@@ -202,7 +217,7 @@ export default function CaseCard({ surgeryCase, onEdit }: CaseCardProps) {
               <span className="font-medium">Breed:</span> {surgeryCase.breed}
             </div>
             <div>
-              <span className="font-medium">Sex:</span> {surgeryCase.sex}
+              <span className="font-medium">Sex:</span> {formatSexDisplay(surgeryCase.sex)}
             </div>
             <div>
               <span className="font-medium">Age:</span> {age}

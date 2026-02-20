@@ -7,9 +7,10 @@ import Runtime "mo:core/Runtime";
 import Text "mo:core/Text";
 import Time "mo:core/Time";
 import Nat "mo:core/Nat";
-import Migration "migration";
+
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
+import Migration "migration";
 
 (with migration = Migration.run)
 actor {
@@ -77,6 +78,10 @@ actor {
   public type OpenAIConfig = {
     apiKey : Text;
     initialized : Bool;
+  };
+
+  public type Dashboard = {
+    openTasks : Nat;
   };
 
   var openAIConfig : ?OpenAIConfig = ?{
@@ -372,5 +377,36 @@ actor {
       case (null) { false };
       case (?config) { config.apiKey.size() > 0 and config.initialized };
     };
+  };
+
+  public query ({ caller }) func getDashboard() : async Dashboard {
+    checkUserPermission(caller);
+    var taskCount = 0;
+
+    for (caseMap in cases.values()) {
+      if (caseMap.task.dischargeNotesSelected and not caseMap.task.dischargeNotesCompleted) {
+        taskCount += 1;
+      };
+      if (caseMap.task.pdvmNotifiedSelected and not caseMap.task.pdvmNotifiedCompleted) {
+        taskCount += 1;
+      };
+      if (caseMap.task.labsSelected and not caseMap.task.labsCompleted) {
+        taskCount += 1;
+      };
+      if (caseMap.task.histoSelected and not caseMap.task.histoCompleted) {
+        taskCount += 1;
+      };
+      if (caseMap.task.surgeryReportSelected and not caseMap.task.surgeryReportCompleted) {
+        taskCount += 1;
+      };
+      if (caseMap.task.imagingSelected and not caseMap.task.imagingCompleted) {
+        taskCount += 1;
+      };
+      if (caseMap.task.cultureSelected and not caseMap.task.cultureCompleted) {
+        taskCount += 1;
+      };
+    };
+
+    { openTasks = taskCount };
   };
 };

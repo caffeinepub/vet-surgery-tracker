@@ -133,6 +133,9 @@ export interface SurgeryCase {
     breed: string;
     species: Species;
 }
+export interface Dashboard {
+    openTasks: bigint;
+}
 export interface UserProfile {
     name: string;
 }
@@ -163,6 +166,7 @@ export interface backendInterface {
     getCase(id: bigint): Promise<SurgeryCase>;
     getCaseByMedicalRecordNumber(medicalRecordNumber: string): Promise<SurgeryCase | null>;
     getCasesByOwner(ownerLastName: string): Promise<Array<SurgeryCase>>;
+    getDashboard(): Promise<Dashboard>;
     getOpenAIConfig(): Promise<OpenAIConfig | null>;
     getTask(id: bigint): Promise<Task>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
@@ -318,6 +322,20 @@ export class Backend implements backendInterface {
         } else {
             const result = await this.actor.getCasesByOwner(arg0);
             return from_candid_vec_n15(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getDashboard(): Promise<Dashboard> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getDashboard();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getDashboard();
+            return result;
         }
     }
     async getOpenAIConfig(): Promise<OpenAIConfig | null> {
