@@ -21,6 +21,7 @@ export default function App() {
   const { data: userProfile, isLoading: profileLoading, isFetched } = useGetCallerUserProfile();
   const { data: isAdmin, isLoading: adminLoading } = useIsCallerAdmin();
   const [currentView, setCurrentView] = useState<View>('dashboard');
+  const [selectedCaseId, setSelectedCaseId] = useState<bigint | null>(null);
 
   const isAuthenticated = !!identity;
   const showProfileSetup = isAuthenticated && !profileLoading && isFetched && userProfile === null;
@@ -56,6 +57,15 @@ export default function App() {
     } catch (error) {
       console.error('Retry failed:', error);
     }
+  };
+
+  const handleNavigateToCase = (caseId: bigint) => {
+    setSelectedCaseId(caseId);
+    setCurrentView('cases');
+  };
+
+  const handleClearSelectedCase = () => {
+    setSelectedCaseId(null);
   };
 
   if (isInitializing) {
@@ -159,7 +169,10 @@ export default function App() {
               <Button
                 variant={currentView === 'cases' ? 'default' : 'ghost'}
                 size="sm"
-                onClick={() => setCurrentView('cases')}
+                onClick={() => {
+                  setCurrentView('cases');
+                  setSelectedCaseId(null);
+                }}
                 className="gap-2"
               >
                 <FolderOpen className="h-4 w-4" />
@@ -186,8 +199,13 @@ export default function App() {
           
           {!showProfileSetup && (
             <>
-              {currentView === 'dashboard' && <DashboardView />}
-              {currentView === 'cases' && <CasesListView />}
+              {currentView === 'dashboard' && <DashboardView onNavigateToCase={handleNavigateToCase} />}
+              {currentView === 'cases' && (
+                <CasesListView 
+                  selectedCaseId={selectedCaseId} 
+                  onClearSelectedCase={handleClearSelectedCase}
+                />
+              )}
               {currentView === 'settings' && isAdmin && <SettingsView />}
             </>
           )}

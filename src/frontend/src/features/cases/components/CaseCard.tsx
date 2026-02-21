@@ -8,7 +8,7 @@ import { Pencil, Trash2, Save } from 'lucide-react';
 import { useUpdateCaseNotes, useDeleteCase, useUpdateTask, useUpdateRemainingTasks } from '../../../hooks/useQueries';
 import { nanosecondsToDate } from '../validation';
 import { toast } from 'sonner';
-import { getRemainingChecklistItems, getCompletedTaskCount, getTotalSelectedTaskCount, CHECKLIST_ITEMS } from '../checklist';
+import { getRemainingChecklistItems, getCompletedTaskCount, getTotalSelectedTaskCount, CHECKLIST_ITEMS, getTaskBorderColor, getTaskBackgroundColor } from '../checklist';
 import ChecklistEditor from './ChecklistEditor';
 import {
   AlertDialog,
@@ -24,6 +24,7 @@ import {
 interface CaseCardProps {
   surgeryCase: SurgeryCase;
   onEdit: (surgeryCase: SurgeryCase) => void;
+  isHighlighted?: boolean;
 }
 
 function formatSexDisplay(sex: Sex): string {
@@ -41,7 +42,7 @@ function formatSexDisplay(sex: Sex): string {
   }
 }
 
-export default function CaseCard({ surgeryCase, onEdit }: CaseCardProps) {
+export default function CaseCard({ surgeryCase, onEdit, isHighlighted = false }: CaseCardProps) {
   const [editedNotes, setEditedNotes] = useState(surgeryCase.notes);
   const [isEditingNotes, setIsEditingNotes] = useState(false);
   const [isEditingTasks, setIsEditingTasks] = useState(false);
@@ -184,7 +185,12 @@ export default function CaseCard({ surgeryCase, onEdit }: CaseCardProps) {
 
   return (
     <>
-      <Card className="bg-white dark:bg-card">
+      <Card 
+        className={cn(
+          'bg-white dark:bg-card transition-all duration-500',
+          isHighlighted && 'ring-4 ring-primary ring-offset-2 shadow-lg'
+        )}
+      >
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between">
             <div className="flex-1">
@@ -347,33 +353,62 @@ export default function CaseCard({ surgeryCase, onEdit }: CaseCardProps) {
                     </Button>
                   </div>
                 </>
-              ) : remainingItems.length > 0 ? (
-                <ChecklistEditor
-                  task={surgeryCase.task}
-                  onChange={handleTaskChange}
-                  disabled={updateTask.isPending}
-                  mode="completion"
-                />
               ) : (
-                <p className="text-sm text-muted-foreground italic">All tasks completed! 🎉</p>
+                <div className="space-y-2">
+                  {remainingItems.map((item) => {
+                    const borderColor = getTaskBorderColor(item.color);
+                    const backgroundColor = getTaskBackgroundColor(item.color);
+                    
+                    return (
+                      <div
+                        key={item.key}
+                        className={cn(
+                          'flex items-center space-x-2 rounded-md p-2 border-2',
+                          borderColor,
+                          backgroundColor
+                        )}
+                      >
+                        <input
+                          type="checkbox"
+                          id={`task-${surgeryCase.id}-${item.key}`}
+                          checked={surgeryCase.task[item.completedField] as boolean}
+                          onChange={(e) => {
+                            const updatedTask = {
+                              ...surgeryCase.task,
+                              [item.completedField]: e.target.checked,
+                            };
+                            handleTaskChange(updatedTask);
+                          }}
+                          className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                          disabled={updateTask.isPending}
+                        />
+                        <label
+                          htmlFor={`task-${surgeryCase.id}-${item.key}`}
+                          className="text-sm font-medium leading-none cursor-pointer"
+                        >
+                          {item.label}
+                        </label>
+                      </div>
+                    );
+                  })}
+                </div>
               )}
             </div>
           )}
         </CardContent>
       </Card>
 
-      {/* Delete Confirmation Dialog */}
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Case</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete the case for {surgeryCase.petName}? This action cannot be undone.
+              Are you sure you want to delete this case? This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground">
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -381,4 +416,8 @@ export default function CaseCard({ surgeryCase, onEdit }: CaseCardProps) {
       </AlertDialog>
     </>
   );
+}
+
+function cn(...classes: (string | boolean | undefined)[]) {
+  return classes.filter(Boolean).join(' ');
 }

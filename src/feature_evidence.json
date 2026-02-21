@@ -2,10 +2,13 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-change-the-sex-field-display-format-on-the-case-card-to-show-female-female-spayed-male-or-male-neutered-instead-of-the-current-format",
-      "featureTitle": "Change the sex field display format on the Case Card to show 'Female', 'Female Spayed', 'Male', or 'Male Neutered' instead of the current format",
+      "featureId": "feature-in-the-dashboardview-component-make-each-task-group-clickable-so-that-clicking-on-a-case-s-task-section-navigates-directly-to-that-specific-case-card-in-the-cases-list-view",
+      "featureTitle": "In the DashboardView component, make each task group clickable so that clicking on a case's task section navigates directly to that specific case card in the Cases list view",
       "files": [
-        "frontend/src/features/cases/components/CaseCard.tsx"
+        "frontend/src/App.tsx",
+        "frontend/src/features/cases/components/CaseCard.tsx",
+        "frontend/src/features/cases/components/CasesListView.tsx",
+        "frontend/src/features/dashboard/components/DashboardView.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -23,11 +26,10 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-update-the-application-name-from-surgery-case-log-to-surgipaw-in-all-user-facing-locations-including-the-page-title-manifest-and-any-branding-text",
-      "featureTitle": "Update the application name from 'Surgery Case Log' to 'SurgiPaw' in all user-facing locations including the page title, manifest, and any branding text",
+      "featureId": "feature-add-visual-affordance-hover-state-cursor-pointer-or-subtle-styling-to-case-task-groups-in-the-dashboard-to-indicate-they-are-clickable",
+      "featureTitle": "Add visual affordance (hover state, cursor pointer, or subtle styling) to case task groups in the Dashboard to indicate they are clickable",
       "files": [
-        "frontend/index.html",
-        "frontend/public/manifest.json"
+        "frontend/src/features/dashboard/components/DashboardView.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -41,29 +43,6 @@
       ],
       "testIds": [
         "REQ-2"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-create-a-new-dashboard-view-that-displays-a-list-of-all-open-tasks-across-all-cases-and-provides-a-tally-count-of-how-many-open-tasks-exist",
-      "featureTitle": "Create a new Dashboard view that displays a list of all open tasks across all cases and provides a tally count of how many open tasks exist",
-      "files": [
-        "frontend/src/App.tsx",
-        "frontend/src/features/dashboard/components/DashboardView.tsx",
-        "frontend/src/features/dashboard/utils/openTasksCalculation.ts"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "camera@1.0.0",
-        "http-outcalls@3.0.0"
-      ],
-      "testIds": [
-        "REQ-3"
       ],
       "confidence": "high"
     }

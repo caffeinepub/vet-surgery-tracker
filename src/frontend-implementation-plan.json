@@ -1,70 +1,53 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Update sex display format, rename app to SurgiPaw, and add dashboard with open tasks tally",
+  "title": "Add direct case card navigation from Dashboard",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Change the sex field display format on the Case Card to show 'Female', 'Female Spayed', 'Male', or 'Male Neutered'",
+      "summary": "Make each task group in DashboardView clickable to navigate directly to the corresponding case card in Cases list view",
       "acceptanceCriteria": [
-        "The Case Card component displays sex as exactly 'Female', 'Female Spayed', 'Male', or 'Male Neutered'",
-        "The display matches the underlying data values (male, neutered, female, spayed) defined in types.ts",
-        "All existing cases show the updated format"
+        "Each case task group in the Dashboard is clickable",
+        "Clicking a case task group switches to the Cases list view",
+        "The target case card is scrolled into view and visually highlighted",
+        "Navigation works for all cases displayed in the Dashboard"
       ],
       "file_operations": [
         {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Add state management to track the selected case ID when navigating from Dashboard to Cases view. Pass the selectedCaseId as a prop to CasesListView and provide a callback to DashboardView for setting the selected case."
+        },
+        {
+          "path": "frontend/src/features/dashboard/components/DashboardView.tsx",
+          "operation": "modify",
+          "description": "Add onClick handlers to each case task group that call the onNavigateToCase callback (passed as a prop) with the case ID. Wrap each case task group in a clickable div or button element. Verify existing styling and structure to ensure clickability works with the current layout."
+        },
+        {
+          "path": "frontend/src/features/cases/components/CasesListView.tsx",
+          "operation": "modify",
+          "description": "Accept selectedCaseId as a prop. After rendering the filtered case list, add logic to scroll the target case card into view using scrollIntoView with smooth behavior. Apply a temporary highlight effect (e.g., border pulse or background flash) to the target case card using CSS transitions. Clear the selectedCaseId after highlighting to allow repeated navigation."
+        },
+        {
           "path": "frontend/src/features/cases/components/CaseCard.tsx",
           "operation": "modify",
-          "description": "Update the sex field display logic to map backend sex enum values to user-friendly labels: 'male' -> 'Male', 'maleNeutered' -> 'Male Neutered', 'female' -> 'Female', 'femaleSpayed' -> 'Female Spayed'. Create a helper function formatSexDisplay that performs this mapping and use it in the sex field rendering section of the CaseCard component."
+          "description": "Accept an isHighlighted prop and apply conditional styling (e.g., animated border or background color change) when true. Use CSS transitions for smooth visual feedback. Add a ref forwarding mechanism or id attribute to enable parent components to scroll to this card."
         }
       ]
     },
     {
       "id": "REQ-2",
-      "summary": "Update the application name from 'Surgery Case Log' to 'SurgiPaw' in all user-facing locations",
+      "summary": "Add visual affordance to case task groups in Dashboard to indicate they are clickable",
       "acceptanceCriteria": [
-        "The browser tab title shows 'SurgiPaw'",
-        "The PWA manifest displays 'SurgiPaw' as the app name",
-        "Any header or branding text in the UI shows 'SurgiPaw'"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/index.html",
-          "operation": "modify",
-          "description": "Update the <title> tag from 'Surgery Case Log' to 'SurgiPaw' to change the browser tab title."
-        },
-        {
-          "path": "frontend/public/manifest.json",
-          "operation": "modify",
-          "description": "Update the 'name' field from 'Surgery Case Log' to 'SurgiPaw' and update 'short_name' to 'SurgiPaw' to reflect the new app name in the PWA manifest."
-        }
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "summary": "Create a new Dashboard view that displays a list of all open tasks across all cases and provides a tally count",
-      "acceptanceCriteria": [
-        "A new Dashboard view is accessible from the main navigation",
-        "The dashboard shows a total count of open tasks across all surgery cases",
-        "The dashboard lists all open tasks with relevant case information (medical record, pet name, task type)",
-        "Tasks are considered 'open' if they are selected in the checklist but not yet completed",
-        "The dashboard updates in real-time when tasks are completed or cases are modified"
+        "Hover state provides clear visual feedback",
+        "Cursor changes to pointer when hovering over case task groups",
+        "Styling is consistent with the existing light blue theme"
       ],
       "file_operations": [
         {
           "path": "frontend/src/features/dashboard/components/DashboardView.tsx",
-          "operation": "create",
-          "description": "Create a new Dashboard view component that displays all open tasks across all surgery cases. Fetch all cases using the useGetAllCases hook and compute open tasks client-side by iterating through each case's task object to find tasks where Selected is true but Completed is false. Display a prominent tally count at the top showing total open tasks. Render a list of open task items, each showing the medical record number, pet name, task type label (e.g., 'Discharge Notes', 'Labs', 'Histo'), and a link to the case. Group or sort tasks by case or task type for better usability. Use shadcn/ui Card components for layout and ensure the view is responsive."
-        },
-        {
-          "path": "frontend/src/features/dashboard/utils/openTasksCalculation.ts",
-          "operation": "create",
-          "description": "Create a utility module that provides functions to calculate open tasks from case data. Export a function getOpenTasksFromCase(surgeryCase: SurgeryCase) that returns an array of open task objects containing task type, case reference, and relevant case details. Export a function getTotalOpenTasksCount(cases: SurgeryCase[]) that sums all open tasks across all cases. An open task is defined as one where the task's Selected property is true and Completed property is false (e.g., task.labsSelected === true && task.labsCompleted === false). Reference the checklist items from frontend/src/features/cases/checklist.ts for task labels and field mappings."
-        },
-        {
-          "path": "frontend/src/App.tsx",
           "operation": "modify",
-          "description": "Add a new 'dashboard' view option to the application's view state management. Update the view type to include 'dashboard' alongside 'cases' and 'settings'. Add navigation UI (e.g., a button or tab) that allows users to switch to the Dashboard view. Import and conditionally render the DashboardView component when the current view is 'dashboard'. Ensure the dashboard is accessible from the main navigation and defaults to an appropriate view on app load (e.g., keep 'cases' as default or introduce 'dashboard' as the landing view based on user preference)."
+          "description": "Add hover styles to case task group containers using Tailwind classes (e.g., hover:bg-blue-50, hover:shadow-md, transition-all, cursor-pointer). Ensure the hover effect is subtle and consistent with the existing light blue theme. Apply rounded corners and smooth transitions for a polished interactive feel."
         }
       ]
     }

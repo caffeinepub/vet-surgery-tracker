@@ -1,7 +1,7 @@
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import type { Task } from '../../../backend';
-import { CHECKLIST_ITEMS } from '../checklist';
+import { CHECKLIST_ITEMS, getTaskBorderColor, getTaskBackgroundColor } from '../checklist';
 
 interface ChecklistEditorProps {
   task: Task;
@@ -46,17 +46,16 @@ export default function ChecklistEditor({ task, onChange, disabled, mode = 'comp
     <div className="space-y-3 rounded-lg border border-border bg-card p-4">
       <div className="space-y-2">
         {itemsToDisplay.map((item) => {
-          // Determine if this item needs colored background
-          const isHisto = item.key === 'histo';
-          const isImaging = item.key === 'imaging';
+          const borderColor = getTaskBorderColor(item.color);
+          const backgroundColor = getTaskBackgroundColor(item.color);
           
           return (
             <div 
               key={item.key} 
               className={cn(
-                'flex items-center space-x-2 rounded-md p-2 -mx-2',
-                isHisto && 'bg-purple-100 dark:bg-purple-950/30',
-                isImaging && 'bg-blue-100 dark:bg-blue-950/30'
+                'flex items-center space-x-2 rounded-md p-2 -mx-2 border-2',
+                borderColor,
+                backgroundColor
               )}
             >
               <Checkbox

@@ -1,10 +1,15 @@
 import { useGetAllCases } from '../../../hooks/useQueries';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ClipboardList, CheckCircle2 } from 'lucide-react';
+import { ClipboardList, CheckCircle2, ChevronRight } from 'lucide-react';
 import { getOpenTasksFromCase, getTotalOpenTasksCount } from '../utils/openTasksCalculation';
+import { CHECKLIST_ITEMS, getTaskBorderColor, getTaskBackgroundColor } from '../../cases/checklist';
 
-export default function DashboardView() {
+interface DashboardViewProps {
+  onNavigateToCase: (caseId: bigint) => void;
+}
+
+export default function DashboardView({ onNavigateToCase }: DashboardViewProps) {
   const { data: cases = [], isLoading } = useGetAllCases();
 
   if (isLoading) {
@@ -65,31 +70,52 @@ export default function DashboardView() {
             {Array.from(tasksByCase.entries()).map(([caseId, tasks]) => {
               const firstTask = tasks[0];
               return (
-                <Card key={caseId} className="bg-white dark:bg-card">
+                <Card 
+                  key={caseId} 
+                  className="bg-white dark:bg-card cursor-pointer transition-all hover:shadow-md hover:bg-blue-50 group"
+                  onClick={() => onNavigateToCase(firstTask.caseId)}
+                >
                   <CardHeader className="pb-3">
                     <div className="flex items-start justify-between">
-                      <div>
-                        <CardTitle className="text-lg text-primary">{firstTask.petName}</CardTitle>
+                      <div className="flex-1">
+                        <CardTitle className="text-lg text-primary group-hover:text-primary/80 transition-colors">
+                          {firstTask.petName}
+                        </CardTitle>
                         <p className="text-sm text-muted-foreground mt-1">
                           MRN: {firstTask.medicalRecordNumber} | Owner: {firstTask.ownerLastName}
                         </p>
                       </div>
-                      <Badge variant="secondary" className="ml-2">
-                        {tasks.length} {tasks.length === 1 ? 'task' : 'tasks'}
-                      </Badge>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="secondary" className="ml-2">
+                          {tasks.length} {tasks.length === 1 ? 'task' : 'tasks'}
+                        </Badge>
+                        <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                      </div>
                     </div>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-2">
-                      {tasks.map((task, index) => (
-                        <div
-                          key={`${task.caseId}-${task.taskType}`}
-                          className="flex items-center gap-2 text-sm p-2 rounded-md bg-muted/50"
-                        >
-                          <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
-                          <span className="font-medium">{task.taskLabel}</span>
-                        </div>
-                      ))}
+                      {tasks.map((task) => {
+                        // Find the checklist item to get the color
+                        const checklistItem = CHECKLIST_ITEMS.find(item => item.label === task.taskLabel);
+                        const color = checklistItem?.color || 'gray';
+                        const borderColor = getTaskBorderColor(color);
+                        const backgroundColor = getTaskBackgroundColor(color);
+                        
+                        return (
+                          <div
+                            key={`${task.caseId}-${task.taskType}`}
+                            className={cn(
+                              'flex items-center gap-2 text-sm p-2 rounded-md border-2',
+                              borderColor,
+                              backgroundColor
+                            )}
+                          >
+                            <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
+                            <span className="font-medium">{task.taskLabel}</span>
+                          </div>
+                        );
+                      })}
                     </div>
                   </CardContent>
                 </Card>
@@ -110,4 +136,8 @@ export default function DashboardView() {
       )}
     </div>
   );
+}
+
+function cn(...classes: (string | boolean | undefined)[]) {
+  return classes.filter(Boolean).join(' ');
 }

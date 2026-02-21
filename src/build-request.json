@@ -1,75 +1,54 @@
 {
   "kind": "build_request",
-  "title": "Update sex display format, rename app to SurgiPaw, and add dashboard with open tasks tally",
+  "title": "Add direct case card navigation from Dashboard",
   "projectName": "SurgiPaw",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Change the sex field display format on the Case Card to show 'Female', 'Female Spayed', 'Male', or 'Male Neutered' instead of the current format",
+      "text": "In the DashboardView component, make each task group clickable so that clicking on a case's task section navigates directly to that specific case card in the Cases list view",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-last"
+          "msg-latest"
         ],
         "quotes": [
-          "On the Case Card Display Sex as: Female, Female Spayed, Male, or Male Neutered"
+          "From the Dashboard view, add a way to directly access a case card"
         ]
       },
       "acceptanceCriteria": [
-        "The Case Card component displays sex as exactly 'Female', 'Female Spayed', 'Male', or 'Male Neutered'",
-        "The display matches the underlying data values (male, neutered, female, spayed) defined in types.ts",
-        "All existing cases show the updated format"
+        "Each case task group in the Dashboard is clickable",
+        "Clicking a case task group switches to the Cases list view",
+        "The target case card is scrolled into view and visually highlighted",
+        "Navigation works for all cases displayed in the Dashboard"
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Update the application name from 'Surgery Case Log' to 'SurgiPaw' in all user-facing locations including the page title, manifest, and any branding text",
+      "text": "Add visual affordance (hover state, cursor pointer, or subtle styling) to case task groups in the Dashboard to indicate they are clickable",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-last"
-        ],
-        "quotes": [
-          "Change app name to SurgiPaw"
+          "msg-latest"
         ]
       },
       "acceptanceCriteria": [
-        "The browser tab title shows 'SurgiPaw'",
-        "The PWA manifest displays 'SurgiPaw' as the app name",
-        "Any header or branding text in the UI shows 'SurgiPaw'"
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "text": "Create a new Dashboard view that displays a list of all open tasks across all cases and provides a tally count of how many open tasks exist",
-      "target": "both",
-      "source": {
-        "messageIds": [
-          "msg-last"
-        ],
-        "quotes": [
-          "Create Dashboard that lists/provides a tally of open tasks"
-        ]
-      },
-      "acceptanceCriteria": [
-        "A new Dashboard view is accessible from the main navigation",
-        "The dashboard shows a total count of open tasks across all surgery cases",
-        "The dashboard lists all open tasks with relevant case information (medical record, pet name, task type)",
-        "Tasks are considered 'open' if they are selected in the checklist but not yet completed",
-        "The dashboard updates in real-time when tasks are completed or cases are modified"
+        "Hover state provides clear visual feedback",
+        "Cursor changes to pointer when hovering over case task groups",
+        "Styling is consistent with the existing light blue theme"
       ]
     }
   ],
   "constraints": [
-    "Maintain the existing sex value options (male, neutered, female, spayed) in the backend schema",
-    "Do not modify Internet Identity authentication flow",
-    "Preserve all existing case management functionality"
+    "Maintain existing Dashboard layout and task display format",
+    "Do not modify the backend main.mo file",
+    "Preserve color-coded task badges and existing styling"
   ],
   "nonGoals": [
-    "Changing the case form input for sex field",
-    "Modifying the CSV import/export format for sex values",
-    "Adding new task types beyond the existing seven"
+    "Adding new case management features",
+    "Modifying the CaseCard component structure",
+    "Changing how tasks are calculated or displayed",
+    "Adding search or filter functionality to the Dashboard"
   ],
   "imageRequirements": {
     "required": [],

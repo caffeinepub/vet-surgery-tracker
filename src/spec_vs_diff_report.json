@@ -1,29 +1,17 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-20T23:54:25.011Z",
-  "summary": "The diff implements all three requirements: REQ-1 (sex display format), REQ-2 (app rename to SurgiPaw), and REQ-3 (dashboard with open tasks). All acceptance criteria appear to be met with appropriate backend schema changes, frontend display logic, navigation integration, and real-time updates via React Query.",
+  "generatedAt": "2026-02-21T02:32:22.664Z",
+  "summary": "The diff implements both requirements completely. REQ-1 is fulfilled by adding navigation functionality from Dashboard to Cases view with case highlighting and scrolling. REQ-2 is satisfied with hover states, cursor pointer, and visual feedback on task groups. No missing requirements or hallucinated features detected.",
   "missing_requirements": [],
-  "hallucinated_features": [
-    {
-      "description": "Backend schema change from enum values (male, neutered, female, spayed) to (male, maleNeutered, female, femaleSpayed)",
-      "reason": "The BuildRequest explicitly constrains: 'Maintain the existing sex value options (male, neutered, female, spayed) in the backend schema'. The diff shows backend/main.mo changed the Sex type to use #maleNeutered and #femaleSpayed instead of the required #neutered and #spayed values.",
-      "evidence": [
-        "backend/main.mo"
-      ]
-    }
-  ],
-  "confidence": 0.92,
+  "hallucinated_features": [],
+  "confidence": 0.95,
   "changed_files": [
-    "backend/main.mo",
-    "backend/migration.mo",
     "frontend-file-summaries.txt",
-    "frontend/index.html",
-    "frontend/public/manifest.json",
     "frontend/src/App.tsx",
     "frontend/src/features/cases/components/CaseCard.tsx",
+    "frontend/src/features/cases/components/CasesListView.tsx",
     "frontend/src/features/dashboard/components/DashboardView.tsx",
-    "frontend/src/features/dashboard/utils/openTasksCalculation.ts",
     "project_state.json"
   ]
 }

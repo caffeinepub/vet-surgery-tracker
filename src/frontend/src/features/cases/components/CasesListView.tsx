@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { useGetAllCases } from '../../../hooks/useQueries';
 import { useActor } from '../../../hooks/useActor';
 import type { SurgeryCase } from '../../../backend';
@@ -18,7 +18,12 @@ import type { Species } from '../../../backend';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
-export default function CasesListView() {
+interface CasesListViewProps {
+  selectedCaseId?: bigint | null;
+  onClearSelectedCase?: () => void;
+}
+
+export default function CasesListView({ selectedCaseId, onClearSelectedCase }: CasesListViewProps) {
   const { actor, isFetching: actorFetching } = useActor();
   const { data: cases = [], isLoading, error } = useGetAllCases();
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -26,7 +31,9 @@ export default function CasesListView() {
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOption, setSortOption] = useState<SortOption>('arrival-date-newest');
   const [selectedSpecies, setSelectedSpecies] = useState<Set<Species>>(new Set());
-  const [selectedTasks, setSelectedTasks] = useState<Set<string>>(new Set());
+  const [selectedTaskTypes, setSelectedTaskTypes] = useState<Set<string>>(new Set());
+  const [highlightedCaseId, setHighlightedCaseId] = useState<bigint | null>(null);
+  const caseRefs = useRef<Map<string, HTMLDivElement>>(new Map());
 
   const filteredAndSortedCases = useMemo(() => {
     let result = cases;
@@ -40,15 +47,39 @@ export default function CasesListView() {
     result = filterCasesBySpecies(result, selectedSpecies);
 
     // Apply tasks filter
-    result = filterCasesByTaskTypes(result, selectedTasks);
+    result = filterCasesByTaskTypes(result, selectedTaskTypes);
 
     // Apply sorting
     result = sortCases(result, sortOption);
 
     return result;
-  }, [cases, searchQuery, sortOption, selectedSpecies, selectedTasks]);
+  }, [cases, searchQuery, sortOption, selectedSpecies, selectedTaskTypes]);
 
-  const hasActiveFilters = selectedSpecies.size > 0 || selectedTasks.size > 0;
+  // Handle scrolling to and highlighting the selected case
+  useEffect(() => {
+    if (selectedCaseId !== null && selectedCaseId !== undefined) {
+      const caseIdStr = selectedCaseId.toString();
+      const caseElement = caseRefs.current.get(caseIdStr);
+      
+      if (caseElement) {
+        // Small delay to ensure rendering is complete
+        setTimeout(() => {
+          caseElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          setHighlightedCaseId(selectedCaseId);
+          
+          // Clear highlight after animation
+          setTimeout(() => {
+            setHighlightedCaseId(null);
+            if (onClearSelectedCase) {
+              onClearSelectedCase();
+            }
+          }, 2000);
+        }, 100);
+      }
+    }
+  }, [selectedCaseId, filteredAndSortedCases, onClearSelectedCase]);
+
+  const hasActiveFilters = selectedSpecies.size > 0 || selectedTaskTypes.size > 0;
   const totalCases = cases.length;
   const filteredCount = filteredAndSortedCases.length;
 
@@ -117,7 +148,7 @@ export default function CasesListView() {
               </TooltipTrigger>
               {!actorReady && (
                 <TooltipContent>
-                  <p>Backend is initializing...</p>
+                  <p>Connecting to backend...</p>
                 </TooltipContent>
               )}
             </Tooltip>
@@ -125,28 +156,28 @@ export default function CasesListView() {
         </div>
       </div>
 
-      {/* CSV Import/Export */}
-      <CsvImportExportPanel cases={cases} />
-
       {/* Search, Sort, and Filter Controls */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="flex-1">
           <CasesSearchBar value={searchQuery} onChange={setSearchQuery} />
         </div>
         <div className="flex gap-2">
+          <CasesSortControl value={sortOption} onSortChange={setSortOption} />
           <CasesSpeciesFilter
             selectedSpecies={selectedSpecies}
             onSpeciesChange={setSelectedSpecies}
           />
           <CasesTasksFilter
-            selectedTaskTypes={selectedTasks}
-            onTaskTypesChange={setSelectedTasks}
+            selectedTaskTypes={selectedTaskTypes}
+            onTaskTypesChange={setSelectedTaskTypes}
           />
-          <CasesSortControl value={sortOption} onSortChange={setSortOption} />
         </div>
       </div>
 
-      {/* Cases Grid */}
+      {/* CSV Import/Export Panel */}
+      <CsvImportExportPanel cases={cases} />
+
+      {/* Cases List */}
       {filteredAndSortedCases.length === 0 ? (
         <div className="text-center py-12">
           <p className="text-muted-foreground">
@@ -156,20 +187,31 @@ export default function CasesListView() {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid gap-4">
           {filteredAndSortedCases.map((surgeryCase) => (
-            <CaseCard 
-              key={surgeryCase.id.toString()} 
-              surgeryCase={surgeryCase}
-              onEdit={handleEdit}
-            />
+            <div
+              key={surgeryCase.id.toString()}
+              ref={(el) => {
+                if (el) {
+                  caseRefs.current.set(surgeryCase.id.toString(), el);
+                } else {
+                  caseRefs.current.delete(surgeryCase.id.toString());
+                }
+              }}
+            >
+              <CaseCard
+                surgeryCase={surgeryCase}
+                onEdit={handleEdit}
+                isHighlighted={highlightedCaseId?.toString() === surgeryCase.id.toString()}
+              />
+            </div>
           ))}
         </div>
       )}
 
-      {/* Dialogs */}
-      <CaseFormDialog 
-        open={isFormOpen} 
+      {/* Case Form Dialog */}
+      <CaseFormDialog
+        open={isFormOpen}
         onOpenChange={handleFormClose}
         existingCase={editingCase}
       />

@@ -1,73 +1,54 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-20T23:54:25.014Z",
+  "generatedAt": "2026-02-21T02:32:22.666Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 3,
-    "implemented": 3,
+    "total": 2,
+    "implemented": 2,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Change the sex field display format on the Case Card to show 'Female', 'Female Spayed', 'Male', or 'Male Neutered' instead of the current format",
+        "summary": "In the DashboardView component, make each task group clickable so that clicking on a case's task section navigates directly to that specific case card in the Cases list view",
         "status": "implemented",
         "plannedFiles": [
+          "frontend/src/App.tsx",
+          "frontend/src/features/dashboard/components/DashboardView.tsx",
+          "frontend/src/features/cases/components/CasesListView.tsx",
           "frontend/src/features/cases/components/CaseCard.tsx"
         ],
         "matchedFiles": [
+          "frontend/src/App.tsx",
+          "frontend/src/features/dashboard/components/DashboardView.tsx",
+          "frontend/src/features/cases/components/CasesListView.tsx",
           "frontend/src/features/cases/components/CaseCard.tsx"
         ]
       },
       {
         "id": "REQ-2",
-        "summary": "Update the application name from 'Surgery Case Log' to 'SurgiPaw' in all user-facing locations including the page title, manifest, and any branding text",
+        "summary": "Add visual affordance (hover state, cursor pointer, or subtle styling) to case task groups in the Dashboard to indicate they are clickable",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/index.html",
-          "frontend/public/manifest.json"
+          "frontend/src/features/dashboard/components/DashboardView.tsx"
         ],
         "matchedFiles": [
-          "frontend/index.html",
-          "frontend/public/manifest.json"
-        ]
-      },
-      {
-        "id": "REQ-3",
-        "summary": "Create a new Dashboard view that displays a list of all open tasks across all cases and provides a tally count of how many open tasks exist",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/features/dashboard/components/DashboardView.tsx",
-          "frontend/src/features/dashboard/utils/openTasksCalculation.ts",
-          "frontend/src/App.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/features/dashboard/components/DashboardView.tsx",
-          "frontend/src/features/dashboard/utils/openTasksCalculation.ts",
-          "frontend/src/App.tsx"
+          "frontend/src/features/dashboard/components/DashboardView.tsx"
         ]
       }
     ]
   },
   "changedFiles": [
-    "backend/main.mo",
-    "backend/migration.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/index.html",
-    "frontend/public/manifest.json",
     "frontend/src/App.tsx",
-    "frontend/src/backend.d.ts",
-    "frontend/src/backend.ts",
-    "frontend/src/declarations/backend.did.d.ts",
-    "frontend/src/declarations/backend.did.js",
     "frontend/src/features/cases/components/CaseCard.tsx",
+    "frontend/src/features/cases/components/CasesListView.tsx",
     "frontend/src/features/dashboard/components/DashboardView.tsx",
-    "frontend/src/features/dashboard/utils/openTasksCalculation.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

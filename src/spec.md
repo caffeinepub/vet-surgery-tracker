@@ -1,11 +1,12 @@
 # Specification
 
 ## Summary
-**Goal:** Update sex field display format, rename the application to SurgiPaw, and add a dashboard showing open tasks across all surgery cases.
+**Goal:** Enable direct navigation from Dashboard task groups to specific case cards in the Cases list view.
 
 **Planned changes:**
-- Change sex field display on Case Card to show 'Female', 'Female Spayed', 'Male', or 'Male Neutered'
-- Rename application from 'Surgery Case Log' to 'SurgiPaw' in page title, manifest, and all branding
-- Create a new Dashboard view that lists all open tasks and displays a total count
+- Make each case task group in the Dashboard clickable
+- Implement navigation that switches to the Cases list view and scrolls to the target case card
+- Add visual affordance (hover state, pointer cursor) to indicate clickable case task groups
+- Highlight the target case card when navigated to from the Dashboard
 
-**User-visible outcome:** Users will see the updated sex format on case cards, the application will be branded as SurgiPaw, and they can access a new dashboard that provides a quick overview of all open tasks across their surgery cases with a total count.
+**User-visible outcome:** Users can click on any case's task section in the Dashboard to instantly jump to that specific case card in the Cases list, with the card highlighted for easy identification.
