@@ -18,8 +18,9 @@ import { parseStructuredText } from '../parsing/parseStructuredText';
 import { toast } from 'sonner';
 import DateField from './DateField';
 import ChecklistEditor from './ChecklistEditor';
-import { Sparkles, AlertCircle, Loader2 } from 'lucide-react';
+import { Sparkles, AlertCircle, Loader2, Mic, MicOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useSpeechRecognition } from '../hooks/useSpeechRecognition';
 
 interface CaseFormDialogProps {
   open: boolean;
@@ -60,6 +61,17 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
   // Refs for date field auto-advance
   const arrivalDateRef = useRef<HTMLInputElement>(null);
   const petNameRef = useRef<HTMLInputElement>(null);
+
+  // Speech recognition hook
+  const {
+    isRecording,
+    transcript,
+    error: speechError,
+    isSupported: isSpeechSupported,
+    startRecording,
+    stopRecording,
+    resetTranscript,
+  } = useSpeechRecognition();
 
   // Debounce the MRN input for lookup
   const debouncedMRN = useDebouncedValue(medicalRecordNumber, 500);
@@ -118,6 +130,31 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
     }
   }, [matchedCase, editedFields]);
 
+  // Handle transcript changes - when recording stops and transcript is available
+  useEffect(() => {
+    if (!isRecording && transcript.trim()) {
+      console.log('[CaseFormDialog] Voice recording stopped, transcript available:', transcript);
+      
+      // Replace the text in the Quick Fill box
+      setStructuredText(transcript);
+      
+      // Automatically parse the transcript
+      handleQuickFill(transcript);
+      
+      // Reset the transcript for next recording
+      resetTranscript();
+    }
+  }, [isRecording, transcript]);
+
+  // Show speech recognition errors
+  useEffect(() => {
+    if (speechError) {
+      toast.error('Voice Recording Error', {
+        description: speechError,
+      });
+    }
+  }, [speechError]);
+
   // Initialize form with existing case data when editing
   useEffect(() => {
     if (existingCase) {
@@ -152,6 +189,7 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
     setErrorDetails(null);
     setEditedFields(new Set());
     lastPrefilledCaseId.current = null;
+    resetTranscript();
   };
 
   // Reset form when dialog closes
@@ -163,6 +201,7 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
         setErrorDetails(null);
         setEditedFields(new Set());
         lastPrefilledCaseId.current = null;
+        resetTranscript();
       }
     }
   }, [open, isEditing]);
@@ -171,20 +210,22 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
     setEditedFields((prev) => new Set(prev).add(fieldName));
   };
 
-  const handleQuickFill = () => {
-    if (!structuredText.trim()) {
+  const handleQuickFill = (textToParse?: string) => {
+    const text = textToParse || structuredText;
+    
+    if (!text.trim()) {
       toast.error('Please enter text to parse');
       return;
     }
 
     setIsParsing(true);
     console.log('[CaseFormDialog] Parsing structured text', {
-      textLength: structuredText.length,
+      textLength: text.length,
       timestamp: new Date().toISOString(),
     });
 
     try {
-      const parsed = parseStructuredText(structuredText);
+      const parsed = parseStructuredText(text);
       console.log('[CaseFormDialog] Parsed data', { parsed });
 
       let appliedCount = 0;
@@ -236,7 +277,7 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
       }
 
       if (appliedCount > 0) {
-        toast.success(`Filled ${appliedCount} field${appliedCount > 1 ? 's' : ''} from text`);
+        toast.success(`Filled ${appliedCount} field${appliedCount > 1 ? 's' : ''} from ${textToParse ? 'voice' : 'text'}`);
         setStructuredText('');
       } else {
         toast.info('No new fields to fill', {
@@ -250,6 +291,14 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
       });
     } finally {
       setIsParsing(false);
+    }
+  };
+
+  const handleVoiceToggle = () => {
+    if (isRecording) {
+      stopRecording();
+    } else {
+      startRecording();
     }
   };
 
@@ -392,20 +441,52 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
           {/* Quick Fill Section - Always Visible */}
           {!isEditing && (
             <div className="space-y-3 p-4 border rounded-lg bg-muted/30">
-              <div className="flex items-center gap-2">
-                <Sparkles className="h-4 w-4 text-primary" />
-                <Label className="text-sm font-semibold">Quick Fill from Text</Label>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="h-4 w-4 text-primary" />
+                  <Label className="text-sm font-semibold">Quick Fill from Text</Label>
+                </div>
+                <Button
+                  type="button"
+                  onClick={handleVoiceToggle}
+                  disabled={!actorReady || !isSpeechSupported}
+                  variant={isRecording ? 'destructive' : 'outline'}
+                  size="sm"
+                  className={cn(
+                    'transition-all',
+                    isRecording && 'animate-pulse'
+                  )}
+                  title={!isSpeechSupported ? 'Voice recording not supported in this browser' : isRecording ? 'Stop recording' : 'Start voice recording'}
+                >
+                  {isRecording ? (
+                    <>
+                      <MicOff className="h-4 w-4 mr-2" />
+                      Stop
+                    </>
+                  ) : (
+                    <>
+                      <Mic className="h-4 w-4 mr-2" />
+                      Voice
+                    </>
+                  )}
+                </Button>
               </div>
+              {isRecording && (
+                <div className="flex items-center gap-2 text-sm text-destructive">
+                  <div className="h-2 w-2 rounded-full bg-destructive animate-pulse" />
+                  Recording... Click "Stop" when finished
+                </div>
+              )}
               <Textarea
-                placeholder="Paste case information here (e.g., from a document or email)..."
+                placeholder="Paste case information here or use voice recording..."
                 value={structuredText}
                 onChange={(e) => setStructuredText(e.target.value)}
                 className="min-h-[100px]"
-                disabled={!actorReady}
+                disabled={!actorReady || isRecording}
               />
               <Button
                 type="button"
-                onClick={handleQuickFill}
+                onClick={() => handleQuickFill()}
                 disabled={!structuredText.trim() || isParsing || !actorReady}
                 className="w-full"
               >
@@ -524,7 +605,7 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
                   }}
                   disabled={!actorReady || isSubmitting}
                 >
-                  <SelectTrigger 
+                  <SelectTrigger
                     id="species"
                     className={cn(isAutoFilled('species') && 'bg-blue-50 dark:bg-blue-950')}
                   >
@@ -549,7 +630,7 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
                     setBreed(e.target.value);
                     markFieldAsEdited('breed');
                   }}
-                  placeholder="e.g., Labrador"
+                  placeholder="e.g., Labrador Retriever"
                   disabled={!actorReady || isSubmitting}
                   className={cn(isAutoFilled('breed') && 'bg-blue-50 dark:bg-blue-950')}
                 />
@@ -567,7 +648,7 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
                   }}
                   disabled={!actorReady || isSubmitting}
                 >
-                  <SelectTrigger 
+                  <SelectTrigger
                     id="sex"
                     className={cn(isAutoFilled('sex') && 'bg-blue-50 dark:bg-blue-950')}
                   >
@@ -599,9 +680,9 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
             </div>
           </div>
 
-          {/* Case Details */}
+          {/* Clinical Information */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Case Details</h3>
+            <h3 className="text-lg font-semibold">Clinical Information</h3>
             
             <div className="space-y-2">
               <Label htmlFor="presentingComplaint">Presenting Complaint</Label>
@@ -609,12 +690,15 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
                 id="presentingComplaint"
                 value={presentingComplaint}
                 onChange={(e) => {
-                    setPresentingComplaint(e.target.value);
-                    markFieldAsEdited('presentingComplaint');
-                  }}
-                placeholder="Brief description of the case..."
+                  setPresentingComplaint(e.target.value);
+                  markFieldAsEdited('presentingComplaint');
+                }}
+                placeholder="Brief description of the reason for visit"
+                className={cn(
+                  'min-h-[80px]',
+                  isAutoFilled('presentingComplaint') && 'bg-blue-50 dark:bg-blue-950'
+                )}
                 disabled={!actorReady || isSubmitting}
-                className={cn('min-h-[80px]', isAutoFilled('presentingComplaint') && 'bg-blue-50 dark:bg-blue-950')}
               />
             </div>
 
@@ -624,16 +708,16 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
                 id="notes"
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                placeholder="Additional notes..."
-                disabled={!actorReady || isSubmitting}
+                placeholder="Additional notes or observations"
                 className="min-h-[80px]"
+                disabled={!actorReady || isSubmitting}
               />
             </div>
           </div>
 
           {/* Task Selection */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Remaining Tasks</h3>
+            <h3 className="text-lg font-semibold">Tasks</h3>
             <ChecklistEditor
               task={task}
               onChange={setTask}

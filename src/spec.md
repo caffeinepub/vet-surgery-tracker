@@ -1,11 +1,12 @@
 # Specification
 
 ## Summary
-**Goal:** Revert the entire project to Version 67 state to eliminate AuthProvider-related errors.
+**Goal:** Add voice recording capability to the Quick Fill from Text feature, allowing users to dictate case information instead of typing.
 
 **Planned changes:**
-- Restore all backend files (main.mo) to Version 67 implementation
-- Restore all frontend files to Version 67 implementation
-- Remove AuthProvider context wrapper and authentication context changes introduced in Versions 68-71
+- Add a microphone button positioned to the right of the "Quick Fill from Text" label
+- Implement toggle voice recording using Web Speech API (first click starts, second click stops)
+- Automatically transcribe recorded speech to text and replace existing text in the Quick Fill input box
+- Process transcribed text through existing parseStructuredText logic to auto-populate form fields
 
-**User-visible outcome:** The application returns to its stable Version 67 state with the authentication flow working as before, eliminating any AuthProvider wrapping errors.
+**User-visible outcome:** Users can click a microphone button to dictate case information, which is automatically transcribed and used to populate the surgery case form fields.

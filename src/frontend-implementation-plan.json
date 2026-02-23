@@ -1,133 +1,67 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Revert to Version 67",
+  "title": "Add voice recording to Quick Fill from Text feature",
   "requirements": [
     {
-      "id": "REQ-1",
-      "summary": "Restore the complete project state from Version 67, including all frontend files and configuration",
+      "id": "REQ-3",
+      "summary": "Add microphone button positioned on the right side of the screen, horizontally aligned with the 'Quick Fill from Text' label in the CaseFormDialog component",
       "acceptanceCriteria": [
-        "All files match the exact state they were in at Version 67",
-        "Frontend components are restored to Version 67 implementation",
-        "AuthProvider-related changes from Versions 68-71 are removed",
-        "Application builds and deploys successfully with Version 67 code"
+        "Microphone button is visible and positioned to the right of the 'Quick Fill from Text' label",
+        "Button styling is consistent with existing UI design patterns",
+        "Button displays appropriate microphone icon (mic when idle, recording indicator when active)"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/main.tsx",
-          "operation": "modify",
-          "description": "Restore the main.tsx entry point to its Version 67 state, ensuring the provider hierarchy and component structure match Version 67 exactly"
-        },
-        {
-          "path": "frontend/src/App.tsx",
-          "operation": "modify",
-          "description": "Restore App.tsx to Version 67 implementation, reverting any routing, state management, or component structure changes made after Version 67"
-        },
-        {
-          "path": "frontend/src/contexts/AuthContext.tsx",
-          "operation": "modify",
-          "description": "Restore AuthContext.tsx to Version 67 implementation, removing any AuthProvider wrapper changes or authentication context modifications introduced in Versions 68-71"
-        },
-        {
-          "path": "frontend/src/hooks/useInternetIdentity.ts",
-          "operation": "modify",
-          "description": "Restore useInternetIdentity hook to Version 67 state, reverting any authentication flow changes made after Version 67"
-        },
-        {
-          "path": "frontend/src/hooks/useActor.ts",
-          "operation": "modify",
-          "description": "Restore useActor hook to Version 67 implementation, ensuring actor initialization and authentication integration match Version 67"
-        },
-        {
-          "path": "frontend/src/features/auth/components/AuthView.tsx",
-          "operation": "modify",
-          "description": "Restore AuthView component to Version 67 state, reverting any layout or authentication flow changes"
-        },
-        {
-          "path": "frontend/src/features/auth/components/LoginForm.tsx",
-          "operation": "modify",
-          "description": "Restore LoginForm to Version 67 implementation, ensuring form handling and validation match Version 67"
-        },
-        {
-          "path": "frontend/src/features/auth/components/RegistrationForm.tsx",
-          "operation": "modify",
-          "description": "Restore RegistrationForm to Version 67 implementation, reverting any form changes made after Version 67"
-        },
-        {
-          "path": "frontend/src/features/auth/components/LogoutButton.tsx",
-          "operation": "modify",
-          "description": "Restore LogoutButton to Version 67 state, ensuring logout flow matches Version 67"
-        },
-        {
-          "path": "frontend/src/features/auth/components/ProfileSetupModal.tsx",
-          "operation": "modify",
-          "description": "Restore ProfileSetupModal to Version 67 implementation, reverting any modal behavior or styling changes"
-        },
-        {
           "path": "frontend/src/features/cases/components/CaseFormDialog.tsx",
           "operation": "modify",
-          "description": "Restore CaseFormDialog to Version 67 state, ensuring form dialog implementation matches Version 67"
-        },
-        {
-          "path": "frontend/src/features/cases/components/CasesListView.tsx",
-          "operation": "modify",
-          "description": "Restore CasesListView to Version 67 implementation, reverting any list rendering or interaction changes"
-        },
-        {
-          "path": "frontend/src/features/dashboard/components/DashboardView.tsx",
-          "operation": "modify",
-          "description": "Restore DashboardView to Version 67 state, ensuring dashboard layout and functionality match Version 67"
-        },
-        {
-          "path": "frontend/src/features/settings/components/SettingsView.tsx",
-          "operation": "modify",
-          "description": "Restore SettingsView to Version 67 implementation, reverting any settings UI or functionality changes"
-        },
-        {
-          "path": "frontend/src/hooks/useQueries.ts",
-          "operation": "modify",
-          "description": "Restore useQueries hook to Version 67 state, ensuring query definitions and data fetching logic match Version 67"
-        },
-        {
-          "path": "frontend/index.css",
-          "operation": "modify",
-          "description": "Restore global CSS to Version 67 state, ensuring theme variables and styling match Version 67"
-        },
-        {
-          "path": "frontend/src/index.css",
-          "operation": "modify",
-          "description": "Restore application CSS to Version 67 state, reverting any color scheme or styling changes made after Version 67"
-        },
-        {
-          "path": "frontend/tailwind.config.js",
-          "operation": "modify",
-          "description": "Restore Tailwind configuration to Version 67 state, ensuring theme customization matches Version 67"
+          "description": "Add a microphone button positioned on the right side of the screen, horizontally aligned with the 'Quick Fill from Text' label. Place the button in a flex container with the label to achieve horizontal alignment. Use lucide-react icons (Mic for idle state, MicOff or activity indicator for recording state). Style the button consistently with existing dialog buttons using shadcn/ui button variants. Ensure the button is visually distinct when recording is active (e.g., pulsing animation, color change)."
         }
       ]
     },
     {
-      "id": "REQ-2",
-      "summary": "Remove any AuthProvider context wrapper or authentication context changes that were introduced after Version 67",
+      "id": "REQ-4",
+      "summary": "Implement voice recording functionality using the Web Speech API with toggle behavior - first click starts recording, second click stops recording",
       "acceptanceCriteria": [
-        "AuthContext implementation matches Version 67",
-        "No AuthProvider wrapping errors occur in production build",
-        "Authentication flow works as it did in Version 67"
+        "First click on microphone button initiates voice recording using Web Speech API",
+        "Button shows visual feedback indicating recording is in progress",
+        "Second click on microphone button stops the recording",
+        "Recording state is clearly communicated to the user through button appearance",
+        "Handle browser permissions appropriately with user-friendly error messages if microphone access is denied"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/contexts/AuthContext.tsx",
-          "operation": "modify",
-          "description": "Verify and restore AuthContext provider structure to Version 67, removing any nested provider wrapping or context changes that cause build errors"
+          "path": "frontend/src/features/cases/hooks/useSpeechRecognition.ts",
+          "operation": "create",
+          "description": "Create a custom React hook that encapsulates Web Speech API functionality. Implement toggle behavior: first invocation starts SpeechRecognition, second invocation stops it. Return state including isRecording (boolean), transcript (accumulated text), error (for permission/support issues), and functions startRecording, stopRecording, and resetTranscript. Handle browser compatibility checks (verify window.SpeechRecognition or window.webkitSpeechRecognition exists). Configure recognition with continuous=true and interimResults=false for best results. Handle permission errors, not-supported errors, and other speech recognition errors with clear error messages. Clean up recognition instance on unmount."
         },
         {
-          "path": "frontend/src/main.tsx",
+          "path": "frontend/src/features/cases/components/CaseFormDialog.tsx",
           "operation": "modify",
-          "description": "Verify provider hierarchy in main.tsx matches Version 67, ensuring no duplicate or incorrectly nested AuthProvider wrappers exist"
+          "description": "Integrate the useSpeechRecognition hook into the CaseFormDialog component. Wire the microphone button click handler to toggle recording state (call startRecording on first click, stopRecording on second click). Display visual feedback during recording: change button icon, add pulsing animation class, and optionally show a 'Recording...' indicator near the button. Handle error states by displaying toast notifications or inline error messages when microphone access is denied or speech recognition is not supported. Disable the button while processing or if speech recognition is not supported in the browser."
+        }
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "summary": "When voice recording is stopped, automatically convert the recorded speech to text and replace any existing text in the Quick Fill from Text input box with the transcribed text",
+      "acceptanceCriteria": [
+        "Speech-to-text conversion completes automatically when recording stops",
+        "Transcribed text completely replaces any existing text in the Quick Fill input field",
+        "The existing parseStructuredText functionality processes the transcribed text to auto-populate form fields",
+        "User receives appropriate feedback if transcription fails or produces no text",
+        "Transcription works in real-time or near real-time using the Web Speech API"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/features/cases/hooks/useSpeechRecognition.ts",
+          "operation": "modify",
+          "description": "Ensure the hook accumulates transcript text from SpeechRecognition result events and returns the final transcript when recording stops. Implement cleanup to reset transcript state between recording sessions. Provide a mechanism to detect when a final transcript is available (e.g., via onend event or result finalization)."
         },
         {
-          "path": "frontend/src/hooks/useInternetIdentity.ts",
+          "path": "frontend/src/features/cases/components/CaseFormDialog.tsx",
           "operation": "modify",
-          "description": "Verify Internet Identity hook matches Version 67 implementation, ensuring no authentication wrapper changes interfere with the login flow"
+          "description": "When stopRecording is called and a transcript is available, replace the entire content of the Quick Fill from Text textarea with the transcribed text. Immediately invoke the existing parseStructuredText function (or equivalent logic) on the transcribed text to auto-populate form fields. If the transcript is empty or an error occurred, display a user-friendly message (e.g., 'No speech detected' or 'Transcription failed'). Ensure the textarea value is updated reactively and form state is synchronized with the transcribed and parsed data."
         }
       ]
     }

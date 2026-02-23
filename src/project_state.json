@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 9,
+  "projectStateVersion": 11,
   "summary": "Authentication app with username/password login and registration",
   "architectural_notes": [
     "App uses React Context API with AuthProvider for authentication state management",
@@ -24,9 +24,40 @@
         "REQ-2"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-add-a-microphone-button-positioned-on-the-right-side-of-the-screen-horizontally-aligned-with-the-quick-fill-from-text-label-in-the-caseformdialog-component",
+      "title": "Add a microphone button positioned on the right side of the screen, horizontally aligned with the 'Quick Fill from Text' label in the CaseFormDialog component",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-voice-recording-functionality-using-the-web-speech-api-with-toggle-behavior-first-click-starts-recording-second-click-stops-recording",
+      "title": "Implement voice recording functionality using the Web Speech API with toggle behavior - first click starts recording, second click stops recording",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-when-voice-recording-is-stopped-automatically-convert-the-recorded-speech-to-text-and-replace-any-existing-text-in-the-quick-fill-from-text-input-box-with-the-transcribed-text",
+      "title": "When voice recording is stopped, automatically convert the recorded speech to text and replace any existing text in the Quick Fill from Text input box with the transcribed text",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "version": 1
     }
   ],
-  "new_feature_requests": [],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Add voice recording to Quick Fill from Text using Web Speech API with toggle microphone button",
+      "reqIds": [],
+      "status": "pending"
+    }
+  ],
   "projectName": "SurgiPaw",
   "clarification_mode": "instant",
   "clarification_rounds": 0

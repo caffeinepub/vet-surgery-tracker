@@ -1,52 +1,79 @@
 {
   "kind": "build_request",
-  "title": "Revert to Version 67",
-  "priority": "high",
+  "title": "Add voice recording to Quick Fill from Text feature",
+  "projectName": "SurgiPaw",
+  "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-1",
-      "text": "Restore the complete project state from Version 67, including all backend files, frontend files, and configuration",
-      "target": "both",
-      "source": {
-        "messageIds": [
-          "msg-latest"
-        ],
-        "quotes": [
-          "Revert to Version 67"
-        ]
-      },
-      "acceptanceCriteria": [
-        "All files match the exact state they were in at Version 67",
-        "Backend main.mo is restored to Version 67 implementation",
-        "Frontend components are restored to Version 67 implementation",
-        "AuthProvider-related changes from Versions 68-71 are removed",
-        "Application builds and deploys successfully with Version 67 code"
-      ]
-    },
-    {
-      "id": "REQ-2",
-      "text": "Remove any AuthProvider context wrapper or authentication context changes that were introduced after Version 67",
+      "id": "REQ-3",
+      "text": "Add a microphone button positioned on the right side of the screen, horizontally aligned with the 'Quick Fill from Text' label in the CaseFormDialog component",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-latest"
+          "msg-10"
+        ],
+        "quotes": [
+          "The microphone can be placed on the right side across from the \"Quick Fill from Text\""
         ]
       },
       "acceptanceCriteria": [
-        "AuthContext implementation matches Version 67",
-        "No AuthProvider wrapping errors occur in production build",
-        "Authentication flow works as it did in Version 67"
+        "Microphone button is visible and positioned to the right of the 'Quick Fill from Text' label",
+        "Button styling is consistent with existing UI design patterns",
+        "Button displays appropriate microphone icon (mic when idle, recording indicator when active)"
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Implement voice recording functionality using the Web Speech API with toggle behavior - first click starts recording, second click stops recording",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-10"
+        ],
+        "quotes": [
+          "Voice recording should be a toggle"
+        ]
+      },
+      "acceptanceCriteria": [
+        "First click on microphone button initiates voice recording using Web Speech API",
+        "Button shows visual feedback indicating recording is in progress",
+        "Second click on microphone button stops the recording",
+        "Recording state is clearly communicated to the user through button appearance",
+        "Handle browser permissions appropriately with user-friendly error messages if microphone access is denied"
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "text": "When voice recording is stopped, automatically convert the recorded speech to text and replace any existing text in the Quick Fill from Text input box with the transcribed text",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-10"
+        ],
+        "quotes": [
+          "When the voice recording is stopped it should be converted to text within the Quick Fill from Text box replacing any text that is in the box"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Speech-to-text conversion completes automatically when recording stops",
+        "Transcribed text completely replaces any existing text in the Quick Fill input field",
+        "The existing parseStructuredText functionality processes the transcribed text to auto-populate form fields",
+        "User receives appropriate feedback if transcription fails or produces no text",
+        "Transcription works in real-time or near real-time using the Web Speech API"
       ]
     }
   ],
   "constraints": [
-    "Must restore exact Version 67 state without modifications",
-    "Do not introduce any new features or changes beyond the revert"
+    "Use the Web Speech API (browser native functionality) for speech recognition",
+    "Integrate with existing Quick Fill from Text feature in CaseFormDialog component without breaking current text input or parsing functionality",
+    "Maintain existing structured text parsing logic (parseStructuredText) for processing voice-transcribed text"
   ],
   "nonGoals": [
-    "Fixing or improving any issues that existed in Version 67",
-    "Adding new authentication features",
-    "Modernizing or refactoring Version 67 code"
+    "External speech-to-text API integration (e.g., Google Cloud Speech, Azure Speech)",
+    "Voice command controls beyond the toggle recording button",
+    "Audio file upload or playback functionality",
+    "Multi-language speech recognition configuration",
+    "Backend storage of voice recordings"
   ],
   "imageRequirements": {
     "required": [],
