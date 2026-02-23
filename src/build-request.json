@@ -1,56 +1,52 @@
 {
   "kind": "build_request",
-  "title": "Fix AuthProvider context error in production build",
+  "title": "Revert to Version 67",
   "priority": "high",
   "requirements": [
     {
-      "id": "REQ-4",
-      "text": "Ensure AuthProvider from frontend/src/contexts/AuthContext.tsx properly wraps the App component in frontend/src/main.tsx with correct nesting order: QueryClientProvider > InternetIdentityProvider > AuthProvider > App",
-      "target": "frontend",
+      "id": "REQ-1",
+      "text": "Restore the complete project state from Version 67, including all backend files, frontend files, and configuration",
+      "target": "both",
       "source": {
         "messageIds": [
-          "msg-5"
+          "msg-latest"
         ],
         "quotes": [
-          "useAuth must be used within an AuthProvider",
-          "I'll fix the component hierarchy in `frontend/src/main.tsx` to ensure `AuthProvider` properly wraps the `App` component"
+          "Revert to Version 67"
         ]
       },
       "acceptanceCriteria": [
-        "The App component is wrapped by AuthProvider in the main.tsx entry point",
-        "Component hierarchy follows the correct nesting order with AuthProvider inside InternetIdentityProvider and QueryClientProvider",
-        "The useAuth hook can access authentication context without throwing runtime errors",
-        "The live app loads without the 'useAuth must be used within an AuthProvider' error"
+        "All files match the exact state they were in at Version 67",
+        "Backend main.mo is restored to Version 67 implementation",
+        "Frontend components are restored to Version 67 implementation",
+        "AuthProvider-related changes from Versions 68-71 are removed",
+        "Application builds and deploys successfully with Version 67 code"
       ]
     },
     {
-      "id": "REQ-5",
-      "text": "Verify that the AuthProvider wrapper persists through the production build process and is not stripped or reordered during bundling",
+      "id": "REQ-2",
+      "text": "Remove any AuthProvider context wrapper or authentication context changes that were introduced after Version 67",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-5"
-        ],
-        "quotes": [
-          "AuthProvider fix in main.tsx didn't take effect in production build - error still occurring in live app"
+          "msg-latest"
         ]
       },
       "acceptanceCriteria": [
-        "Production build includes AuthProvider wrapper in the correct position",
-        "No bundler optimizations remove or reorder the AuthProvider component",
-        "Deployed version renders with proper context hierarchy"
+        "AuthContext implementation matches Version 67",
+        "No AuthProvider wrapping errors occur in production build",
+        "Authentication flow works as it did in Version 67"
       ]
     }
   ],
   "constraints": [
-    "Do not modify frontend/src/hooks/useInternetIdentity.ts or frontend/src/hooks/useActor.ts",
-    "Maintain the existing QueryClientProvider and InternetIdentityProvider wrappers",
-    "Preserve all existing authentication functionality in AuthContext.tsx"
+    "Must restore exact Version 67 state without modifications",
+    "Do not introduce any new features or changes beyond the revert"
   ],
   "nonGoals": [
-    "Changing the authentication implementation logic",
-    "Modifying the AuthContext provider implementation",
-    "Adding new authentication features"
+    "Fixing or improving any issues that existed in Version 67",
+    "Adding new authentication features",
+    "Modernizing or refactoring Version 67 code"
   ],
   "imageRequirements": {
     "required": [],

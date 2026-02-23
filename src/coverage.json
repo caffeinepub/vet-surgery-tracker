@@ -1,41 +1,77 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-23T20:39:23.985Z",
+  "generatedAt": "2026-02-23T20:46:27.989Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
     "total": 2,
-    "implemented": 0,
+    "implemented": 2,
     "items": [
       {
-        "id": "REQ-4",
-        "summary": "Ensure AuthProvider from frontend/src/contexts/AuthContext.tsx properly wraps the App component in frontend/src/main.tsx with correct nesting order: QueryClientProvider > InternetIdentityProvider > AuthProvider > App",
-        "status": "missing",
-        "plannedFiles": [
-          "frontend/src/main.tsx"
-        ],
-        "matchedFiles": []
-      },
-      {
-        "id": "REQ-5",
-        "summary": "Verify that the AuthProvider wrapper persists through the production build process and is not stripped or reordered during bundling",
-        "status": "missing",
+        "id": "REQ-1",
+        "summary": "Restore the complete project state from Version 67, including all backend files, frontend files, and configuration",
+        "status": "implemented",
         "plannedFiles": [
           "frontend/src/main.tsx",
-          "frontend/src/contexts/AuthContext.tsx"
+          "frontend/src/App.tsx",
+          "frontend/src/contexts/AuthContext.tsx",
+          "frontend/src/hooks/useInternetIdentity.ts",
+          "frontend/src/hooks/useActor.ts",
+          "frontend/src/features/auth/components/AuthView.tsx",
+          "frontend/src/features/auth/components/LoginForm.tsx",
+          "frontend/src/features/auth/components/RegistrationForm.tsx",
+          "frontend/src/features/auth/components/LogoutButton.tsx",
+          "frontend/src/features/auth/components/ProfileSetupModal.tsx",
+          "frontend/src/features/cases/components/CaseFormDialog.tsx",
+          "frontend/src/features/cases/components/CasesListView.tsx",
+          "frontend/src/features/dashboard/components/DashboardView.tsx",
+          "frontend/src/features/settings/components/SettingsView.tsx",
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/index.css",
+          "frontend/src/index.css",
+          "frontend/tailwind.config.js"
         ],
-        "matchedFiles": []
+        "matchedFiles": [
+          "frontend/src/App.tsx",
+          "frontend/src/contexts/AuthContext.tsx",
+          "frontend/src/features/auth/components/AuthView.tsx",
+          "frontend/src/features/auth/components/LoginForm.tsx",
+          "frontend/src/features/auth/components/RegistrationForm.tsx",
+          "frontend/src/features/auth/components/LogoutButton.tsx"
+        ]
+      },
+      {
+        "id": "REQ-2",
+        "summary": "Remove any AuthProvider context wrapper or authentication context changes that were introduced after Version 67",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/contexts/AuthContext.tsx",
+          "frontend/src/main.tsx",
+          "frontend/src/hooks/useInternetIdentity.ts"
+        ],
+        "matchedFiles": [
+          "frontend/src/contexts/AuthContext.tsx"
+        ]
       }
     ]
   },
   "changedFiles": [
+    "backend/main.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
+    "frontend/src/App.tsx",
+    "frontend/src/contexts/AuthContext.tsx",
+    "frontend/src/features/auth/components/AuthView.tsx",
+    "frontend/src/features/auth/components/LoginButton.tsx",
+    "frontend/src/features/auth/components/LoginForm.tsx",
+    "frontend/src/features/auth/components/LogoutButton.tsx",
+    "frontend/src/features/auth/components/RegistrationForm.tsx",
+    "frontend/src/features/auth/validation.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

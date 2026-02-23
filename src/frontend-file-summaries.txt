@@ -1,5 +1,5 @@
 {
-  "frontend/src/App.tsx": "Main application component with username/password authentication flow, view switching between dashboard/cases/settings, navigation buttons in header, profile setup modal, admin-only settings access, and state management for case navigation.",
+  "frontend/src/App.tsx": "Main application component with Internet Identity authentication flow, view switching between dashboard/cases/settings, navigation buttons in header, profile setup modal, and admin-only settings access.",
   "frontend/src/hooks/useQueries.ts": "React Query hooks for all backend operations including useIsCallerAdmin for checking admin status, useGetOpenAIConfig for fetching OpenAI configuration, useUpdateRemainingTasks for editing task selections on existing cases; useCreateCase accepts TaskOptions for task selection during creation, useUpdateCase and useUpdateTask use full Task type for editing existing cases with enhanced error handling, detailed logging, and retry logic.",
   "frontend/src/features/auth/components/LoginButton.tsx": "Login/logout button component using Internet Identity with query cache clearing on logout and default primary button styling.",
   "frontend/src/features/auth/components/ProfileSetupModal.tsx": "Modal dialog for first-time user profile setup that prompts for name on initial login using theme tokens.",
@@ -25,7 +25,7 @@
   "frontend/src/features/cases/parsing/parseStructuredText.ts": "Parses structured text in label:value format to extract case fields; fixed pattern order to correctly distinguish between Owner Last Name and Pet Name fields, ensuring Owner Last Name is matched before the more general Pet Name pattern.",
   "frontend/src/features/cases/sorting.ts": "Sorting utility functions with four sort options (arrival date newest/oldest, open tasks most/fewest) that sort cases by date or by counting incomplete tasks using getRemainingChecklistItems; exports SORT_OPTIONS array for UI display.",
   "frontend/src/features/cases/components/CasesSortControl.tsx": "Sort control component using shadcn/ui Select with four sorting options and an ArrowUpDown icon, accepting value and onSortChange callback props.",
-  "frontend/src/main.tsx": "Application entry point with React Query configuration, InternetIdentityProvider, and AuthProvider for username/password authentication context properly wrapping the App component in the correct nesting order: QueryClientProvider > InternetIdentityProvider > AuthProvider > App.",
+  "frontend/src/main.tsx": "Application entry point with React Query and InternetIdentityProvider wrapping the App component.",
   "frontend/src/features/cases/filtering.ts": "Filtering module with functions for species, task types, all tasks completed, and filtering out completed cases; uses Task type with selectedField and completedField properties.",
   "frontend/src/features/cases/components/CasesSpeciesFilter.tsx": "Species filter component with popover UI displaying checkboxes for Canine, Feline, and Other species options; persists selections in session storage and shows active filter count badge.",
   "frontend/src/features/cases/components/CasesTasksFilter.tsx": "Tasks filter component with checkboxes for all task types plus \"All Tasks Completed\" option, persists selections in session storage, and displays active filter count badge.",
@@ -51,5 +51,5 @@
   "frontend/src/features/auth/components/RegistrationForm.tsx": "Registration form component with username, password, and confirm password fields, client-side validation, and automatic login after successful registration.",
   "frontend/src/features/auth/components/AuthView.tsx": "Authentication view component that displays either LoginForm or RegistrationForm based on user selection with toggle between login and registration modes.",
   "frontend/src/features/auth/components/LogoutButton.tsx": "Logout button component that displays the current username and handles logout with query cache clearing.",
-  "frontend/src/hooks/useActor.ts": "Backend actor initialization hook that will use session token authentication once backend implements username/password auth system; currently creates actor without authentication as placeholder."
+  "frontend/src/hooks/useActor.ts": "Backend actor initialization hook using Internet Identity for authentication with automatic first admin initialization."
 }

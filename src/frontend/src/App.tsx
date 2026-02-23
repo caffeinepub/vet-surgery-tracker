@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
-import { useAuth } from './contexts/AuthContext';
+import { useInternetIdentity } from './hooks/useInternetIdentity';
 import { useActor } from './hooks/useActor';
 import { useGetCallerUserProfile, useIsCallerAdmin } from './hooks/useQueries';
-import AuthView from './features/auth/components/AuthView';
-import LogoutButton from './features/auth/components/LogoutButton';
+import LoginButton from './features/auth/components/LoginButton';
 import ProfileSetupModal from './features/auth/components/ProfileSetupModal';
 import CasesListView from './features/cases/components/CasesListView';
 import SettingsView from './features/settings/components/SettingsView';
@@ -16,7 +15,7 @@ import { Settings, LayoutDashboard, FolderOpen } from 'lucide-react';
 type View = 'dashboard' | 'cases' | 'settings';
 
 export default function App() {
-  const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const { identity, isInitializing } = useInternetIdentity();
   const { actor, isFetching: actorFetching } = useActor();
   const { data: userProfile, isLoading: profileLoading, isFetched } = useGetCallerUserProfile();
   const { data: isAdmin, isLoading: adminLoading } = useIsCallerAdmin();
@@ -24,6 +23,7 @@ export default function App() {
   const [selectedCaseId, setSelectedCaseId] = useState<bigint | null>(null);
   const [isNewCaseDialogOpen, setIsNewCaseDialogOpen] = useState(false);
 
+  const isAuthenticated = !!identity;
   const showProfileSetup = isAuthenticated && !profileLoading && isFetched && userProfile === null;
 
   // Defensive guard: ensure no dark class is ever applied
@@ -65,7 +65,7 @@ export default function App() {
     }, 100);
   };
 
-  if (authLoading) {
+  if (isInitializing) {
     return (
       <ThemeProvider attribute="class" defaultTheme="light" forcedTheme="light" enableSystem={false}>
         <div className="flex min-h-screen items-center justify-center bg-background">
@@ -81,7 +81,44 @@ export default function App() {
   if (!isAuthenticated) {
     return (
       <ThemeProvider attribute="class" defaultTheme="light" forcedTheme="light" enableSystem={false}>
-        <AuthView />
+        <div className="flex min-h-screen flex-col bg-background">
+          <header className="border-b bg-card backdrop-blur-sm">
+            <div className="container mx-auto flex h-16 items-center justify-between px-4">
+              <div className="flex items-center gap-3">
+                <img 
+                  src="/assets/image-1.png" 
+                  alt="SurgiPaw" 
+                  className="h-10 w-10 rounded-lg"
+                />
+                <h1 className="text-2xl font-bold text-foreground">SurgiPaw</h1>
+              </div>
+            </div>
+          </header>
+          
+          <main className="flex flex-1 items-center justify-center px-4 py-8">
+            <div className="text-center space-y-6">
+              <div>
+                <h2 className="text-3xl font-bold text-foreground mb-2">Welcome to SurgiPaw</h2>
+                <p className="text-muted-foreground">Please sign in to continue</p>
+              </div>
+              <LoginButton />
+            </div>
+          </main>
+          
+          <footer className="border-t bg-card backdrop-blur-sm py-6">
+            <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
+              © {new Date().getFullYear()} · Built with ❤️ using{' '}
+              <a
+                href={`https://caffeine.ai/?utm_source=Caffeine-footer&utm_medium=referral&utm_content=${encodeURIComponent(window.location.hostname)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium text-primary hover:underline"
+              >
+                caffeine.ai
+              </a>
+            </div>
+          </footer>
+        </div>
         <Toaster />
       </ThemeProvider>
     );
@@ -140,7 +177,7 @@ export default function App() {
                   Settings
                 </Button>
               )}
-              <LogoutButton />
+              <LoginButton />
             </div>
           </div>
         </header>

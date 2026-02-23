@@ -1,11 +1,11 @@
 # Specification
 
 ## Summary
-**Goal:** Fix the AuthProvider context error that occurs in the production build of the application.
+**Goal:** Revert the entire project to Version 67 state to eliminate AuthProvider-related errors.
 
 **Planned changes:**
-- Ensure AuthProvider from frontend/src/contexts/AuthContext.tsx properly wraps the App component in frontend/src/main.tsx
-- Verify the correct nesting order: QueryClientProvider > InternetIdentityProvider > AuthProvider > App
-- Confirm that the AuthProvider wrapper persists through the production build process and is not stripped or reordered during bundling
+- Restore all backend files (main.mo) to Version 67 implementation
+- Restore all frontend files to Version 67 implementation
+- Remove AuthProvider context wrapper and authentication context changes introduced in Versions 68-71
 
-**User-visible outcome:** The live app loads without the "useAuth must be used within an AuthProvider" error, and users can access all authentication-dependent features without runtime errors.
+**User-visible outcome:** The application returns to its stable Version 67 state with the authentication flow working as before, eliminating any AuthProvider wrapping errors.

@@ -1,43 +1,133 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Fix AuthProvider context error in production build",
+  "title": "Revert to Version 67",
   "requirements": [
     {
-      "id": "REQ-4",
-      "summary": "Ensure AuthProvider properly wraps the App component in main.tsx with correct nesting order",
+      "id": "REQ-1",
+      "summary": "Restore the complete project state from Version 67, including all frontend files and configuration",
       "acceptanceCriteria": [
-        "The App component is wrapped by AuthProvider in the main.tsx entry point",
-        "Component hierarchy follows the correct nesting order with AuthProvider inside InternetIdentityProvider and QueryClientProvider",
-        "The useAuth hook can access authentication context without throwing runtime errors",
-        "The live app loads without the 'useAuth must be used within an AuthProvider' error"
+        "All files match the exact state they were in at Version 67",
+        "Frontend components are restored to Version 67 implementation",
+        "AuthProvider-related changes from Versions 68-71 are removed",
+        "Application builds and deploys successfully with Version 67 code"
       ],
       "file_operations": [
         {
           "path": "frontend/src/main.tsx",
           "operation": "modify",
-          "description": "Fix the component hierarchy to ensure AuthProvider wraps the App component. The correct nesting order must be: QueryClientProvider > InternetIdentityProvider > AuthProvider > App. Verify that AuthProvider from frontend/src/contexts/AuthContext.tsx is imported and properly positioned in the component tree. Ensure the AuthProvider component is not accidentally removed or bypassed in the JSX structure."
-        }
-      ]
-    },
-    {
-      "id": "REQ-5",
-      "summary": "Verify AuthProvider wrapper persists through production build process",
-      "acceptanceCriteria": [
-        "Production build includes AuthProvider wrapper in the correct position",
-        "No bundler optimizations remove or reorder the AuthProvider component",
-        "Deployed version renders with proper context hierarchy"
-      ],
-      "file_operations": [
+          "description": "Restore the main.tsx entry point to its Version 67 state, ensuring the provider hierarchy and component structure match Version 67 exactly"
+        },
         {
-          "path": "frontend/src/main.tsx",
+          "path": "frontend/src/App.tsx",
           "operation": "modify",
-          "description": "Add explicit type annotations and structural patterns to prevent tree-shaking or bundler optimizations from removing the AuthProvider wrapper. Ensure the AuthProvider import is not marked as side-effect-free. Consider adding a comment or metadata that signals to the bundler that this component hierarchy is critical and must be preserved."
+          "description": "Restore App.tsx to Version 67 implementation, reverting any routing, state management, or component structure changes made after Version 67"
         },
         {
           "path": "frontend/src/contexts/AuthContext.tsx",
           "operation": "modify",
-          "description": "Review the AuthProvider component export to ensure it is a named export that cannot be tree-shaken. Add defensive checks in the useAuth hook that provide more informative error messages if the context is missing. Verify the context default value is properly defined to help catch configuration issues during development."
+          "description": "Restore AuthContext.tsx to Version 67 implementation, removing any AuthProvider wrapper changes or authentication context modifications introduced in Versions 68-71"
+        },
+        {
+          "path": "frontend/src/hooks/useInternetIdentity.ts",
+          "operation": "modify",
+          "description": "Restore useInternetIdentity hook to Version 67 state, reverting any authentication flow changes made after Version 67"
+        },
+        {
+          "path": "frontend/src/hooks/useActor.ts",
+          "operation": "modify",
+          "description": "Restore useActor hook to Version 67 implementation, ensuring actor initialization and authentication integration match Version 67"
+        },
+        {
+          "path": "frontend/src/features/auth/components/AuthView.tsx",
+          "operation": "modify",
+          "description": "Restore AuthView component to Version 67 state, reverting any layout or authentication flow changes"
+        },
+        {
+          "path": "frontend/src/features/auth/components/LoginForm.tsx",
+          "operation": "modify",
+          "description": "Restore LoginForm to Version 67 implementation, ensuring form handling and validation match Version 67"
+        },
+        {
+          "path": "frontend/src/features/auth/components/RegistrationForm.tsx",
+          "operation": "modify",
+          "description": "Restore RegistrationForm to Version 67 implementation, reverting any form changes made after Version 67"
+        },
+        {
+          "path": "frontend/src/features/auth/components/LogoutButton.tsx",
+          "operation": "modify",
+          "description": "Restore LogoutButton to Version 67 state, ensuring logout flow matches Version 67"
+        },
+        {
+          "path": "frontend/src/features/auth/components/ProfileSetupModal.tsx",
+          "operation": "modify",
+          "description": "Restore ProfileSetupModal to Version 67 implementation, reverting any modal behavior or styling changes"
+        },
+        {
+          "path": "frontend/src/features/cases/components/CaseFormDialog.tsx",
+          "operation": "modify",
+          "description": "Restore CaseFormDialog to Version 67 state, ensuring form dialog implementation matches Version 67"
+        },
+        {
+          "path": "frontend/src/features/cases/components/CasesListView.tsx",
+          "operation": "modify",
+          "description": "Restore CasesListView to Version 67 implementation, reverting any list rendering or interaction changes"
+        },
+        {
+          "path": "frontend/src/features/dashboard/components/DashboardView.tsx",
+          "operation": "modify",
+          "description": "Restore DashboardView to Version 67 state, ensuring dashboard layout and functionality match Version 67"
+        },
+        {
+          "path": "frontend/src/features/settings/components/SettingsView.tsx",
+          "operation": "modify",
+          "description": "Restore SettingsView to Version 67 implementation, reverting any settings UI or functionality changes"
+        },
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Restore useQueries hook to Version 67 state, ensuring query definitions and data fetching logic match Version 67"
+        },
+        {
+          "path": "frontend/index.css",
+          "operation": "modify",
+          "description": "Restore global CSS to Version 67 state, ensuring theme variables and styling match Version 67"
+        },
+        {
+          "path": "frontend/src/index.css",
+          "operation": "modify",
+          "description": "Restore application CSS to Version 67 state, reverting any color scheme or styling changes made after Version 67"
+        },
+        {
+          "path": "frontend/tailwind.config.js",
+          "operation": "modify",
+          "description": "Restore Tailwind configuration to Version 67 state, ensuring theme customization matches Version 67"
+        }
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "summary": "Remove any AuthProvider context wrapper or authentication context changes that were introduced after Version 67",
+      "acceptanceCriteria": [
+        "AuthContext implementation matches Version 67",
+        "No AuthProvider wrapping errors occur in production build",
+        "Authentication flow works as it did in Version 67"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/contexts/AuthContext.tsx",
+          "operation": "modify",
+          "description": "Verify and restore AuthContext provider structure to Version 67, removing any nested provider wrapping or context changes that cause build errors"
+        },
+        {
+          "path": "frontend/src/main.tsx",
+          "operation": "modify",
+          "description": "Verify provider hierarchy in main.tsx matches Version 67, ensuring no duplicate or incorrectly nested AuthProvider wrappers exist"
+        },
+        {
+          "path": "frontend/src/hooks/useInternetIdentity.ts",
+          "operation": "modify",
+          "description": "Verify Internet Identity hook matches Version 67 implementation, ensuring no authentication wrapper changes interfere with the login flow"
         }
       ]
     }

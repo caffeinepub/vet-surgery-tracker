@@ -1,60 +1,32 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 7,
+  "projectStateVersion": 9,
   "summary": "Authentication app with username/password login and registration",
   "architectural_notes": [
     "App uses React Context API with AuthProvider for authentication state management",
     "Username/password authentication implemented"
   ],
-  "known_issues": [
-    "AuthProvider not wrapping App component in main entry point causing 'useAuth must be used within an AuthProvider' error",
-    "AuthProvider fix in main.tsx didn't take effect in production build - error still occurring in live app",
-    "Production build still shows AuthProvider error despite main.tsx fixes - issue may be in build process, caching, or component rendering order"
-  ],
-  "isFixRequest": true,
-  "existing_features": [],
-  "new_feature_requests": [
+  "known_issues": [],
+  "isFixRequest": false,
+  "existing_features": [
     {
-      "id": "AR-1",
-      "summary": "Wrap the App component with AuthProvider in frontend/src/main.tsx to resolve the 'useAuth must be used within an AuthProvider' error",
+      "id": "feature-restore-the-complete-project-state-from-version-67-including-all-backend-files-frontend-files-and-configuration",
+      "title": "Restore the complete project state from Version 67, including all backend files, frontend files, and configuration",
       "reqIds": [
         "REQ-1"
       ],
-      "status": "pending"
+      "version": 1
     },
     {
-      "id": "AR-2",
-      "summary": "Ensure AuthProvider from frontend/src/contexts/AuthContext.tsx properly wraps the App component in frontend/src/main.tsx so that the useAuth hook can access authentication context throughout the application",
+      "id": "feature-remove-any-authprovider-context-wrapper-or-authentication-context-changes-that-were-introduced-after-version-67",
+      "title": "Remove any AuthProvider context wrapper or authentication context changes that were introduced after Version 67",
       "reqIds": [
         "REQ-2"
       ],
-      "status": "pending"
-    },
-    {
-      "id": "AR-3",
-      "summary": "Verify the component hierarchy in frontend/src/main.tsx places AuthProvider outside App and inside QueryClientProvider and InternetIdentityProvider to ensure proper context nesting order",
-      "reqIds": [
-        "REQ-3"
-      ],
-      "status": "pending"
-    },
-    {
-      "id": "AR-4",
-      "summary": "Ensure AuthProvider from frontend/src/contexts/AuthContext.tsx properly wraps the App component in frontend/src/main.tsx with correct nesting order: QueryClientProvider > InternetIdentityProvider > AuthProvider > App",
-      "reqIds": [
-        "REQ-4"
-      ],
-      "status": "pending"
-    },
-    {
-      "id": "AR-5",
-      "summary": "Verify that the AuthProvider wrapper persists through the production build process and is not stripped or reordered during bundling",
-      "reqIds": [
-        "REQ-5"
-      ],
-      "status": "pending"
+      "version": 1
     }
   ],
+  "new_feature_requests": [],
   "projectName": "SurgiPaw",
   "clarification_mode": "instant",
   "clarification_rounds": 0
