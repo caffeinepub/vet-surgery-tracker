@@ -1,54 +1,75 @@
 {
   "kind": "build_request",
-  "title": "Add direct case card navigation from Dashboard",
+  "title": "Add PDF Export Feature for Case Reports",
   "projectName": "SurgiPaw",
   "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-1",
-      "text": "In the DashboardView component, make each task group clickable so that clicking on a case's task section navigates directly to that specific case card in the Cases list view",
+      "id": "REQ-4",
+      "text": "Add a PDF export button to the dashboard view that generates a downloadable PDF report of all cases",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-latest"
+          "msg-final"
         ],
         "quotes": [
-          "From the Dashboard view, add a way to directly access a case card"
+          "Download button to generate a PDF report"
         ]
       },
       "acceptanceCriteria": [
-        "Each case task group in the Dashboard is clickable",
-        "Clicking a case task group switches to the Cases list view",
-        "The target case card is scrolled into view and visually highlighted",
-        "Navigation works for all cases displayed in the Dashboard"
+        "Export button is visible and accessible on the dashboard view",
+        "Clicking the button triggers PDF generation and download",
+        "PDF filename includes timestamp for organization"
       ]
     },
     {
-      "id": "REQ-2",
-      "text": "Add visual affordance (hover state, cursor pointer, or subtle styling) to case task groups in the Dashboard to indicate they are clickable",
+      "id": "REQ-5",
+      "text": "Format the PDF report as a table or card layout displaying all case fields including MRN, owner name, pet name, species, breed, sex, arrival date, spayed/neutered status, chief complaint, and notes",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-latest"
+          "msg-final"
+        ],
+        "quotes": [
+          "Table/Case card format with all case fields (MRN, name, outstanding tasks, etc.)"
         ]
       },
       "acceptanceCriteria": [
-        "Hover state provides clear visual feedback",
-        "Cursor changes to pointer when hovering over case task groups",
-        "Styling is consistent with the existing light blue theme"
+        "All case data fields from SurgeryCase type are included in the PDF",
+        "Layout is readable and well-organized in table or card format",
+        "Case information is clearly labeled and easy to read"
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "text": "Include all remaining incomplete tasks for each case in the PDF report, showing task names and their completion status",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-final"
+        ],
+        "quotes": [
+          "Shows all cases with their remaining tasks"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Each case displays its list of incomplete tasks",
+        "Task names match the checklist item labels from the existing system",
+        "Only tasks that are selected but not completed are shown as remaining tasks",
+        "Cases with no remaining tasks clearly indicate completion status"
       ]
     }
   ],
   "constraints": [
-    "Maintain existing Dashboard layout and task display format",
-    "Do not modify the backend main.mo file",
-    "Preserve color-coded task badges and existing styling"
+    "Do not modify the existing dashboard UI, case management features, or data structures",
+    "Preserve all existing checklist functionality and task tracking logic",
+    "Use the existing case filtering and sorting logic to determine which cases to include in the PDF"
   ],
   "nonGoals": [
-    "Adding new case management features",
-    "Modifying the CaseCard component structure",
-    "Changing how tasks are calculated or displayed",
-    "Adding search or filter functionality to the Dashboard"
+    "Changing the authentication system from Internet Identity to username/password",
+    "Modifying the backend data schema or API endpoints",
+    "Adding new case fields or task types",
+    "Implementing server-side PDF generation"
   ],
   "imageRequirements": {
     "required": [],

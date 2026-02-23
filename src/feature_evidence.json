@@ -2,12 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-in-the-dashboardview-component-make-each-task-group-clickable-so-that-clicking-on-a-case-s-task-section-navigates-directly-to-that-specific-case-card-in-the-cases-list-view",
-      "featureTitle": "In the DashboardView component, make each task group clickable so that clicking on a case's task section navigates directly to that specific case card in the Cases list view",
+      "featureId": "feature-add-a-pdf-export-button-to-the-dashboard-view-that-generates-a-downloadable-pdf-report-of-all-cases",
+      "featureTitle": "Add a PDF export button to the dashboard view that generates a downloadable PDF report of all cases",
       "files": [
-        "frontend/src/App.tsx",
-        "frontend/src/features/cases/components/CaseCard.tsx",
-        "frontend/src/features/cases/components/CasesListView.tsx",
+        "frontend/src/features/cases/pdf/generateCasePdf.ts",
         "frontend/src/features/dashboard/components/DashboardView.tsx"
       ],
       "components": [
@@ -21,15 +19,16 @@
         "http-outcalls@3.0.0"
       ],
       "testIds": [
-        "REQ-1"
+        "REQ-4"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-add-visual-affordance-hover-state-cursor-pointer-or-subtle-styling-to-case-task-groups-in-the-dashboard-to-indicate-they-are-clickable",
-      "featureTitle": "Add visual affordance (hover state, cursor pointer, or subtle styling) to case task groups in the Dashboard to indicate they are clickable",
+      "featureId": "feature-format-the-pdf-report-as-a-table-or-card-layout-displaying-all-case-fields-including-mrn-owner-name-pet-name-species-breed-sex-arrival-date-spayed-neutered-status-chief-complaint-and-notes",
+      "featureTitle": "Format the PDF report as a table or card layout displaying all case fields including MRN, owner name, pet name, species, breed, sex, arrival date, spayed/neutered status, chief complaint, and notes",
       "files": [
-        "frontend/src/features/dashboard/components/DashboardView.tsx"
+        "frontend/src/features/cases/pdf/generateCasePdf.ts",
+        "frontend/src/features/cases/pdf/pdfFormatters.ts"
       ],
       "components": [
         "authorization@4.0.0",
@@ -42,7 +41,29 @@
         "http-outcalls@3.0.0"
       ],
       "testIds": [
-        "REQ-2"
+        "REQ-5"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-include-all-remaining-incomplete-tasks-for-each-case-in-the-pdf-report-showing-task-names-and-their-completion-status",
+      "featureTitle": "Include all remaining incomplete tasks for each case in the PDF report, showing task names and their completion status",
+      "files": [
+        "frontend/src/features/cases/pdf/generateCasePdf.ts",
+        "frontend/src/features/cases/pdf/pdfFormatters.ts"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "camera@1.0.0",
+        "http-outcalls@3.0.0"
+      ],
+      "testIds": [
+        "REQ-6"
       ],
       "confidence": "high"
     }

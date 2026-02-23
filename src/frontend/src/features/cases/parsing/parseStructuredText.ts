@@ -22,10 +22,11 @@ export function parseStructuredText(text: string): Partial<CaseFormData> {
   });
 
   // Field patterns with various label formats
+  // IMPORTANT: Order matters! More specific patterns must come before general ones
   const patterns = {
     medicalRecordNumber: /(?:medical\s*record\s*(?:number|#|no\.?)?|mrn|record\s*(?:number|#|no\.?)?)\s*:?\s*(.+)/i,
-    petName: /(?:pet\s*name|patient\s*name|name)\s*:?\s*(.+)/i,
-    ownerLastName: /(?:owner(?:\s*last)?\s*name|owner|last\s*name)\s*:?\s*(.+)/i,
+    ownerLastName: /(?:owner\s*(?:last\s*)?name|owner)\s*:?\s*(.+)/i,
+    petName: /(?:pet\s*name|patient\s*name)\s*:?\s*(.+)/i,
     arrivalDate: /(?:arrival\s*date|admission\s*date|date\s*of\s*arrival)\s*:?\s*(.+)/i,
     dateOfBirth: /(?:date\s*of\s*birth|dob|birth\s*date)\s*:?\s*(.+)/i,
     species: /(?:species)\s*:?\s*(.+)/i,

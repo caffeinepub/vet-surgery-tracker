@@ -11,7 +11,7 @@ import CasesTasksFilter from './CasesTasksFilter';
 import CsvImportExportPanel from './CsvImportExportPanel';
 import { Button } from '@/components/ui/button';
 import { Plus, AlertCircle } from 'lucide-react';
-import { filterCasesBySpecies, filterCasesByTaskTypes } from '../filtering';
+import { filterCasesBySpecies, filterCasesByTaskTypes, filterOutCompletedCases, filterCasesByAllTasksCompleted } from '../filtering';
 import { searchCases } from '../search';
 import { sortCases, type SortOption } from '../sorting';
 import type { Species } from '../../../backend';
@@ -21,9 +21,16 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 interface CasesListViewProps {
   selectedCaseId?: bigint | null;
   onClearSelectedCase?: () => void;
+  isNewCaseDialogOpen?: boolean;
+  onNewCaseDialogChange?: (open: boolean) => void;
 }
 
-export default function CasesListView({ selectedCaseId, onClearSelectedCase }: CasesListViewProps) {
+export default function CasesListView({ 
+  selectedCaseId, 
+  onClearSelectedCase,
+  isNewCaseDialogOpen = false,
+  onNewCaseDialogChange
+}: CasesListViewProps) {
   const { actor, isFetching: actorFetching } = useActor();
   const { data: cases = [], isLoading, error } = useGetAllCases();
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -32,8 +39,16 @@ export default function CasesListView({ selectedCaseId, onClearSelectedCase }: C
   const [sortOption, setSortOption] = useState<SortOption>('arrival-date-newest');
   const [selectedSpecies, setSelectedSpecies] = useState<Set<Species>>(new Set());
   const [selectedTaskTypes, setSelectedTaskTypes] = useState<Set<string>>(new Set());
+  const [showAllTasksCompleted, setShowAllTasksCompleted] = useState(false);
   const [highlightedCaseId, setHighlightedCaseId] = useState<bigint | null>(null);
   const caseRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+
+  // Sync external dialog state
+  useEffect(() => {
+    if (isNewCaseDialogOpen !== undefined) {
+      setIsFormOpen(isNewCaseDialogOpen);
+    }
+  }, [isNewCaseDialogOpen]);
 
   const filteredAndSortedCases = useMemo(() => {
     let result = cases;
@@ -46,6 +61,15 @@ export default function CasesListView({ selectedCaseId, onClearSelectedCase }: C
     // Apply species filter
     result = filterCasesBySpecies(result, selectedSpecies);
 
+    // Apply "all tasks completed" filter logic
+    if (showAllTasksCompleted) {
+      // Show only cases where all tasks are completed
+      result = filterCasesByAllTasksCompleted(result);
+    } else {
+      // Default: hide cases where all tasks are completed
+      result = filterOutCompletedCases(result);
+    }
+
     // Apply tasks filter
     result = filterCasesByTaskTypes(result, selectedTaskTypes);
 
@@ -53,7 +77,7 @@ export default function CasesListView({ selectedCaseId, onClearSelectedCase }: C
     result = sortCases(result, sortOption);
 
     return result;
-  }, [cases, searchQuery, sortOption, selectedSpecies, selectedTaskTypes]);
+  }, [cases, searchQuery, sortOption, selectedSpecies, selectedTaskTypes, showAllTasksCompleted]);
 
   // Handle scrolling to and highlighting the selected case
   useEffect(() => {
@@ -79,7 +103,7 @@ export default function CasesListView({ selectedCaseId, onClearSelectedCase }: C
     }
   }, [selectedCaseId, filteredAndSortedCases, onClearSelectedCase]);
 
-  const hasActiveFilters = selectedSpecies.size > 0 || selectedTaskTypes.size > 0;
+  const hasActiveFilters = selectedSpecies.size > 0 || selectedTaskTypes.size > 0 || showAllTasksCompleted;
   const totalCases = cases.length;
   const filteredCount = filteredAndSortedCases.length;
 
@@ -92,6 +116,9 @@ export default function CasesListView({ selectedCaseId, onClearSelectedCase }: C
 
   const handleFormClose = (open: boolean) => {
     setIsFormOpen(open);
+    if (onNewCaseDialogChange) {
+      onNewCaseDialogChange(open);
+    }
     if (!open) {
       setEditingCase(undefined);
     }
@@ -170,6 +197,8 @@ export default function CasesListView({ selectedCaseId, onClearSelectedCase }: C
           <CasesTasksFilter
             selectedTaskTypes={selectedTaskTypes}
             onTaskTypesChange={setSelectedTaskTypes}
+            showAllTasksCompleted={showAllTasksCompleted}
+            onShowAllTasksCompletedChange={setShowAllTasksCompleted}
           />
         </div>
       </div>

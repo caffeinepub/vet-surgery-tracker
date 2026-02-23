@@ -1,41 +1,52 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-21T02:32:22.666Z",
+  "generatedAt": "2026-02-23T07:40:58.406Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 2,
-    "implemented": 2,
+    "total": 3,
+    "implemented": 3,
     "items": [
       {
-        "id": "REQ-1",
-        "summary": "In the DashboardView component, make each task group clickable so that clicking on a case's task section navigates directly to that specific case card in the Cases list view",
+        "id": "REQ-4",
+        "summary": "Add a PDF export button to the dashboard view that generates a downloadable PDF report of all cases",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/App.tsx",
           "frontend/src/features/dashboard/components/DashboardView.tsx",
-          "frontend/src/features/cases/components/CasesListView.tsx",
-          "frontend/src/features/cases/components/CaseCard.tsx"
+          "frontend/src/features/cases/pdf/generateCasePdf.ts"
         ],
         "matchedFiles": [
-          "frontend/src/App.tsx",
           "frontend/src/features/dashboard/components/DashboardView.tsx",
-          "frontend/src/features/cases/components/CasesListView.tsx",
-          "frontend/src/features/cases/components/CaseCard.tsx"
+          "frontend/src/features/cases/pdf/generateCasePdf.ts"
         ]
       },
       {
-        "id": "REQ-2",
-        "summary": "Add visual affordance (hover state, cursor pointer, or subtle styling) to case task groups in the Dashboard to indicate they are clickable",
+        "id": "REQ-5",
+        "summary": "Format the PDF report as a table or card layout displaying all case fields including MRN, owner name, pet name, species, breed, sex, arrival date, spayed/neutered status, chief complaint, and notes",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/features/dashboard/components/DashboardView.tsx"
+          "frontend/src/features/cases/pdf/generateCasePdf.ts",
+          "frontend/src/features/cases/pdf/pdfFormatters.ts"
         ],
         "matchedFiles": [
-          "frontend/src/features/dashboard/components/DashboardView.tsx"
+          "frontend/src/features/cases/pdf/generateCasePdf.ts",
+          "frontend/src/features/cases/pdf/pdfFormatters.ts"
+        ]
+      },
+      {
+        "id": "REQ-6",
+        "summary": "Include all remaining incomplete tasks for each case in the PDF report, showing task names and their completion status",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/features/cases/pdf/generateCasePdf.ts",
+          "frontend/src/features/cases/pdf/pdfFormatters.ts"
+        ],
+        "matchedFiles": [
+          "frontend/src/features/cases/pdf/generateCasePdf.ts",
+          "frontend/src/features/cases/pdf/pdfFormatters.ts"
         ]
       }
     ]
@@ -45,10 +56,13 @@
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/App.tsx",
-    "frontend/src/features/cases/components/CaseCard.tsx",
-    "frontend/src/features/cases/components/CasesListView.tsx",
+    "frontend/src/features/cases/pdf/generateCasePdf.ts",
+    "frontend/src/features/cases/pdf/generateCaseReport.ts",
+    "frontend/src/features/cases/pdf/pdfFormatters.ts",
+    "frontend/src/features/cases/pdf/reportFormatters.ts",
     "frontend/src/features/dashboard/components/DashboardView.tsx",
+    "frontend/src/types/jspdf-autotable.d.ts",
+    "frontend/src/types/jspdf.d.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

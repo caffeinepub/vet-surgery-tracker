@@ -22,6 +22,7 @@ export default function App() {
   const { data: isAdmin, isLoading: adminLoading } = useIsCallerAdmin();
   const [currentView, setCurrentView] = useState<View>('dashboard');
   const [selectedCaseId, setSelectedCaseId] = useState<bigint | null>(null);
+  const [isNewCaseDialogOpen, setIsNewCaseDialogOpen] = useState(false);
 
   const isAuthenticated = !!identity;
   const showProfileSetup = isAuthenticated && !profileLoading && isFetched && userProfile === null;
@@ -66,6 +67,14 @@ export default function App() {
 
   const handleClearSelectedCase = () => {
     setSelectedCaseId(null);
+  };
+
+  const handleNewCaseFromDashboard = () => {
+    setCurrentView('cases');
+    // Small delay to ensure the view switches before opening dialog
+    setTimeout(() => {
+      setIsNewCaseDialogOpen(true);
+    }, 100);
   };
 
   if (isInitializing) {
@@ -152,14 +161,13 @@ export default function App() {
               <img 
                 src="/assets/image-1.png" 
                 alt="SurgiPaw" 
-                className="h-12 w-12 rounded-lg"
+                className="h-10 w-10 rounded-lg"
               />
               <h1 className="text-2xl font-bold text-foreground">SurgiPaw</h1>
             </div>
             <div className="flex items-center gap-2">
               <Button
                 variant={currentView === 'dashboard' ? 'default' : 'ghost'}
-                size="sm"
                 onClick={() => setCurrentView('dashboard')}
                 className="gap-2"
               >
@@ -168,20 +176,15 @@ export default function App() {
               </Button>
               <Button
                 variant={currentView === 'cases' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => {
-                  setCurrentView('cases');
-                  setSelectedCaseId(null);
-                }}
+                onClick={() => setCurrentView('cases')}
                 className="gap-2"
               >
                 <FolderOpen className="h-4 w-4" />
                 Cases
               </Button>
-              {isAdmin && (
+              {!adminLoading && isAdmin && (
                 <Button
                   variant={currentView === 'settings' ? 'default' : 'ghost'}
-                  size="sm"
                   onClick={() => setCurrentView('settings')}
                   className="gap-2"
                 >
@@ -195,23 +198,24 @@ export default function App() {
         </header>
 
         <main className="flex-1 container mx-auto px-4 py-8">
-          <ProfileSetupModal open={showProfileSetup} />
-          
-          {!showProfileSetup && (
-            <>
-              {currentView === 'dashboard' && <DashboardView onNavigateToCase={handleNavigateToCase} />}
-              {currentView === 'cases' && (
-                <CasesListView 
-                  selectedCaseId={selectedCaseId} 
-                  onClearSelectedCase={handleClearSelectedCase}
-                />
-              )}
-              {currentView === 'settings' && isAdmin && <SettingsView />}
-            </>
+          {currentView === 'dashboard' && (
+            <DashboardView 
+              onNavigateToCase={handleNavigateToCase}
+              onNewCase={handleNewCaseFromDashboard}
+            />
           )}
+          {currentView === 'cases' && (
+            <CasesListView 
+              selectedCaseId={selectedCaseId}
+              onClearSelectedCase={handleClearSelectedCase}
+              isNewCaseDialogOpen={isNewCaseDialogOpen}
+              onNewCaseDialogChange={setIsNewCaseDialogOpen}
+            />
+          )}
+          {currentView === 'settings' && isAdmin && <SettingsView />}
         </main>
 
-        <footer className="border-t bg-card backdrop-blur-sm py-6">
+        <footer className="border-t bg-card backdrop-blur-sm py-6 mt-auto">
           <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
             © {new Date().getFullYear()} · Built with ❤️ using{' '}
             <a
@@ -224,8 +228,10 @@ export default function App() {
             </a>
           </div>
         </footer>
+
+        <ProfileSetupModal open={showProfileSetup} />
+        <Toaster />
       </div>
-      <Toaster />
     </ThemeProvider>
   );
 }

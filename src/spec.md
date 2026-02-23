@@ -1,12 +1,13 @@
 # Specification
 
 ## Summary
-**Goal:** Enable direct navigation from Dashboard task groups to specific case cards in the Cases list view.
+**Goal:** Add PDF export functionality to generate downloadable case reports from the dashboard.
 
 **Planned changes:**
-- Make each case task group in the Dashboard clickable
-- Implement navigation that switches to the Cases list view and scrolls to the target case card
-- Add visual affordance (hover state, pointer cursor) to indicate clickable case task groups
-- Highlight the target case card when navigated to from the Dashboard
+- Add a PDF export button to the dashboard view
+- Generate a PDF report displaying all cases in a table or card layout
+- Include all case fields (MRN, owner name, pet name, species, breed, sex, arrival date, spayed/neutered status, chief complaint, notes)
+- Display remaining incomplete tasks for each case in the PDF
+- Include timestamp in the PDF filename for organization
 
-**User-visible outcome:** Users can click on any case's task section in the Dashboard to instantly jump to that specific case card in the Cases list, with the card highlighted for easy identification.
+**User-visible outcome:** Users can click an export button on the dashboard to download a comprehensive PDF report of all surgery cases with their details and outstanding tasks.

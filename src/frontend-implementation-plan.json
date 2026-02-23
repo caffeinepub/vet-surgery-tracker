@@ -1,53 +1,69 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Add direct case card navigation from Dashboard",
+  "title": "Add PDF Export Feature for Case Reports",
   "requirements": [
     {
-      "id": "REQ-1",
-      "summary": "Make each task group in DashboardView clickable to navigate directly to the corresponding case card in Cases list view",
+      "id": "REQ-4",
+      "summary": "Add a PDF export button to the dashboard view that generates a downloadable PDF report of all cases",
       "acceptanceCriteria": [
-        "Each case task group in the Dashboard is clickable",
-        "Clicking a case task group switches to the Cases list view",
-        "The target case card is scrolled into view and visually highlighted",
-        "Navigation works for all cases displayed in the Dashboard"
+        "Export button is visible and accessible on the dashboard view",
+        "Clicking the button triggers PDF generation and download",
+        "PDF filename includes timestamp for organization"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/App.tsx",
-          "operation": "modify",
-          "description": "Add state management to track the selected case ID when navigating from Dashboard to Cases view. Pass the selectedCaseId as a prop to CasesListView and provide a callback to DashboardView for setting the selected case."
-        },
-        {
           "path": "frontend/src/features/dashboard/components/DashboardView.tsx",
           "operation": "modify",
-          "description": "Add onClick handlers to each case task group that call the onNavigateToCase callback (passed as a prop) with the case ID. Wrap each case task group in a clickable div or button element. Verify existing styling and structure to ensure clickability works with the current layout."
+          "description": "Add a PDF export button to the dashboard header/toolbar area that triggers PDF generation. Position it near existing action buttons (such as filters or sorting controls). Wire the button click handler to invoke the PDF generation utility function. Ensure the button is styled consistently with existing dashboard UI patterns and includes appropriate loading states during PDF generation."
         },
         {
-          "path": "frontend/src/features/cases/components/CasesListView.tsx",
-          "operation": "modify",
-          "description": "Accept selectedCaseId as a prop. After rendering the filtered case list, add logic to scroll the target case card into view using scrollIntoView with smooth behavior. Apply a temporary highlight effect (e.g., border pulse or background flash) to the target case card using CSS transitions. Clear the selectedCaseId after highlighting to allow repeated navigation."
-        },
-        {
-          "path": "frontend/src/features/cases/components/CaseCard.tsx",
-          "operation": "modify",
-          "description": "Accept an isHighlighted prop and apply conditional styling (e.g., animated border or background color change) when true. Use CSS transitions for smooth visual feedback. Add a ref forwarding mechanism or id attribute to enable parent components to scroll to this card."
+          "path": "frontend/src/features/cases/pdf/generateCasePdf.ts",
+          "operation": "create",
+          "description": "Create a utility module that generates PDF reports from surgery case data. Implement functions to: (1) accept an array of SurgeryCase objects and generate a PDF document, (2) format the PDF with a table or card layout displaying all case fields, (3) include remaining incomplete tasks for each case, (4) generate a filename with timestamp (e.g., 'surgery-cases-YYYY-MM-DD-HHmmss.pdf'), and (5) trigger browser download of the generated PDF. Use a client-side PDF generation library (such as jsPDF or pdfmake) to create the document entirely in the frontend without backend involvement."
         }
       ]
     },
     {
-      "id": "REQ-2",
-      "summary": "Add visual affordance to case task groups in Dashboard to indicate they are clickable",
+      "id": "REQ-5",
+      "summary": "Format the PDF report as a table or card layout displaying all case fields including MRN, owner name, pet name, species, breed, sex, arrival date, spayed/neutered status, chief complaint, and notes",
       "acceptanceCriteria": [
-        "Hover state provides clear visual feedback",
-        "Cursor changes to pointer when hovering over case task groups",
-        "Styling is consistent with the existing light blue theme"
+        "All case data fields from SurgeryCase type are included in the PDF",
+        "Layout is readable and well-organized in table or card format",
+        "Case information is clearly labeled and easy to read"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/features/dashboard/components/DashboardView.tsx",
+          "path": "frontend/src/features/cases/pdf/generateCasePdf.ts",
           "operation": "modify",
-          "description": "Add hover styles to case task group containers using Tailwind classes (e.g., hover:bg-blue-50, hover:shadow-md, transition-all, cursor-pointer). Ensure the hover effect is subtle and consistent with the existing light blue theme. Apply rounded corners and smooth transitions for a polished interactive feel."
+          "description": "Implement PDF layout logic to display all case fields in a well-organized format. For each case, include: Medical Record Number (MRN), Owner Last Name, Pet Name, Species (canine/feline/other), Breed, Sex (male/female/neutered/spayed), Arrival Date (formatted as MM/DD/YYYY), Date of Birth if available, Presenting Complaint, and Notes. Use clear labels for each field. Choose either a table layout (one row per case with columns for each field) or a card layout (one card per case with fields arranged vertically). Ensure proper text wrapping for long notes and complaints. Apply consistent styling, readable fonts, and appropriate spacing throughout the PDF."
+        },
+        {
+          "path": "frontend/src/features/cases/pdf/pdfFormatters.ts",
+          "operation": "create",
+          "description": "Create formatting utility functions for PDF content. Implement functions to: (1) format dates from Time (bigint) to human-readable strings (MM/DD/YYYY), (2) convert Species and Sex enums to readable text labels, (3) handle optional fields like Date of Birth gracefully (display 'Unknown' or similar when null), (4) truncate or wrap long text fields like notes and complaints for PDF display, and (5) format field labels consistently. These formatters ensure all case data is properly transformed for PDF presentation."
+        }
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "summary": "Include all remaining incomplete tasks for each case in the PDF report, showing task names and their completion status",
+      "acceptanceCriteria": [
+        "Each case displays its list of incomplete tasks",
+        "Task names match the checklist item labels from the existing system",
+        "Only tasks that are selected but not completed are shown as remaining tasks",
+        "Cases with no remaining tasks clearly indicate completion status"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/features/cases/pdf/generateCasePdf.ts",
+          "operation": "modify",
+          "description": "Enhance the PDF generation to include task information for each case. For each case in the PDF, add a section displaying remaining incomplete tasks. Use the existing checklist utility functions from frontend/src/features/cases/checklist.ts to identify tasks that are selected but not yet completed. Display the task names (e.g., 'PDVM Notified', 'Histo', 'Labs', 'Culture', 'Surgery Report', 'Imaging', 'Discharge Notes') matching the existing checklist labels. For cases with no remaining tasks, display a completion indicator such as 'All tasks completed' or a checkmark symbol. Format the task list clearly, either as a bulleted list under each case or as an inline comma-separated list, ensuring it is visually distinct from other case information."
+        },
+        {
+          "path": "frontend/src/features/cases/pdf/pdfFormatters.ts",
+          "operation": "modify",
+          "description": "Add formatting functions for task display in the PDF. Implement functions to: (1) format the list of remaining task names for a case (using the getRemainingTasks utility from checklist.ts), (2) format the task names to match existing checklist labels exactly, (3) create a readable completion status indicator when all tasks are complete, and (4) handle cases where no tasks were ever selected for a case. Ensure task formatting is consistent with the existing UI conventions while being optimized for PDF readability."
         }
       ]
     }

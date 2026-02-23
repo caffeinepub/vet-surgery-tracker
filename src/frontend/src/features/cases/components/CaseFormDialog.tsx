@@ -6,7 +6,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useCreateCase, useUpdateCase, useGetCaseByMedicalRecordNumber } from '../../../hooks/useQueries';
 import { useActor } from '../../../hooks/useActor';
@@ -19,7 +18,7 @@ import { parseStructuredText } from '../parsing/parseStructuredText';
 import { toast } from 'sonner';
 import DateField from './DateField';
 import ChecklistEditor from './ChecklistEditor';
-import { ChevronDown, Sparkles, AlertCircle, Loader2 } from 'lucide-react';
+import { Sparkles, AlertCircle, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface CaseFormDialogProps {
@@ -50,7 +49,6 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
 
   // AI parsing state
   const [structuredText, setStructuredText] = useState('');
-  const [isParseOpen, setIsParseOpen] = useState(false);
   const [isParsing, setIsParsing] = useState(false);
 
   // Error state for detailed error display
@@ -61,7 +59,6 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
 
   // Refs for date field auto-advance
   const arrivalDateRef = useRef<HTMLInputElement>(null);
-  const dateOfBirthRef = useRef<HTMLInputElement>(null);
   const petNameRef = useRef<HTMLInputElement>(null);
 
   // Debounce the MRN input for lookup
@@ -138,27 +135,35 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
     }
   }, [existingCase]);
 
+  // Reset form when dialog closes or after successful creation
+  const resetForm = () => {
+    setMedicalRecordNumber('');
+    setArrivalDate(new Date());
+    setPetName('');
+    setOwnerLastName('');
+    setSpecies('canine');
+    setBreed('');
+    setSex('male');
+    setDateOfBirth(null);
+    setPresentingComplaint('');
+    setNotes('');
+    setTask(getDefaultTaskSelections());
+    setStructuredText('');
+    setErrorDetails(null);
+    setEditedFields(new Set());
+    lastPrefilledCaseId.current = null;
+  };
+
   // Reset form when dialog closes
   useEffect(() => {
     if (!open) {
       if (!isEditing) {
-        setMedicalRecordNumber('');
-        setArrivalDate(new Date());
-        setPetName('');
-        setOwnerLastName('');
-        setSpecies('canine');
-        setBreed('');
-        setSex('male');
-        setDateOfBirth(null);
-        setPresentingComplaint('');
-        setNotes('');
-        setTask(getDefaultTaskSelections());
-        setStructuredText('');
-        setIsParseOpen(false);
+        resetForm();
+      } else {
+        setErrorDetails(null);
+        setEditedFields(new Set());
+        lastPrefilledCaseId.current = null;
       }
-      setErrorDetails(null);
-      setEditedFields(new Set());
-      lastPrefilledCaseId.current = null;
     }
   }, [open, isEditing]);
 
@@ -232,7 +237,6 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
 
       if (appliedCount > 0) {
         toast.success(`Filled ${appliedCount} field${appliedCount > 1 ? 's' : ''} from text`);
-        setIsParseOpen(false);
         setStructuredText('');
       } else {
         toast.info('No new fields to fill', {
@@ -343,6 +347,9 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
           taskOptions,
         });
         toast.success('Case created successfully');
+        
+        // Reset form after successful creation
+        resetForm();
       }
 
       onOpenChange(false);
@@ -382,51 +389,39 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Quick Fill Section */}
+          {/* Quick Fill Section - Always Visible */}
           {!isEditing && (
-            <Collapsible open={isParseOpen} onOpenChange={setIsParseOpen}>
-              <CollapsibleTrigger asChild>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-full justify-between"
-                  disabled={!actorReady}
-                >
-                  <span className="flex items-center gap-2">
-                    <Sparkles className="h-4 w-4" />
-                    Quick Fill from Text
-                  </span>
-                  <ChevronDown className={cn('h-4 w-4 transition-transform', isParseOpen && 'rotate-180')} />
-                </Button>
-              </CollapsibleTrigger>
-              <CollapsibleContent className="space-y-3 pt-3">
-                <Textarea
-                  placeholder="Paste case information here (e.g., from a document or email)..."
-                  value={structuredText}
-                  onChange={(e) => setStructuredText(e.target.value)}
-                  className="min-h-[120px]"
-                  disabled={!actorReady}
-                />
-                <Button
-                  type="button"
-                  onClick={handleQuickFill}
-                  disabled={!structuredText.trim() || isParsing || !actorReady}
-                  className="w-full"
-                >
-                  {isParsing ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Parsing...
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="mr-2 h-4 w-4" />
-                      Parse and Fill
-                    </>
-                  )}
-                </Button>
-              </CollapsibleContent>
-            </Collapsible>
+            <div className="space-y-3 p-4 border rounded-lg bg-muted/30">
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-primary" />
+                <Label className="text-sm font-semibold">Quick Fill from Text</Label>
+              </div>
+              <Textarea
+                placeholder="Paste case information here (e.g., from a document or email)..."
+                value={structuredText}
+                onChange={(e) => setStructuredText(e.target.value)}
+                className="min-h-[100px]"
+                disabled={!actorReady}
+              />
+              <Button
+                type="button"
+                onClick={handleQuickFill}
+                disabled={!structuredText.trim() || isParsing || !actorReady}
+                className="w-full"
+              >
+                {isParsing ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Parsing...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="mr-2 h-4 w-4" />
+                    Parse and Fill
+                  </>
+                )}
+              </Button>
+            </div>
           )}
 
           {/* Error Display */}
@@ -470,9 +465,9 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
                   disabled={!actorReady || isSubmitting}
                   className={cn(isAutoFilled('arrivalDate') && 'bg-blue-50 dark:bg-blue-950')}
                   onComplete={() => {
-                    // Auto-advance to date of birth field
-                    if (dateOfBirthRef.current) {
-                      dateOfBirthRef.current.focus();
+                    // Auto-advance to pet name field
+                    if (petNameRef.current) {
+                      petNameRef.current.focus();
                     }
                   }}
                   inputRef={arrivalDateRef}
@@ -489,8 +484,8 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
               <div className="space-y-2">
                 <Label htmlFor="petName">Pet Name *</Label>
                 <Input
-                  id="petName"
                   ref={petNameRef}
+                  id="petName"
                   value={petName}
                   onChange={(e) => {
                     setPetName(e.target.value);
@@ -516,7 +511,9 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
                   className={cn(isAutoFilled('ownerLastName') && 'bg-blue-50 dark:bg-blue-950')}
                 />
               </div>
+            </div>
 
+            <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="species">Species *</Label>
                 <Select
@@ -527,7 +524,7 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
                   }}
                   disabled={!actorReady || isSubmitting}
                 >
-                  <SelectTrigger
+                  <SelectTrigger 
                     id="species"
                     className={cn(isAutoFilled('species') && 'bg-blue-50 dark:bg-blue-950')}
                   >
@@ -557,7 +554,9 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
                   className={cn(isAutoFilled('breed') && 'bg-blue-50 dark:bg-blue-950')}
                 />
               </div>
+            </div>
 
+            <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="sex">Sex *</Label>
                 <Select
@@ -568,7 +567,7 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
                   }}
                   disabled={!actorReady || isSubmitting}
                 >
-                  <SelectTrigger
+                  <SelectTrigger 
                     id="sex"
                     className={cn(isAutoFilled('sex') && 'bg-blue-50 dark:bg-blue-950')}
                   >
@@ -595,15 +594,14 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
                   }}
                   disabled={!actorReady || isSubmitting}
                   className={cn(isAutoFilled('dateOfBirth') && 'bg-blue-50 dark:bg-blue-950')}
-                  inputRef={dateOfBirthRef}
                 />
               </div>
             </div>
           </div>
 
-          {/* Clinical Information */}
+          {/* Case Details */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Clinical Information</h3>
+            <h3 className="text-lg font-semibold">Case Details</h3>
             
             <div className="space-y-2">
               <Label htmlFor="presentingComplaint">Presenting Complaint</Label>
@@ -611,12 +609,12 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
                 id="presentingComplaint"
                 value={presentingComplaint}
                 onChange={(e) => {
-                  setPresentingComplaint(e.target.value);
-                  markFieldAsEdited('presentingComplaint');
-                }}
-                placeholder="Describe the presenting complaint..."
-                className="min-h-[100px]"
+                    setPresentingComplaint(e.target.value);
+                    markFieldAsEdited('presentingComplaint');
+                  }}
+                placeholder="Brief description of the case..."
                 disabled={!actorReady || isSubmitting}
+                className={cn('min-h-[80px]', isAutoFilled('presentingComplaint') && 'bg-blue-50 dark:bg-blue-950')}
               />
             </div>
 
@@ -626,25 +624,23 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
                 id="notes"
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                placeholder="Add any additional notes..."
-                className="min-h-[100px]"
+                placeholder="Additional notes..."
                 disabled={!actorReady || isSubmitting}
+                className="min-h-[80px]"
               />
             </div>
           </div>
 
-          {/* Task Selection Section - Only show in creation mode */}
-          {!isEditing && (
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Select Tasks to Include</h3>
-              <ChecklistEditor
-                task={task}
-                onChange={setTask}
-                disabled={!actorReady || isSubmitting}
-                mode="creation"
-              />
-            </div>
-          )}
+          {/* Task Selection */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Remaining Tasks</h3>
+            <ChecklistEditor
+              task={task}
+              onChange={setTask}
+              mode={isEditing ? 'completion' : 'creation'}
+              disabled={!actorReady || isSubmitting}
+            />
+          </div>
 
           {/* Form Actions */}
           <div className="flex justify-end gap-3 pt-4 border-t">
@@ -656,7 +652,10 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={!actorReady || isSubmitting}>
+            <Button
+              type="submit"
+              disabled={!actorReady || isSubmitting}
+            >
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />

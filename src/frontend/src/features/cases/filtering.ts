@@ -30,3 +30,37 @@ export function filterCasesByTaskTypes(cases: SurgeryCase[], selectedTaskKeys: S
     return false;
   });
 }
+
+export function filterCasesByAllTasksCompleted(cases: SurgeryCase[]): SurgeryCase[] {
+  return cases.filter((surgeryCase) => {
+    // Check if all selected tasks are completed
+    for (const item of CHECKLIST_ITEMS) {
+      const isSelected = surgeryCase.task[item.selectedField];
+      const isCompleted = surgeryCase.task[item.completedField];
+
+      // If a task is selected but not completed, exclude this case
+      if (isSelected && !isCompleted) {
+        return false;
+      }
+    }
+    // All selected tasks are completed (or no tasks selected)
+    return true;
+  });
+}
+
+export function filterOutCompletedCases(cases: SurgeryCase[]): SurgeryCase[] {
+  return cases.filter((surgeryCase) => {
+    // Check if at least one selected task is not completed
+    for (const item of CHECKLIST_ITEMS) {
+      const isSelected = surgeryCase.task[item.selectedField];
+      const isCompleted = surgeryCase.task[item.completedField];
+
+      // If a task is selected but not completed, include this case
+      if (isSelected && !isCompleted) {
+        return true;
+      }
+    }
+    // All selected tasks are completed, exclude this case
+    return false;
+  });
+}
