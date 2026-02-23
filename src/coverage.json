@@ -1,7 +1,7 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-23T20:22:22.457Z",
+  "generatedAt": "2026-02-23T20:39:23.985Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
@@ -11,8 +11,8 @@
     "implemented": 0,
     "items": [
       {
-        "id": "REQ-2",
-        "summary": "Ensure AuthProvider from frontend/src/contexts/AuthContext.tsx properly wraps the App component in frontend/src/main.tsx so that the useAuth hook can access authentication context throughout the application",
+        "id": "REQ-4",
+        "summary": "Ensure AuthProvider from frontend/src/contexts/AuthContext.tsx properly wraps the App component in frontend/src/main.tsx with correct nesting order: QueryClientProvider > InternetIdentityProvider > AuthProvider > App",
         "status": "missing",
         "plannedFiles": [
           "frontend/src/main.tsx"
@@ -20,11 +20,12 @@
         "matchedFiles": []
       },
       {
-        "id": "REQ-3",
-        "summary": "Verify the component hierarchy in frontend/src/main.tsx places AuthProvider outside App and inside QueryClientProvider and InternetIdentityProvider to ensure proper context nesting order",
+        "id": "REQ-5",
+        "summary": "Verify that the AuthProvider wrapper persists through the production build process and is not stripped or reordered during bundling",
         "status": "missing",
         "plannedFiles": [
-          "frontend/src/main.tsx"
+          "frontend/src/main.tsx",
+          "frontend/src/contexts/AuthContext.tsx"
         ],
         "matchedFiles": []
       }

@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 5,
+  "projectStateVersion": 7,
   "summary": "Authentication app with username/password login and registration",
   "architectural_notes": [
     "App uses React Context API with AuthProvider for authentication state management",
@@ -8,7 +8,8 @@
   ],
   "known_issues": [
     "AuthProvider not wrapping App component in main entry point causing 'useAuth must be used within an AuthProvider' error",
-    "AuthProvider fix in main.tsx didn't take effect in production build - error still occurring in live app"
+    "AuthProvider fix in main.tsx didn't take effect in production build - error still occurring in live app",
+    "Production build still shows AuthProvider error despite main.tsx fixes - issue may be in build process, caching, or component rendering order"
   ],
   "isFixRequest": true,
   "existing_features": [],
@@ -34,6 +35,22 @@
       "summary": "Verify the component hierarchy in frontend/src/main.tsx places AuthProvider outside App and inside QueryClientProvider and InternetIdentityProvider to ensure proper context nesting order",
       "reqIds": [
         "REQ-3"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "Ensure AuthProvider from frontend/src/contexts/AuthContext.tsx properly wraps the App component in frontend/src/main.tsx with correct nesting order: QueryClientProvider > InternetIdentityProvider > AuthProvider > App",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-5",
+      "summary": "Verify that the AuthProvider wrapper persists through the production build process and is not stripped or reordered during bundling",
+      "reqIds": [
+        "REQ-5"
       ],
       "status": "pending"
     }

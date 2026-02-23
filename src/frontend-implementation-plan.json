@@ -1,38 +1,43 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Fix AuthProvider wrapper in main.tsx production build",
+  "title": "Fix AuthProvider context error in production build",
   "requirements": [
     {
-      "id": "REQ-2",
-      "summary": "Ensure AuthProvider properly wraps the App component in main.tsx so useAuth hook can access authentication context throughout the application",
+      "id": "REQ-4",
+      "summary": "Ensure AuthProvider properly wraps the App component in main.tsx with correct nesting order",
       "acceptanceCriteria": [
-        "No 'useAuth must be used within an AuthProvider' error appears in browser console",
-        "App component successfully renders without authentication context errors",
-        "AuthProvider wrapper is present in the component tree before App mounts",
-        "Production build includes the AuthProvider wrapper correctly"
+        "The App component is wrapped by AuthProvider in the main.tsx entry point",
+        "Component hierarchy follows the correct nesting order with AuthProvider inside InternetIdentityProvider and QueryClientProvider",
+        "The useAuth hook can access authentication context without throwing runtime errors",
+        "The live app loads without the 'useAuth must be used within an AuthProvider' error"
       ],
       "file_operations": [
         {
           "path": "frontend/src/main.tsx",
           "operation": "modify",
-          "description": "Add AuthProvider import from frontend/src/contexts/AuthContext.tsx and wrap the App component with AuthProvider to ensure authentication context is available throughout the application. Verify the AuthProvider wrapper is correctly included in the React tree rendered by ReactDOM.createRoot."
+          "description": "Fix the component hierarchy to ensure AuthProvider wraps the App component. The correct nesting order must be: QueryClientProvider > InternetIdentityProvider > AuthProvider > App. Verify that AuthProvider from frontend/src/contexts/AuthContext.tsx is imported and properly positioned in the component tree. Ensure the AuthProvider component is not accidentally removed or bypassed in the JSX structure."
         }
       ]
     },
     {
-      "id": "REQ-3",
-      "summary": "Verify component hierarchy in main.tsx places AuthProvider in correct nesting order with other providers",
+      "id": "REQ-5",
+      "summary": "Verify AuthProvider wrapper persists through production build process",
       "acceptanceCriteria": [
-        "AuthProvider is rendered as a child of QueryClientProvider",
-        "App component is rendered as a child of AuthProvider",
-        "Context providers are nested in the correct order for dependencies"
+        "Production build includes AuthProvider wrapper in the correct position",
+        "No bundler optimizations remove or reorder the AuthProvider component",
+        "Deployed version renders with proper context hierarchy"
       ],
       "file_operations": [
         {
           "path": "frontend/src/main.tsx",
           "operation": "modify",
-          "description": "Verify and adjust the provider nesting order to ensure QueryClientProvider wraps InternetIdentityProvider, InternetIdentityProvider wraps AuthProvider, and AuthProvider wraps the App component. This establishes the correct dependency chain where authentication context depends on Internet Identity and query client."
+          "description": "Add explicit type annotations and structural patterns to prevent tree-shaking or bundler optimizations from removing the AuthProvider wrapper. Ensure the AuthProvider import is not marked as side-effect-free. Consider adding a comment or metadata that signals to the bundler that this component hierarchy is critical and must be preserved."
+        },
+        {
+          "path": "frontend/src/contexts/AuthContext.tsx",
+          "operation": "modify",
+          "description": "Review the AuthProvider component export to ensure it is a named export that cannot be tree-shaken. Add defensive checks in the useAuth hook that provide more informative error messages if the context is missing. Verify the context default value is properly defined to help catch configuration issues during development."
         }
       ]
     }

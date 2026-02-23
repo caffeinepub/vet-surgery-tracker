@@ -1,51 +1,55 @@
 {
   "kind": "build_request",
-  "title": "Fix AuthProvider wrapper in main.tsx production build",
+  "title": "Fix AuthProvider context error in production build",
   "priority": "high",
   "requirements": [
     {
-      "id": "REQ-2",
-      "text": "Ensure AuthProvider from frontend/src/contexts/AuthContext.tsx properly wraps the App component in frontend/src/main.tsx so that the useAuth hook can access authentication context throughout the application",
+      "id": "REQ-4",
+      "text": "Ensure AuthProvider from frontend/src/contexts/AuthContext.tsx properly wraps the App component in frontend/src/main.tsx with correct nesting order: QueryClientProvider > InternetIdentityProvider > AuthProvider > App",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-last"
+          "msg-5"
         ],
         "quotes": [
-          "index-CtUuCriL.js:28085 Uncaught Error: useAuth must be used within an AuthProvider"
+          "useAuth must be used within an AuthProvider",
+          "I'll fix the component hierarchy in `frontend/src/main.tsx` to ensure `AuthProvider` properly wraps the `App` component"
         ]
       },
       "acceptanceCriteria": [
-        "No 'useAuth must be used within an AuthProvider' error appears in browser console",
-        "App component successfully renders without authentication context errors",
-        "AuthProvider wrapper is present in the component tree before App mounts",
-        "Production build includes the AuthProvider wrapper correctly"
+        "The App component is wrapped by AuthProvider in the main.tsx entry point",
+        "Component hierarchy follows the correct nesting order with AuthProvider inside InternetIdentityProvider and QueryClientProvider",
+        "The useAuth hook can access authentication context without throwing runtime errors",
+        "The live app loads without the 'useAuth must be used within an AuthProvider' error"
       ]
     },
     {
-      "id": "REQ-3",
-      "text": "Verify the component hierarchy in frontend/src/main.tsx places AuthProvider outside App and inside QueryClientProvider and InternetIdentityProvider to ensure proper context nesting order",
+      "id": "REQ-5",
+      "text": "Verify that the AuthProvider wrapper persists through the production build process and is not stripped or reordered during bundling",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-last"
+          "msg-5"
+        ],
+        "quotes": [
+          "AuthProvider fix in main.tsx didn't take effect in production build - error still occurring in live app"
         ]
       },
       "acceptanceCriteria": [
-        "AuthProvider is rendered as a child of QueryClientProvider",
-        "App component is rendered as a child of AuthProvider",
-        "Context providers are nested in the correct order for dependencies"
+        "Production build includes AuthProvider wrapper in the correct position",
+        "No bundler optimizations remove or reorder the AuthProvider component",
+        "Deployed version renders with proper context hierarchy"
       ]
     }
   ],
   "constraints": [
-    "Do not modify frontend/src/hooks/useInternetIdentity.ts as it is in the immutablePaths list",
-    "Maintain single-actor backend architecture",
-    "Keep all authentication logic in frontend/src/contexts/AuthContext.tsx"
+    "Do not modify frontend/src/hooks/useInternetIdentity.ts or frontend/src/hooks/useActor.ts",
+    "Maintain the existing QueryClientProvider and InternetIdentityProvider wrappers",
+    "Preserve all existing authentication functionality in AuthContext.tsx"
   ],
   "nonGoals": [
-    "Changing the authentication mechanism from username/password",
-    "Modifying the AuthContext implementation",
+    "Changing the authentication implementation logic",
+    "Modifying the AuthContext provider implementation",
     "Adding new authentication features"
   ],
   "imageRequirements": {
