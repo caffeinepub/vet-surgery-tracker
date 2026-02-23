@@ -1,49 +1,43 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 3,
-  "summary": "Medical case management system with dashboard, case tracking, and task management",
+  "projectStateVersion": 5,
+  "summary": "Authentication app with username/password login and registration",
   "architectural_notes": [
-    "System includes dashboard with case cards",
-    "Cases contain MRN, name, and task tracking",
-    "Authentication migrating from Internet Identity to username/password"
+    "App uses React Context API with AuthProvider for authentication state management",
+    "Username/password authentication implemented"
   ],
-  "known_issues": [],
-  "isFixRequest": false,
-  "existing_features": [
-    {
-      "id": "feature-add-a-pdf-export-button-to-the-dashboard-view-that-generates-a-downloadable-pdf-report-of-all-cases",
-      "title": "Add a PDF export button to the dashboard view that generates a downloadable PDF report of all cases",
-      "reqIds": [
-        "REQ-4"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-format-the-pdf-report-as-a-table-or-card-layout-displaying-all-case-fields-including-mrn-owner-name-pet-name-species-breed-sex-arrival-date-spayed-neutered-status-chief-complaint-and-notes",
-      "title": "Format the PDF report as a table or card layout displaying all case fields including MRN, owner name, pet name, species, breed, sex, arrival date, spayed/neutered status, chief complaint, and notes",
-      "reqIds": [
-        "REQ-5"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-include-all-remaining-incomplete-tasks-for-each-case-in-the-pdf-report-showing-task-names-and-their-completion-status",
-      "title": "Include all remaining incomplete tasks for each case in the PDF report, showing task names and their completion status",
-      "reqIds": [
-        "REQ-6"
-      ],
-      "version": 1
-    }
+  "known_issues": [
+    "AuthProvider not wrapping App component in main entry point causing 'useAuth must be used within an AuthProvider' error",
+    "AuthProvider fix in main.tsx didn't take effect in production build - error still occurring in live app"
   ],
+  "isFixRequest": true,
+  "existing_features": [],
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Add PDF export feature for cases with downloadable report showing all case fields and remaining tasks",
-      "reqIds": [],
+      "summary": "Wrap the App component with AuthProvider in frontend/src/main.tsx to resolve the 'useAuth must be used within an AuthProvider' error",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Ensure AuthProvider from frontend/src/contexts/AuthContext.tsx properly wraps the App component in frontend/src/main.tsx so that the useAuth hook can access authentication context throughout the application",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Verify the component hierarchy in frontend/src/main.tsx places AuthProvider outside App and inside QueryClientProvider and InternetIdentityProvider to ensure proper context nesting order",
+      "reqIds": [
+        "REQ-3"
+      ],
       "status": "pending"
     }
   ],
-  "gameProjectType": "none",
   "projectName": "SurgiPaw",
   "clarification_mode": "instant",
   "clarification_rounds": 0

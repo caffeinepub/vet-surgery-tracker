@@ -1,75 +1,52 @@
 {
   "kind": "build_request",
-  "title": "Add PDF Export Feature for Case Reports",
-  "projectName": "SurgiPaw",
-  "priority": "normal",
+  "title": "Fix AuthProvider wrapper in main.tsx production build",
+  "priority": "high",
   "requirements": [
     {
-      "id": "REQ-4",
-      "text": "Add a PDF export button to the dashboard view that generates a downloadable PDF report of all cases",
+      "id": "REQ-2",
+      "text": "Ensure AuthProvider from frontend/src/contexts/AuthContext.tsx properly wraps the App component in frontend/src/main.tsx so that the useAuth hook can access authentication context throughout the application",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-final"
+          "msg-last"
         ],
         "quotes": [
-          "Download button to generate a PDF report"
+          "index-CtUuCriL.js:28085 Uncaught Error: useAuth must be used within an AuthProvider"
         ]
       },
       "acceptanceCriteria": [
-        "Export button is visible and accessible on the dashboard view",
-        "Clicking the button triggers PDF generation and download",
-        "PDF filename includes timestamp for organization"
+        "No 'useAuth must be used within an AuthProvider' error appears in browser console",
+        "App component successfully renders without authentication context errors",
+        "AuthProvider wrapper is present in the component tree before App mounts",
+        "Production build includes the AuthProvider wrapper correctly"
       ]
     },
     {
-      "id": "REQ-5",
-      "text": "Format the PDF report as a table or card layout displaying all case fields including MRN, owner name, pet name, species, breed, sex, arrival date, spayed/neutered status, chief complaint, and notes",
+      "id": "REQ-3",
+      "text": "Verify the component hierarchy in frontend/src/main.tsx places AuthProvider outside App and inside QueryClientProvider and InternetIdentityProvider to ensure proper context nesting order",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-final"
-        ],
-        "quotes": [
-          "Table/Case card format with all case fields (MRN, name, outstanding tasks, etc.)"
+          "msg-last"
         ]
       },
       "acceptanceCriteria": [
-        "All case data fields from SurgeryCase type are included in the PDF",
-        "Layout is readable and well-organized in table or card format",
-        "Case information is clearly labeled and easy to read"
-      ]
-    },
-    {
-      "id": "REQ-6",
-      "text": "Include all remaining incomplete tasks for each case in the PDF report, showing task names and their completion status",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-final"
-        ],
-        "quotes": [
-          "Shows all cases with their remaining tasks"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Each case displays its list of incomplete tasks",
-        "Task names match the checklist item labels from the existing system",
-        "Only tasks that are selected but not completed are shown as remaining tasks",
-        "Cases with no remaining tasks clearly indicate completion status"
+        "AuthProvider is rendered as a child of QueryClientProvider",
+        "App component is rendered as a child of AuthProvider",
+        "Context providers are nested in the correct order for dependencies"
       ]
     }
   ],
   "constraints": [
-    "Do not modify the existing dashboard UI, case management features, or data structures",
-    "Preserve all existing checklist functionality and task tracking logic",
-    "Use the existing case filtering and sorting logic to determine which cases to include in the PDF"
+    "Do not modify frontend/src/hooks/useInternetIdentity.ts as it is in the immutablePaths list",
+    "Maintain single-actor backend architecture",
+    "Keep all authentication logic in frontend/src/contexts/AuthContext.tsx"
   ],
   "nonGoals": [
-    "Changing the authentication system from Internet Identity to username/password",
-    "Modifying the backend data schema or API endpoints",
-    "Adding new case fields or task types",
-    "Implementing server-side PDF generation"
+    "Changing the authentication mechanism from username/password",
+    "Modifying the AuthContext implementation",
+    "Adding new authentication features"
   ],
   "imageRequirements": {
     "required": [],

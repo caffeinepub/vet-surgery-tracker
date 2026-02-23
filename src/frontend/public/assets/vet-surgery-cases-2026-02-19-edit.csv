@@ -1,0 +1,6 @@
+Medical Record #,Arrival Date,Pet Name,Owner Last Name,Species,Breed,Sex,Date of Birth,Presenting Complaint,Notes,Discharge Notes,pDVM Notified,Labs,Histo,Surgery Report,Imaging,Culture
+10412-3,2/4/2026,Koda,Dove,canine,Mixed breed,maleNeutered,5/15/2015,"toe mass, right front 2nd digit",,FALSE,FALSE,FALSE,TRUE,FALSE,FALSE,FALSE
+13761-1,2/18/2026,Pongo,Hahn,canine,Labradoodle,maleNeutered,8/19/2019,Right TPLO - partial CCL,,TRUE,TRUE,FALSE,FALSE,TRUE,TRUE,FALSE
+17604-1,2/18/2026,Anthony,Woodland Park Zooe,other,Anaconda,male,2/18/2004,submandibular swelling,CT scan also,TRUE,TRUE,FALSE,FALSE,TRUE,TRUE,FALSE
+847-4,2/13/2026,Charlotte,Ferreira,canine,Mixed breed,femaleSpayed,1/2/2015,left anal sacculectomy/AGASACA,hypercalcemia,TRUE,TRUE,FALSE,TRUE,FALSE,FALSE,FALSE
+17224-1,2/19/2026,Nash,Kaza,canine,Goldendoodle,maleNeutered,1/28/2018,AGASACA,,TRUE,TRUE,FALSE,FALSE,FALSE,FALSE,FALSE

@@ -25,7 +25,7 @@ import {
   Search,
   Plus,
   X,
-  Download
+  FileDown
 } from 'lucide-react';
 import { getOpenTasksFromCase, getTotalOpenTasksCount } from '../utils/openTasksCalculation';
 import { CHECKLIST_ITEMS, getTaskBorderColor, getTaskBackgroundColor } from '../../cases/checklist';
@@ -34,7 +34,7 @@ import { filterCasesByTaskTypes, filterOutCompletedCases, filterCasesByAllTasksC
 import { useDebouncedValue } from '../../../hooks/useDebouncedValue';
 import CasesTasksFilter from '../../cases/components/CasesTasksFilter';
 import { sortCases } from '../../cases/sorting';
-import { generateCaseReport } from '../../cases/pdf/generateCaseReport';
+import { generateCasePdf } from '../../cases/pdf/generateCasePdf';
 import type { Species, SurgeryCase } from '../../../backend';
 
 interface DashboardViewProps {
@@ -101,7 +101,7 @@ export default function DashboardView({ onNavigateToCase, onNewCase }: Dashboard
   const [selectedTaskTypes, setSelectedTaskTypes] = useState<Set<string>>(new Set());
   const [showAllTasksCompleted, setShowAllTasksCompleted] = useState(false);
   const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
-  const [isGeneratingReport, setIsGeneratingReport] = useState(false);
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   const debouncedSearch = useDebouncedValue(searchQuery, 300);
 
   // Filter and sort cases
@@ -152,16 +152,16 @@ export default function DashboardView({ onNavigateToCase, onNewCase }: Dashboard
     setSearchQuery('');
   };
 
-  const handleExportReport = () => {
-    setIsGeneratingReport(true);
+  const handleExportPdf = () => {
+    setIsGeneratingPdf(true);
     try {
       // Export all cases (not just filtered ones) to include complete data
-      generateCaseReport(cases);
+      generateCasePdf(cases);
     } catch (error) {
-      console.error('Error generating report:', error);
-      alert('Failed to generate report. Please try again.');
+      console.error('Error generating PDF report:', error);
+      alert('Failed to generate PDF report. Please try again.');
     } finally {
-      setIsGeneratingReport(false);
+      setIsGeneratingPdf(false);
     }
   };
 
@@ -186,12 +186,12 @@ export default function DashboardView({ onNavigateToCase, onNewCase }: Dashboard
         </div>
         <div className="flex gap-2">
           <Button 
-            onClick={handleExportReport} 
+            onClick={handleExportPdf} 
             variant="outline"
-            disabled={isGeneratingReport || cases.length === 0}
+            disabled={isGeneratingPdf || cases.length === 0}
           >
-            <Download className="h-4 w-4 mr-2" />
-            {isGeneratingReport ? 'Generating...' : 'Export Report'}
+            <FileDown className="h-4 w-4 mr-2" />
+            {isGeneratingPdf ? 'Generating...' : 'Export Report'}
           </Button>
           <Button onClick={onNewCase}>
             <Plus className="h-4 w-4 mr-2" />

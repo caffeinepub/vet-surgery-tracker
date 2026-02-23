@@ -1,69 +1,38 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Add PDF Export Feature for Case Reports",
+  "title": "Fix AuthProvider wrapper in main.tsx production build",
   "requirements": [
     {
-      "id": "REQ-4",
-      "summary": "Add a PDF export button to the dashboard view that generates a downloadable PDF report of all cases",
+      "id": "REQ-2",
+      "summary": "Ensure AuthProvider properly wraps the App component in main.tsx so useAuth hook can access authentication context throughout the application",
       "acceptanceCriteria": [
-        "Export button is visible and accessible on the dashboard view",
-        "Clicking the button triggers PDF generation and download",
-        "PDF filename includes timestamp for organization"
+        "No 'useAuth must be used within an AuthProvider' error appears in browser console",
+        "App component successfully renders without authentication context errors",
+        "AuthProvider wrapper is present in the component tree before App mounts",
+        "Production build includes the AuthProvider wrapper correctly"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/features/dashboard/components/DashboardView.tsx",
+          "path": "frontend/src/main.tsx",
           "operation": "modify",
-          "description": "Add a PDF export button to the dashboard header/toolbar area that triggers PDF generation. Position it near existing action buttons (such as filters or sorting controls). Wire the button click handler to invoke the PDF generation utility function. Ensure the button is styled consistently with existing dashboard UI patterns and includes appropriate loading states during PDF generation."
-        },
-        {
-          "path": "frontend/src/features/cases/pdf/generateCasePdf.ts",
-          "operation": "create",
-          "description": "Create a utility module that generates PDF reports from surgery case data. Implement functions to: (1) accept an array of SurgeryCase objects and generate a PDF document, (2) format the PDF with a table or card layout displaying all case fields, (3) include remaining incomplete tasks for each case, (4) generate a filename with timestamp (e.g., 'surgery-cases-YYYY-MM-DD-HHmmss.pdf'), and (5) trigger browser download of the generated PDF. Use a client-side PDF generation library (such as jsPDF or pdfmake) to create the document entirely in the frontend without backend involvement."
+          "description": "Add AuthProvider import from frontend/src/contexts/AuthContext.tsx and wrap the App component with AuthProvider to ensure authentication context is available throughout the application. Verify the AuthProvider wrapper is correctly included in the React tree rendered by ReactDOM.createRoot."
         }
       ]
     },
     {
-      "id": "REQ-5",
-      "summary": "Format the PDF report as a table or card layout displaying all case fields including MRN, owner name, pet name, species, breed, sex, arrival date, spayed/neutered status, chief complaint, and notes",
+      "id": "REQ-3",
+      "summary": "Verify component hierarchy in main.tsx places AuthProvider in correct nesting order with other providers",
       "acceptanceCriteria": [
-        "All case data fields from SurgeryCase type are included in the PDF",
-        "Layout is readable and well-organized in table or card format",
-        "Case information is clearly labeled and easy to read"
+        "AuthProvider is rendered as a child of QueryClientProvider",
+        "App component is rendered as a child of AuthProvider",
+        "Context providers are nested in the correct order for dependencies"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/features/cases/pdf/generateCasePdf.ts",
+          "path": "frontend/src/main.tsx",
           "operation": "modify",
-          "description": "Implement PDF layout logic to display all case fields in a well-organized format. For each case, include: Medical Record Number (MRN), Owner Last Name, Pet Name, Species (canine/feline/other), Breed, Sex (male/female/neutered/spayed), Arrival Date (formatted as MM/DD/YYYY), Date of Birth if available, Presenting Complaint, and Notes. Use clear labels for each field. Choose either a table layout (one row per case with columns for each field) or a card layout (one card per case with fields arranged vertically). Ensure proper text wrapping for long notes and complaints. Apply consistent styling, readable fonts, and appropriate spacing throughout the PDF."
-        },
-        {
-          "path": "frontend/src/features/cases/pdf/pdfFormatters.ts",
-          "operation": "create",
-          "description": "Create formatting utility functions for PDF content. Implement functions to: (1) format dates from Time (bigint) to human-readable strings (MM/DD/YYYY), (2) convert Species and Sex enums to readable text labels, (3) handle optional fields like Date of Birth gracefully (display 'Unknown' or similar when null), (4) truncate or wrap long text fields like notes and complaints for PDF display, and (5) format field labels consistently. These formatters ensure all case data is properly transformed for PDF presentation."
-        }
-      ]
-    },
-    {
-      "id": "REQ-6",
-      "summary": "Include all remaining incomplete tasks for each case in the PDF report, showing task names and their completion status",
-      "acceptanceCriteria": [
-        "Each case displays its list of incomplete tasks",
-        "Task names match the checklist item labels from the existing system",
-        "Only tasks that are selected but not completed are shown as remaining tasks",
-        "Cases with no remaining tasks clearly indicate completion status"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/features/cases/pdf/generateCasePdf.ts",
-          "operation": "modify",
-          "description": "Enhance the PDF generation to include task information for each case. For each case in the PDF, add a section displaying remaining incomplete tasks. Use the existing checklist utility functions from frontend/src/features/cases/checklist.ts to identify tasks that are selected but not yet completed. Display the task names (e.g., 'PDVM Notified', 'Histo', 'Labs', 'Culture', 'Surgery Report', 'Imaging', 'Discharge Notes') matching the existing checklist labels. For cases with no remaining tasks, display a completion indicator such as 'All tasks completed' or a checkmark symbol. Format the task list clearly, either as a bulleted list under each case or as an inline comma-separated list, ensuring it is visually distinct from other case information."
-        },
-        {
-          "path": "frontend/src/features/cases/pdf/pdfFormatters.ts",
-          "operation": "modify",
-          "description": "Add formatting functions for task display in the PDF. Implement functions to: (1) format the list of remaining task names for a case (using the getRemainingTasks utility from checklist.ts), (2) format the task names to match existing checklist labels exactly, (3) create a readable completion status indicator when all tasks are complete, and (4) handle cases where no tasks were ever selected for a case. Ensure task formatting is consistent with the existing UI conventions while being optimized for PDF readability."
+          "description": "Verify and adjust the provider nesting order to ensure QueryClientProvider wraps InternetIdentityProvider, InternetIdentityProvider wraps AuthProvider, and AuthProvider wraps the App component. This establishes the correct dependency chain where authentication context depends on Internet Identity and query client."
         }
       ]
     }

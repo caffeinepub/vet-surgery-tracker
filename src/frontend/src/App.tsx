@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { useInternetIdentity } from './hooks/useInternetIdentity';
+import { useAuth } from './contexts/AuthContext';
 import { useActor } from './hooks/useActor';
 import { useGetCallerUserProfile, useIsCallerAdmin } from './hooks/useQueries';
-import LoginButton from './features/auth/components/LoginButton';
+import AuthView from './features/auth/components/AuthView';
+import LogoutButton from './features/auth/components/LogoutButton';
 import ProfileSetupModal from './features/auth/components/ProfileSetupModal';
 import CasesListView from './features/cases/components/CasesListView';
 import SettingsView from './features/settings/components/SettingsView';
@@ -10,13 +11,12 @@ import DashboardView from './features/dashboard/components/DashboardView';
 import { Toaster } from '@/components/ui/sonner';
 import { ThemeProvider } from 'next-themes';
 import { Button } from '@/components/ui/button';
-import { Settings, AlertCircle, RefreshCw, LayoutDashboard, FolderOpen } from 'lucide-react';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Settings, LayoutDashboard, FolderOpen } from 'lucide-react';
 
 type View = 'dashboard' | 'cases' | 'settings';
 
 export default function App() {
-  const { identity, isInitializing, login, clear } = useInternetIdentity();
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
   const { actor, isFetching: actorFetching } = useActor();
   const { data: userProfile, isLoading: profileLoading, isFetched } = useGetCallerUserProfile();
   const { data: isAdmin, isLoading: adminLoading } = useIsCallerAdmin();
@@ -24,7 +24,6 @@ export default function App() {
   const [selectedCaseId, setSelectedCaseId] = useState<bigint | null>(null);
   const [isNewCaseDialogOpen, setIsNewCaseDialogOpen] = useState(false);
 
-  const isAuthenticated = !!identity;
   const showProfileSetup = isAuthenticated && !profileLoading && isFetched && userProfile === null;
 
   // Defensive guard: ensure no dark class is ever applied
@@ -49,17 +48,6 @@ export default function App() {
     return () => observer.disconnect();
   }, []);
 
-  const handleRetry = async () => {
-    try {
-      await clear();
-      setTimeout(() => {
-        login();
-      }, 300);
-    } catch (error) {
-      console.error('Retry failed:', error);
-    }
-  };
-
   const handleNavigateToCase = (caseId: bigint) => {
     setSelectedCaseId(caseId);
     setCurrentView('cases');
@@ -77,7 +65,7 @@ export default function App() {
     }, 100);
   };
 
-  if (isInitializing) {
+  if (authLoading) {
     return (
       <ThemeProvider attribute="class" defaultTheme="light" forcedTheme="light" enableSystem={false}>
         <div className="flex min-h-screen items-center justify-center bg-background">
@@ -93,48 +81,8 @@ export default function App() {
   if (!isAuthenticated) {
     return (
       <ThemeProvider attribute="class" defaultTheme="light" forcedTheme="light" enableSystem={false}>
-        <div className="flex min-h-screen flex-col bg-background">
-          <header className="border-b bg-card backdrop-blur-sm">
-            <div className="container mx-auto flex h-16 items-center justify-between px-4">
-              <div className="flex items-center gap-3">
-                <img 
-                  src="/assets/image-1.png" 
-                  alt="SurgiPaw" 
-                  className="h-12 w-12 rounded-lg"
-                />
-                <h1 className="text-2xl font-bold text-foreground">SurgiPaw</h1>
-              </div>
-              <LoginButton />
-            </div>
-          </header>
-          <main className="flex flex-1 items-center justify-center px-4">
-            <div className="max-w-md text-center">
-              <img 
-                src="/assets/image-1.png" 
-                alt="SurgiPaw" 
-                className="mb-8 h-32 w-32 mx-auto rounded-2xl shadow-lg"
-              />
-              <h2 className="mb-4 text-3xl font-bold text-foreground">Welcome to SurgiPaw</h2>
-              <p className="mb-8 text-lg text-muted-foreground">
-                Track and manage veterinary surgery cases with ease. Please log in to continue.
-              </p>
-              <LoginButton />
-            </div>
-          </main>
-          <footer className="border-t bg-card backdrop-blur-sm py-6">
-            <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
-              © {new Date().getFullYear()} · Built with ❤️ using{' '}
-              <a
-                href={`https://caffeine.ai/?utm_source=Caffeine-footer&utm_medium=referral&utm_content=${encodeURIComponent(window.location.hostname)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-medium text-primary hover:underline"
-              >
-                caffeine.ai
-              </a>
-            </div>
-          </footer>
-        </div>
+        <AuthView />
+        <Toaster />
       </ThemeProvider>
     );
   }
@@ -192,7 +140,7 @@ export default function App() {
                   Settings
                 </Button>
               )}
-              <LoginButton />
+              <LogoutButton />
             </div>
           </div>
         </header>

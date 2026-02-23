@@ -1,17 +1,14 @@
 import Array "mo:core/Array";
 import Map "mo:core/Map";
 import Iter "mo:core/Iter";
+import Nat "mo:core/Nat";
 import Order "mo:core/Order";
 import Principal "mo:core/Principal";
 import Runtime "mo:core/Runtime";
 import Text "mo:core/Text";
 import Time "mo:core/Time";
-import Nat "mo:core/Nat";
-
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
-
-
 
 actor {
   public type Species = { #canine; #feline; #other };
