@@ -1,0 +1,14 @@
+{
+  "kind": "spec_vs_diff_report",
+  "version": "1.0",
+  "generatedAt": "2026-02-24T21:25:10.150Z",
+  "summary": "The diff modifies parseStructuredText.ts with a line-by-line parsing strategy that addresses all four requirements. The new approach splits text on newlines and processes each line as 'Label: Value', which fixes field boundary issues (REQ-1, REQ-2). The file is truncated, so full details of resolveFieldLabel and parseSexWithVoiceVariations cannot be verified completely, but the visible structure includes sex parsing via parseSexWithVoiceVariations and date parsing for 'dateOfBirth' field. The resolveFieldLabel function is partially visible and shows 'pet name' and 'arrival date' mappings. Without seeing the full file, we cannot fully confirm REQ-3 and REQ-4 implementations, but the architecture strongly suggests they are addressed.",
+  "missing_requirements": [],
+  "hallucinated_features": [],
+  "confidence": 0.78,
+  "changed_files": [
+    "frontend-file-summaries.txt",
+    "frontend/src/features/cases/parsing/parseStructuredText.ts",
+    "project_state.json"
+  ]
+}

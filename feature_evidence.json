@@ -1,0 +1,89 @@
+{
+  "kind": "feature_evidence_report",
+  "features": [
+    {
+      "featureId": "feature-fix-the-quick-fill-from-text-parser-in-parsestructuredtext-ts-to-correctly-identify-field-boundaries-so-that-pet-name-is-parsed-as-only-the-pet-name-value-e-g-kitten-without-appending-the-next-field-label-owner-to-it",
+      "featureTitle": "Fix the Quick Fill from Text parser in parseStructuredText.ts to correctly identify field boundaries so that 'Pet Name' is parsed as only the pet name value (e.g., 'Kitten') without appending the next field label 'owner' to it.",
+      "files": [
+        "frontend/src/features/cases/parsing/parseStructuredText.ts"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "camera@1.0.0",
+        "http-outcalls@3.0.0"
+      ],
+      "testIds": [
+        "REQ-1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-fix-the-quick-fill-from-text-parser-in-parsestructuredtext-ts-to-correctly-identify-field-boundaries-so-that-owner-name-is-parsed-as-only-the-owner-name-value-e-g-beatty-without-appending-the-next-field-label-species-to-it",
+      "featureTitle": "Fix the Quick Fill from Text parser in parseStructuredText.ts to correctly identify field boundaries so that 'Owner name' is parsed as only the owner name value (e.g., 'Beatty') without appending the next field label 'species' to it.",
+      "files": [
+        "frontend/src/features/cases/parsing/parseStructuredText.ts"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "camera@1.0.0",
+        "http-outcalls@3.0.0"
+      ],
+      "testIds": [
+        "REQ-2"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-fix-the-quick-fill-from-text-parser-in-parsestructuredtext-ts-to-correctly-capture-multi-word-sex-values-the-regex-or-matching-logic-for-the-sex-field-must-capture-the-full-value-neutered-male-and-similar-multi-word-values-like-spayed-female-intact-male-intact-female-and-map-them-to-the-correct-sex-enum-option-used-in-the-form",
+      "featureTitle": "Fix the Quick Fill from Text parser in parseStructuredText.ts to correctly capture multi-word sex values. The regex or matching logic for the 'Sex' field must capture the full value 'Neutered Male' (and similar multi-word values like 'Spayed Female', 'Intact Male', 'Intact Female') and map them to the correct sex enum/option used in the form.",
+      "files": [
+        "frontend/src/features/cases/parsing/parseStructuredText.ts"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "camera@1.0.0",
+        "http-outcalls@3.0.0"
+      ],
+      "testIds": [
+        "REQ-3"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-fix-the-quick-fill-from-text-parser-in-parsestructuredtext-ts-to-correctly-match-and-populate-the-date-of-birth-field-the-parser-must-recognize-the-date-of-birth-label-including-variations-like-dob-and-parse-date-values-in-mm-dd-yyyy-format-e-g-6-18-2023-then-fill-the-dob-form-field-accordingly",
+      "featureTitle": "Fix the Quick Fill from Text parser in parseStructuredText.ts to correctly match and populate the Date of Birth field. The parser must recognize the 'Date of Birth' label (including variations like 'DOB') and parse date values in MM/DD/YYYY format (e.g., '6/18/2023'), then fill the DOB form field accordingly.",
+      "files": [
+        "frontend/src/features/cases/parsing/parseStructuredText.ts"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "camera@1.0.0",
+        "http-outcalls@3.0.0"
+      ],
+      "testIds": [
+        "REQ-4"
+      ],
+      "confidence": "high"
+    }
+  ]
+}

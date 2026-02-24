@@ -1,0 +1,104 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        color-scheme: light;
+        --radius: 0.5rem;
+        
+        /* Light blue background with white surfaces */
+        --background: 0.95 0.03 240;
+        --foreground: 0.20 0.02 240;
+        --card: 1 0 0;
+        --card-foreground: 0.20 0.02 240;
+        --popover: 1 0 0;
+        --popover-foreground: 0.20 0.02 240;
+        --primary: 0.55 0.18 240;
+        --primary-foreground: 1 0 0;
+        --secondary: 0.96 0.01 240;
+        --secondary-foreground: 0.25 0.03 240;
+        --muted: 0.96 0.01 240;
+        --muted-foreground: 0.50 0.03 240;
+        --accent: 0.94 0.02 240;
+        --accent-foreground: 0.25 0.03 240;
+        --destructive: 0.55 0.22 25;
+        --destructive-foreground: 0.98 0 0;
+        --border: 0.90 0.01 240;
+        --input: 0.90 0.01 240;
+        --ring: 0.55 0.18 240;
+        --chart-1: 0.60 0.16 240;
+        --chart-2: 0.65 0.15 220;
+        --chart-3: 0.55 0.14 260;
+        --chart-4: 0.70 0.13 230;
+        --chart-5: 0.50 0.17 250;
+        
+        /* Blue for patient name */
+        --patient-name: 0.50 0.20 240;
+        
+        /* Blue for species field */
+        --species-bg: 0.95 0.05 240;
+        
+        /* Orange for presenting complaint */
+        --complaint-bg: 0.95 0.04 40;
+        --complaint-text: 0.45 0.16 40;
+        --complaint-border: 0.65 0.14 40;
+        
+        /* Green for notes field */
+        --notes-bg: 0.95 0.05 140;
+        --notes-border: 0.55 0.16 140;
+    }
+
+    .dark {
+        /* Dark mode tokens kept for reference but will not be applied */
+        color-scheme: light;
+        --background: 0.95 0.03 240;
+        --foreground: 0.20 0.02 240;
+        --card: 1 0 0;
+        --card-foreground: 0.20 0.02 240;
+        --popover: 1 0 0;
+        --popover-foreground: 0.20 0.02 240;
+        --primary: 0.55 0.18 240;
+        --primary-foreground: 1 0 0;
+        --secondary: 0.96 0.01 240;
+        --secondary-foreground: 0.25 0.03 240;
+        --muted: 0.96 0.01 240;
+        --muted-foreground: 0.50 0.03 240;
+        --accent: 0.94 0.02 240;
+        --accent-foreground: 0.25 0.03 240;
+        --destructive: 0.55 0.22 25;
+        --destructive-foreground: 0.98 0 0;
+        --border: 0.90 0.01 240;
+        --input: 0.90 0.01 240;
+        --ring: 0.55 0.18 240;
+        --chart-1: 0.60 0.16 240;
+        --chart-2: 0.65 0.15 220;
+        --chart-3: 0.55 0.14 260;
+        --chart-4: 0.70 0.13 230;
+        --chart-5: 0.50 0.17 250;
+        
+        /* Blue for patient name */
+        --patient-name: 0.50 0.20 240;
+        
+        /* Blue for species field */
+        --species-bg: 0.95 0.05 240;
+        
+        /* Orange for presenting complaint */
+        --complaint-bg: 0.95 0.04 40;
+        --complaint-text: 0.45 0.16 40;
+        --complaint-border: 0.65 0.14 40;
+        
+        /* Green for notes field */
+        --notes-bg: 0.95 0.05 140;
+        --notes-border: 0.55 0.16 140;
+    }
+
+    * {
+        @apply border-border;
+    }
+    
+    body {
+        @apply bg-background text-foreground;
+        font-feature-settings: "rlig" 1, "calt" 1;
+    }
+}

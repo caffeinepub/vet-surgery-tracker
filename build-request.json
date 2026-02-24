@@ -1,0 +1,89 @@
+{
+  "kind": "build_request",
+  "title": "Fix Quick Fill from Text parser field boundary and value parsing issues",
+  "priority": "high",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "text": "Fix the Quick Fill from Text parser in parseStructuredText.ts to correctly identify field boundaries so that 'Pet Name' is parsed as only the pet name value (e.g., 'Kitten') without appending the next field label 'owner' to it.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-latest"
+        ],
+        "quotes": [
+          "the App is adding \"owner\" after the pet name"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Pasting the sample text and clicking Parse & Fill populates Pet Name with 'Kitten' only",
+        "The word 'owner' does not appear in the Pet Name field"
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "text": "Fix the Quick Fill from Text parser in parseStructuredText.ts to correctly identify field boundaries so that 'Owner name' is parsed as only the owner name value (e.g., 'Beatty') without appending the next field label 'species' to it.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-latest"
+        ],
+        "quotes": [
+          "\"species\" after the owner last name"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Pasting the sample text and clicking Parse & Fill populates Owner name with 'Beatty' only",
+        "The word 'species' does not appear in the Owner name field"
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Fix the Quick Fill from Text parser in parseStructuredText.ts to correctly capture multi-word sex values. The regex or matching logic for the 'Sex' field must capture the full value 'Neutered Male' (and similar multi-word values like 'Spayed Female', 'Intact Male', 'Intact Female') and map them to the correct sex enum/option used in the form.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-latest"
+        ],
+        "quotes": [
+          "is not parsing the sex correctly"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Pasting 'Sex: Neutered Male' and clicking Parse & Fill selects the correct 'Neutered Male' option in the Sex field",
+        "Multi-word sex values such as 'Spayed Female', 'Intact Male', 'Intact Female' are also correctly parsed and selected"
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Fix the Quick Fill from Text parser in parseStructuredText.ts to correctly match and populate the Date of Birth field. The parser must recognize the 'Date of Birth' label (including variations like 'DOB') and parse date values in MM/DD/YYYY format (e.g., '6/18/2023'), then fill the DOB form field accordingly.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-latest"
+        ],
+        "quotes": [
+          "is not filling out the date of birth"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Pasting 'Date of Birth: 6/18/2023' and clicking Parse & Fill populates the Date of Birth field with '6/18/2023' or '06/18/2023'",
+        "The DOB field is not left empty after parsing the sample text block"
+      ]
+    }
+  ],
+  "constraints": [
+    "Do not change any backend schema or Motoko code",
+    "Do not modify immutable frontend paths (hooks, main.tsx, ui components)",
+    "Preserve all existing parsing logic for fields that are already working correctly"
+  ],
+  "nonGoals": [
+    "Adding new form fields or case data model changes",
+    "Changing the UI layout of the Quick Fill dialog",
+    "Parsing the AGE field into the form"
+  ],
+  "imageRequirements": {
+    "required": [],
+    "edits": []
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "kind": "implementation_plan",
+  "version": "1.0",
+  "title": "Fix Quick Fill from Text parser field boundary and value parsing issues",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "summary": "Fix parser to correctly identify field boundaries for Pet Name so 'Kitten' is captured without appending 'owner' label",
+      "acceptanceCriteria": [
+        "Pasting the sample text and clicking Parse & Fill populates Pet Name with 'Kitten' only",
+        "The word 'owner' does not appear in the Pet Name field"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/features/cases/parsing/parseStructuredText.ts",
+          "operation": "modify",
+          "description": "Fix the regex pattern for 'Pet Name' field to stop capturing at the next field label boundary. Update the pattern to use a negative lookahead or non-greedy matching that terminates before encountering labels like 'owner', 'Owner', or other field names. Ensure the capture group extracts only the pet name value (e.g., 'Kitten') and trims trailing whitespace before the next label."
+        }
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "summary": "Fix parser to correctly identify field boundaries for Owner name so 'Beatty' is captured without appending 'species' label",
+      "acceptanceCriteria": [
+        "Pasting the sample text and clicking Parse & Fill populates Owner name with 'Beatty' only",
+        "The word 'species' does not appear in the Owner name field"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/features/cases/parsing/parseStructuredText.ts",
+          "operation": "modify",
+          "description": "Fix the regex pattern for 'Owner' or 'Owner name' field to stop capturing at the next field label boundary. Update the pattern to use a negative lookahead or non-greedy matching that terminates before encountering labels like 'species', 'Species', or other field names. Ensure the capture group extracts only the owner last name value (e.g., 'Beatty') and trims trailing whitespace before the next label."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Fix parser to correctly capture multi-word sex values like 'Neutered Male', 'Spayed Female', 'Intact Male', and 'Intact Female'",
+      "acceptanceCriteria": [
+        "Pasting 'Sex: Neutered Male' and clicking Parse & Fill selects the correct 'Neutered Male' option in the Sex field",
+        "Multi-word sex values such as 'Spayed Female', 'Intact Male', 'Intact Female' are also correctly parsed and selected"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/features/cases/parsing/parseStructuredText.ts",
+          "operation": "modify",
+          "description": "Update the 'Sex' field regex pattern to capture multi-word sex values. Change the pattern from matching a single word to matching two consecutive words (e.g., 'Neutered Male', 'Spayed Female', 'Intact Male', 'Intact Female'). Add mapping logic to convert these multi-word values to the correct Sex enum values defined in types.ts (maleNeutered, femaleSpayed, male, female). Ensure the pattern stops at the next field label boundary."
+        }
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "summary": "Fix parser to correctly match and populate the Date of Birth field from labels like 'Date of Birth' or 'DOB' with MM/DD/YYYY format",
+      "acceptanceCriteria": [
+        "Pasting 'Date of Birth: 6/18/2023' and clicking Parse & Fill populates the Date of Birth field with '6/18/2023' or '06/18/2023'",
+        "The DOB field is not left empty after parsing the sample text block"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/features/cases/parsing/parseStructuredText.ts",
+          "operation": "modify",
+          "description": "Add or fix the regex pattern for 'Date of Birth' field to recognize label variations including 'Date of Birth', 'DOB', 'Date of birth', 'dob', etc. Ensure the pattern captures date values in MM/DD/YYYY format (e.g., '6/18/2023') including single-digit month/day variants. The captured date string should be assigned to the dateOfBirth field in the returned CaseFormData object. Stop capturing at the next field label boundary."
+        }
+      ]
+    }
+  ]
+}
