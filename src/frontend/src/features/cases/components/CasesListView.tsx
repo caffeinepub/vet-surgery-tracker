@@ -36,7 +36,7 @@ export default function CasesListView({
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingCase, setEditingCase] = useState<SurgeryCase | undefined>(undefined);
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortOption, setSortOption] = useState<SortOption>('arrival-date-newest');
+  const [sortOption, setSortOption] = useState<SortOption>('arrival-date-oldest');
   const [selectedSpecies, setSelectedSpecies] = useState<Set<Species>>(new Set());
   const [selectedTaskTypes, setSelectedTaskTypes] = useState<Set<string>>(new Set());
   const [showAllTasksCompleted, setShowAllTasksCompleted] = useState(false);
@@ -103,18 +103,7 @@ export default function CasesListView({
     }
   }, [selectedCaseId, filteredAndSortedCases, onClearSelectedCase]);
 
-  const hasActiveFilters = selectedSpecies.size > 0 || selectedTaskTypes.size > 0 || showAllTasksCompleted;
-  const totalCases = cases.length;
-  const filteredCount = filteredAndSortedCases.length;
-
-  const actorReady = !!actor && !actorFetching;
-
-  const handleEdit = (surgeryCase: SurgeryCase) => {
-    setEditingCase(surgeryCase);
-    setIsFormOpen(true);
-  };
-
-  const handleFormClose = (open: boolean) => {
+  const handleFormOpenChange = (open: boolean) => {
     setIsFormOpen(open);
     if (onNewCaseDialogChange) {
       onNewCaseDialogChange(open);
@@ -124,12 +113,22 @@ export default function CasesListView({
     }
   };
 
+  const handleEdit = (surgeryCase: SurgeryCase) => {
+    setEditingCase(surgeryCase);
+    handleFormOpenChange(true);
+  };
+
+  const handleNewCase = () => {
+    setEditingCase(undefined);
+    handleFormOpenChange(true);
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="text-center">
           <div className="mb-4 h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto"></div>
-          <p className="text-muted-foreground">Loading cases...</p>
+          <p className="text-foreground font-medium">Loading cases...</p>
         </div>
       </div>
     );
@@ -139,9 +138,9 @@ export default function CasesListView({
     return (
       <Alert variant="destructive">
         <AlertCircle className="h-4 w-4" />
-        <AlertTitle>Error Loading Cases</AlertTitle>
+        <AlertTitle>Error</AlertTitle>
         <AlertDescription>
-          {error instanceof Error ? error.message : 'Failed to load cases. Please try again.'}
+          Failed to load cases. Please try refreshing the page.
         </AlertDescription>
       </Alert>
     );
@@ -149,46 +148,39 @@ export default function CasesListView({
 
   return (
     <div className="space-y-6">
-      {/* Header with Actions */}
-      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+      {/* Header */}
+      <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold text-foreground">Surgery Cases</h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            {hasActiveFilters
-              ? `Showing ${filteredCount} of ${totalCases} cases`
-              : `${totalCases} total case${totalCases !== 1 ? 's' : ''}`}
+          <h2 className="text-3xl font-bold text-foreground">Cases</h2>
+          <p className="text-muted-foreground mt-1">
+            {filteredAndSortedCases.length} {filteredAndSortedCases.length === 1 ? 'case' : 'cases'}
           </p>
         </div>
-        <div className="flex gap-2">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div>
-                  <Button
-                    onClick={() => setIsFormOpen(true)}
-                    disabled={!actorReady}
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    New Case
-                  </Button>
-                </div>
-              </TooltipTrigger>
-              {!actorReady && (
-                <TooltipContent>
-                  <p>Connecting to backend...</p>
-                </TooltipContent>
-              )}
-            </Tooltip>
-          </TooltipProvider>
-        </div>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div>
+                <Button onClick={handleNewCase} disabled={!actor || actorFetching}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  New Case
+                </Button>
+              </div>
+            </TooltipTrigger>
+            {(!actor || actorFetching) && (
+              <TooltipContent>
+                <p>Connecting to backend...</p>
+              </TooltipContent>
+            )}
+          </Tooltip>
+        </TooltipProvider>
       </div>
 
-      {/* Search, Sort, and Filter Controls */}
-      <div className="flex flex-col sm:flex-row gap-3">
+      {/* Search, Sort, and Filters */}
+      <div className="flex flex-col lg:flex-row gap-3">
         <div className="flex-1">
           <CasesSearchBar value={searchQuery} onChange={setSearchQuery} />
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-3">
           <CasesSortControl value={sortOption} onSortChange={setSortOption} />
           <CasesSpeciesFilter
             selectedSpecies={selectedSpecies}
@@ -203,20 +195,20 @@ export default function CasesListView({
         </div>
       </div>
 
-      {/* CSV Import/Export Panel */}
+      {/* CSV Import/Export */}
       <CsvImportExportPanel cases={cases} />
 
       {/* Cases List */}
       {filteredAndSortedCases.length === 0 ? (
         <div className="text-center py-12">
-          <p className="text-muted-foreground">
-            {hasActiveFilters || searchQuery.trim()
-              ? 'No cases match your search or filters.'
-              : 'No cases yet. Create your first case to get started.'}
+          <p className="text-muted-foreground text-lg">
+            {cases.length === 0
+              ? 'No cases yet. Create your first case to get started.'
+              : 'No cases match your search or filters.'}
           </p>
         </div>
       ) : (
-        <div className="grid gap-4">
+        <div className="space-y-4">
           {filteredAndSortedCases.map((surgeryCase) => (
             <div
               key={surgeryCase.id.toString()}
@@ -241,7 +233,7 @@ export default function CasesListView({
       {/* Case Form Dialog */}
       <CaseFormDialog
         open={isFormOpen}
-        onOpenChange={handleFormClose}
+        onOpenChange={handleFormOpenChange}
         existingCase={editingCase}
       />
     </div>

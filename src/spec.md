@@ -1,11 +1,13 @@
 # Specification
 
 ## Summary
-**Goal:** Fix voice recording transcription routing and Parse and Fill functionality to accurately extract all 9 case fields from spoken input.
+**Goal:** Set default sort order to Arrival Date (Oldest First) on both Dashboard and Cases pages, and increase MRN font size in case cards and lists.
 
 **Planned changes:**
-- Route transcribed text from voice recording into the Quick Fill text box instead of the Medical Record Number field
-- Enhance Parse and Fill button to accurately extract all 9 case fields (Medical Record Number, Arrival Date, Pet Name, Owner Last Name, Species, Breed, Sex, Date of Birth, Presenting Complaint) when field names are spoken followed by values
-- Improve date parsing to intelligently convert spoken number sequences into MM/DD/YYYY format for Arrival Date and Date of Birth fields
+- Set default sort order to Arrival Date (Oldest First) on Dashboard page load
+- Set default sort order to Arrival Date (Oldest First) on Cases page load
+- Preserve existing manual sort control functionality on both pages
+- Increase MRN font size in Dashboard case cards
+- Increase MRN font size in Cases page list items
 
-**User-visible outcome:** Users can speak case data by saying field names followed by values (e.g., "Medical Record Number 12345"), and the Parse and Fill button will accurately populate all 9 form fields, with dates properly formatted from spoken numbers.
+**User-visible outcome:** Cases are automatically sorted by Arrival Date (Oldest First) when loading Dashboard or Cases pages, with manual sort controls still available. MRN numbers are displayed in a larger, more prominent font size across both pages.

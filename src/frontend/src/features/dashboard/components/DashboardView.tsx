@@ -100,7 +100,7 @@ export default function DashboardView({ onNavigateToCase, onNewCase }: Dashboard
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTaskTypes, setSelectedTaskTypes] = useState<Set<string>>(new Set());
   const [showAllTasksCompleted, setShowAllTasksCompleted] = useState(false);
-  const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
+  const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('oldest');
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   const debouncedSearch = useDebouncedValue(searchQuery, 300);
 
@@ -286,7 +286,7 @@ export default function DashboardView({ onNavigateToCase, onNewCase }: Dashboard
                         </div>
                         <div className="text-sm text-muted-foreground space-y-1">
                           <div className="flex items-center justify-between">
-                            <span>MRN: {firstTask.medicalRecordNumber}</span>
+                            <span className="text-lg font-semibold">MRN: {firstTask.medicalRecordNumber}</span>
                             {fullCase && fullCase.arrivalDate && fullCase.arrivalDate > 0n && (
                               <span className="text-xs font-medium text-foreground/70">
                                 {formatArrivalDate(fullCase.arrivalDate)}

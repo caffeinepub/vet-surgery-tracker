@@ -2,10 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-fix-voice-recording-to-place-transcribed-text-into-the-quick-fill-text-box-instead-of-the-medical-record-number-field",
-      "featureTitle": "Fix voice recording to place transcribed text into the Quick Fill text box instead of the Medical Record Number field",
+      "featureId": "feature-set-default-sort-order-to-arrival-date-oldest-first-when-dashboard-page-loads-while-preserving-the-existing-manual-sort-control-functionality",
+      "featureTitle": "Set default sort order to Arrival Date (Oldest First) when Dashboard page loads, while preserving the existing manual sort control functionality",
       "files": [
-        "frontend/src/features/cases/components/CaseFormDialog.tsx"
+        "frontend/src/features/dashboard/components/DashboardView.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -23,10 +23,10 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-fix-parse-and-fill-button-to-accurately-extract-all-9-case-fields-from-the-quick-fill-text-box-when-user-speaks-field-names-followed-by-values-e-g-medical-record-number-12345",
-      "featureTitle": "Fix Parse and Fill button to accurately extract all 9 case fields from the Quick Fill text box when user speaks field names followed by values (e.g., 'Medical Record Number 12345')",
+      "featureId": "feature-set-default-sort-order-to-arrival-date-oldest-first-when-cases-page-loads-while-preserving-the-existing-manual-sort-control-functionality",
+      "featureTitle": "Set default sort order to Arrival Date (Oldest First) when Cases page loads, while preserving the existing manual sort control functionality",
       "files": [
-        "frontend/src/features/cases/parsing/parseStructuredText.ts"
+        "frontend/src/features/cases/components/CasesListView.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -44,11 +44,10 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-enhance-date-parsing-to-intelligently-convert-various-spoken-number-sequences-into-proper-mm-dd-yyyy-date-format-for-arrival-date-and-date-of-birth-fields",
-      "featureTitle": "Enhance date parsing to intelligently convert various spoken number sequences into proper MM/DD/YYYY date format for Arrival Date and Date of Birth fields",
+      "featureId": "feature-increase-the-font-size-of-the-mrn-medical-record-number-field-in-case-cards-on-the-dashboard-page",
+      "featureTitle": "Increase the font size of the MRN (Medical Record Number) field in case cards on the Dashboard page",
       "files": [
-        "frontend/src/features/cases/parsing/parseStructuredText.ts",
-        "frontend/src/features/cases/validation.ts"
+        "frontend/src/features/dashboard/components/DashboardView.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -62,6 +61,27 @@
       ],
       "testIds": [
         "REQ-3"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-increase-the-font-size-of-the-mrn-medical-record-number-field-in-case-list-items-on-the-cases-page",
+      "featureTitle": "Increase the font size of the MRN (Medical Record Number) field in case list items on the Cases page",
+      "files": [
+        "frontend/src/features/cases/components/CaseCard.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "camera@1.0.0",
+        "http-outcalls@3.0.0"
+      ],
+      "testIds": [
+        "REQ-4"
       ],
       "confidence": "high"
     }

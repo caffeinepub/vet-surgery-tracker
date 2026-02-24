@@ -1,67 +1,69 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Fix voice recording transcription and Parse and Fill functionality",
+  "title": "Default sort by Arrival Date and increase MRN font size",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Fix voice recording to place transcribed text into the Quick Fill text box instead of the Medical Record Number field",
+      "summary": "Set default sort order to Arrival Date (Oldest First) on Dashboard page while preserving manual sort control",
       "acceptanceCriteria": [
-        "After stopping voice recording, all transcribed text appears in the Quick Fill text box",
-        "No text is automatically populated into the Medical Record Number field during recording",
-        "The Quick Fill text box displays the complete transcript from the speech recognition"
+        "Dashboard displays cases sorted by Arrival Date (Oldest First) on initial page load",
+        "Users can still manually change the sort order using the existing sort control",
+        "Manual sort selections persist during the session"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/features/cases/components/CaseFormDialog.tsx",
+          "path": "frontend/src/features/dashboard/components/DashboardView.tsx",
           "operation": "modify",
-          "description": "Update the voice recording integration to set the transcribed text into the Quick Fill text box (structuredText state) instead of the Medical Record Number field (medicalRecordNumber form field). Modify the onTranscriptChange handler to update setStructuredText with the transcript value, ensuring the Quick Fill textarea reflects the complete voice input."
+          "description": "Update the default sortOption state initialization from 'arrivalDateDesc' to 'arrivalDateAsc' so cases are sorted by Arrival Date (Oldest First) when the Dashboard page loads. The existing CasesSortControl component and manual sort functionality remain unchanged."
         }
       ]
     },
     {
       "id": "REQ-2",
-      "summary": "Fix Parse and Fill button to accurately extract all 9 case fields from the Quick Fill text box when user speaks field names followed by values",
+      "summary": "Set default sort order to Arrival Date (Oldest First) on Cases page while preserving manual sort control",
       "acceptanceCriteria": [
-        "Parse and Fill button extracts Medical Record Number from text like 'Medical Record Number 12345'",
-        "Parse and Fill button extracts Arrival Date and converts number sequences to Date format",
-        "Parse and Fill button extracts Pet Name from spoken input",
-        "Parse and Fill button extracts Owner Last Name from spoken input",
-        "Parse and Fill button extracts Species and matches it to the dropdown options (canine, feline, avian, exotic)",
-        "Parse and Fill button extracts Breed from spoken input",
-        "Parse and Fill button extracts Sex and matches it to the dropdown options",
-        "Parse and Fill button extracts Date of Birth and converts number sequences to Date format",
-        "Parse and Fill button extracts Presenting Complaint from spoken input",
-        "All 9 fields are populated correctly when valid data is present in the Quick Fill text box"
+        "Cases page displays cases sorted by Arrival Date (Oldest First) on initial page load",
+        "Users can still manually change the sort order using the existing sort control",
+        "Manual sort selections persist during the session"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/features/cases/parsing/parseStructuredText.ts",
+          "path": "frontend/src/features/cases/components/CasesListView.tsx",
           "operation": "modify",
-          "description": "Enhance the parseStructuredText function to accurately extract all 9 case fields from voice-dictated text. Improve field name matching to handle spoken variations (e.g., 'Medical Record Number', 'MRN', 'record number'). Add robust extraction logic for each field: Medical Record Number, Arrival Date, Pet Name, Owner Last Name, Species (with fuzzy matching to canine/feline/other), Breed, Sex (with fuzzy matching to male/female/neutered/spayed options), Date of Birth, and Presenting Complaint. Ensure the parser handles label:value patterns, natural language variations, and captures multi-word values correctly."
+          "description": "Update the default sortOption state initialization from 'arrivalDateDesc' to 'arrivalDateAsc' so cases are sorted by Arrival Date (Oldest First) when the Cases page loads. The existing CasesSortControl component and manual sort functionality remain unchanged."
         }
       ]
     },
     {
       "id": "REQ-3",
-      "summary": "Enhance date parsing to intelligently convert various spoken number sequences into proper MM/DD/YYYY date format for Arrival Date and Date of Birth fields",
+      "summary": "Increase the font size of the MRN field in case cards on the Dashboard page",
       "acceptanceCriteria": [
-        "Parser converts spoken dates like 'twelve fifteen twenty twenty four' to 12/15/2024",
-        "Parser handles dates spoken as 'one two one five two zero two four' to 12/15/2024",
-        "Parser handles dates with month names like 'December fifteen twenty twenty four'",
-        "Parser handles partial dates and uses reasonable defaults for missing components",
-        "Invalid date sequences are flagged or left unpopulated rather than causing errors"
+        "MRN text is visibly larger and more prominent in Dashboard case cards",
+        "Font size increase is consistent across all case cards",
+        "Visual hierarchy remains balanced with other case information"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/features/cases/parsing/parseStructuredText.ts",
+          "path": "frontend/src/features/dashboard/components/DashboardView.tsx",
           "operation": "modify",
-          "description": "Add intelligent date parsing logic to convert various spoken number sequences into MM/DD/YYYY format. Implement recognition for digit-by-digit dictation ('one two one five two zero two four'), word-form dates ('twelve fifteen twenty twenty four'), and month name patterns ('December fifteen twenty twenty four'). Handle date extraction from the Arrival Date and Date of Birth fields, applying this parsing to convert recognized number sequences into properly formatted dates. Include error handling for invalid date sequences to prevent parsing failures."
-        },
+          "description": "Increase the MRN font size in the case card rendering by changing the text size class from 'text-sm' to 'text-lg' for the medicalRecordNumber display. Ensure the change applies to all case cards rendered in the grid."
+        }
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "summary": "Increase the font size of the MRN field in case list items on the Cases page",
+      "acceptanceCriteria": [
+        "MRN text is visibly larger and more prominent in Cases page list items",
+        "Font size increase matches the Dashboard implementation",
+        "Visual hierarchy remains balanced with other case information"
+      ],
+      "file_operations": [
         {
-          "path": "frontend/src/features/cases/validation.ts",
+          "path": "frontend/src/features/cases/components/CaseCard.tsx",
           "operation": "modify",
-          "description": "Enhance the date validation and parsing utilities to support the new spoken date formats. Add helper functions to convert spoken number sequences (both word-form and digit-by-digit) into numeric date components. Ensure parseDate function can handle these new formats while maintaining backward compatibility with existing MM/DD/YYYY input validation."
+          "description": "Increase the MRN font size in the CaseCard component by changing the text size class from 'text-sm' to 'text-lg' for the medicalRecordNumber display in the card header. This component is used by both Dashboard and Cases pages, ensuring consistency."
         }
       ]
     }

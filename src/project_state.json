@@ -1,39 +1,44 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Medical case management application for veterinary cases with 9 auto-populated fields and voice recording feature",
+  "summary": "Veterinary case management app with voice note parsing for 9 case fields",
   "architectural_notes": [
-    "Voice input format: users speak field name followed by field value (e.g., 'Medical Record Number 12345')",
-    "Species and Sex fields use dropdown menus with predefined options",
-    "Date fields (Arrival Date, Date of Birth) require intelligent parsing from spoken numbers to date format"
+    "App has two separate pages: Dashboard and Cases page",
+    "Case management system with 9 fields including MRN, Pet Name, and Arrival Date",
+    "Voice note parsing functionality for case field population"
   ],
-  "known_issues": [
-    "Voice recording transcription incorrectly populates only Medical Record Number field instead of Quick Fill text box",
-    "Parse and Fill button fails to extract and populate any of the 9 case fields"
-  ],
-  "isFixRequest": true,
+  "known_issues": [],
+  "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-fix-voice-recording-to-place-transcribed-text-into-the-quick-fill-text-box-instead-of-the-medical-record-number-field",
-      "title": "Fix voice recording to place transcribed text into the Quick Fill text box instead of the Medical Record Number field",
+      "id": "feature-set-default-sort-order-to-arrival-date-oldest-first-when-dashboard-page-loads-while-preserving-the-existing-manual-sort-control-functionality",
+      "title": "Set default sort order to Arrival Date (Oldest First) when Dashboard page loads, while preserving the existing manual sort control functionality",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-fix-parse-and-fill-button-to-accurately-extract-all-9-case-fields-from-the-quick-fill-text-box-when-user-speaks-field-names-followed-by-values-e-g-medical-record-number-12345",
-      "title": "Fix Parse and Fill button to accurately extract all 9 case fields from the Quick Fill text box when user speaks field names followed by values (e.g., 'Medical Record Number 12345')",
+      "id": "feature-set-default-sort-order-to-arrival-date-oldest-first-when-cases-page-loads-while-preserving-the-existing-manual-sort-control-functionality",
+      "title": "Set default sort order to Arrival Date (Oldest First) when Cases page loads, while preserving the existing manual sort control functionality",
       "reqIds": [
         "REQ-2"
       ],
       "version": 1
     },
     {
-      "id": "feature-enhance-date-parsing-to-intelligently-convert-various-spoken-number-sequences-into-proper-mm-dd-yyyy-date-format-for-arrival-date-and-date-of-birth-fields",
-      "title": "Enhance date parsing to intelligently convert various spoken number sequences into proper MM/DD/YYYY date format for Arrival Date and Date of Birth fields",
+      "id": "feature-increase-the-font-size-of-the-mrn-medical-record-number-field-in-case-cards-on-the-dashboard-page",
+      "title": "Increase the font size of the MRN (Medical Record Number) field in case cards on the Dashboard page",
       "reqIds": [
         "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-increase-the-font-size-of-the-mrn-medical-record-number-field-in-case-list-items-on-the-cases-page",
+      "title": "Increase the font size of the MRN (Medical Record Number) field in case list items on the Cases page",
+      "reqIds": [
+        "REQ-4"
       ],
       "version": 1
     }
@@ -41,31 +46,18 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Voice recording with speech-to-text that transcribes to Quick Fill text box",
+      "summary": "Default sort by Arrival Date (Oldest First) on Dashboard and Cases pages with manual sorting option",
       "reqIds": [],
       "status": "pending"
     },
     {
       "id": "AR-2",
-      "summary": "Parse and Fill button to extract data from Quick Fill text box and populate 9 case fields",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-3",
-      "summary": "9 case fields: Medical Record Number, Arrival Date, Pet Name, Owner Last Name, Species (dropdown), Breed, Sex (dropdown), Date of Birth, Presenting Complaint",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-4",
-      "summary": "Smart date parsing to convert number sequences into dates for Arrival Date and Date of Birth fields",
+      "summary": "Increase MRN font size in case cards/lists on Dashboard and Cases pages",
       "reqIds": [],
       "status": "pending"
     }
   ],
-  "gameProjectType": "none",
-  "projectName": "Fix voice recording transcription and Parse and Fill functionality",
+  "projectName": "Default sort by Arrival Date and increase MRN font size",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

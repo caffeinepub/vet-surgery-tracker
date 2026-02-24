@@ -1,87 +1,99 @@
 {
   "kind": "build_request",
-  "title": "Fix voice recording transcription and Parse and Fill functionality",
-  "priority": "high",
+  "title": "Default sort by Arrival Date and increase MRN font size",
+  "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Fix voice recording to place transcribed text into the Quick Fill text box instead of the Medical Record Number field",
+      "text": "Set default sort order to Arrival Date (Oldest First) when Dashboard page loads, while preserving the existing manual sort control functionality",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-last"
+          "msg-1",
+          "msg-2"
         ],
         "quotes": [
-          "Immediately after stopping the recording",
-          "all text was just put in the Medical Record Number field"
+          "Automatically sort by Arrival Date (Oldest First) and keep the ability to manually sort the order",
+          "Dashboard is one page and Cases is another page"
         ]
       },
       "acceptanceCriteria": [
-        "After stopping voice recording, all transcribed text appears in the Quick Fill text box",
-        "No text is automatically populated into the Medical Record Number field during recording",
-        "The Quick Fill text box displays the complete transcript from the speech recognition"
+        "Dashboard displays cases sorted by Arrival Date (Oldest First) on initial page load",
+        "Users can still manually change the sort order using the existing sort control",
+        "Manual sort selections persist during the session"
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Fix Parse and Fill button to accurately extract all 9 case fields from the Quick Fill text box when user speaks field names followed by values (e.g., 'Medical Record Number 12345')",
+      "text": "Set default sort order to Arrival Date (Oldest First) when Cases page loads, while preserving the existing manual sort control functionality",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-last"
+          "msg-1",
+          "msg-2"
         ],
         "quotes": [
-          "Parse and Fill it does not complete the fields accurately",
-          "Nothing is being extracted properly",
-          "Start by saying the name of the field and then the data for that field"
+          "Automatically sort by Arrival Date (Oldest First) and keep the ability to manually sort the order",
+          "Dashboard is one page and Cases is another page"
         ]
       },
       "acceptanceCriteria": [
-        "Parse and Fill button extracts Medical Record Number from text like 'Medical Record Number 12345'",
-        "Parse and Fill button extracts Arrival Date and converts number sequences to Date format",
-        "Parse and Fill button extracts Pet Name from spoken input",
-        "Parse and Fill button extracts Owner Last Name from spoken input",
-        "Parse and Fill button extracts Species and matches it to the dropdown options (canine, feline, avian, exotic)",
-        "Parse and Fill button extracts Breed from spoken input",
-        "Parse and Fill button extracts Sex and matches it to the dropdown options",
-        "Parse and Fill button extracts Date of Birth and converts number sequences to Date format",
-        "Parse and Fill button extracts Presenting Complaint from spoken input",
-        "All 9 fields are populated correctly when valid data is present in the Quick Fill text box"
+        "Cases page displays cases sorted by Arrival Date (Oldest First) on initial page load",
+        "Users can still manually change the sort order using the existing sort control",
+        "Manual sort selections persist during the session"
       ]
     },
     {
       "id": "REQ-3",
-      "text": "Enhance date parsing to intelligently convert various spoken number sequences into proper MM/DD/YYYY date format for Arrival Date and Date of Birth fields",
+      "text": "Increase the font size of the MRN (Medical Record Number) field in case cards on the Dashboard page",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-last"
+          "msg-1",
+          "msg-2"
         ],
         "quotes": [
-          "Arrival Date (parse numbers in to a Date)",
-          "Date of Birth (parse numbers in to a date)"
+          "increase font size of MRN",
+          "Apply to MRN in both the case cards/lists"
         ]
       },
       "acceptanceCriteria": [
-        "Parser converts spoken dates like 'twelve fifteen twenty twenty four' to 12/15/2024",
-        "Parser handles dates spoken as 'one two one five two zero two four' to 12/15/2024",
-        "Parser handles dates with month names like 'December fifteen twenty twenty four'",
-        "Parser handles partial dates and uses reasonable defaults for missing components",
-        "Invalid date sequences are flagged or left unpopulated rather than causing errors"
+        "MRN text is visibly larger and more prominent in Dashboard case cards",
+        "Font size increase is consistent across all case cards",
+        "Visual hierarchy remains balanced with other case information"
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Increase the font size of the MRN (Medical Record Number) field in case list items on the Cases page",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1",
+          "msg-2"
+        ],
+        "quotes": [
+          "increase font size of MRN",
+          "Apply to MRN in both the case cards/lists"
+        ]
+      },
+      "acceptanceCriteria": [
+        "MRN text is visibly larger and more prominent in Cases page list items",
+        "Font size increase matches the Dashboard implementation",
+        "Visual hierarchy remains balanced with other case information"
       ]
     }
   ],
   "constraints": [
-    "Do not modify the backend schema or main.mo file",
-    "Maintain existing CaseFormDialog component structure and Quick Fill text box",
-    "Keep existing useSpeechRecognition hook functionality for browser speech recognition",
-    "Preserve existing parseStructuredText function signature while enhancing its logic"
+    "Preserve existing manual sort control functionality on both Dashboard and Cases pages",
+    "Maintain consistency between Dashboard and Cases page implementations",
+    "Do not modify the backend sorting logic or data structures"
   ],
   "nonGoals": [
-    "Adding new case fields beyond the 9 specified fields",
-    "Changing the dropdown options for Species or Sex",
-    "Modifying the visual design or layout of the form",
-    "Adding alternative input methods beyond voice recording and text parsing"
+    "Changing the available sort options",
+    "Modifying other text field sizes besides MRN",
+    "Adding new filtering capabilities",
+    "Changing the layout or structure of case cards"
   ],
   "imageRequirements": {
     "required": [],

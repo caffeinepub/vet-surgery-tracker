@@ -195,7 +195,7 @@ export default function CaseCard({ surgeryCase, onEdit, isHighlighted = false }:
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <CardTitle className="text-xl text-primary">{surgeryCase.petName}</CardTitle>
-              <p className="text-sm text-muted-foreground mt-1">
+              <p className="text-lg font-semibold text-muted-foreground mt-1">
                 MRN: {surgeryCase.medicalRecordNumber} | Owner: {surgeryCase.ownerLastName}
               </p>
               {/* Species field without grey box wrapper */}

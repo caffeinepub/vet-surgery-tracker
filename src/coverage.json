@@ -1,48 +1,57 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-24T01:13:26.845Z",
+  "generatedAt": "2026-02-24T04:40:30.421Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 3,
-    "implemented": 3,
+    "total": 4,
+    "implemented": 4,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Fix voice recording to place transcribed text into the Quick Fill text box instead of the Medical Record Number field",
+        "summary": "Set default sort order to Arrival Date (Oldest First) when Dashboard page loads, while preserving the existing manual sort control functionality",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/features/cases/components/CaseFormDialog.tsx"
+          "frontend/src/features/dashboard/components/DashboardView.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/features/cases/components/CaseFormDialog.tsx"
+          "frontend/src/features/dashboard/components/DashboardView.tsx"
         ]
       },
       {
         "id": "REQ-2",
-        "summary": "Fix Parse and Fill button to accurately extract all 9 case fields from the Quick Fill text box when user speaks field names followed by values (e.g., 'Medical Record Number 12345')",
+        "summary": "Set default sort order to Arrival Date (Oldest First) when Cases page loads, while preserving the existing manual sort control functionality",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/features/cases/parsing/parseStructuredText.ts"
+          "frontend/src/features/cases/components/CasesListView.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/features/cases/parsing/parseStructuredText.ts"
+          "frontend/src/features/cases/components/CasesListView.tsx"
         ]
       },
       {
         "id": "REQ-3",
-        "summary": "Enhance date parsing to intelligently convert various spoken number sequences into proper MM/DD/YYYY date format for Arrival Date and Date of Birth fields",
+        "summary": "Increase the font size of the MRN (Medical Record Number) field in case cards on the Dashboard page",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/features/cases/parsing/parseStructuredText.ts",
-          "frontend/src/features/cases/validation.ts"
+          "frontend/src/features/dashboard/components/DashboardView.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/features/cases/parsing/parseStructuredText.ts",
-          "frontend/src/features/cases/validation.ts"
+          "frontend/src/features/dashboard/components/DashboardView.tsx"
+        ]
+      },
+      {
+        "id": "REQ-4",
+        "summary": "Increase the font size of the MRN (Medical Record Number) field in case list items on the Cases page",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/features/cases/components/CaseCard.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/features/cases/components/CaseCard.tsx"
         ]
       }
     ]
@@ -52,9 +61,9 @@
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/features/cases/components/CaseFormDialog.tsx",
-    "frontend/src/features/cases/parsing/parseStructuredText.ts",
-    "frontend/src/features/cases/validation.ts",
+    "frontend/src/features/cases/components/CaseCard.tsx",
+    "frontend/src/features/cases/components/CasesListView.tsx",
+    "frontend/src/features/dashboard/components/DashboardView.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",
