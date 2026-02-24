@@ -2,8 +2,8 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-add-placeholder-text-inside-the-quick-fill-text-box-displaying-the-following-field-names-as-a-guide-medical-record-number-arrival-date-pet-name-owner-last-name-species-breed-sex-date-of-birth-presenting-complaint",
-      "featureTitle": "Add placeholder text inside the Quick Fill text box displaying the following field names as a guide: Medical Record number, Arrival Date, Pet Name, Owner Last Name, Species, Breed, Sex, Date of Birth, Presenting Complaint",
+      "featureId": "feature-fix-voice-recording-to-place-transcribed-text-into-the-quick-fill-text-box-instead-of-the-medical-record-number-field",
+      "featureTitle": "Fix voice recording to place transcribed text into the Quick Fill text box instead of the Medical Record Number field",
       "files": [
         "frontend/src/features/cases/components/CaseFormDialog.tsx"
       ],
@@ -23,10 +23,10 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-implement-automatic-parsing-of-voice-recording-audio-to-extract-structured-veterinary-case-fields-medical-record-number-arrival-date-pet-name-owner-last-name-species-breed-sex-date-of-birth-presenting-complaint-from-the-transcribed-text-and-populate-the-corresponding-form-fields-in-caseformdialog",
-      "featureTitle": "Implement automatic parsing of voice recording audio to extract structured veterinary case fields (Medical Record number, Arrival Date, Pet Name, Owner Last Name, Species, Breed, Sex, Date of Birth, Presenting Complaint) from the transcribed text and populate the corresponding form fields in CaseFormDialog",
+      "featureId": "feature-fix-parse-and-fill-button-to-accurately-extract-all-9-case-fields-from-the-quick-fill-text-box-when-user-speaks-field-names-followed-by-values-e-g-medical-record-number-12345",
+      "featureTitle": "Fix Parse and Fill button to accurately extract all 9 case fields from the Quick Fill text box when user speaks field names followed by values (e.g., 'Medical Record Number 12345')",
       "files": [
-        "frontend/src/features/cases/components/CaseFormDialog.tsx"
+        "frontend/src/features/cases/parsing/parseStructuredText.ts"
       ],
       "components": [
         "authorization@4.0.0",
@@ -44,10 +44,11 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-enhance-the-existing-parsestructuredtext-function-to-recognize-and-extract-the-nine-veterinary-case-fields-medical-record-number-arrival-date-pet-name-owner-last-name-species-breed-sex-date-of-birth-presenting-complaint-with-improved-pattern-matching-for-voice-dictated-text",
-      "featureTitle": "Enhance the existing parseStructuredText function to recognize and extract the nine veterinary case fields (Medical Record number, Arrival Date, Pet Name, Owner Last Name, Species, Breed, Sex, Date of Birth, Presenting Complaint) with improved pattern matching for voice-dictated text",
+      "featureId": "feature-enhance-date-parsing-to-intelligently-convert-various-spoken-number-sequences-into-proper-mm-dd-yyyy-date-format-for-arrival-date-and-date-of-birth-fields",
+      "featureTitle": "Enhance date parsing to intelligently convert various spoken number sequences into proper MM/DD/YYYY date format for Arrival Date and Date of Birth fields",
       "files": [
-        "frontend/src/features/cases/parsing/parseStructuredText.ts"
+        "frontend/src/features/cases/parsing/parseStructuredText.ts",
+        "frontend/src/features/cases/validation.ts"
       ],
       "components": [
         "authorization@4.0.0",

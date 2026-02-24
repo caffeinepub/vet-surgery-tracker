@@ -135,16 +135,16 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
     if (!isRecording && transcript.trim()) {
       console.log('[CaseFormDialog] Voice recording stopped, transcript available:', transcript);
       
-      // Replace the text in the Quick Fill box
+      // Place the transcript in the Quick Fill text box
       setStructuredText(transcript);
       
-      // Automatically parse the transcript
-      handleQuickFill(transcript);
+      // Do NOT automatically parse - let user click Parse and Fill button
+      // This gives them a chance to review/edit the transcript first
       
       // Reset the transcript for next recording
       resetTranscript();
     }
-  }, [isRecording, transcript]);
+  }, [isRecording, transcript, resetTranscript]);
 
   // Show speech recognition errors
   useEffect(() => {
@@ -204,28 +204,26 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
         resetTranscript();
       }
     }
-  }, [open, isEditing]);
+  }, [open, isEditing, resetTranscript]);
 
   const markFieldAsEdited = (fieldName: string) => {
     setEditedFields((prev) => new Set(prev).add(fieldName));
   };
 
-  const handleQuickFill = (textToParse?: string) => {
-    const text = textToParse || structuredText;
-    
-    if (!text.trim()) {
+  const handleQuickFill = () => {
+    if (!structuredText.trim()) {
       toast.error('Please enter text to parse');
       return;
     }
 
     setIsParsing(true);
     console.log('[CaseFormDialog] Parsing structured text', {
-      textLength: text.length,
+      textLength: structuredText.length,
       timestamp: new Date().toISOString(),
     });
 
     try {
-      const parsed = parseStructuredText(text);
+      const parsed = parseStructuredText(structuredText);
       console.log('[CaseFormDialog] Parsed data', { parsed });
 
       let appliedCount = 0;
@@ -277,7 +275,7 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
       }
 
       if (appliedCount > 0) {
-        toast.success(`Filled ${appliedCount} field${appliedCount > 1 ? 's' : ''} from ${textToParse ? 'voice' : 'text'}`);
+        toast.success(`Filled ${appliedCount} field${appliedCount > 1 ? 's' : ''} from text`);
         setStructuredText('');
       } else {
         toast.info('No new fields to fill', {
@@ -478,7 +476,7 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
                 </div>
               )}
               <Textarea
-                placeholder="Medical Record Number, Arrival Date, Pet Name, Owner Last Name, Species, Breed, Sex, Date of Birth, Presenting Complaint"
+                placeholder="Say each field name followed by its value. Example: Medical Record Number 12345, Arrival Date 12/15/2024, Pet Name Buddy, Owner Last Name Smith, Species canine, Breed Golden Retriever, Sex male neutered, Date of Birth 1/5/2020, Presenting Complaint laceration"
                 value={structuredText}
                 onChange={(e) => setStructuredText(e.target.value)}
                 className="min-h-[100px]"
@@ -486,7 +484,7 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
               />
               <Button
                 type="button"
-                onClick={() => handleQuickFill()}
+                onClick={handleQuickFill}
                 disabled={!structuredText.trim() || isParsing || !actorReady}
                 className="w-full"
               >
@@ -518,19 +516,20 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Medical Record Number */}
             <div className="space-y-2">
-              <Label htmlFor="mrn">
+              <Label htmlFor="medicalRecordNumber">
                 Medical Record Number <span className="text-destructive">*</span>
               </Label>
               <Input
-                id="mrn"
+                id="medicalRecordNumber"
                 value={medicalRecordNumber}
                 onChange={(e) => {
                   setMedicalRecordNumber(e.target.value);
                   markFieldAsEdited('medicalRecordNumber');
                 }}
                 placeholder="e.g., MRN-12345"
-                disabled={!actorReady || isSubmitting}
-                className={cn(isAutoFilled('medicalRecordNumber') && 'border-primary/50 bg-primary/5')}
+                required
+                disabled={!actorReady}
+                className={cn(isAutoFilled('medicalRecordNumber') && 'border-primary')}
               />
             </div>
 
@@ -547,8 +546,8 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
                   markFieldAsEdited('arrivalDate');
                 }}
                 onComplete={() => petNameRef.current?.focus()}
-                disabled={!actorReady || isSubmitting}
-                className={cn(isAutoFilled('arrivalDate') && 'border-primary/50 bg-primary/5')}
+                disabled={!actorReady}
+                className={cn(isAutoFilled('arrivalDate') && 'border-primary')}
               />
             </div>
 
@@ -566,8 +565,9 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
                   markFieldAsEdited('petName');
                 }}
                 placeholder="e.g., Buddy"
-                disabled={!actorReady || isSubmitting}
-                className={cn(isAutoFilled('petName') && 'border-primary/50 bg-primary/5')}
+                required
+                disabled={!actorReady}
+                className={cn(isAutoFilled('petName') && 'border-primary')}
               />
             </div>
 
@@ -584,8 +584,9 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
                   markFieldAsEdited('ownerLastName');
                 }}
                 placeholder="e.g., Smith"
-                disabled={!actorReady || isSubmitting}
-                className={cn(isAutoFilled('ownerLastName') && 'border-primary/50 bg-primary/5')}
+                required
+                disabled={!actorReady}
+                className={cn(isAutoFilled('ownerLastName') && 'border-primary')}
               />
             </div>
 
@@ -600,11 +601,11 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
                   setSpecies(value);
                   markFieldAsEdited('species');
                 }}
-                disabled={!actorReady || isSubmitting}
+                disabled={!actorReady}
               >
                 <SelectTrigger
                   id="species"
-                  className={cn(isAutoFilled('species') && 'border-primary/50 bg-primary/5')}
+                  className={cn(isAutoFilled('species') && 'border-primary')}
                 >
                   <SelectValue placeholder="Select species" />
                 </SelectTrigger>
@@ -630,9 +631,10 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
                   setBreed(e.target.value);
                   markFieldAsEdited('breed');
                 }}
-                placeholder="e.g., Labrador Retriever"
-                disabled={!actorReady || isSubmitting}
-                className={cn(isAutoFilled('breed') && 'border-primary/50 bg-primary/5')}
+                placeholder="e.g., Golden Retriever"
+                required
+                disabled={!actorReady}
+                className={cn(isAutoFilled('breed') && 'border-primary')}
               />
             </div>
 
@@ -647,11 +649,11 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
                   setSex(value);
                   markFieldAsEdited('sex');
                 }}
-                disabled={!actorReady || isSubmitting}
+                disabled={!actorReady}
               >
                 <SelectTrigger
                   id="sex"
-                  className={cn(isAutoFilled('sex') && 'border-primary/50 bg-primary/5')}
+                  className={cn(isAutoFilled('sex') && 'border-primary')}
                 >
                   <SelectValue placeholder="Select sex" />
                 </SelectTrigger>
@@ -674,15 +676,17 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
                   setDateOfBirth(date);
                   markFieldAsEdited('dateOfBirth');
                 }}
-                disabled={!actorReady || isSubmitting}
-                className={cn(isAutoFilled('dateOfBirth') && 'border-primary/50 bg-primary/5')}
+                disabled={!actorReady}
+                className={cn(isAutoFilled('dateOfBirth') && 'border-primary')}
               />
             </div>
           </div>
 
           {/* Presenting Complaint */}
           <div className="space-y-2">
-            <Label htmlFor="presentingComplaint">Presenting Complaint</Label>
+            <Label htmlFor="presentingComplaint">
+              Presenting Complaint <span className="text-destructive">*</span>
+            </Label>
             <Textarea
               id="presentingComplaint"
               value={presentingComplaint}
@@ -690,12 +694,10 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
                 setPresentingComplaint(e.target.value);
                 markFieldAsEdited('presentingComplaint');
               }}
-              placeholder="Brief description of the reason for visit"
-              className={cn(
-                'min-h-[80px]',
-                isAutoFilled('presentingComplaint') && 'border-primary/50 bg-primary/5'
-              )}
-              disabled={!actorReady || isSubmitting}
+              placeholder="e.g., Laceration on left forelimb"
+              required
+              disabled={!actorReady}
+              className={cn('min-h-[80px]', isAutoFilled('presentingComplaint') && 'border-primary')}
             />
           </div>
 
@@ -706,20 +708,20 @@ export default function CaseFormDialog({ open, onOpenChange, existingCase }: Cas
               id="notes"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              placeholder="Additional notes or observations"
-              className="min-h-[80px]"
-              disabled={!actorReady || isSubmitting}
+              placeholder="Additional notes..."
+              disabled={!actorReady}
+              className="min-h-[100px]"
             />
           </div>
 
           {/* Task Selection */}
           <div className="space-y-2">
-            <Label>Tasks to Track</Label>
+            <Label>Tasks to Complete</Label>
             <ChecklistEditor
               task={task}
               onChange={setTask}
               mode="creation"
-              disabled={!actorReady || isSubmitting}
+              disabled={!actorReady}
             />
           </div>
 

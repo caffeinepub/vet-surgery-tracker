@@ -1,56 +1,67 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Enhance Quick Fill with placeholder guide and automatic field extraction from voice",
+  "title": "Fix voice recording transcription and Parse and Fill functionality",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Add placeholder text to Quick Fill text box displaying field names as a guide",
+      "summary": "Fix voice recording to place transcribed text into the Quick Fill text box instead of the Medical Record Number field",
       "acceptanceCriteria": [
-        "The Quick Fill text box shows placeholder text listing all nine field names when empty",
-        "Placeholder text disappears when user begins typing or voice recording populates the field",
-        "Placeholder text is visually distinct (e.g., lighter gray) from actual input text"
+        "After stopping voice recording, all transcribed text appears in the Quick Fill text box",
+        "No text is automatically populated into the Medical Record Number field during recording",
+        "The Quick Fill text box displays the complete transcript from the speech recognition"
       ],
       "file_operations": [
         {
           "path": "frontend/src/features/cases/components/CaseFormDialog.tsx",
           "operation": "modify",
-          "description": "Add placeholder attribute to the Quick Fill textarea displaying the nine field names: 'Medical Record number, Arrival Date, Pet Name, Owner Last Name, Species, Breed, Sex, Date of Birth, Presenting Complaint'. Ensure placeholder is styled with lighter text color to distinguish from actual input and is automatically hidden when the field contains text or receives voice transcription input."
+          "description": "Update the voice recording integration to set the transcribed text into the Quick Fill text box (structuredText state) instead of the Medical Record Number field (medicalRecordNumber form field). Modify the onTranscriptChange handler to update setStructuredText with the transcript value, ensuring the Quick Fill textarea reflects the complete voice input."
         }
       ]
     },
     {
       "id": "REQ-2",
-      "summary": "Implement automatic parsing of voice recording to extract structured veterinary case fields and populate form",
+      "summary": "Fix Parse and Fill button to accurately extract all 9 case fields from the Quick Fill text box when user speaks field names followed by values",
       "acceptanceCriteria": [
-        "After voice recording completes, the system automatically parses the transcribed text to identify the nine specified fields",
-        "Successfully extracted field values are populated into their corresponding form fields (MRN, arrival date, pet name, owner last name, species, breed, sex, date of birth, presenting complaint)",
-        "Parsing handles variations in how users dictate field names (e.g., 'MRN', 'Medical Record Number', 'Record Number')",
-        "Any fields that cannot be extracted remain empty and can be manually filled",
-        "The Quick Fill text box retains the full transcribed text for user reference"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/features/cases/components/CaseFormDialog.tsx",
-          "operation": "modify",
-          "description": "Wire the voice recording completion handler to automatically trigger parseStructuredText on the transcribed text. After parsing, populate the extracted field values into their corresponding form state fields while keeping the full transcription in the Quick Fill textarea for user reference. Ensure the parsing is called immediately after speech recognition returns the final transcript."
-        }
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "summary": "Enhance parseStructuredText function to recognize and extract nine veterinary case fields with improved voice dictation pattern matching",
-      "acceptanceCriteria": [
-        "The parseStructuredText function successfully extracts all nine fields from voice-transcribed text",
-        "Pattern matching handles common voice dictation variations and synonyms for each field name",
-        "Existing Quick Fill functionality continues to work with manually typed text",
-        "Field extraction works with both structured (label:value) and natural speech patterns"
+        "Parse and Fill button extracts Medical Record Number from text like 'Medical Record Number 12345'",
+        "Parse and Fill button extracts Arrival Date and converts number sequences to Date format",
+        "Parse and Fill button extracts Pet Name from spoken input",
+        "Parse and Fill button extracts Owner Last Name from spoken input",
+        "Parse and Fill button extracts Species and matches it to the dropdown options (canine, feline, avian, exotic)",
+        "Parse and Fill button extracts Breed from spoken input",
+        "Parse and Fill button extracts Sex and matches it to the dropdown options",
+        "Parse and Fill button extracts Date of Birth and converts number sequences to Date format",
+        "Parse and Fill button extracts Presenting Complaint from spoken input",
+        "All 9 fields are populated correctly when valid data is present in the Quick Fill text box"
       ],
       "file_operations": [
         {
           "path": "frontend/src/features/cases/parsing/parseStructuredText.ts",
           "operation": "modify",
-          "description": "Enhance field extraction patterns to handle voice dictation variations and synonyms for all nine fields: Medical Record number (MRN, record number, medical record), Arrival Date (arrival, admit date, admission date), Pet Name (pet, patient name, animal name), Owner Last Name (owner, last name, surname), Species (canine, feline, dog, cat, other), Breed, Sex (male, female, neutered, spayed, intact), Date of Birth (DOB, birth date, birthday), and Presenting Complaint (complaint, chief complaint, reason for visit). Add case-insensitive regex patterns that match common voice-dictated phrasings and handle both 'label: value' and natural language formats (e.g., 'the pet name is Buddy'). Preserve existing structured text parsing behavior for backward compatibility."
+          "description": "Enhance the parseStructuredText function to accurately extract all 9 case fields from voice-dictated text. Improve field name matching to handle spoken variations (e.g., 'Medical Record Number', 'MRN', 'record number'). Add robust extraction logic for each field: Medical Record Number, Arrival Date, Pet Name, Owner Last Name, Species (with fuzzy matching to canine/feline/other), Breed, Sex (with fuzzy matching to male/female/neutered/spayed options), Date of Birth, and Presenting Complaint. Ensure the parser handles label:value patterns, natural language variations, and captures multi-word values correctly."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Enhance date parsing to intelligently convert various spoken number sequences into proper MM/DD/YYYY date format for Arrival Date and Date of Birth fields",
+      "acceptanceCriteria": [
+        "Parser converts spoken dates like 'twelve fifteen twenty twenty four' to 12/15/2024",
+        "Parser handles dates spoken as 'one two one five two zero two four' to 12/15/2024",
+        "Parser handles dates with month names like 'December fifteen twenty twenty four'",
+        "Parser handles partial dates and uses reasonable defaults for missing components",
+        "Invalid date sequences are flagged or left unpopulated rather than causing errors"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/features/cases/parsing/parseStructuredText.ts",
+          "operation": "modify",
+          "description": "Add intelligent date parsing logic to convert various spoken number sequences into MM/DD/YYYY format. Implement recognition for digit-by-digit dictation ('one two one five two zero two four'), word-form dates ('twelve fifteen twenty twenty four'), and month name patterns ('December fifteen twenty twenty four'). Handle date extraction from the Arrival Date and Date of Birth fields, applying this parsing to convert recognized number sequences into properly formatted dates. Include error handling for invalid date sequences to prevent parsing failures."
+        },
+        {
+          "path": "frontend/src/features/cases/validation.ts",
+          "operation": "modify",
+          "description": "Enhance the date validation and parsing utilities to support the new spoken date formats. Add helper functions to convert spoken number sequences (both word-form and digit-by-digit) into numeric date components. Ensure parseDate function can handle these new formats while maintaining backward compatibility with existing MM/DD/YYYY input validation."
         }
       ]
     }

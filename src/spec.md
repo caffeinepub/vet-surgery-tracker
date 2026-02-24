@@ -1,11 +1,11 @@
 # Specification
 
 ## Summary
-**Goal:** Enhance the Quick Fill feature with placeholder guidance and automatic field extraction from voice recordings.
+**Goal:** Fix voice recording transcription routing and Parse and Fill functionality to accurately extract all 9 case fields from spoken input.
 
 **Planned changes:**
-- Add placeholder text in the Quick Fill text box showing all nine field names (Medical Record number, Arrival Date, Pet Name, Owner Last Name, Species, Breed, Sex, Date of Birth, Presenting Complaint) as a guide
-- Implement automatic parsing of voice recording transcriptions to extract and populate the nine veterinary case fields
-- Enhance the parseStructuredText function to recognize field variations from voice-dictated text
+- Route transcribed text from voice recording into the Quick Fill text box instead of the Medical Record Number field
+- Enhance Parse and Fill button to accurately extract all 9 case fields (Medical Record Number, Arrival Date, Pet Name, Owner Last Name, Species, Breed, Sex, Date of Birth, Presenting Complaint) when field names are spoken followed by values
+- Improve date parsing to intelligently convert spoken number sequences into MM/DD/YYYY format for Arrival Date and Date of Birth fields
 
-**User-visible outcome:** Users will see helpful placeholder guidance in the Quick Fill box and have their voice recordings automatically parsed to populate case form fields, reducing manual data entry.
+**User-visible outcome:** Users can speak case data by saying field names followed by values (e.g., "Medical Record Number 12345"), and the Parse and Fill button will accurately populate all 9 form fields, with dates properly formatted from spoken numbers.

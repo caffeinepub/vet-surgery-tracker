@@ -1,33 +1,37 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Veterinary case management system with voice-to-text Quick Fill feature for extracting structured patient information",
+  "summary": "Medical case management application for veterinary cases with 9 auto-populated fields and voice recording feature",
   "architectural_notes": [
-    "Voice recording feature integrated with Quick Fill functionality",
-    "Structured data extraction from audio for veterinary case fields"
+    "Voice input format: users speak field name followed by field value (e.g., 'Medical Record Number 12345')",
+    "Species and Sex fields use dropdown menus with predefined options",
+    "Date fields (Arrival Date, Date of Birth) require intelligent parsing from spoken numbers to date format"
   ],
-  "known_issues": [],
-  "isFixRequest": false,
+  "known_issues": [
+    "Voice recording transcription incorrectly populates only Medical Record Number field instead of Quick Fill text box",
+    "Parse and Fill button fails to extract and populate any of the 9 case fields"
+  ],
+  "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-add-placeholder-text-inside-the-quick-fill-text-box-displaying-the-following-field-names-as-a-guide-medical-record-number-arrival-date-pet-name-owner-last-name-species-breed-sex-date-of-birth-presenting-complaint",
-      "title": "Add placeholder text inside the Quick Fill text box displaying the following field names as a guide: Medical Record number, Arrival Date, Pet Name, Owner Last Name, Species, Breed, Sex, Date of Birth, Presenting Complaint",
+      "id": "feature-fix-voice-recording-to-place-transcribed-text-into-the-quick-fill-text-box-instead-of-the-medical-record-number-field",
+      "title": "Fix voice recording to place transcribed text into the Quick Fill text box instead of the Medical Record Number field",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-implement-automatic-parsing-of-voice-recording-audio-to-extract-structured-veterinary-case-fields-medical-record-number-arrival-date-pet-name-owner-last-name-species-breed-sex-date-of-birth-presenting-complaint-from-the-transcribed-text-and-populate-the-corresponding-form-fields-in-caseformdialog",
-      "title": "Implement automatic parsing of voice recording audio to extract structured veterinary case fields (Medical Record number, Arrival Date, Pet Name, Owner Last Name, Species, Breed, Sex, Date of Birth, Presenting Complaint) from the transcribed text and populate the corresponding form fields in CaseFormDialog",
+      "id": "feature-fix-parse-and-fill-button-to-accurately-extract-all-9-case-fields-from-the-quick-fill-text-box-when-user-speaks-field-names-followed-by-values-e-g-medical-record-number-12345",
+      "title": "Fix Parse and Fill button to accurately extract all 9 case fields from the Quick Fill text box when user speaks field names followed by values (e.g., 'Medical Record Number 12345')",
       "reqIds": [
         "REQ-2"
       ],
       "version": 1
     },
     {
-      "id": "feature-enhance-the-existing-parsestructuredtext-function-to-recognize-and-extract-the-nine-veterinary-case-fields-medical-record-number-arrival-date-pet-name-owner-last-name-species-breed-sex-date-of-birth-presenting-complaint-with-improved-pattern-matching-for-voice-dictated-text",
-      "title": "Enhance the existing parseStructuredText function to recognize and extract the nine veterinary case fields (Medical Record number, Arrival Date, Pet Name, Owner Last Name, Species, Breed, Sex, Date of Birth, Presenting Complaint) with improved pattern matching for voice-dictated text",
+      "id": "feature-enhance-date-parsing-to-intelligently-convert-various-spoken-number-sequences-into-proper-mm-dd-yyyy-date-format-for-arrival-date-and-date-of-birth-fields",
+      "title": "Enhance date parsing to intelligently convert various spoken number sequences into proper MM/DD/YYYY date format for Arrival Date and Date of Birth fields",
       "reqIds": [
         "REQ-3"
       ],
@@ -37,18 +41,31 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Add placeholder text guide with field names (Medical Record number, Arrival Date, Pet Name, Owner Last Name, Species, Breed, Sex, Date of Birth, Presenting Complaint) in Quick Fill text box",
+      "summary": "Voice recording with speech-to-text that transcribes to Quick Fill text box",
       "reqIds": [],
       "status": "pending"
     },
     {
       "id": "AR-2",
-      "summary": "Implement automatic audio parsing to extract structured veterinary case fields from voice recordings",
+      "summary": "Parse and Fill button to extract data from Quick Fill text box and populate 9 case fields",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "9 case fields: Medical Record Number, Arrival Date, Pet Name, Owner Last Name, Species (dropdown), Breed, Sex (dropdown), Date of Birth, Presenting Complaint",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "Smart date parsing to convert number sequences into dates for Arrival Date and Date of Birth fields",
       "reqIds": [],
       "status": "pending"
     }
   ],
-  "projectName": "SurgiPaw",
+  "gameProjectType": "none",
+  "projectName": "Fix voice recording transcription and Parse and Fill functionality",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

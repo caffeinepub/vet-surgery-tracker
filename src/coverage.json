@@ -1,7 +1,7 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-24T00:11:19.415Z",
+  "generatedAt": "2026-02-24T01:13:26.845Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
@@ -12,7 +12,7 @@
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Add placeholder text inside the Quick Fill text box displaying the following field names as a guide: Medical Record number, Arrival Date, Pet Name, Owner Last Name, Species, Breed, Sex, Date of Birth, Presenting Complaint",
+        "summary": "Fix voice recording to place transcribed text into the Quick Fill text box instead of the Medical Record Number field",
         "status": "implemented",
         "plannedFiles": [
           "frontend/src/features/cases/components/CaseFormDialog.tsx"
@@ -23,24 +23,26 @@
       },
       {
         "id": "REQ-2",
-        "summary": "Implement automatic parsing of voice recording audio to extract structured veterinary case fields (Medical Record number, Arrival Date, Pet Name, Owner Last Name, Species, Breed, Sex, Date of Birth, Presenting Complaint) from the transcribed text and populate the corresponding form fields in CaseFormDialog",
+        "summary": "Fix Parse and Fill button to accurately extract all 9 case fields from the Quick Fill text box when user speaks field names followed by values (e.g., 'Medical Record Number 12345')",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/features/cases/components/CaseFormDialog.tsx"
+          "frontend/src/features/cases/parsing/parseStructuredText.ts"
         ],
         "matchedFiles": [
-          "frontend/src/features/cases/components/CaseFormDialog.tsx"
+          "frontend/src/features/cases/parsing/parseStructuredText.ts"
         ]
       },
       {
         "id": "REQ-3",
-        "summary": "Enhance the existing parseStructuredText function to recognize and extract the nine veterinary case fields (Medical Record number, Arrival Date, Pet Name, Owner Last Name, Species, Breed, Sex, Date of Birth, Presenting Complaint) with improved pattern matching for voice-dictated text",
+        "summary": "Enhance date parsing to intelligently convert various spoken number sequences into proper MM/DD/YYYY date format for Arrival Date and Date of Birth fields",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/features/cases/parsing/parseStructuredText.ts"
+          "frontend/src/features/cases/parsing/parseStructuredText.ts",
+          "frontend/src/features/cases/validation.ts"
         ],
         "matchedFiles": [
-          "frontend/src/features/cases/parsing/parseStructuredText.ts"
+          "frontend/src/features/cases/parsing/parseStructuredText.ts",
+          "frontend/src/features/cases/validation.ts"
         ]
       }
     ]
@@ -52,6 +54,7 @@
     "frontend-implementation-plan.json",
     "frontend/src/features/cases/components/CaseFormDialog.tsx",
     "frontend/src/features/cases/parsing/parseStructuredText.ts",
+    "frontend/src/features/cases/validation.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

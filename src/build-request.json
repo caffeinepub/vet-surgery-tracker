@@ -1,83 +1,87 @@
 {
   "kind": "build_request",
-  "title": "Enhance Quick Fill with placeholder guide and automatic field extraction from voice",
-  "projectName": "SurgiPaw",
-  "priority": "normal",
+  "title": "Fix voice recording transcription and Parse and Fill functionality",
+  "priority": "high",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Add placeholder text inside the Quick Fill text box displaying the following field names as a guide: Medical Record number, Arrival Date, Pet Name, Owner Last Name, Species, Breed, Sex, Date of Birth, Presenting Complaint",
+      "text": "Fix voice recording to place transcribed text into the Quick Fill text box instead of the Medical Record Number field",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1",
-          "msg-2"
+          "msg-last"
         ],
         "quotes": [
-          "In the Quick Fill from Text box include examples of these field names to act as a guide for the voice dictation",
-          "Placeholder text inside the text box"
+          "Immediately after stopping the recording",
+          "all text was just put in the Medical Record Number field"
         ]
       },
       "acceptanceCriteria": [
-        "The Quick Fill text box shows placeholder text listing all nine field names when empty",
-        "Placeholder text disappears when user begins typing or voice recording populates the field",
-        "Placeholder text is visually distinct (e.g., lighter gray) from actual input text"
+        "After stopping voice recording, all transcribed text appears in the Quick Fill text box",
+        "No text is automatically populated into the Medical Record Number field during recording",
+        "The Quick Fill text box displays the complete transcript from the speech recognition"
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Implement automatic parsing of voice recording audio to extract structured veterinary case fields (Medical Record number, Arrival Date, Pet Name, Owner Last Name, Species, Breed, Sex, Date of Birth, Presenting Complaint) from the transcribed text and populate the corresponding form fields in CaseFormDialog",
-      "target": "both",
+      "text": "Fix Parse and Fill button to accurately extract all 9 case fields from the Quick Fill text box when user speaks field names followed by values (e.g., 'Medical Record Number 12345')",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1",
-          "msg-2"
+          "msg-last"
         ],
         "quotes": [
-          "Case information to be extracted from voice recording: Medical Record number, Arrival Date, Pet Name, Owner Last Name, Species, Breed, Sex, Date of Birth, Presenting Complaint",
-          "System should automatically parse the audio"
+          "Parse and Fill it does not complete the fields accurately",
+          "Nothing is being extracted properly",
+          "Start by saying the name of the field and then the data for that field"
         ]
       },
       "acceptanceCriteria": [
-        "After voice recording completes, the system automatically parses the transcribed text to identify the nine specified fields",
-        "Successfully extracted field values are populated into their corresponding form fields (MRN, arrival date, pet name, owner last name, species, breed, sex, date of birth, presenting complaint)",
-        "Parsing handles variations in how users dictate field names (e.g., 'MRN', 'Medical Record Number', 'Record Number')",
-        "Any fields that cannot be extracted remain empty and can be manually filled",
-        "The Quick Fill text box retains the full transcribed text for user reference"
+        "Parse and Fill button extracts Medical Record Number from text like 'Medical Record Number 12345'",
+        "Parse and Fill button extracts Arrival Date and converts number sequences to Date format",
+        "Parse and Fill button extracts Pet Name from spoken input",
+        "Parse and Fill button extracts Owner Last Name from spoken input",
+        "Parse and Fill button extracts Species and matches it to the dropdown options (canine, feline, avian, exotic)",
+        "Parse and Fill button extracts Breed from spoken input",
+        "Parse and Fill button extracts Sex and matches it to the dropdown options",
+        "Parse and Fill button extracts Date of Birth and converts number sequences to Date format",
+        "Parse and Fill button extracts Presenting Complaint from spoken input",
+        "All 9 fields are populated correctly when valid data is present in the Quick Fill text box"
       ]
     },
     {
       "id": "REQ-3",
-      "text": "Enhance the existing parseStructuredText function to recognize and extract the nine veterinary case fields (Medical Record number, Arrival Date, Pet Name, Owner Last Name, Species, Breed, Sex, Date of Birth, Presenting Complaint) with improved pattern matching for voice-dictated text",
+      "text": "Enhance date parsing to intelligently convert various spoken number sequences into proper MM/DD/YYYY date format for Arrival Date and Date of Birth fields",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1",
-          "msg-2"
+          "msg-last"
         ],
         "quotes": [
-          "Enhance the existing feature"
+          "Arrival Date (parse numbers in to a Date)",
+          "Date of Birth (parse numbers in to a date)"
         ]
       },
       "acceptanceCriteria": [
-        "The parseStructuredText function successfully extracts all nine fields from voice-transcribed text",
-        "Pattern matching handles common voice dictation variations and synonyms for each field name",
-        "Existing Quick Fill functionality continues to work with manually typed text",
-        "Field extraction works with both structured (label:value) and natural speech patterns"
+        "Parser converts spoken dates like 'twelve fifteen twenty twenty four' to 12/15/2024",
+        "Parser handles dates spoken as 'one two one five two zero two four' to 12/15/2024",
+        "Parser handles dates with month names like 'December fifteen twenty twenty four'",
+        "Parser handles partial dates and uses reasonable defaults for missing components",
+        "Invalid date sequences are flagged or left unpopulated rather than causing errors"
       ]
     }
   ],
   "constraints": [
-    "Use the existing Web Speech API implementation from useSpeechRecognition hook",
-    "Enhance the existing parseStructuredText function in frontend/src/features/cases/parsing/parseStructuredText.ts",
-    "Maintain compatibility with the existing CaseFormDialog component structure",
-    "Do not modify the backend schema or main.mo actor"
+    "Do not modify the backend schema or main.mo file",
+    "Maintain existing CaseFormDialog component structure and Quick Fill text box",
+    "Keep existing useSpeechRecognition hook functionality for browser speech recognition",
+    "Preserve existing parseStructuredText function signature while enhancing its logic"
   ],
   "nonGoals": [
-    "Adding new fields beyond the nine specified veterinary case fields",
-    "Implementing AI-based natural language processing beyond pattern matching",
-    "Supporting multiple languages for voice dictation",
-    "Recording or storing the actual audio files"
+    "Adding new case fields beyond the 9 specified fields",
+    "Changing the dropdown options for Species or Sex",
+    "Modifying the visual design or layout of the form",
+    "Adding alternative input methods beyond voice recording and text parsing"
   ],
   "imageRequirements": {
     "required": [],
