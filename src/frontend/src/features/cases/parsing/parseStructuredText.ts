@@ -4,8 +4,7 @@ import { parseSpecies, parseSex } from '../validation';
 /**
  * Parses structured text containing case information in label:value format
  * and returns a partial CaseFormData object with successfully extracted fields.
- * This parser now serves as a fallback for AI responses that return semi-structured
- * text instead of clean JSON, as well as for the Quick Fill feature.
+ * Enhanced to handle voice dictation variations and natural language patterns.
  */
 export function parseStructuredText(text: string): Partial<CaseFormData> {
   console.log('[parseStructuredText] Starting parse operation', {
@@ -21,18 +20,18 @@ export function parseStructuredText(text: string): Partial<CaseFormData> {
     nonEmptyLines: lines.filter((l) => l.length > 0).length,
   });
 
-  // Field patterns with various label formats
+  // Enhanced field patterns with voice dictation variations
   // IMPORTANT: Order matters! More specific patterns must come before general ones
   const patterns = {
-    medicalRecordNumber: /(?:medical\s*record\s*(?:number|#|no\.?)?|mrn|record\s*(?:number|#|no\.?)?)\s*:?\s*(.+)/i,
-    ownerLastName: /(?:owner\s*(?:last\s*)?name|owner)\s*:?\s*(.+)/i,
-    petName: /(?:pet\s*name|patient\s*name)\s*:?\s*(.+)/i,
-    arrivalDate: /(?:arrival\s*date|admission\s*date|date\s*of\s*arrival)\s*:?\s*(.+)/i,
-    dateOfBirth: /(?:date\s*of\s*birth|dob|birth\s*date)\s*:?\s*(.+)/i,
-    species: /(?:species)\s*:?\s*(.+)/i,
-    sex: /(?:sex|gender)\s*:?\s*(.+)/i,
-    breed: /(?:breed)\s*:?\s*(.+)/i,
-    presentingComplaint: /(?:presenting\s*complaint|chief\s*complaint|complaint|reason\s*for\s*visit)\s*:?\s*(.+)/i,
+    medicalRecordNumber: /(?:medical\s*record\s*(?:number|#|no\.?)?|mrn|record\s*(?:number|#|no\.?)?|the\s*medical\s*record\s*number\s*is|medical\s*record\s*is)\s*:?\s*(.+)/i,
+    ownerLastName: /(?:owner\s*(?:last\s*)?name|owner|last\s*name|surname|the\s*owner\s*(?:last\s*)?name\s*is|owner\s*is)\s*:?\s*(.+)/i,
+    petName: /(?:pet\s*name|patient\s*name|animal\s*name|the\s*pet\s*name\s*is|pet\s*is|patient\s*is)\s*:?\s*(.+)/i,
+    arrivalDate: /(?:arrival\s*date|admission\s*date|admit\s*date|date\s*of\s*arrival|the\s*arrival\s*date\s*is|arrived\s*on)\s*:?\s*(.+)/i,
+    dateOfBirth: /(?:date\s*of\s*birth|dob|birth\s*date|birthday|the\s*date\s*of\s*birth\s*is|born\s*on)\s*:?\s*(.+)/i,
+    species: /(?:species|the\s*species\s*is)\s*:?\s*(.+)/i,
+    sex: /(?:sex|gender|the\s*sex\s*is|the\s*gender\s*is)\s*:?\s*(.+)/i,
+    breed: /(?:breed|the\s*breed\s*is)\s*:?\s*(.+)/i,
+    presentingComplaint: /(?:presenting\s*complaint|chief\s*complaint|complaint|reason\s*for\s*visit|the\s*presenting\s*complaint\s*is|the\s*complaint\s*is|reason\s*is)\s*:?\s*(.+)/i,
   };
 
   let matchCount = 0;
@@ -56,14 +55,14 @@ export function parseStructuredText(text: string): Partial<CaseFormData> {
         // Parse based on field type
         try {
           if (field === 'species') {
-            const parsed = parseSpecies(value);
+            const parsed = parseSpeciesWithVoiceVariations(value);
             if (parsed) {
               result.species = parsed as any;
               matchCount++;
               console.log('[parseStructuredText] Species parsed', { value, parsed });
             }
           } else if (field === 'sex') {
-            const parsed = parseSex(value);
+            const parsed = parseSexWithVoiceVariations(value);
             if (parsed) {
               result.sex = parsed as any;
               matchCount++;
@@ -110,6 +109,51 @@ export function parseStructuredText(text: string): Partial<CaseFormData> {
   });
 
   return result;
+}
+
+/**
+ * Enhanced species parser with voice dictation variations
+ */
+function parseSpeciesWithVoiceVariations(value: string): string | null {
+  const normalized = value.toLowerCase().trim();
+  
+  // Handle common voice dictation variations
+  if (normalized.match(/\b(canine|dog|dogs)\b/)) {
+    return 'canine';
+  }
+  if (normalized.match(/\b(feline|cat|cats)\b/)) {
+    return 'feline';
+  }
+  if (normalized.match(/\b(other|exotic|bird|reptile|rabbit|ferret)\b/)) {
+    return 'other';
+  }
+  
+  // Fallback to existing parser
+  return parseSpecies(value);
+}
+
+/**
+ * Enhanced sex parser with voice dictation variations
+ */
+function parseSexWithVoiceVariations(value: string): string | null {
+  const normalized = value.toLowerCase().trim();
+  
+  // Handle common voice dictation variations
+  if (normalized.match(/\b(male|m|intact\s*male)\b/) && !normalized.match(/\b(neutered|castrated)\b/)) {
+    return 'male';
+  }
+  if (normalized.match(/\b(male\s*neutered|neutered\s*male|neutered|castrated|mn)\b/)) {
+    return 'maleNeutered';
+  }
+  if (normalized.match(/\b(female|f|intact\s*female)\b/) && !normalized.match(/\b(spayed)\b/)) {
+    return 'female';
+  }
+  if (normalized.match(/\b(female\s*spayed|spayed\s*female|spayed|fs)\b/)) {
+    return 'femaleSpayed';
+  }
+  
+  // Fallback to existing parser
+  return parseSex(value);
 }
 
 /**

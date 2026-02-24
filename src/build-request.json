@@ -1,79 +1,83 @@
 {
   "kind": "build_request",
-  "title": "Add voice recording to Quick Fill from Text feature",
+  "title": "Enhance Quick Fill with placeholder guide and automatic field extraction from voice",
   "projectName": "SurgiPaw",
   "priority": "normal",
   "requirements": [
     {
+      "id": "REQ-1",
+      "text": "Add placeholder text inside the Quick Fill text box displaying the following field names as a guide: Medical Record number, Arrival Date, Pet Name, Owner Last Name, Species, Breed, Sex, Date of Birth, Presenting Complaint",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1",
+          "msg-2"
+        ],
+        "quotes": [
+          "In the Quick Fill from Text box include examples of these field names to act as a guide for the voice dictation",
+          "Placeholder text inside the text box"
+        ]
+      },
+      "acceptanceCriteria": [
+        "The Quick Fill text box shows placeholder text listing all nine field names when empty",
+        "Placeholder text disappears when user begins typing or voice recording populates the field",
+        "Placeholder text is visually distinct (e.g., lighter gray) from actual input text"
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "text": "Implement automatic parsing of voice recording audio to extract structured veterinary case fields (Medical Record number, Arrival Date, Pet Name, Owner Last Name, Species, Breed, Sex, Date of Birth, Presenting Complaint) from the transcribed text and populate the corresponding form fields in CaseFormDialog",
+      "target": "both",
+      "source": {
+        "messageIds": [
+          "msg-1",
+          "msg-2"
+        ],
+        "quotes": [
+          "Case information to be extracted from voice recording: Medical Record number, Arrival Date, Pet Name, Owner Last Name, Species, Breed, Sex, Date of Birth, Presenting Complaint",
+          "System should automatically parse the audio"
+        ]
+      },
+      "acceptanceCriteria": [
+        "After voice recording completes, the system automatically parses the transcribed text to identify the nine specified fields",
+        "Successfully extracted field values are populated into their corresponding form fields (MRN, arrival date, pet name, owner last name, species, breed, sex, date of birth, presenting complaint)",
+        "Parsing handles variations in how users dictate field names (e.g., 'MRN', 'Medical Record Number', 'Record Number')",
+        "Any fields that cannot be extracted remain empty and can be manually filled",
+        "The Quick Fill text box retains the full transcribed text for user reference"
+      ]
+    },
+    {
       "id": "REQ-3",
-      "text": "Add a microphone button positioned on the right side of the screen, horizontally aligned with the 'Quick Fill from Text' label in the CaseFormDialog component",
+      "text": "Enhance the existing parseStructuredText function to recognize and extract the nine veterinary case fields (Medical Record number, Arrival Date, Pet Name, Owner Last Name, Species, Breed, Sex, Date of Birth, Presenting Complaint) with improved pattern matching for voice-dictated text",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-10"
+          "msg-1",
+          "msg-2"
         ],
         "quotes": [
-          "The microphone can be placed on the right side across from the \"Quick Fill from Text\""
+          "Enhance the existing feature"
         ]
       },
       "acceptanceCriteria": [
-        "Microphone button is visible and positioned to the right of the 'Quick Fill from Text' label",
-        "Button styling is consistent with existing UI design patterns",
-        "Button displays appropriate microphone icon (mic when idle, recording indicator when active)"
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "text": "Implement voice recording functionality using the Web Speech API with toggle behavior - first click starts recording, second click stops recording",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-10"
-        ],
-        "quotes": [
-          "Voice recording should be a toggle"
-        ]
-      },
-      "acceptanceCriteria": [
-        "First click on microphone button initiates voice recording using Web Speech API",
-        "Button shows visual feedback indicating recording is in progress",
-        "Second click on microphone button stops the recording",
-        "Recording state is clearly communicated to the user through button appearance",
-        "Handle browser permissions appropriately with user-friendly error messages if microphone access is denied"
-      ]
-    },
-    {
-      "id": "REQ-5",
-      "text": "When voice recording is stopped, automatically convert the recorded speech to text and replace any existing text in the Quick Fill from Text input box with the transcribed text",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-10"
-        ],
-        "quotes": [
-          "When the voice recording is stopped it should be converted to text within the Quick Fill from Text box replacing any text that is in the box"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Speech-to-text conversion completes automatically when recording stops",
-        "Transcribed text completely replaces any existing text in the Quick Fill input field",
-        "The existing parseStructuredText functionality processes the transcribed text to auto-populate form fields",
-        "User receives appropriate feedback if transcription fails or produces no text",
-        "Transcription works in real-time or near real-time using the Web Speech API"
+        "The parseStructuredText function successfully extracts all nine fields from voice-transcribed text",
+        "Pattern matching handles common voice dictation variations and synonyms for each field name",
+        "Existing Quick Fill functionality continues to work with manually typed text",
+        "Field extraction works with both structured (label:value) and natural speech patterns"
       ]
     }
   ],
   "constraints": [
-    "Use the Web Speech API (browser native functionality) for speech recognition",
-    "Integrate with existing Quick Fill from Text feature in CaseFormDialog component without breaking current text input or parsing functionality",
-    "Maintain existing structured text parsing logic (parseStructuredText) for processing voice-transcribed text"
+    "Use the existing Web Speech API implementation from useSpeechRecognition hook",
+    "Enhance the existing parseStructuredText function in frontend/src/features/cases/parsing/parseStructuredText.ts",
+    "Maintain compatibility with the existing CaseFormDialog component structure",
+    "Do not modify the backend schema or main.mo actor"
   ],
   "nonGoals": [
-    "External speech-to-text API integration (e.g., Google Cloud Speech, Azure Speech)",
-    "Voice command controls beyond the toggle recording button",
-    "Audio file upload or playback functionality",
-    "Multi-language speech recognition configuration",
-    "Backend storage of voice recordings"
+    "Adding new fields beyond the nine specified veterinary case fields",
+    "Implementing AI-based natural language processing beyond pattern matching",
+    "Supporting multiple languages for voice dictation",
+    "Recording or storing the actual audio files"
   ],
   "imageRequirements": {
     "required": [],

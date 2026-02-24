@@ -2,8 +2,8 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-add-a-microphone-button-positioned-on-the-right-side-of-the-screen-horizontally-aligned-with-the-quick-fill-from-text-label-in-the-caseformdialog-component",
-      "featureTitle": "Add a microphone button positioned on the right side of the screen, horizontally aligned with the 'Quick Fill from Text' label in the CaseFormDialog component",
+      "featureId": "feature-add-placeholder-text-inside-the-quick-fill-text-box-displaying-the-following-field-names-as-a-guide-medical-record-number-arrival-date-pet-name-owner-last-name-species-breed-sex-date-of-birth-presenting-complaint",
+      "featureTitle": "Add placeholder text inside the Quick Fill text box displaying the following field names as a guide: Medical Record number, Arrival Date, Pet Name, Owner Last Name, Species, Breed, Sex, Date of Birth, Presenting Complaint",
       "files": [
         "frontend/src/features/cases/components/CaseFormDialog.tsx"
       ],
@@ -18,51 +18,49 @@
         "http-outcalls@3.0.0"
       ],
       "testIds": [
+        "REQ-1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-implement-automatic-parsing-of-voice-recording-audio-to-extract-structured-veterinary-case-fields-medical-record-number-arrival-date-pet-name-owner-last-name-species-breed-sex-date-of-birth-presenting-complaint-from-the-transcribed-text-and-populate-the-corresponding-form-fields-in-caseformdialog",
+      "featureTitle": "Implement automatic parsing of voice recording audio to extract structured veterinary case fields (Medical Record number, Arrival Date, Pet Name, Owner Last Name, Species, Breed, Sex, Date of Birth, Presenting Complaint) from the transcribed text and populate the corresponding form fields in CaseFormDialog",
+      "files": [
+        "frontend/src/features/cases/components/CaseFormDialog.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "camera@1.0.0",
+        "http-outcalls@3.0.0"
+      ],
+      "testIds": [
+        "REQ-2"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-enhance-the-existing-parsestructuredtext-function-to-recognize-and-extract-the-nine-veterinary-case-fields-medical-record-number-arrival-date-pet-name-owner-last-name-species-breed-sex-date-of-birth-presenting-complaint-with-improved-pattern-matching-for-voice-dictated-text",
+      "featureTitle": "Enhance the existing parseStructuredText function to recognize and extract the nine veterinary case fields (Medical Record number, Arrival Date, Pet Name, Owner Last Name, Species, Breed, Sex, Date of Birth, Presenting Complaint) with improved pattern matching for voice-dictated text",
+      "files": [
+        "frontend/src/features/cases/parsing/parseStructuredText.ts"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "camera@1.0.0",
+        "http-outcalls@3.0.0"
+      ],
+      "testIds": [
         "REQ-3"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-implement-voice-recording-functionality-using-the-web-speech-api-with-toggle-behavior-first-click-starts-recording-second-click-stops-recording",
-      "featureTitle": "Implement voice recording functionality using the Web Speech API with toggle behavior - first click starts recording, second click stops recording",
-      "files": [
-        "frontend/src/features/cases/components/CaseFormDialog.tsx",
-        "frontend/src/features/cases/hooks/useSpeechRecognition.ts"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "camera@1.0.0",
-        "http-outcalls@3.0.0"
-      ],
-      "testIds": [
-        "REQ-4"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-when-voice-recording-is-stopped-automatically-convert-the-recorded-speech-to-text-and-replace-any-existing-text-in-the-quick-fill-from-text-input-box-with-the-transcribed-text",
-      "featureTitle": "When voice recording is stopped, automatically convert the recorded speech to text and replace any existing text in the Quick Fill from Text input box with the transcribed text",
-      "files": [
-        "frontend/src/features/cases/components/CaseFormDialog.tsx",
-        "frontend/src/features/cases/hooks/useSpeechRecognition.ts"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "camera@1.0.0",
-        "http-outcalls@3.0.0"
-      ],
-      "testIds": [
-        "REQ-5"
       ],
       "confidence": "high"
     }

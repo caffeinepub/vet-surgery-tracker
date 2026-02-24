@@ -1,12 +1,11 @@
 # Specification
 
 ## Summary
-**Goal:** Add voice recording capability to the Quick Fill from Text feature, allowing users to dictate case information instead of typing.
+**Goal:** Enhance the Quick Fill feature with placeholder guidance and automatic field extraction from voice recordings.
 
 **Planned changes:**
-- Add a microphone button positioned to the right of the "Quick Fill from Text" label
-- Implement toggle voice recording using Web Speech API (first click starts, second click stops)
-- Automatically transcribe recorded speech to text and replace existing text in the Quick Fill input box
-- Process transcribed text through existing parseStructuredText logic to auto-populate form fields
+- Add placeholder text in the Quick Fill text box showing all nine field names (Medical Record number, Arrival Date, Pet Name, Owner Last Name, Species, Breed, Sex, Date of Birth, Presenting Complaint) as a guide
+- Implement automatic parsing of voice recording transcriptions to extract and populate the nine veterinary case fields
+- Enhance the parseStructuredText function to recognize field variations from voice-dictated text
 
-**User-visible outcome:** Users can click a microphone button to dictate case information, which is automatically transcribed and used to populate the surgery case form fields.
+**User-visible outcome:** Users will see helpful placeholder guidance in the Quick Fill box and have their voice recordings automatically parsed to populate case form fields, reducing manual data entry.
