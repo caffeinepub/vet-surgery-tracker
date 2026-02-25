@@ -1,65 +1,87 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Fix Quick Fill from Text parser field boundary and value parsing issues",
+  "title": "Dashboard patient card resize, species icons, New Case button relocation, and completed case search inclusion",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Fix parser to correctly identify field boundaries for Pet Name so 'Kitten' is captured without appending 'owner' label",
+      "summary": "Reduce patient card size on the Dashboard to show more cards without scrolling",
       "acceptanceCriteria": [
-        "Pasting the sample text and clicking Parse & Fill populates Pet Name with 'Kitten' only",
-        "The word 'owner' does not appear in the Pet Name field"
+        "Patient cards on the Dashboard are visibly more compact than before",
+        "Card content (patient name, species icon, task count, etc.) remains readable",
+        "Multiple cards fit in the viewport without scrolling on a standard desktop screen"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/features/cases/parsing/parseStructuredText.ts",
+          "path": "frontend/src/features/dashboard/components/DashboardView.tsx",
           "operation": "modify",
-          "description": "Fix the regex pattern for 'Pet Name' field to stop capturing at the next field label boundary. Update the pattern to use a negative lookahead or non-greedy matching that terminates before encountering labels like 'owner', 'Owner', or other field names. Ensure the capture group extracts only the pet name value (e.g., 'Kitten') and trims trailing whitespace before the next label."
+          "description": "Reduce the grid gap between cards and adjust the card container layout to accommodate more compact cards. Update grid-cols classes to show more cards per row on larger screens."
+        },
+        {
+          "path": "frontend/src/features/cases/components/CaseCard.tsx",
+          "operation": "modify",
+          "description": "Reduce card padding, decrease font sizes for all text elements (patient name, species, MRN, owner, task count), and reduce the overall card height. Maintain readability while making the card significantly more compact."
         }
       ]
     },
     {
       "id": "REQ-2",
-      "summary": "Fix parser to correctly identify field boundaries for Owner name so 'Beatty' is captured without appending 'species' label",
+      "summary": "Relocate the '+ New Case' button from page-level to the top navigation header, positioned left of the Dashboard button",
       "acceptanceCriteria": [
-        "Pasting the sample text and clicking Parse & Fill populates Owner name with 'Beatty' only",
-        "The word 'species' does not appear in the Owner name field"
+        "The '+ New Case' button appears in the top navigation/header bar on all authenticated views",
+        "The button is positioned to the left of the Dashboard nav button",
+        "Clicking '+ New Case' from the header opens the new case dialog/form as before",
+        "The button is no longer rendered in its previous location (e.g., page-level header of the Dashboard or Cases list)"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/features/cases/parsing/parseStructuredText.ts",
+          "path": "frontend/src/App.tsx",
           "operation": "modify",
-          "description": "Fix the regex pattern for 'Owner' or 'Owner name' field to stop capturing at the next field label boundary. Update the pattern to use a negative lookahead or non-greedy matching that terminates before encountering labels like 'species', 'Species', or other field names. Ensure the capture group extracts only the owner last name value (e.g., 'Beatty') and trims trailing whitespace before the next label."
+          "description": "Add the '+ New Case' button to the top navigation bar within the authenticated header section. Position it to the left of the Dashboard nav button. Wire it to call handleNewCase to open the CaseFormDialog. Ensure the button is visible on all authenticated views (dashboard, cases, settings)."
+        },
+        {
+          "path": "frontend/src/features/dashboard/components/DashboardView.tsx",
+          "operation": "modify",
+          "description": "Remove the '+ New Case' button from the DashboardView page-level header since it now lives in the top navigation. Keep all other controls (search, filters, export) in their current positions."
+        },
+        {
+          "path": "frontend/src/features/cases/components/CasesListView.tsx",
+          "operation": "modify",
+          "description": "Remove the '+ New Case' button from the CasesListView page-level header since it now lives in the top navigation. Keep all other controls (search, filters, sort) in their current positions."
         }
       ]
     },
     {
       "id": "REQ-3",
-      "summary": "Fix parser to correctly capture multi-word sex values like 'Neutered Male', 'Spayed Female', 'Intact Male', and 'Intact Female'",
+      "summary": "Replace species text labels with colored animal silhouette icons on patient cards",
       "acceptanceCriteria": [
-        "Pasting 'Sex: Neutered Male' and clicking Parse & Fill selects the correct 'Neutered Male' option in the Sex field",
-        "Multi-word sex values such as 'Spayed Female', 'Intact Male', 'Intact Female' are also correctly parsed and selected"
+        "Patient cards display a colored animal silhouette icon instead of the text label 'Canine', 'Feline', or 'Other'",
+        "Dog silhouette is shown for Canine cases, cat silhouette for Feline cases",
+        "A random animal silhouette is shown for Other species cases",
+        "Each species icon uses a visually distinct color",
+        "Icons are appropriately sized within the compact card layout"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/features/cases/parsing/parseStructuredText.ts",
+          "path": "frontend/src/features/cases/components/CaseCard.tsx",
           "operation": "modify",
-          "description": "Update the 'Sex' field regex pattern to capture multi-word sex values. Change the pattern from matching a single word to matching two consecutive words (e.g., 'Neutered Male', 'Spayed Female', 'Intact Male', 'Intact Female'). Add mapping logic to convert these multi-word values to the correct Sex enum values defined in types.ts (maleNeutered, femaleSpayed, male, female). Ensure the pattern stops at the next field label boundary."
+          "description": "Replace the species text label with an <img> element that displays the appropriate silhouette icon based on species. For Canine, use frontend/public/assets/generated/dog-silhouette.dim_64x64.png. For Feline, use frontend/public/assets/generated/cat-silhouette.dim_64x64.png. For Other, use frontend/public/assets/generated/other-animal-silhouette.dim_64x64.png. Size the icons appropriately for the compact card (e.g., 24x24 or 32x32 pixels). The images are already colored (amber/orange for dog, teal/green for cat, lavender/purple for rabbit)."
         }
       ]
     },
     {
       "id": "REQ-4",
-      "summary": "Fix parser to correctly match and populate the Date of Birth field from labels like 'Date of Birth' or 'DOB' with MM/DD/YYYY format",
+      "summary": "Include completed cases in the previous-case search within the New Case form",
       "acceptanceCriteria": [
-        "Pasting 'Date of Birth: 6/18/2023' and clicking Parse & Fill populates the Date of Birth field with '6/18/2023' or '06/18/2023'",
-        "The DOB field is not left empty after parsing the sample text block"
+        "The previous-case lookup in the New Case form returns cases regardless of task completion status",
+        "Cases where every task is marked complete are included in search/autocomplete results",
+        "Existing search matching logic (by MRN, pet name, owner, etc.) is otherwise unchanged"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/features/cases/parsing/parseStructuredText.ts",
+          "path": "frontend/src/features/cases/components/CaseFormDialog.tsx",
           "operation": "modify",
-          "description": "Add or fix the regex pattern for 'Date of Birth' field to recognize label variations including 'Date of Birth', 'DOB', 'Date of birth', 'dob', etc. Ensure the pattern captures date values in MM/DD/YYYY format (e.g., '6/18/2023') including single-digit month/day variants. The captured date string should be assigned to the dateOfBirth field in the returned CaseFormData object. Stop capturing at the next field label boundary."
+          "description": "Update the MRN-based previous-case lookup logic to remove any filtering that excludes cases where all tasks are completed. Ensure that the searchCasesByMedicalRecordNumber results and any autocomplete/dropdown for selecting prior cases include fully completed cases. The filtering logic in filtering.ts (excludeFullyCompleted) should not be applied during the New Case form search."
         }
       ]
     }

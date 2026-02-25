@@ -1,51 +1,73 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Veterinary case management app with Dashboard and Cases pages. Features MRN display, arrival date sorting, and a Quick Fill from Text parser for patient intake fields.",
+  "summary": "Veterinary case management app with a Dashboard featuring patient cards and a New Case workflow. Recent focus on UI improvements: smaller patient cards, species icons (colored animal silhouettes), navigation changes, and search enhancements.",
   "architectural_notes": [],
-  "known_issues": [
-    "Quick Fill from Text parser: appends 'owner' after pet name and 'species' after owner last name due to field boundary misidentification",
-    "Quick Fill from Text parser: does not correctly parse multi-word sex values like 'Neutered Male'",
-    "Quick Fill from Text parser: does not populate the Date of Birth field"
-  ],
-  "isFixRequest": true,
+  "known_issues": [],
+  "isFixRequest": false,
+  "imageRequirements": "## Required Images\n- Solid dog silhouette icon in warm amber/orange tone (dog-silhouette.dim_64x64.png)\n- Solid cat silhouette icon in teal/green tone (cat-silhouette.dim_64x64.png)\n- Solid rabbit silhouette icon in lavender/purple tone for Other species (other-animal-silhouette.dim_64x64.png)",
   "existing_features": [
     {
-      "id": "feature-fix-the-quick-fill-from-text-parser-in-parsestructuredtext-ts-to-correctly-identify-field-boundaries-so-that-pet-name-is-parsed-as-only-the-pet-name-value-e-g-kitten-without-appending-the-next-field-label-owner-to-it",
-      "title": "Fix the Quick Fill from Text parser in parseStructuredText.ts to correctly identify field boundaries so that 'Pet Name' is parsed as only the pet name value (e.g., 'Kitten') without appending the next field label 'owner' to it.",
+      "id": "feature-make-each-patient-card-on-the-dashboard-smaller-overall-reduce-padding-font-sizes-and-card-height-so-more-cards-are-visible-without-scrolling",
+      "title": "Make each patient card on the Dashboard smaller overall — reduce padding, font sizes, and card height so more cards are visible without scrolling.",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-fix-the-quick-fill-from-text-parser-in-parsestructuredtext-ts-to-correctly-identify-field-boundaries-so-that-owner-name-is-parsed-as-only-the-owner-name-value-e-g-beatty-without-appending-the-next-field-label-species-to-it",
-      "title": "Fix the Quick Fill from Text parser in parseStructuredText.ts to correctly identify field boundaries so that 'Owner name' is parsed as only the owner name value (e.g., 'Beatty') without appending the next field label 'species' to it.",
+      "id": "feature-move-the-new-case-button-from-its-current-location-into-the-top-navigation-header-bar-positioned-to-the-left-of-the-dashboard-navigation-button",
+      "title": "Move the '+ New Case' button from its current location into the top navigation/header bar, positioned to the left of the Dashboard navigation button.",
       "reqIds": [
         "REQ-2"
       ],
       "version": 1
     },
     {
-      "id": "feature-fix-the-quick-fill-from-text-parser-in-parsestructuredtext-ts-to-correctly-capture-multi-word-sex-values-the-regex-or-matching-logic-for-the-sex-field-must-capture-the-full-value-neutered-male-and-similar-multi-word-values-like-spayed-female-intact-male-intact-female-and-map-them-to-the-correct-sex-enum-option-used-in-the-form",
-      "title": "Fix the Quick Fill from Text parser in parseStructuredText.ts to correctly capture multi-word sex values. The regex or matching logic for the 'Sex' field must capture the full value 'Neutered Male' (and similar multi-word values like 'Spayed Female', 'Intact Male', 'Intact Female') and map them to the correct sex enum/option used in the form.",
+      "id": "feature-replace-the-canine-feline-and-other-species-text-labels-on-patient-cards-with-colored-animal-silhouette-icons-a-dog-silhouette-for-canine-a-cat-silhouette-for-feline-and-a-randomly-chosen-animal-silhouette-for-other-each-silhouette-should-use-a-distinct-color-to-differentiate-species-at-a-glance",
+      "title": "Replace the Canine, Feline, and Other species text labels on patient cards with colored animal silhouette icons: a dog silhouette for Canine, a cat silhouette for Feline, and a randomly chosen animal silhouette for Other. Each silhouette should use a distinct color to differentiate species at a glance.",
       "reqIds": [
         "REQ-3"
       ],
       "version": 1
     },
     {
-      "id": "feature-fix-the-quick-fill-from-text-parser-in-parsestructuredtext-ts-to-correctly-match-and-populate-the-date-of-birth-field-the-parser-must-recognize-the-date-of-birth-label-including-variations-like-dob-and-parse-date-values-in-mm-dd-yyyy-format-e-g-6-18-2023-then-fill-the-dob-form-field-accordingly",
-      "title": "Fix the Quick Fill from Text parser in parseStructuredText.ts to correctly match and populate the Date of Birth field. The parser must recognize the 'Date of Birth' label (including variations like 'DOB') and parse date values in MM/DD/YYYY format (e.g., '6/18/2023'), then fill the DOB form field accordingly.",
+      "id": "feature-when-searching-for-previous-cases-inside-the-new-case-form-mrn-based-or-name-based-patient-lookup-include-cases-where-all-tasks-have-been-completed-in-the-search-results-in-addition-to-active-open-cases",
+      "title": "When searching for previous cases inside the New Case form (MRN-based or name-based patient lookup), include cases where all tasks have been completed in the search results, in addition to active/open cases.",
       "reqIds": [
         "REQ-4"
       ],
       "version": 1
     }
   ],
-  "new_feature_requests": [],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Make each patient card on the Dashboard smaller overall",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Move the + New Case button to the top navigation/header bar, to the left of the Dashboard button",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Replace Canine/Feline/Other text labels on patient cards with colored animal silhouette icons (dog, cat, random animal for Other)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "When searching for previous cases in the New Case form, include cases where all tasks have been completed",
+      "reqIds": [],
+      "status": "pending"
+    }
+  ],
   "gameProjectType": "none",
-  "projectName": "Veterinary Case Management App",
+  "projectName": "SurgiPaw",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

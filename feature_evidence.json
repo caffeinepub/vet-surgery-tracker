@@ -2,10 +2,11 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-fix-the-quick-fill-from-text-parser-in-parsestructuredtext-ts-to-correctly-identify-field-boundaries-so-that-pet-name-is-parsed-as-only-the-pet-name-value-e-g-kitten-without-appending-the-next-field-label-owner-to-it",
-      "featureTitle": "Fix the Quick Fill from Text parser in parseStructuredText.ts to correctly identify field boundaries so that 'Pet Name' is parsed as only the pet name value (e.g., 'Kitten') without appending the next field label 'owner' to it.",
+      "featureId": "feature-make-each-patient-card-on-the-dashboard-smaller-overall-reduce-padding-font-sizes-and-card-height-so-more-cards-are-visible-without-scrolling",
+      "featureTitle": "Make each patient card on the Dashboard smaller overall — reduce padding, font sizes, and card height so more cards are visible without scrolling.",
       "files": [
-        "frontend/src/features/cases/parsing/parseStructuredText.ts"
+        "frontend/src/features/cases/components/CaseCard.tsx",
+        "frontend/src/features/dashboard/components/DashboardView.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -23,10 +24,12 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-fix-the-quick-fill-from-text-parser-in-parsestructuredtext-ts-to-correctly-identify-field-boundaries-so-that-owner-name-is-parsed-as-only-the-owner-name-value-e-g-beatty-without-appending-the-next-field-label-species-to-it",
-      "featureTitle": "Fix the Quick Fill from Text parser in parseStructuredText.ts to correctly identify field boundaries so that 'Owner name' is parsed as only the owner name value (e.g., 'Beatty') without appending the next field label 'species' to it.",
+      "featureId": "feature-move-the-new-case-button-from-its-current-location-into-the-top-navigation-header-bar-positioned-to-the-left-of-the-dashboard-navigation-button",
+      "featureTitle": "Move the '+ New Case' button from its current location into the top navigation/header bar, positioned to the left of the Dashboard navigation button.",
       "files": [
-        "frontend/src/features/cases/parsing/parseStructuredText.ts"
+        "frontend/src/App.tsx",
+        "frontend/src/features/cases/components/CasesListView.tsx",
+        "frontend/src/features/dashboard/components/DashboardView.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -44,10 +47,10 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-fix-the-quick-fill-from-text-parser-in-parsestructuredtext-ts-to-correctly-capture-multi-word-sex-values-the-regex-or-matching-logic-for-the-sex-field-must-capture-the-full-value-neutered-male-and-similar-multi-word-values-like-spayed-female-intact-male-intact-female-and-map-them-to-the-correct-sex-enum-option-used-in-the-form",
-      "featureTitle": "Fix the Quick Fill from Text parser in parseStructuredText.ts to correctly capture multi-word sex values. The regex or matching logic for the 'Sex' field must capture the full value 'Neutered Male' (and similar multi-word values like 'Spayed Female', 'Intact Male', 'Intact Female') and map them to the correct sex enum/option used in the form.",
+      "featureId": "feature-replace-the-canine-feline-and-other-species-text-labels-on-patient-cards-with-colored-animal-silhouette-icons-a-dog-silhouette-for-canine-a-cat-silhouette-for-feline-and-a-randomly-chosen-animal-silhouette-for-other-each-silhouette-should-use-a-distinct-color-to-differentiate-species-at-a-glance",
+      "featureTitle": "Replace the Canine, Feline, and Other species text labels on patient cards with colored animal silhouette icons: a dog silhouette for Canine, a cat silhouette for Feline, and a randomly chosen animal silhouette for Other. Each silhouette should use a distinct color to differentiate species at a glance.",
       "files": [
-        "frontend/src/features/cases/parsing/parseStructuredText.ts"
+        "frontend/src/features/cases/components/CaseCard.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -65,10 +68,10 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-fix-the-quick-fill-from-text-parser-in-parsestructuredtext-ts-to-correctly-match-and-populate-the-date-of-birth-field-the-parser-must-recognize-the-date-of-birth-label-including-variations-like-dob-and-parse-date-values-in-mm-dd-yyyy-format-e-g-6-18-2023-then-fill-the-dob-form-field-accordingly",
-      "featureTitle": "Fix the Quick Fill from Text parser in parseStructuredText.ts to correctly match and populate the Date of Birth field. The parser must recognize the 'Date of Birth' label (including variations like 'DOB') and parse date values in MM/DD/YYYY format (e.g., '6/18/2023'), then fill the DOB form field accordingly.",
+      "featureId": "feature-when-searching-for-previous-cases-inside-the-new-case-form-mrn-based-or-name-based-patient-lookup-include-cases-where-all-tasks-have-been-completed-in-the-search-results-in-addition-to-active-open-cases",
+      "featureTitle": "When searching for previous cases inside the New Case form (MRN-based or name-based patient lookup), include cases where all tasks have been completed in the search results, in addition to active/open cases.",
       "files": [
-        "frontend/src/features/cases/parsing/parseStructuredText.ts"
+        "frontend/src/features/cases/components/CaseFormDialog.tsx"
       ],
       "components": [
         "authorization@4.0.0",

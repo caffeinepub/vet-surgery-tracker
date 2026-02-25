@@ -1,12 +1,12 @@
 # Specification
 
 ## Summary
-**Goal:** Fix multiple field parsing bugs in the Quick Fill from Text parser (`parseStructuredText.ts`) so that pet name, owner name, sex, and date of birth are all correctly extracted and populated in the form.
+**Goal:** Improve the SurgiPaw Dashboard's patient cards with a more compact layout, species silhouette icons, relocate the "+ New Case" button to the header, and include completed cases in the New Case patient lookup search.
 
 **Planned changes:**
-- Fix field boundary detection so that "Pet Name" captures only the pet name value (e.g., "Kitten") without appending the next field label ("owner")
-- Fix field boundary detection so that "Owner name" captures only the owner name value (e.g., "Beatty") without appending the next field label ("species")
-- Fix the "Sex" field matching to correctly capture multi-word values such as "Neutered Male", "Spayed Female", "Intact Male", and "Intact Female", and map them to the correct form option
-- Fix the "Date of Birth" / "DOB" field matching to recognize the label and parse date values in MM/DD/YYYY format, then populate the DOB form field
+- Reduce patient card size on the Dashboard (less padding, smaller fonts, reduced card height) so more cards are visible without scrolling
+- Move the "+ New Case" button into the top navigation/header bar, positioned to the left of the Dashboard nav button, and remove it from its previous location
+- Replace species text labels ("Canine", "Feline", "Other") on patient cards with colored animal silhouette icons: dog (amber/orange) for Canine, cat (teal/green) for Feline, and rabbit (lavender/purple) for Other
+- Update the previous-case lookup in the New Case form to include cases where all tasks are completed, in addition to active/open cases
 
-**User-visible outcome:** When a user pastes a structured text block into the Quick Fill dialog and clicks Parse & Fill, Pet Name, Owner Name, Sex, and Date of Birth fields are all correctly populated without extra label text or empty values.
+**User-visible outcome:** The Dashboard shows more compact patient cards with species icons instead of text labels, the "+ New Case" button is always accessible in the header, and searching for previous patients in the New Case form returns completed cases as well as active ones.
