@@ -1,89 +1,61 @@
 {
   "kind": "build_request",
-  "title": "Task icons with color coding, presenting complaint on dashboard, and PDF export",
+  "title": "Fix cases not showing in live app — restore canister data fetching regression",
   "projectName": "SurgiPaw",
-  "priority": "normal",
+  "priority": "high",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "On the Dashboard view, display the presenting complaint as visible information on each case card/entry, alongside the existing patient info (MRN, name, species, etc.).",
-      "target": "frontend",
+      "text": "Audit the backend canister query function(s) responsible for fetching surgery cases (e.g., getCases, getSurgeryCases, or equivalent) and compare the current implementation against the Version 87 state. Identify any changes to query logic, access control (role-based authorization via MixinAuthorization), data filters, or return types that could cause cases to be excluded or return an empty result for authenticated users in the live environment.",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-3",
-          "msg-5"
+          "msg-8",
+          "msg-9"
         ],
         "quotes": [
-          "On the Dashboard page include the presenting complaint in visible information",
-          "On the Dashboard include presenting complaint"
+          "I believe this is a data issue. The cases would show up in Version 87",
+          "Cases are fetched from backend canister"
         ]
       },
       "acceptanceCriteria": [
-        "The presenting complaint field is visible on each case entry on the Dashboard without requiring expansion or interaction.",
-        "If a case has no presenting complaint, the field is either hidden or shows a graceful placeholder."
+        "The canister query function returns all previously created surgery cases for an authenticated user in the live app.",
+        "No unintended access control or filter logic silently excludes existing case records.",
+        "The query response type and shape match what the frontend React Query hooks expect."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Replace the open dot indicators for checklist tasks on both the Dashboard and Cases pages with meaningful icons chosen based on task type, styled with the following color scheme: Green (#22c55e) for Discharge Notes, Yellow (#eab308) for pDVM Notified, Orange (#f97316) for Labs, Purple (#a855f7) for Histo, Blue (#3b82f6) for Imaging, Red (#ef4444) for Surgery Report, Pink (#ec4899) for Culture. Use the same color-coded icon system in the ChecklistEditor and CaseCard components. Icons should be sourced from an existing icon library (e.g., lucide-react) and chosen to visually represent each task type (e.g., a file/clipboard icon for Discharge Notes, a microscope or flask for Labs, a camera or scan for Imaging, etc.).",
+      "text": "Audit the frontend React Query hooks in `frontend/src/hooks/useQueries.ts` that fetch surgery cases from the backend canister. Compare the current query key structure, actor call method names, response transformation, and error handling against what was present in Version 87. Restore any logic that regressed between Version 87 and Version 91 that would cause cases to silently fail to load or render as empty.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-3",
-          "msg-5"
+          "msg-8",
+          "msg-9"
         ],
         "quotes": [
-          "Change open dots to icons for the various tasks, same on the cases page",
-          "Choose the icons based on the task types and make them using the following color guide: Green — Discharge Notes, Yellow — pDVM Notified, Orange — Labs, Purple — Histo, Blue — Imaging, Red — Surgery Report, Pink — Culture"
+          "Cases have been visible in earlier versions",
+          "Cases are fetched from backend canister"
         ]
       },
       "acceptanceCriteria": [
-        "Each task type on the Dashboard and Cases pages is represented by a distinct icon (not a dot).",
-        "Each icon is rendered in the specified color for its task type.",
-        "The same icon+color system is used consistently across the Dashboard, Cases list, CaseCard, and ChecklistEditor components.",
-        "Completed tasks are visually distinguishable from incomplete ones (e.g., dimmed, strikethrough, or checkmark overlay).",
-        "The CHECKLIST_ITEMS definitions in checklist.ts are updated with the correct icon and color for each task type."
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "text": "Add a Download/Export PDF button that generates a table-formatted PDF report of all cases that have remaining (incomplete) tasks. The report must include all case fields: MRN, patient name, presenting complaint, species, sex, age, arrival date, surgery date, attending clinician, and the list of outstanding tasks per case. Each outstanding task should be displayed using its task label. The PDF should use a landscape table layout. Implement this using the existing generateCasePdf.ts infrastructure or extend it as needed.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-3",
-          "msg-5"
-        ],
-        "quotes": [
-          "Add ability to export cases with remaining tasks to a table formatted PDF",
-          "Download button to generate a PDF report",
-          "Table/case card format showing all case fields (MRN, name, outstanding tasks, etc.)",
-          "Displays all cases with their remaining tasks"
-        ]
-      },
-      "acceptanceCriteria": [
-        "A clearly labeled Download or Export PDF button is visible on the Dashboard or Cases page.",
-        "Clicking the button generates and triggers download/print of a PDF report.",
-        "The PDF contains a table with columns for all case fields: MRN, patient name, presenting complaint, species, sex, age, arrival date, surgery date, attending clinician, and outstanding tasks.",
-        "Only cases with at least one remaining (incomplete) task are included in the report.",
-        "Outstanding tasks are listed per case using their human-readable task labels.",
-        "The PDF uses a landscape orientation and table layout for readability."
+        "The React Query hook successfully fetches cases from the canister actor and populates the cases list in the live app.",
+        "If the canister returns an empty array, a meaningful empty-state message is shown rather than silently failing.",
+        "No console errors or uncaught promise rejections occur during case fetching for an authenticated user.",
+        "Cases that exist in the canister are visible in the CasesListView and DashboardView after login."
       ]
     }
   ],
   "constraints": [
-    "Do not modify any files under frontend/src/hooks/ (immutable paths).",
-    "Do not modify files under frontend/src/components/ui (immutable paths).",
-    "All icon choices must come from an already-available icon library (e.g., lucide-react) — do not add new external dependencies unless strictly necessary.",
-    "Color values for task icons must match the specified color guide exactly: Green=Discharge Notes, Yellow=pDVM Notified, Orange=Labs, Purple=Histo, Blue=Imaging, Red=Surgery Report, Pink=Culture.",
-    "No backend changes are required for these features."
+    "Do not alter the SurgeryCase data model or any existing stable storage variables in the backend in a way that would lose existing case records.",
+    "Do not change immutable frontend paths: frontend/src/hooks/useActor.ts, frontend/src/hooks/useInternetIdentity.ts, frontend/src/main.tsx, frontend/src/components/ui.",
+    "If backend stable state is involved, generate migration.mo to preserve existing case data."
   ],
   "nonGoals": [
-    "Adding new task types not already defined in checklist.ts.",
-    "Changing the PDF export to a server-side rendering approach.",
-    "Modifying the authentication or user profile system.",
-    "Adding filtering or selection UI for which cases appear in the PDF (all cases with remaining tasks are always included).",
-    "Changing the CSV import/export functionality."
+    "Adding new case fields or changing the case data model.",
+    "UI redesign or styling changes.",
+    "Changes to the sticky New Case button or species icons introduced in Version 91.",
+    "Performance optimizations unrelated to the cases-not-showing regression."
   ],
   "imageRequirements": {
     "required": [],

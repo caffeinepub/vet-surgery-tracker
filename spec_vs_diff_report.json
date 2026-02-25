@@ -1,36 +1,26 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-25T05:38:26.001Z",
-  "summary": "The diff implements most of REQ-1, REQ-2, and REQ-3. Presenting complaint is shown on CaseCard; color-coded icons are added to checklist.ts, CaseCard, and ChecklistEditor; and a PDF export button with landscape table layout is added to both DashboardView and CasesListView. However, the PDF report is missing several required columns (age, surgery date, attending clinician).",
+  "generatedAt": "2026-02-25T06:41:27.726Z",
+  "summary": "The diff modifies backend/main.mo, frontend/src/hooks/useQueries.ts, CasesListView.tsx, DashboardView.tsx, and supporting files. REQ-2 is substantially addressed: useGetAllCases uses actor.getAllCases(), includes principal-scoped query keys, staleTime: 0, smart retry logic skipping auth errors, console logging, and meaningful empty-state messages in CasesListView and DashboardView. REQ-1 is partially addressed: the backend main.mo is modified but the diff is truncated so the full query implementation, access control logic, and any migration.mo for stable storage cannot be fully verified.",
   "missing_requirements": [
     {
-      "id": "REQ-3",
-      "requirement": "The PDF table must include columns for age, surgery date, and attending clinician.",
-      "reason": "The generateCasePdf.ts table rows include MRN, pet name, owner last name, species, breed, sex, arrival date, presenting complaint, and tasks — but there is no column for age, surgery date, or attending clinician, all of which are explicitly required by REQ-3.",
+      "id": "REQ-1",
+      "requirement": "Audit backend canister query function(s) for fetching surgery cases, identify regressions in query logic, access control (MixinAuthorization), data filters, or return types that cause cases to be excluded or return empty results.",
+      "reason": "The backend/main.mo diff is truncated before the getAllCases query function body is visible. The access control checks, data filter logic, and return type shape cannot be confirmed. Additionally, the build constraints require a migration.mo if stable storage is involved, but no migration.mo file appears in the diff.",
       "evidence": [
-        "frontend/src/features/cases/pdf/generateCasePdf.ts"
+        "backend/main.mo"
       ]
     }
   ],
-  "hallucinated_features": [
-    {
-      "description": "The PDF table includes owner last name and breed columns which were not listed as required PDF columns in the spec.",
-      "reason": "REQ-3 specifies exact columns: MRN, patient name, presenting complaint, species, sex, age, arrival date, surgery date, attending clinician, and outstanding tasks. The implementation added ownerLastName and breed while omitting age, surgery date, and attending clinician.",
-      "evidence": [
-        "frontend/src/features/cases/pdf/generateCasePdf.ts"
-      ]
-    }
-  ],
-  "confidence": 0.85,
+  "hallucinated_features": [],
+  "confidence": 0.6,
   "changed_files": [
+    "backend/main.mo",
     "frontend-file-summaries.txt",
-    "frontend/src/features/cases/checklist.ts",
-    "frontend/src/features/cases/components/CaseCard.tsx",
     "frontend/src/features/cases/components/CasesListView.tsx",
-    "frontend/src/features/cases/components/ChecklistEditor.tsx",
-    "frontend/src/features/cases/pdf/generateCasePdf.ts",
     "frontend/src/features/dashboard/components/DashboardView.tsx",
+    "frontend/src/hooks/useQueries.ts",
     "project_state.json"
   ]
 }

@@ -1,87 +1,37 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Task icons with color coding, presenting complaint on dashboard, and PDF export",
+  "title": "Fix cases not showing in live app — restore canister data fetching regression",
   "requirements": [
     {
-      "id": "REQ-1",
-      "summary": "Display presenting complaint on Dashboard case cards",
-      "acceptanceCriteria": [
-        "The presenting complaint field is visible on each case entry on the Dashboard without requiring expansion or interaction.",
-        "If a case has no presenting complaint, the field is either hidden or shows a graceful placeholder."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/features/cases/components/CaseCard.tsx",
-          "operation": "modify",
-          "description": "Add presenting complaint field to the visible case card display. Position it alongside or below the existing patient info (MRN, name, species, etc.). If presentingComplaint is empty or whitespace, hide the field or show a subtle placeholder like 'No complaint recorded'."
-        },
-        {
-          "path": "frontend/src/features/dashboard/components/DashboardView.tsx",
-          "operation": "modify",
-          "description": "Ensure that the DashboardView renders CaseCard components with the updated presenting complaint display. No layout changes needed if CaseCard is already used; verify the prop passing includes the presentingComplaint field from each SurgeryCase."
-        }
-      ]
-    },
-    {
       "id": "REQ-2",
-      "summary": "Replace checklist task dots with color-coded task-type icons",
+      "summary": "Audit and restore frontend React Query hooks in useQueries.ts to match Version 87 behavior, ensuring surgery cases fetch correctly from the backend canister and render in the UI without silent failures",
       "acceptanceCriteria": [
-        "Each task type on the Dashboard and Cases pages is represented by a distinct icon (not a dot).",
-        "Each icon is rendered in the specified color for its task type.",
-        "The same icon+color system is used consistently across the Dashboard, Cases list, CaseCard, and ChecklistEditor components.",
-        "Completed tasks are visually distinguishable from incomplete ones (e.g., dimmed, strikethrough, or checkmark overlay).",
-        "The CHECKLIST_ITEMS definitions in checklist.ts are updated with the correct icon and color for each task type."
+        "The React Query hook successfully fetches cases from the canister actor and populates the cases list in the live app.",
+        "If the canister returns an empty array, a meaningful empty-state message is shown rather than silently failing.",
+        "No console errors or uncaught promise rejections occur during case fetching for an authenticated user.",
+        "Cases that exist in the canister are visible in the CasesListView and DashboardView after login."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/features/cases/checklist.ts",
+          "path": "frontend/src/hooks/useQueries.ts",
           "operation": "modify",
-          "description": "Update the CHECKLIST_ITEMS array to include an icon property (from lucide-react) and a color property for each task type. Map task types to icons: Discharge Notes (FileText or ClipboardCheck), pDVM Notified (Bell or Phone), Labs (FlaskConical or Microscope), Histo (Search or Microscope), Imaging (Camera or Scan), Surgery Report (Clipboard or FileText), Culture (TestTube or Droplet). Assign colors exactly as specified: Green (#22c55e) for Discharge Notes, Yellow (#eab308) for pDVM Notified, Orange (#f97316) for Labs, Purple (#a855f7) for Histo, Blue (#3b82f6) for Imaging, Red (#ef4444) for Surgery Report, Pink (#ec4899) for Culture. Update the ChecklistItem type to include icon and color fields."
-        },
-        {
-          "path": "frontend/src/features/cases/components/CaseCard.tsx",
-          "operation": "modify",
-          "description": "Replace the current dot indicators (likely circle elements or similar) with icon components from lucide-react. Use the icon and color defined in CHECKLIST_ITEMS for each task. For completed tasks, apply a dimmed opacity (e.g., opacity-50) or a subtle checkmark overlay. Ensure icons are appropriately sized and aligned within the task list display."
-        },
-        {
-          "path": "frontend/src/features/cases/components/ChecklistEditor.tsx",
-          "operation": "modify",
-          "description": "Replace checkbox or dot indicators with the color-coded icon system from CHECKLIST_ITEMS. Render each task with its assigned icon and color. In creation mode, show the icon with the selection state (e.g., dimmed if not selected). In completion mode, show the icon with completion state (e.g., dimmed or with checkmark overlay if completed). Ensure the visual state clearly distinguishes selected/unselected and completed/incomplete tasks."
+          "description": "Audit the useGetAllCases hook and compare against Version 87 implementation. Restore any query key structure, actor method call, response transformation, or error handling logic that regressed between Version 87 and Version 91. Ensure the hook properly handles empty arrays, loading states, and errors. Verify the actor.getAllCases() call matches the backend interface and that the enabled condition correctly depends on actor availability and authentication state. Add console logging for debugging if cases are empty or errors occur."
         },
         {
           "path": "frontend/src/features/cases/components/CasesListView.tsx",
           "operation": "modify",
-          "description": "Ensure CaseCard components rendered in the CasesListView use the updated icon+color system. No direct changes needed if CaseCard is already used; verify that the task display consistently uses icons across all case cards in the list view."
-        }
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "summary": "Add Download PDF button to export cases with remaining tasks",
-      "acceptanceCriteria": [
-        "A clearly labeled Download or Export PDF button is visible on the Dashboard or Cases page.",
-        "Clicking the button generates and triggers download/print of a PDF report.",
-        "The PDF contains a table with columns for all case fields: MRN, patient name, presenting complaint, species, sex, age, arrival date, surgery date, attending clinician, and outstanding tasks.",
-        "Only cases with at least one remaining (incomplete) task are included in the report.",
-        "Outstanding tasks are listed per case using their human-readable task labels.",
-        "The PDF uses a landscape orientation and table layout for readability."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/features/cases/pdf/generateCasePdf.ts",
-          "operation": "modify",
-          "description": "Extend or replace the existing generateCasePdf function to generate a landscape-oriented table-format PDF report. Filter cases to include only those with at least one remaining (incomplete) task. Create a table with columns: MRN, patient name, presenting complaint, species, sex, age, arrival date, surgery date, attending clinician, and outstanding tasks. For outstanding tasks, list the human-readable task labels from CHECKLIST_ITEMS for each incomplete task. Use the existing HTML table + iframe approach or jsPDF/autoTable if already integrated. Ensure the PDF is landscape-oriented and triggers a browser print/download dialog."
+          "description": "Audit the CasesListView component to ensure it correctly consumes the useGetAllCases hook and handles all states (loading, error, empty array, populated data). Compare against Version 87 to identify any conditional rendering or data flow regressions. Ensure that when isLoading is false and data is an empty array, a clear empty-state message is displayed (e.g., 'No cases found. Create your first case to get started.'). Verify that any filters or search logic does not inadvertently hide valid cases. Add error boundary or error display if query.error is present."
         },
         {
           "path": "frontend/src/features/dashboard/components/DashboardView.tsx",
           "operation": "modify",
-          "description": "Add a Download PDF or Export PDF button to the DashboardView header or action area. Wire the button click to call the updated generateCasePdf function, passing the filtered list of cases with remaining tasks. Position the button prominently near other action controls (e.g., near the search or filter controls)."
+          "description": "Audit the DashboardView component to ensure it correctly consumes the useGetAllCases hook and displays cases. Compare against Version 87 to identify any conditional rendering or data flow regressions. Ensure that when isLoading is false and data is an empty array, a clear empty-state message is displayed. Verify that the dashboard's filter and sort logic does not inadvertently exclude valid cases. Add error display if query.error is present."
         },
         {
-          "path": "frontend/src/features/cases/components/CasesListView.tsx",
+          "path": "frontend/src/App.tsx",
           "operation": "modify",
-          "description": "Add a Download PDF or Export PDF button to the CasesListView header or action area, similar to the DashboardView implementation. Wire the button click to call the updated generateCasePdf function, passing the filtered list of cases with remaining tasks. Ensure the button is visible and accessible alongside the existing CSV import/export controls."
+          "description": "Audit the App.tsx root component to ensure authentication state and actor initialization are correct. Compare against Version 87 to identify any changes to the authentication flow, InternetIdentityProvider configuration, or query client setup that could cause queries to fail silently. Ensure that the ProfileSetupModal does not block case fetching or navigation. Verify that the QueryClientProvider and InternetIdentityProvider are correctly configured and that the actor hook dependency chain is intact."
         }
       ]
     }

@@ -1,32 +1,20 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Case management dashboard app. Features include active case tracking, task management with color-coded icons, and PDF export of cases with remaining tasks.",
-  "architectural_notes": [],
-  "known_issues": [],
-  "isFixRequest": false,
+  "summary": "Project with a case management feature. Cases are fetched from a backend canister and were working in Version 87 but broke sometime between Version 87 and Version 91.",
+  "architectural_notes": [
+    "Cases are fetched from a backend canister (not local state or external API)"
+  ],
+  "known_issues": [
+    "Cases not showing in live app after Version 91 deploy; worked in Version 87 — likely a data fetching regression in the canister query logic"
+  ],
+  "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-on-the-dashboard-view-display-the-presenting-complaint-as-visible-information-on-each-case-card-entry-alongside-the-existing-patient-info-mrn-name-species-etc",
-      "title": "On the Dashboard view, display the presenting complaint as visible information on each case card/entry, alongside the existing patient info (MRN, name, species, etc.).",
-      "reqIds": [
-        "REQ-1"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-replace-the-open-dot-indicators-for-checklist-tasks-on-both-the-dashboard-and-cases-pages-with-meaningful-icons-chosen-based-on-task-type-styled-with-the-following-color-scheme-green-22c55e-for-discharge-notes-yellow-eab308-for-pdvm-notified-orange-f97316-for-labs-purple-a855f7-for-histo-blue-3b82f6-for-imaging-red-ef4444-for-surgery-report-pink-ec4899-for-culture-use-the-same-color-coded-icon-system-in-the-checklisteditor-and-casecard-components-icons-should-be-sourced-from-an-existing-icon-library-e-g-lucide-react-and-chosen-to-visually-represent-each-task-type-e-g-a-file-clipboard-icon-for-discharge-notes-a-microscope-or-flask-for-labs-a-camera-or-scan-for-imaging-etc",
-      "title": "Replace the open dot indicators for checklist tasks on both the Dashboard and Cases pages with meaningful icons chosen based on task type, styled with the following color scheme: Green (#22c55e) for Discharge Notes, Yellow (#eab308) for pDVM Notified, Orange (#f97316) for Labs, Purple (#a855f7) for Histo, Blue (#3b82f6) for Imaging, Red (#ef4444) for Surgery Report, Pink (#ec4899) for Culture. Use the same color-coded icon system in the ChecklistEditor and CaseCard components. Icons should be sourced from an existing icon library (e.g., lucide-react) and chosen to visually represent each task type (e.g., a file/clipboard icon for Discharge Notes, a microscope or flask for Labs, a camera or scan for Imaging, etc.).",
+      "id": "feature-audit-the-frontend-react-query-hooks-in-frontend-src-hooks-usequeries-ts-that-fetch-surgery-cases-from-the-backend-canister-compare-the-current-query-key-structure-actor-call-method-names-response-transformation-and-error-handling-against-what-was-present-in-version-87-restore-any-logic-that-regressed-between-version-87-and-version-91-that-would-cause-cases-to-silently-fail-to-load-or-render-as-empty",
+      "title": "Audit the frontend React Query hooks in `frontend/src/hooks/useQueries.ts` that fetch surgery cases from the backend canister. Compare the current query key structure, actor call method names, response transformation, and error handling against what was present in Version 87. Restore any logic that regressed between Version 87 and Version 91 that would cause cases to silently fail to load or render as empty.",
       "reqIds": [
         "REQ-2"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-add-a-download-export-pdf-button-that-generates-a-table-formatted-pdf-report-of-all-cases-that-have-remaining-incomplete-tasks-the-report-must-include-all-case-fields-mrn-patient-name-presenting-complaint-species-sex-age-arrival-date-surgery-date-attending-clinician-and-the-list-of-outstanding-tasks-per-case-each-outstanding-task-should-be-displayed-using-its-task-label-the-pdf-should-use-a-landscape-table-layout-implement-this-using-the-existing-generatecasepdf-ts-infrastructure-or-extend-it-as-needed",
-      "title": "Add a Download/Export PDF button that generates a table-formatted PDF report of all cases that have remaining (incomplete) tasks. The report must include all case fields: MRN, patient name, presenting complaint, species, sex, age, arrival date, surgery date, attending clinician, and the list of outstanding tasks per case. Each outstanding task should be displayed using its task label. The PDF should use a landscape table layout. Implement this using the existing generateCasePdf.ts infrastructure or extend it as needed.",
-      "reqIds": [
-        "REQ-3"
       ],
       "version": 1
     }
@@ -34,20 +22,10 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Add presenting complaint to visible information on the Dashboard page",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-2",
-      "summary": "Replace open dots with color-coded icons for task types on Dashboard and Cases pages (Green=Discharge Notes, Yellow=pDVM Notified, Orange=Labs, Purple=Histo, Blue=Imaging, Red=Surgery Report, Pink=Culture)",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-3",
-      "summary": "Add PDF export button that generates a table-formatted report of all cases with remaining tasks, including all case fields (MRN, name, presenting complaint, outstanding tasks, etc.)",
-      "reqIds": [],
+      "summary": "Audit the backend canister query function(s) responsible for fetching surgery cases (e.g., getCases, getSurgeryCases, or equivalent) and compare the current implementation against the Version 87 state. Identify any changes to query logic, access control (role-based authorization via MixinAuthorization), data filters, or return types that could cause cases to be excluded or return an empty result for authenticated users in the live environment.",
+      "reqIds": [
+        "REQ-1"
+      ],
       "status": "pending"
     }
   ],

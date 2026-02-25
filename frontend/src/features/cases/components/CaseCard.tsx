@@ -15,9 +15,9 @@ interface CaseCardProps {
 function getSpeciesIcon(species: Species, size: 'default' | 'dashboard' = 'default') {
   const iconSize = size === 'dashboard' ? 'w-10 h-10' : 'w-7 h-7';
   const iconMap: Record<string, string> = {
-    [Species.canine]: '/assets/Dog icon.ico',
-    [Species.feline]: '/assets/Cat icon.ico',
-    [Species.other]: '/assets/Other icon.ico',
+    [Species.canine]: '/assets/Dog Icon 3.ico',
+    [Species.feline]: '/assets/Cat Icon 3.ico',
+    [Species.other]: '/assets/Other Icon 3.ico',
   };
   const altMap: Record<string, string> = {
     [Species.canine]: 'Canine',
@@ -26,7 +26,7 @@ function getSpeciesIcon(species: Species, size: 'default' | 'dashboard' = 'defau
   };
   return (
     <img
-      src={iconMap[species] ?? '/assets/Other icon.ico'}
+      src={iconMap[species] ?? '/assets/Other Icon 3.ico'}
       alt={altMap[species] ?? 'Other'}
       className={`${iconSize} object-contain`}
     />
@@ -156,62 +156,64 @@ export default function CaseCard({ surgeryCase, onTaskClick, onEditClick, size =
           })}
         </div>
 
-        {/* Edit button */}
-        {onEditClick && (
+        {/* Edit button (non-dashboard) */}
+        {!isDashboard && onEditClick && (
           <button
+            className="flex-shrink-0 p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
             onClick={e => { e.stopPropagation(); onEditClick(surgeryCase); }}
-            className="flex-shrink-0 p-1.5 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
             title="Edit case"
           >
-            <Pencil className={isDashboard ? 'w-5 h-5' : 'w-4 h-4'} />
+            <Pencil className="w-3.5 h-3.5" />
           </button>
         )}
       </div>
 
-      {/* Expanded content */}
+      {/* Expanded section */}
       {expanded && (
-        <div className={`border-t border-border ${isDashboard ? 'px-4 pb-4 pt-3' : 'px-3 pb-3 pt-2'}`}>
-          {surgeryCase.breed && (
-            <div className={`text-muted-foreground mb-2 ${isDashboard ? 'text-sm' : 'text-xs'}`}>
-              <span className="font-medium text-foreground">Breed:</span> {surgeryCase.breed}
-            </div>
-          )}
-          {surgeryCase.notes && (
-            <div className={`mb-3 ${isDashboard ? 'text-sm' : 'text-xs'}`}>
-              <span className="font-medium text-foreground">Notes:</span>{' '}
-              <span className="text-muted-foreground">{surgeryCase.notes}</span>
-            </div>
-          )}
-
-          {/* Task pills with icons */}
+        <div className={`border-t border-border ${isDashboard ? 'p-4' : 'p-3'} space-y-3`}>
+          {/* Tasks */}
           {selectedTasks.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 mt-2">
-              {selectedTasks.map(item => {
-                const isCompleted = getTaskField(surgeryCase.task, item.completedField);
-                const Icon = item.icon;
-                return (
-                  <button
-                    key={item.key}
-                    onClick={() => onTaskClick?.(surgeryCase.id, item.key, !isCompleted)}
-                    className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border transition-colors ${
-                      isCompleted
-                        ? 'bg-green-100 border-green-300 text-green-800 line-through opacity-60'
-                        : `${getTaskBackgroundColor(item.color)} border-current text-foreground hover:opacity-80`
-                    }`}
-                  >
-                    <Icon
-                      className={`w-3 h-3 flex-shrink-0 ${isCompleted ? 'text-green-600' : item.iconColorClass}`}
-                    />
-                    {item.label}
-                  </button>
-                );
-              })}
+            <div>
+              <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Tasks</div>
+              <div className="flex flex-wrap gap-2">
+                {selectedTasks.map(item => {
+                  const isCompleted = getTaskField(surgeryCase.task, item.completedField);
+                  const Icon = item.icon;
+                  return (
+                    <button
+                      key={item.key}
+                      onClick={e => {
+                        e.stopPropagation();
+                        onTaskClick?.(surgeryCase.id, item.key, !isCompleted);
+                      }}
+                      className={`flex items-center gap-1.5 px-2 py-1 rounded-full text-xs border transition-all ${
+                        isCompleted
+                          ? 'bg-muted/50 border-border text-muted-foreground line-through opacity-60'
+                          : `${getTaskBackgroundColor(item.key)} border-transparent text-foreground`
+                      }`}
+                      title={isCompleted ? `Mark ${item.label} as incomplete` : `Mark ${item.label} as complete`}
+                    >
+                      <Icon className={`w-3 h-3 ${isCompleted ? 'opacity-50' : item.iconColorClass}`} />
+                      {item.label}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           )}
 
-          {selectedTasks.length === 0 && (
-            <div className={`text-muted-foreground italic ${isDashboard ? 'text-sm' : 'text-xs'}`}>
-              No tasks assigned
+          {/* Notes */}
+          {surgeryCase.notes && surgeryCase.notes.trim() && (
+            <div>
+              <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Notes</div>
+              <p className="text-xs text-foreground/80 whitespace-pre-wrap">{surgeryCase.notes}</p>
+            </div>
+          )}
+
+          {/* Breed */}
+          {surgeryCase.breed && surgeryCase.breed.trim() && (
+            <div className="text-xs text-muted-foreground">
+              <span className="font-medium">Breed:</span> {surgeryCase.breed}
             </div>
           )}
         </div>

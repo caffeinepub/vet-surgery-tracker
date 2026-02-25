@@ -1,12 +1,12 @@
-import Array "mo:core/Array";
-import Map "mo:core/Map";
-import Iter "mo:core/Iter";
 import Nat "mo:core/Nat";
+import Map "mo:core/Map";
+import Text "mo:core/Text";
+import Iter "mo:core/Iter";
+import Array "mo:core/Array";
+import Time "mo:core/Time";
 import Order "mo:core/Order";
 import Principal "mo:core/Principal";
 import Runtime "mo:core/Runtime";
-import Text "mo:core/Text";
-import Time "mo:core/Time";
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
 
@@ -166,6 +166,7 @@ actor {
     newCase;
   };
 
+  // Implement getAllCases as specified in implementation plan
   public query ({ caller }) func getAllCases() : async [SurgeryCase] {
     checkUserPermission(caller);
     cases.values().toArray().sort();

@@ -2,35 +2,12 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-on-the-dashboard-view-display-the-presenting-complaint-as-visible-information-on-each-case-card-entry-alongside-the-existing-patient-info-mrn-name-species-etc",
-      "featureTitle": "On the Dashboard view, display the presenting complaint as visible information on each case card/entry, alongside the existing patient info (MRN, name, species, etc.).",
+      "featureId": "feature-audit-the-frontend-react-query-hooks-in-frontend-src-hooks-usequeries-ts-that-fetch-surgery-cases-from-the-backend-canister-compare-the-current-query-key-structure-actor-call-method-names-response-transformation-and-error-handling-against-what-was-present-in-version-87-restore-any-logic-that-regressed-between-version-87-and-version-91-that-would-cause-cases-to-silently-fail-to-load-or-render-as-empty",
+      "featureTitle": "Audit the frontend React Query hooks in `frontend/src/hooks/useQueries.ts` that fetch surgery cases from the backend canister. Compare the current query key structure, actor call method names, response transformation, and error handling against what was present in Version 87. Restore any logic that regressed between Version 87 and Version 91 that would cause cases to silently fail to load or render as empty.",
       "files": [
-        "frontend/src/features/cases/components/CaseCard.tsx",
-        "frontend/src/features/dashboard/components/DashboardView.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "camera@1.0.0",
-        "http-outcalls@3.0.0"
-      ],
-      "testIds": [
-        "REQ-1"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-replace-the-open-dot-indicators-for-checklist-tasks-on-both-the-dashboard-and-cases-pages-with-meaningful-icons-chosen-based-on-task-type-styled-with-the-following-color-scheme-green-22c55e-for-discharge-notes-yellow-eab308-for-pdvm-notified-orange-f97316-for-labs-purple-a855f7-for-histo-blue-3b82f6-for-imaging-red-ef4444-for-surgery-report-pink-ec4899-for-culture-use-the-same-color-coded-icon-system-in-the-checklisteditor-and-casecard-components-icons-should-be-sourced-from-an-existing-icon-library-e-g-lucide-react-and-chosen-to-visually-represent-each-task-type-e-g-a-file-clipboard-icon-for-discharge-notes-a-microscope-or-flask-for-labs-a-camera-or-scan-for-imaging-etc",
-      "featureTitle": "Replace the open dot indicators for checklist tasks on both the Dashboard and Cases pages with meaningful icons chosen based on task type, styled with the following color scheme: Green (#22c55e) for Discharge Notes, Yellow (#eab308) for pDVM Notified, Orange (#f97316) for Labs, Purple (#a855f7) for Histo, Blue (#3b82f6) for Imaging, Red (#ef4444) for Surgery Report, Pink (#ec4899) for Culture. Use the same color-coded icon system in the ChecklistEditor and CaseCard components. Icons should be sourced from an existing icon library (e.g., lucide-react) and chosen to visually represent each task type (e.g., a file/clipboard icon for Discharge Notes, a microscope or flask for Labs, a camera or scan for Imaging, etc.).",
-      "files": [
-        "frontend/src/features/cases/checklist.ts",
-        "frontend/src/features/cases/components/CaseCard.tsx",
         "frontend/src/features/cases/components/CasesListView.tsx",
-        "frontend/src/features/cases/components/ChecklistEditor.tsx"
+        "frontend/src/features/dashboard/components/DashboardView.tsx",
+        "frontend/src/hooks/useQueries.ts"
       ],
       "components": [
         "authorization@4.0.0",
@@ -44,29 +21,6 @@
       ],
       "testIds": [
         "REQ-2"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-add-a-download-export-pdf-button-that-generates-a-table-formatted-pdf-report-of-all-cases-that-have-remaining-incomplete-tasks-the-report-must-include-all-case-fields-mrn-patient-name-presenting-complaint-species-sex-age-arrival-date-surgery-date-attending-clinician-and-the-list-of-outstanding-tasks-per-case-each-outstanding-task-should-be-displayed-using-its-task-label-the-pdf-should-use-a-landscape-table-layout-implement-this-using-the-existing-generatecasepdf-ts-infrastructure-or-extend-it-as-needed",
-      "featureTitle": "Add a Download/Export PDF button that generates a table-formatted PDF report of all cases that have remaining (incomplete) tasks. The report must include all case fields: MRN, patient name, presenting complaint, species, sex, age, arrival date, surgery date, attending clinician, and the list of outstanding tasks per case. Each outstanding task should be displayed using its task label. The PDF should use a landscape table layout. Implement this using the existing generateCasePdf.ts infrastructure or extend it as needed.",
-      "files": [
-        "frontend/src/features/cases/components/CasesListView.tsx",
-        "frontend/src/features/cases/pdf/generateCasePdf.ts",
-        "frontend/src/features/dashboard/components/DashboardView.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "camera@1.0.0",
-        "http-outcalls@3.0.0"
-      ],
-      "testIds": [
-        "REQ-3"
       ],
       "confidence": "high"
     }
