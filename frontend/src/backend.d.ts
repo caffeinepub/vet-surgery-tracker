@@ -51,11 +51,11 @@ export interface SurgeryCase {
     breed: string;
     species: Species;
 }
-export interface Dashboard {
-    openTasks: bigint;
-}
 export interface UserProfile {
     name: string;
+}
+export interface Dashboard {
+    openTasks: bigint;
 }
 export enum Sex {
     female = "female",
@@ -67,6 +67,15 @@ export enum Species {
     other = "other",
     feline = "feline",
     canine = "canine"
+}
+export enum TaskType {
+    pdvmNotified = "pdvmNotified",
+    histo = "histo",
+    labs = "labs",
+    culture = "culture",
+    surgeryReport = "surgeryReport",
+    imaging = "imaging",
+    dischargeNotes = "dischargeNotes"
 }
 export enum UserRole {
     admin = "admin",
@@ -96,5 +105,6 @@ export interface backendInterface {
     updateCaseNotes(id: bigint, notes: string): Promise<void>;
     updateRemainingTasks(id: bigint, taskOptions: TaskOptions): Promise<void>;
     updateTask(id: bigint, task: Task): Promise<void>;
+    updateTaskCompletion(id: bigint, taskType: TaskType): Promise<void>;
     validateOpenAIConfig(): Promise<boolean>;
 }

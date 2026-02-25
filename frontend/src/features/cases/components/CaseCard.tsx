@@ -1,16 +1,28 @@
 import { useState } from 'react';
 import type { SurgeryCase, Task } from '../../../backend';
-import { Species, Sex } from '../../../backend';
+import { Species, Sex, TaskType } from '../../../backend';
 import { CHECKLIST_ITEMS, getTaskBackgroundColor } from '../checklist';
-import { Pencil, CheckCircle2 } from 'lucide-react';
+import { useUpdateTaskCompletion } from '../../../hooks/useQueries';
+import WorkflowIcon from '../../../components/workflow-icons/WorkflowIcon';
+import { Pencil, CheckCircle2, Loader2 } from 'lucide-react';
 
 interface CaseCardProps {
   surgeryCase: SurgeryCase;
-  onTaskClick?: (caseId: bigint, taskKey: string, completed: boolean) => void;
   onEditClick?: (surgeryCase: SurgeryCase) => void;
   size?: 'default' | 'dashboard';
   highlighted?: boolean;
 }
+
+// Map checklist key strings to TaskType enum values
+const TASK_KEY_TO_TYPE: Record<string, TaskType> = {
+  dischargeNotes: TaskType.dischargeNotes,
+  pdvmNotified: TaskType.pdvmNotified,
+  labs: TaskType.labs,
+  histo: TaskType.histo,
+  surgeryReport: TaskType.surgeryReport,
+  imaging: TaskType.imaging,
+  culture: TaskType.culture,
+};
 
 function getSpeciesIcon(species: Species, size: 'default' | 'dashboard' = 'default') {
   const iconSize = size === 'dashboard' ? 'w-10 h-10' : 'w-7 h-7';
@@ -63,8 +75,9 @@ function getTaskField<K extends keyof Task>(task: Task, field: K): boolean {
   return (task as unknown as Record<string, boolean>)[field as string] ?? false;
 }
 
-export default function CaseCard({ surgeryCase, onTaskClick, onEditClick, size = 'default', highlighted = false }: CaseCardProps) {
+export default function CaseCard({ surgeryCase, onEditClick, size = 'default', highlighted = false }: CaseCardProps) {
   const [expanded, setExpanded] = useState(false);
+  const updateTaskCompletion = useUpdateTaskCompletion();
 
   const isDashboard = size === 'dashboard';
 
@@ -77,6 +90,12 @@ export default function CaseCard({ surgeryCase, onTaskClick, onEditClick, size =
   );
 
   const allCompleted = selectedTasks.length > 0 && remainingTasks.length === 0;
+
+  const handleTaskClick = (taskKey: string) => {
+    const taskType = TASK_KEY_TO_TYPE[taskKey];
+    if (!taskType) return;
+    updateTaskCompletion.mutate({ id: surgeryCase.id, taskType });
+  };
 
   return (
     <div
@@ -128,24 +147,28 @@ export default function CaseCard({ surgeryCase, onTaskClick, onEditClick, size =
           )}
         </div>
 
-        {/* Task icons */}
+        {/* Task workflow icons */}
         <div className="flex flex-wrap gap-1 justify-end max-w-[90px] flex-shrink-0">
           {selectedTasks.map(item => {
             const isCompleted = getTaskField(surgeryCase.task, item.completedField);
-            const Icon = item.icon;
             return (
               <div
                 key={item.key}
                 title={`${item.label}${isCompleted ? ' (completed)' : ' (pending)'}`}
-                className="relative"
+                className={`relative ${isDashboard ? 'w-5 h-5' : 'w-4 h-4'} ${isCompleted ? 'opacity-30' : ''}`}
+                style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
               >
-                <Icon
-                  className={`${isDashboard ? 'w-5 h-5' : 'w-4 h-4'} ${
-                    isCompleted
-                      ? 'opacity-30'
-                      : item.iconColorClass
-                  }`}
-                />
+                <span
+                  style={{
+                    display: 'inline-flex',
+                    width: isDashboard ? '20px' : '16px',
+                    height: isDashboard ? '20px' : '16px',
+                    transform: `scale(${isDashboard ? 20 / 24 : 16 / 24})`,
+                    transformOrigin: 'center',
+                  }}
+                >
+                  <WorkflowIcon type={item.workflowType} />
+                </span>
                 {isCompleted && (
                   <CheckCircle2
                     className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 text-green-500"
@@ -178,22 +201,42 @@ export default function CaseCard({ surgeryCase, onTaskClick, onEditClick, size =
               <div className="flex flex-wrap gap-2">
                 {selectedTasks.map(item => {
                   const isCompleted = getTaskField(surgeryCase.task, item.completedField);
-                  const Icon = item.icon;
+                  const isPending =
+                    updateTaskCompletion.isPending &&
+                    updateTaskCompletion.variables?.id === surgeryCase.id &&
+                    updateTaskCompletion.variables?.taskType === TASK_KEY_TO_TYPE[item.key];
+
                   return (
                     <button
                       key={item.key}
                       onClick={e => {
                         e.stopPropagation();
-                        onTaskClick?.(surgeryCase.id, item.key, !isCompleted);
+                        handleTaskClick(item.key);
                       }}
+                      disabled={isPending}
                       className={`flex items-center gap-1.5 px-2 py-1 rounded-full text-xs border transition-all ${
                         isCompleted
                           ? 'bg-muted/50 border-border text-muted-foreground line-through opacity-60'
                           : `${getTaskBackgroundColor(item.key)} border-transparent text-foreground`
-                      }`}
+                      } ${isPending ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:opacity-80'}`}
                       title={isCompleted ? `Mark ${item.label} as incomplete` : `Mark ${item.label} as complete`}
                     >
-                      <Icon className={`w-3 h-3 ${isCompleted ? 'opacity-50' : item.iconColorClass}`} />
+                      {isPending ? (
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                      ) : (
+                        <span
+                          style={{
+                            display: 'inline-flex',
+                            width: '12px',
+                            height: '12px',
+                            transform: 'scale(0.5)',
+                            transformOrigin: 'center',
+                            opacity: isCompleted ? 0.5 : 1,
+                          }}
+                        >
+                          <WorkflowIcon type={item.workflowType} />
+                        </span>
+                      )}
                       {item.label}
                     </button>
                   );

@@ -58,6 +58,13 @@ export interface TaskOptions {
   'imaging' : boolean,
   'dischargeNotes' : boolean,
 }
+export type TaskType = { 'pdvmNotified' : null } |
+  { 'histo' : null } |
+  { 'labs' : null } |
+  { 'culture' : null } |
+  { 'surgeryReport' : null } |
+  { 'imaging' : null } |
+  { 'dischargeNotes' : null };
 export type Time = bigint;
 export interface UserProfile { 'name' : string }
 export type UserRole = { 'admin' : null } |
@@ -121,6 +128,7 @@ export interface _SERVICE {
   'updateCaseNotes' : ActorMethod<[bigint, string], undefined>,
   'updateRemainingTasks' : ActorMethod<[bigint, TaskOptions], undefined>,
   'updateTask' : ActorMethod<[bigint, Task], undefined>,
+  'updateTaskCompletion' : ActorMethod<[bigint, TaskType], undefined>,
   'validateOpenAIConfig' : ActorMethod<[], boolean>,
 }
 export declare const idlService: IDL.ServiceClass;

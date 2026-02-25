@@ -1,12 +1,14 @@
 # Specification
 
 ## Summary
-**Goal:** Fix a regression introduced between Version 87 and Version 91 that causes surgery cases to not appear in the live app, by restoring correct backend canister query logic and frontend React Query hook behavior.
+**Goal:** Create a reusable Veterinary Workflow Icons component system and integrate it into the Dashboard and Cases pages, replacing existing task/checklist icons with colored, type-specific SVG icons.
 
 **Planned changes:**
-- Audit and restore the backend canister query function(s) responsible for fetching surgery cases, fixing any regressions in query logic, access control (role-based authorization), data filters, or return types that silently exclude cases for authenticated users.
-- Audit and restore `frontend/src/hooks/useQueries.ts` React Query hooks, fixing any regressions in query key structure, actor call method names, response transformation, or error handling that cause cases to fail to load.
-- Ensure an empty-state message is displayed if the canister genuinely returns no cases, rather than silently failing.
-- Generate `migration.mo` if backend stable storage is affected, to preserve existing case records.
+- Create `workflowTokens.ts` exporting 8 workflow color hex values (`discharge`, `notified`, `labs`, `histo`, `imaging`, `surgery`, `culture`, `followup`), `iconSize`, and `strokeWidth` constants
+- Create `WorkflowIconBase.tsx` as a base SVG wrapper accepting `color` and `children` props
+- Create 8 individual icon components (`IconDischarge`, `IconNotified`, `IconLabs`, `IconHisto`, `IconImaging`, `IconSurgery`, `IconCulture`, `IconFollowUp`), each using the correct color token and SVG path data
+- Create `WorkflowIcon.tsx` dispatcher component accepting a `WorkflowType` union prop and rendering the matching icon
+- Replace existing task/checklist icons in `DashboardView.tsx` with `WorkflowIcon` components mapped to their workflow types
+- Replace existing task/checklist icons in `CaseCard.tsx` and `ChecklistEditor.tsx` with `WorkflowIcon` components, preserving all existing toggle/completion functionality
 
-**User-visible outcome:** Authenticated users can see their existing surgery cases in the CasesListView and DashboardView in the live app without console errors or empty screens.
+**User-visible outcome:** Task and checklist items throughout the Dashboard and Cases pages display distinct, colored SVG icons for each workflow type (discharge, labs, imaging, surgery, etc.) instead of the previous generic icons or text indicators.

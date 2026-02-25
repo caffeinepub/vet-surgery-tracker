@@ -1,12 +1,12 @@
 import Nat "mo:core/Nat";
 import Map "mo:core/Map";
 import Text "mo:core/Text";
-import Iter "mo:core/Iter";
-import Array "mo:core/Array";
 import Time "mo:core/Time";
+import Array "mo:core/Array";
 import Order "mo:core/Order";
-import Principal "mo:core/Principal";
 import Runtime "mo:core/Runtime";
+import Principal "mo:core/Principal";
+import Iter "mo:core/Iter";
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
 
@@ -35,6 +35,16 @@ actor {
 
     cultureSelected : Bool;
     cultureCompleted : Bool;
+  };
+
+  public type TaskType = {
+    #dischargeNotes;
+    #pdvmNotified;
+    #labs;
+    #histo;
+    #surgeryReport;
+    #imaging;
+    #culture;
   };
 
   public type TaskOptions = {
@@ -166,7 +176,6 @@ actor {
     newCase;
   };
 
-  // Implement getAllCases as specified in implementation plan
   public query ({ caller }) func getAllCases() : async [SurgeryCase] {
     checkUserPermission(caller);
     cases.values().toArray().sort();
@@ -254,6 +263,59 @@ actor {
           task
         };
         cases.add(id, updatedCase);
+      };
+    };
+  };
+
+  public shared ({ caller }) func updateTaskCompletion(id : Nat, taskType : TaskType) : async () {
+    checkUserPermission(caller);
+
+    switch (cases.get(id)) {
+      case (null) { Runtime.trap("Case not found") };
+      case (?existingCase) {
+        let updatedTask = updateTaskCompletionState(existingCase.task, taskType);
+        let updatedCase : SurgeryCase = {
+          existingCase with
+          task = updatedTask;
+        };
+        cases.add(id, updatedCase);
+      };
+    };
+  };
+
+  func updateTaskCompletionState(task : Task, taskType : TaskType) : Task {
+    switch (taskType) {
+      case (#dischargeNotes) {
+        {
+          task with
+          dischargeNotesCompleted = not task.dischargeNotesCompleted;
+        };
+      };
+      case (#pdvmNotified) {
+        {
+          task with
+          pdvmNotifiedCompleted = not task.pdvmNotifiedCompleted;
+        };
+      };
+      case (#labs) { { task with labsCompleted = not task.labsCompleted } };
+      case (#histo) { { task with histoCompleted = not task.histoCompleted } };
+      case (#surgeryReport) {
+        {
+          task with
+          surgeryReportCompleted = not task.surgeryReportCompleted;
+        };
+      };
+      case (#imaging) {
+        {
+          task with
+          imagingCompleted = not task.imagingCompleted;
+        };
+      };
+      case (#culture) {
+        {
+          task with
+          cultureCompleted = not task.cultureCompleted;
+        };
       };
     };
   };

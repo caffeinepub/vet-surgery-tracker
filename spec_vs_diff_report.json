@@ -1,26 +1,36 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-25T06:41:27.726Z",
-  "summary": "The diff modifies backend/main.mo, frontend/src/hooks/useQueries.ts, CasesListView.tsx, DashboardView.tsx, and supporting files. REQ-2 is substantially addressed: useGetAllCases uses actor.getAllCases(), includes principal-scoped query keys, staleTime: 0, smart retry logic skipping auth errors, console logging, and meaningful empty-state messages in CasesListView and DashboardView. REQ-1 is partially addressed: the backend main.mo is modified but the diff is truncated so the full query implementation, access control logic, and any migration.mo for stable storage cannot be fully verified.",
+  "generatedAt": "2026-02-25T22:00:51.927Z",
+  "summary": "The diff implements REQ-1 through REQ-4 and REQ-6 fully. REQ-5 (Dashboard page integration) is not evidenced in the diff — DashboardView.tsx does not appear as a modified file.",
   "missing_requirements": [
     {
-      "id": "REQ-1",
-      "requirement": "Audit backend canister query function(s) for fetching surgery cases, identify regressions in query logic, access control (MixinAuthorization), data filters, or return types that cause cases to be excluded or return empty results.",
-      "reason": "The backend/main.mo diff is truncated before the getAllCases query function body is visible. The access control checks, data filter logic, and return type shape cannot be confirmed. Additionally, the build constraints require a migration.mo if stable storage is involved, but no migration.mo file appears in the diff.",
+      "id": "REQ-5",
+      "requirement": "Replace existing task/checklist icons on the Dashboard page (frontend/src/features/dashboard/components/DashboardView.tsx) with WorkflowIcon components.",
+      "reason": "DashboardView.tsx does not appear in the list of modified files. Only CaseCard.tsx, ChecklistEditor.tsx, and checklist.ts were modified among feature files. The file-summaries.txt does not mention DashboardView.tsx being updated with WorkflowIcon usage.",
       "evidence": [
-        "backend/main.mo"
+        "frontend/src/features/dashboard/components/DashboardView.tsx"
       ]
     }
   ],
   "hallucinated_features": [],
-  "confidence": 0.6,
+  "confidence": 0.9,
   "changed_files": [
-    "backend/main.mo",
     "frontend-file-summaries.txt",
-    "frontend/src/features/cases/components/CasesListView.tsx",
-    "frontend/src/features/dashboard/components/DashboardView.tsx",
-    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/components/workflow-icons/IconCulture.tsx",
+    "frontend/src/components/workflow-icons/IconDischarge.tsx",
+    "frontend/src/components/workflow-icons/IconFollowUp.tsx",
+    "frontend/src/components/workflow-icons/IconHisto.tsx",
+    "frontend/src/components/workflow-icons/IconImaging.tsx",
+    "frontend/src/components/workflow-icons/IconLabs.tsx",
+    "frontend/src/components/workflow-icons/IconNotified.tsx",
+    "frontend/src/components/workflow-icons/IconSurgery.tsx",
+    "frontend/src/components/workflow-icons/WorkflowIcon.tsx",
+    "frontend/src/components/workflow-icons/WorkflowIconBase.tsx",
+    "frontend/src/components/workflow-icons/workflowTokens.ts",
+    "frontend/src/features/cases/checklist.ts",
+    "frontend/src/features/cases/components/CaseCard.tsx",
+    "frontend/src/features/cases/components/ChecklistEditor.tsx",
     "project_state.json"
   ]
 }

@@ -2,6 +2,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import type { Task } from '../../../backend';
 import { CHECKLIST_ITEMS, getTaskBorderColor, getTaskBackgroundColor } from '../checklist';
+import WorkflowIcon from '../../../components/workflow-icons/WorkflowIcon';
 
 interface ChecklistEditorProps {
   task: Task;
@@ -47,7 +48,6 @@ export default function ChecklistEditor({ task, onChange, disabled, mode = 'comp
           const borderColor = getTaskBorderColor(item.color);
           const backgroundColor = getTaskBackgroundColor(item.color);
           const isChecked = getCheckboxState(item);
-          const Icon = item.icon;
 
           return (
             <div
@@ -65,13 +65,19 @@ export default function ChecklistEditor({ task, onChange, disabled, mode = 'comp
                 onCheckedChange={(checked) => handleCheckboxChange(item, checked as boolean)}
                 disabled={disabled}
               />
-              <Icon
-                className={cn(
-                  'w-4 h-4 flex-shrink-0',
-                  item.iconColorClass,
-                  disabled ? 'opacity-50' : ''
-                )}
-              />
+              <span
+                style={{
+                  display: 'inline-flex',
+                  width: '16px',
+                  height: '16px',
+                  flexShrink: 0,
+                  transform: 'scale(0.667)',
+                  transformOrigin: 'center',
+                  opacity: disabled ? 0.5 : 1,
+                }}
+              >
+                <WorkflowIcon type={item.workflowType} />
+              </span>
               <Label
                 htmlFor={`checklist-${mode}-${item.key}`}
                 className={cn(

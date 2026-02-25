@@ -70,6 +70,15 @@ export const OpenAIConfig = IDL.Record({
   'initialized' : IDL.Bool,
   'apiKey' : IDL.Text,
 });
+export const TaskType = IDL.Variant({
+  'pdvmNotified' : IDL.Null,
+  'histo' : IDL.Null,
+  'labs' : IDL.Null,
+  'culture' : IDL.Null,
+  'surgeryReport' : IDL.Null,
+  'imaging' : IDL.Null,
+  'dischargeNotes' : IDL.Null,
+});
 
 export const idlService = IDL.Service({
   '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
@@ -140,6 +149,7 @@ export const idlService = IDL.Service({
   'updateCaseNotes' : IDL.Func([IDL.Nat, IDL.Text], [], []),
   'updateRemainingTasks' : IDL.Func([IDL.Nat, TaskOptions], [], []),
   'updateTask' : IDL.Func([IDL.Nat, Task], [], []),
+  'updateTaskCompletion' : IDL.Func([IDL.Nat, TaskType], [], []),
   'validateOpenAIConfig' : IDL.Func([], [IDL.Bool], ['query']),
 });
 
@@ -207,6 +217,15 @@ export const idlFactory = ({ IDL }) => {
   const OpenAIConfig = IDL.Record({
     'initialized' : IDL.Bool,
     'apiKey' : IDL.Text,
+  });
+  const TaskType = IDL.Variant({
+    'pdvmNotified' : IDL.Null,
+    'histo' : IDL.Null,
+    'labs' : IDL.Null,
+    'culture' : IDL.Null,
+    'surgeryReport' : IDL.Null,
+    'imaging' : IDL.Null,
+    'dischargeNotes' : IDL.Null,
   });
   
   return IDL.Service({
@@ -278,6 +297,7 @@ export const idlFactory = ({ IDL }) => {
     'updateCaseNotes' : IDL.Func([IDL.Nat, IDL.Text], [], []),
     'updateRemainingTasks' : IDL.Func([IDL.Nat, TaskOptions], [], []),
     'updateTask' : IDL.Func([IDL.Nat, Task], [], []),
+    'updateTaskCompletion' : IDL.Func([IDL.Nat, TaskType], [], []),
     'validateOpenAIConfig' : IDL.Func([], [IDL.Bool], ['query']),
   });
 };

@@ -9,6 +9,7 @@ import {
   ClipboardList,
   TestTube,
 } from 'lucide-react';
+import type { WorkflowType } from '../../components/workflow-icons/WorkflowIcon';
 
 export interface ChecklistItem {
   key: string;
@@ -19,6 +20,7 @@ export interface ChecklistItem {
   color: string;
   icon: LucideIcon;
   iconColorClass: string;
+  workflowType: WorkflowType;
 }
 
 export const CHECKLIST_ITEMS: ChecklistItem[] = [
@@ -31,6 +33,7 @@ export const CHECKLIST_ITEMS: ChecklistItem[] = [
     color: 'green',
     icon: FileText,
     iconColorClass: 'text-green-500',
+    workflowType: 'discharge',
   },
   {
     key: 'pdvmNotified',
@@ -41,6 +44,7 @@ export const CHECKLIST_ITEMS: ChecklistItem[] = [
     color: 'yellow',
     icon: Phone,
     iconColorClass: 'text-yellow-500',
+    workflowType: 'notified',
   },
   {
     key: 'labs',
@@ -51,6 +55,7 @@ export const CHECKLIST_ITEMS: ChecklistItem[] = [
     color: 'orange',
     icon: FlaskConical,
     iconColorClass: 'text-orange-500',
+    workflowType: 'labs',
   },
   {
     key: 'histo',
@@ -61,6 +66,7 @@ export const CHECKLIST_ITEMS: ChecklistItem[] = [
     color: 'purple',
     icon: Microscope,
     iconColorClass: 'text-purple-500',
+    workflowType: 'histo',
   },
   {
     key: 'surgeryReport',
@@ -71,6 +77,7 @@ export const CHECKLIST_ITEMS: ChecklistItem[] = [
     color: 'red',
     icon: ClipboardList,
     iconColorClass: 'text-red-500',
+    workflowType: 'surgery',
   },
   {
     key: 'imaging',
@@ -81,6 +88,7 @@ export const CHECKLIST_ITEMS: ChecklistItem[] = [
     color: 'blue',
     icon: ScanLine,
     iconColorClass: 'text-blue-500',
+    workflowType: 'imaging',
   },
   {
     key: 'culture',
@@ -91,6 +99,7 @@ export const CHECKLIST_ITEMS: ChecklistItem[] = [
     color: 'pink',
     icon: TestTube,
     iconColorClass: 'text-pink-500',
+    workflowType: 'culture',
   },
 ];
 
@@ -121,6 +130,7 @@ export interface RemainingItem {
   color: string;
   icon: LucideIcon;
   iconColorClass: string;
+  workflowType: WorkflowType;
 }
 
 export function getRemainingChecklistItems(task: Task): RemainingItem[] {
@@ -136,6 +146,7 @@ export function getRemainingChecklistItems(task: Task): RemainingItem[] {
     color: item.color,
     icon: item.icon,
     iconColorClass: item.iconColorClass,
+    workflowType: item.workflowType,
   }));
 }
 

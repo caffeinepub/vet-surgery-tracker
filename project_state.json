@@ -1,20 +1,51 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Project with a case management feature. Cases are fetched from a backend canister and were working in Version 87 but broke sometime between Version 87 and Version 91.",
+  "summary": "Veterinary workflow management app with a frontend/backend architecture. Features a Dashboard and Cases page with task management. Currently adding a Veterinary Workflow Icons component system to replace existing task icons on the Dashboard and Cases pages.",
   "architectural_notes": [
-    "Cases are fetched from a backend canister (not local state or external API)"
+    "Frontend source lives at frontend/src/; backend at backend/",
+    "Workflow icons use a token-based color system (workflowTokens.ts) with a base SVG wrapper (WorkflowIconBase.tsx) and a unified dispatcher (WorkflowIcon.tsx); icon size 24px, strokeWidth 2"
   ],
-  "known_issues": [
-    "Cases not showing in live app after Version 91 deploy; worked in Version 87 — likely a data fetching regression in the canister query logic"
-  ],
-  "isFixRequest": true,
+  "known_issues": [],
+  "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-audit-the-frontend-react-query-hooks-in-frontend-src-hooks-usequeries-ts-that-fetch-surgery-cases-from-the-backend-canister-compare-the-current-query-key-structure-actor-call-method-names-response-transformation-and-error-handling-against-what-was-present-in-version-87-restore-any-logic-that-regressed-between-version-87-and-version-91-that-would-cause-cases-to-silently-fail-to-load-or-render-as-empty",
-      "title": "Audit the frontend React Query hooks in `frontend/src/hooks/useQueries.ts` that fetch surgery cases from the backend canister. Compare the current query key structure, actor call method names, response transformation, and error handling against what was present in Version 87. Restore any logic that regressed between Version 87 and Version 91 that would cause cases to silently fail to load or render as empty.",
+      "id": "feature-create-the-file-frontend-src-components-workflow-icons-workflowtokens-ts-exporting-workflowcolors-an-object-mapping-workflow-type-keys-to-hex-color-strings-discharge-22c55e-notified-eab308-labs-f97316-histo-8b5cf6-imaging-3b82f6-surgery-ef4444-culture-ec4899-followup-06b6d4-iconsize-24-and-strokewidth-2",
+      "title": "Create the file `frontend/src/components/workflow-icons/workflowTokens.ts` exporting `workflowColors` (an object mapping workflow type keys to hex color strings: discharge=#22C55E, notified=#EAB308, labs=#F97316, histo=#8B5CF6, imaging=#3B82F6, surgery=#EF4444, culture=#EC4899, followup=#06B6D4), `iconSize=24`, and `strokeWidth=2`.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-frontend-src-components-workflow-icons-workflowiconbase-tsx-a-base-svg-wrapper-component-accepting-color-string-and-children-react-reactnode-rendering-an-svg-with-width-height-from-iconsize-strokewidth-from-strokewidth-and-strokelinecap-strokelinejoin-set-to-round",
+      "title": "Create `frontend/src/components/workflow-icons/WorkflowIconBase.tsx` — a base SVG wrapper component accepting `color: string` and `children: React.ReactNode`, rendering an SVG with width/height from `iconSize`, strokeWidth from `strokeWidth`, and strokeLinecap/strokeLinejoin set to 'round'.",
       "reqIds": [
         "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-the-following-individual-icon-components-under-frontend-src-components-workflow-icons-each-using-workflowiconbase-with-the-corresponding-color-from-workflowcolors-and-the-exact-svg-path-data-provided-icondischarge-tsx-iconnotified-tsx-iconlabs-tsx-iconhisto-tsx-iconimaging-tsx-iconsurgery-tsx-iconculture-tsx-iconfollowup-tsx",
+      "title": "Create the following individual icon components under `frontend/src/components/workflow-icons/`, each using `WorkflowIconBase` with the corresponding color from `workflowColors` and the exact SVG path data provided: `IconDischarge.tsx`, `IconNotified.tsx`, `IconLabs.tsx`, `IconHisto.tsx`, `IconImaging.tsx`, `IconSurgery.tsx`, `IconCulture.tsx`, `IconFollowUp.tsx`.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-frontend-src-components-workflow-icons-workflowicon-tsx-a-dispatcher-component-that-accepts-a-type-prop-of-workflowtype-union-discharge-notified-labs-histo-imaging-surgery-culture-followup-and-renders-the-corresponding-icon-component-returning-null-for-unknown-types-export-the-workflowtype-type-from-this-file",
+      "title": "Create `frontend/src/components/workflow-icons/WorkflowIcon.tsx` — a dispatcher component that accepts a `type` prop of `WorkflowType` (union: 'discharge' | 'notified' | 'labs' | 'histo' | 'imaging' | 'surgery' | 'culture' | 'followup') and renders the corresponding icon component, returning null for unknown types. Export the `WorkflowType` type from this file.",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-replace-existing-task-checklist-icons-on-the-cases-page-frontend-src-features-cases-components-casecard-tsx-and-frontend-src-features-cases-components-checklisteditor-tsx-with-workflowicon-components-map-each-checklist-item-s-task-key-to-its-corresponding-workflowtype-so-the-colored-workflow-icon-appears-next-to-each-task-in-the-checklist",
+      "title": "Replace existing task/checklist icons on the Cases page (`frontend/src/features/cases/components/CaseCard.tsx` and `frontend/src/features/cases/components/ChecklistEditor.tsx`) with `WorkflowIcon` components. Map each checklist item's task key to its corresponding `WorkflowType` so the colored workflow icon appears next to each task in the checklist.",
+      "reqIds": [
+        "REQ-6"
       ],
       "version": 1
     }
@@ -22,9 +53,21 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Audit the backend canister query function(s) responsible for fetching surgery cases (e.g., getCases, getSurgeryCases, or equivalent) and compare the current implementation against the Version 87 state. Identify any changes to query logic, access control (role-based authorization via MixinAuthorization), data filters, or return types that could cause cases to be excluded or return an empty result for authenticated users in the live environment.",
+      "summary": "Add workflow-icons component system (workflowTokens, WorkflowIconBase, 8 individual icons, WorkflowIcon dispatcher) under frontend/src/components/workflow-icons/",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Replace existing task icons on Dashboard and Cases pages with the new WorkflowIcon components",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-7",
+      "summary": "Replace existing task/checklist icons on the Dashboard page (`frontend/src/features/dashboard/components/DashboardView.tsx`) with `WorkflowIcon` components. Map each displayed task type to the corresponding `WorkflowType` value (e.g., discharge, labs, imaging, surgery, culture, histo, notified, followup) so that the colored workflow icon appears wherever a task type indicator is rendered.",
       "reqIds": [
-        "REQ-1"
+        "REQ-5"
       ],
       "status": "pending"
     }

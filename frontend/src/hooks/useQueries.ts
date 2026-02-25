@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useActor } from './useActor';
 import { useInternetIdentity } from './useInternetIdentity';
 import type { SurgeryCase, Task, TaskOptions, UserProfile, OpenAIConfig } from '../backend';
+import { TaskType } from '../backend';
 
 // ─── Query Keys ────────────────────────────────────────────────────────────────
 
@@ -291,6 +292,77 @@ export function useUpdateTask() {
       });
       queryClient.invalidateQueries({
         queryKey: ['dashboard', identity?.getPrincipal().toString() ?? 'anon'],
+      });
+    },
+  });
+}
+
+export function useUpdateTaskCompletion() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+  const { identity } = useInternetIdentity();
+  const principalStr = identity?.getPrincipal().toString() ?? 'anon';
+
+  return useMutation({
+    mutationFn: async (params: { id: bigint; taskType: TaskType }) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.updateTaskCompletion(params.id, params.taskType);
+    },
+    onMutate: async (variables) => {
+      // Optimistic update: toggle the task completion in the cache immediately
+      const casesQueryKey = ['cases', principalStr];
+      await queryClient.cancelQueries({ queryKey: casesQueryKey });
+      const previousCases = queryClient.getQueryData<SurgeryCase[]>(casesQueryKey);
+
+      if (previousCases) {
+        const updatedCases = previousCases.map((c) => {
+          if (c.id !== variables.id) return c;
+          const task = { ...c.task };
+          switch (variables.taskType) {
+            case TaskType.dischargeNotes:
+              task.dischargeNotesCompleted = !task.dischargeNotesCompleted;
+              break;
+            case TaskType.pdvmNotified:
+              task.pdvmNotifiedCompleted = !task.pdvmNotifiedCompleted;
+              break;
+            case TaskType.labs:
+              task.labsCompleted = !task.labsCompleted;
+              break;
+            case TaskType.histo:
+              task.histoCompleted = !task.histoCompleted;
+              break;
+            case TaskType.surgeryReport:
+              task.surgeryReportCompleted = !task.surgeryReportCompleted;
+              break;
+            case TaskType.imaging:
+              task.imagingCompleted = !task.imagingCompleted;
+              break;
+            case TaskType.culture:
+              task.cultureCompleted = !task.cultureCompleted;
+              break;
+          }
+          return { ...c, task };
+        });
+        queryClient.setQueryData(casesQueryKey, updatedCases);
+      }
+
+      return { previousCases };
+    },
+    onError: (_err, _variables, context) => {
+      // Roll back on error
+      if (context?.previousCases) {
+        queryClient.setQueryData(['cases', principalStr], context.previousCases);
+      }
+    },
+    onSettled: (_data, _error, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ['cases', principalStr],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['case', variables.id.toString(), principalStr],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['dashboard', principalStr],
       });
     },
   });

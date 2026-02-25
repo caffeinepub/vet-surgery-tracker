@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useGetAllCases, useUpdateTask, useGetDashboard } from '../../../hooks/useQueries';
+import { useGetAllCases, useGetDashboard } from '../../../hooks/useQueries';
 import { useQueryClient } from '@tanstack/react-query';
 import { useInternetIdentity } from '../../../hooks/useInternetIdentity';
 import type { SurgeryCase, Species } from '../../../backend';
@@ -17,7 +17,6 @@ import {
   filterOutCompletedCases,
 } from '../../cases/filtering';
 import { sortCases, SORT_OPTIONS, type SortOption } from '../../cases/sorting';
-import { CHECKLIST_ITEMS } from '../../cases/checklist';
 import { generateCasePdf } from '../../cases/pdf/generateCasePdf';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
@@ -31,7 +30,6 @@ interface DashboardViewProps {
 export default function DashboardView({ onNavigateToCase }: DashboardViewProps) {
   const { data: cases, isLoading, error, refetch, isFetching } = useGetAllCases();
   const { data: dashboard } = useGetDashboard();
-  const updateTask = useUpdateTask();
   const { identity } = useInternetIdentity();
   const queryClient = useQueryClient();
 
@@ -43,21 +41,6 @@ export default function DashboardView({ onNavigateToCase }: DashboardViewProps) 
   const [newCaseOpen, setNewCaseOpen] = useState(false);
 
   const allCases = cases ?? [];
-
-  const handleTaskClick = async (caseId: bigint, taskKey: string, completed: boolean) => {
-    const surgeryCase = allCases.find(c => c.id === caseId);
-    if (!surgeryCase) return;
-
-    const item = CHECKLIST_ITEMS.find(i => i.key === taskKey);
-    if (!item) return;
-
-    const updatedTask = {
-      ...surgeryCase.task,
-      [item.completedField]: completed,
-    };
-
-    await updateTask.mutateAsync({ id: caseId, task: updatedTask });
-  };
 
   const handleRefresh = () => {
     queryClient.invalidateQueries({
@@ -251,7 +234,6 @@ export default function DashboardView({ onNavigateToCase }: DashboardViewProps) 
               >
                 <CaseCard
                   surgeryCase={c}
-                  onTaskClick={handleTaskClick}
                   size="dashboard"
                 />
               </div>

@@ -133,11 +133,11 @@ export interface SurgeryCase {
     breed: string;
     species: Species;
 }
-export interface Dashboard {
-    openTasks: bigint;
-}
 export interface UserProfile {
     name: string;
+}
+export interface Dashboard {
+    openTasks: bigint;
 }
 export enum Sex {
     female = "female",
@@ -149,6 +149,15 @@ export enum Species {
     other = "other",
     feline = "feline",
     canine = "canine"
+}
+export enum TaskType {
+    pdvmNotified = "pdvmNotified",
+    histo = "histo",
+    labs = "labs",
+    culture = "culture",
+    surgeryReport = "surgeryReport",
+    imaging = "imaging",
+    dischargeNotes = "dischargeNotes"
 }
 export enum UserRole {
     admin = "admin",
@@ -179,9 +188,10 @@ export interface backendInterface {
     updateCaseNotes(id: bigint, notes: string): Promise<void>;
     updateRemainingTasks(id: bigint, taskOptions: TaskOptions): Promise<void>;
     updateTask(id: bigint, task: Task): Promise<void>;
+    updateTaskCompletion(id: bigint, taskType: TaskType): Promise<void>;
     validateOpenAIConfig(): Promise<boolean>;
 }
-import type { OpenAIConfig as _OpenAIConfig, Sex as _Sex, Species as _Species, SurgeryCase as _SurgeryCase, Task as _Task, Time as _Time, UserProfile as _UserProfile, UserRole as _UserRole } from "./declarations/backend.did.d.ts";
+import type { OpenAIConfig as _OpenAIConfig, Sex as _Sex, Species as _Species, SurgeryCase as _SurgeryCase, Task as _Task, TaskType as _TaskType, Time as _Time, UserProfile as _UserProfile, UserRole as _UserRole } from "./declarations/backend.did.d.ts";
 export class Backend implements backendInterface {
     constructor(private actor: ActorSubclass<_SERVICE>, private _uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, private _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, private processError?: (error: unknown) => never){}
     async _initializeAccessControlWithSecret(arg0: string): Promise<void> {
@@ -506,6 +516,20 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async updateTaskCompletion(arg0: bigint, arg1: TaskType): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.updateTaskCompletion(arg0, to_candid_TaskType_n21(this._uploadFile, this._downloadFile, arg1));
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.updateTaskCompletion(arg0, to_candid_TaskType_n21(this._uploadFile, this._downloadFile, arg1));
+            return result;
+        }
+    }
     async validateOpenAIConfig(): Promise<boolean> {
         if (this.processError) {
             try {
@@ -625,6 +649,9 @@ function to_candid_Sex_n5(_uploadFile: (file: ExternalBlob) => Promise<Uint8Arra
 function to_candid_Species_n3(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Species): _Species {
     return to_candid_variant_n4(_uploadFile, _downloadFile, value);
 }
+function to_candid_TaskType_n21(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: TaskType): _TaskType {
+    return to_candid_variant_n22(_uploadFile, _downloadFile, value);
+}
 function to_candid_UserRole_n1(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: UserRole): _UserRole {
     return to_candid_variant_n2(_uploadFile, _downloadFile, value);
 }
@@ -644,6 +671,37 @@ function to_candid_variant_n2(_uploadFile: (file: ExternalBlob) => Promise<Uint8
         user: null
     } : value == UserRole.guest ? {
         guest: null
+    } : value;
+}
+function to_candid_variant_n22(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: TaskType): {
+    pdvmNotified: null;
+} | {
+    histo: null;
+} | {
+    labs: null;
+} | {
+    culture: null;
+} | {
+    surgeryReport: null;
+} | {
+    imaging: null;
+} | {
+    dischargeNotes: null;
+} {
+    return value == TaskType.pdvmNotified ? {
+        pdvmNotified: null
+    } : value == TaskType.histo ? {
+        histo: null
+    } : value == TaskType.labs ? {
+        labs: null
+    } : value == TaskType.culture ? {
+        culture: null
+    } : value == TaskType.surgeryReport ? {
+        surgeryReport: null
+    } : value == TaskType.imaging ? {
+        imaging: null
+    } : value == TaskType.dischargeNotes ? {
+        dischargeNotes: null
     } : value;
 }
 function to_candid_variant_n4(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Species): {
