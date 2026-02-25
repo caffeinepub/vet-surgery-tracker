@@ -1,12 +1,10 @@
 # Specification
 
 ## Summary
-**Goal:** Improve the SurgiPaw Dashboard's patient cards with a more compact layout, species silhouette icons, relocate the "+ New Case" button to the header, and include completed cases in the New Case patient lookup search.
+**Goal:** Fix two regressions introduced in Version 78: cases not displaying in the Cases view, and the broken app logo in the navigation header.
 
 **Planned changes:**
-- Reduce patient card size on the Dashboard (less padding, smaller fonts, reduced card height) so more cards are visible without scrolling
-- Move the "+ New Case" button into the top navigation/header bar, positioned to the left of the Dashboard nav button, and remove it from its previous location
-- Replace species text labels ("Canine", "Feline", "Other") on patient cards with colored animal silhouette icons: dog (amber/orange) for Canine, cat (teal/green) for Feline, and rabbit (lavender/purple) for Other
-- Update the previous-case lookup in the New Case form to include cases where all tasks are completed, in addition to active/open cases
+- Audit and fix the CasesListView, filtering, search, and query hooks changed in Version 78 so that existing cases are correctly loaded and displayed (reverting or correcting any logic that causes "No cases found" when cases exist).
+- Fix the broken app logo in the top-left navigation header by correcting the image path or asset reference in App.tsx so the logo renders properly.
 
-**User-visible outcome:** The Dashboard shows more compact patient cards with species icons instead of text labels, the "+ New Case" button is always accessible in the header, and searching for previous patients in the New Case form returns completed cases as well as active ones.
+**User-visible outcome:** Existing cases are visible in the Cases list view, and the app logo displays correctly in the navigation header across all views.

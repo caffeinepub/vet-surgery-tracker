@@ -39,6 +39,9 @@ export default function App() {
     setTimeout(() => setHighlightedCaseId(null), 4000);
   };
 
+  // Suppress unused variable warning — queryClient is used in LoginButton via context
+  void queryClient;
+
   if (isInitializing) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -56,7 +59,11 @@ export default function App() {
         <header className="border-b border-border bg-card/80 backdrop-blur-sm">
           <div className="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <img src="/assets/generated/surgery-case-log-favicon.dim_64x64.png" alt="SurgiPaw" className="w-7 h-7" />
+              <img
+                src="/assets/generated/surgery-case-log-icon.dim_512x512.png"
+                alt="SurgiPaw"
+                className="w-7 h-7 rounded"
+              />
               <span className="font-bold text-lg tracking-tight text-foreground">SurgiPaw</span>
             </div>
             <LoginButton />
@@ -64,7 +71,11 @@ export default function App() {
         </header>
         <main className="flex-1 flex items-center justify-center px-4">
           <div className="text-center max-w-md">
-            <img src="/assets/generated/surgery-case-log-icon.dim_512x512.png" alt="SurgiPaw" className="w-24 h-24 mx-auto mb-6 rounded-2xl shadow-lg" />
+            <img
+              src="/assets/generated/surgery-case-log-icon.dim_512x512.png"
+              alt="SurgiPaw"
+              className="w-24 h-24 mx-auto mb-6 rounded-2xl shadow-lg"
+            />
             <h1 className="text-3xl font-bold text-foreground mb-2">SurgiPaw</h1>
             <p className="text-muted-foreground mb-8">Veterinary surgery case management, simplified.</p>
             <LoginButton />
@@ -92,7 +103,11 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between gap-2">
           {/* Logo */}
           <div className="flex items-center gap-2 shrink-0">
-            <img src="/assets/generated/surgery-case-log-favicon.dim_64x64.png" alt="SurgiPaw" className="w-7 h-7" />
+            <img
+              src="/assets/generated/surgery-case-log-icon.dim_512x512.png"
+              alt="SurgiPaw"
+              className="w-7 h-7 rounded"
+            />
             <span className="font-bold text-base tracking-tight text-foreground hidden sm:block">SurgiPaw</span>
           </div>
 

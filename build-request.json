@@ -1,103 +1,57 @@
 {
   "kind": "build_request",
-  "title": "Dashboard patient card resize, species icons, New Case button relocation, and completed case search inclusion",
+  "title": "Fix Version 78 regressions: cases not displaying and broken app logo",
   "projectName": "SurgiPaw",
-  "priority": "normal",
+  "priority": "high",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Make each patient card on the Dashboard smaller overall — reduce padding, font sizes, and card height so more cards are visible without scrolling.",
+      "text": "Restore the cases list display so that existing cases are visible in the Cases view. In Version 78, the list shows 'No cases found' even though cases existed and displayed correctly in Version 77. Audit changes made in Version 78 to CasesListView, filtering, search, and query hooks, and revert or fix any logic that incorrectly filters out or fails to load cases.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-prior"
+          "msg-latest"
         ],
         "quotes": [
-          "make each patient card smaller overall"
+          "Cases were displaying correctly in Version 77. In Version 78 it says No cases found."
         ]
       },
       "acceptanceCriteria": [
-        "Patient cards on the Dashboard are visibly more compact than before",
-        "Card content (patient name, species icon, task count, etc.) remains readable",
-        "Multiple cards fit in the viewport without scrolling on a standard desktop screen"
+        "Cases that exist in the backend are rendered in the cases list view without any filtering accidentally excluding them.",
+        "The 'No cases found' message only appears when there are genuinely no cases stored.",
+        "All filtering, search, and sort controls continue to work as expected after the fix."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Move the '+ New Case' button from its current location into the top navigation/header bar, positioned to the left of the Dashboard navigation button.",
+      "text": "Fix the broken app logo in the top-left corner of the navigation header. The image is rendering as a broken image placeholder (paper icon with a line through it). Locate the logo asset reference in App.tsx and ensure the correct image path or inline SVG/component is used so the logo displays properly.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-prior"
+          "msg-latest"
         ],
         "quotes": [
-          "move the + New Case button to the header to the left of the Dashboard button",
-          "Yes, top navigation/header bar"
+          "It is the app logo; it is a paper icon with a line through it"
         ]
       },
       "acceptanceCriteria": [
-        "The '+ New Case' button appears in the top navigation/header bar on all authenticated views",
-        "The button is positioned to the left of the Dashboard nav button",
-        "Clicking '+ New Case' from the header opens the new case dialog/form as before",
-        "The button is no longer rendered in its previous location (e.g., page-level header of the Dashboard or Cases list)"
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "text": "Replace the Canine, Feline, and Other species text labels on patient cards with colored animal silhouette icons: a dog silhouette for Canine, a cat silhouette for Feline, and a randomly chosen animal silhouette for Other. Each silhouette should use a distinct color to differentiate species at a glance.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-prior"
-        ],
-        "quotes": [
-          "change Canine and Feline to icons",
-          "Use colored animal silhouettes, for other it can be a random animal"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Patient cards display a colored animal silhouette icon instead of the text label 'Canine', 'Feline', or 'Other'",
-        "Dog silhouette is shown for Canine cases, cat silhouette for Feline cases",
-        "A random animal silhouette is shown for Other species cases",
-        "Each species icon uses a visually distinct color",
-        "Icons are appropriately sized within the compact card layout"
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "text": "When searching for previous cases inside the New Case form (MRN-based or name-based patient lookup), include cases where all tasks have been completed in the search results, in addition to active/open cases.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-current"
-        ],
-        "quotes": [
-          "When searching for previous cases while data is being entered in the New Case fields include cases where all tasks have been completed."
-        ]
-      },
-      "acceptanceCriteria": [
-        "The previous-case lookup in the New Case form returns cases regardless of task completion status",
-        "Cases where every task is marked complete are included in search/autocomplete results",
-        "Existing search matching logic (by MRN, pet name, owner, etc.) is otherwise unchanged"
+        "The app logo is visible and renders correctly in the top-left corner of the navigation header.",
+        "No broken image placeholder (paper icon with a line through it) is shown.",
+        "The logo displays consistently across the Dashboard, Cases, and Settings views."
       ]
     }
   ],
   "constraints": [
-    "Do not alter backend data models or APIs — all changes are frontend-only",
-    "Do not modify files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or frontend/src/components/ui"
+    "Do not introduce new features or UI changes beyond fixing the two identified regressions.",
+    "Preserve all Version 78 improvements (species icons, compact cards, relocated + New Case button, updated search) except where they are the direct cause of the regressions."
   ],
   "nonGoals": [
-    "Adding new species options to the data model",
-    "Changing the species filter behavior in the Cases list view",
-    "Modifying task completion logic or checklist behavior",
-    "Any backend changes"
+    "Redesigning or restyling the app logo.",
+    "Changes to backend data models or CRUD operations.",
+    "Adding new filtering or sorting options."
   ],
   "imageRequirements": {
-    "required": [
-      "Solid dog silhouette icon in warm amber/orange tone (dog-silhouette.dim_64x64.png)",
-      "Solid cat silhouette icon in teal/green tone (cat-silhouette.dim_64x64.png)",
-      "Solid rabbit silhouette icon in lavender/purple tone for Other species (other-animal-silhouette.dim_64x64.png)"
-    ],
+    "required": [],
     "edits": []
   }
 }

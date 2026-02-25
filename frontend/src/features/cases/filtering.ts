@@ -33,34 +33,51 @@ export function filterCasesByTaskTypes(cases: SurgeryCase[], selectedTaskKeys: S
 
 export function filterCasesByAllTasksCompleted(cases: SurgeryCase[]): SurgeryCase[] {
   return cases.filter((surgeryCase) => {
-    // Check if all selected tasks are completed
+    // A case is "all tasks completed" only if it has at least one selected task
+    // and all selected tasks are completed
+    let hasAnySelectedTask = false;
+
     for (const item of CHECKLIST_ITEMS) {
       const isSelected = surgeryCase.task[item.selectedField];
       const isCompleted = surgeryCase.task[item.completedField];
 
-      // If a task is selected but not completed, exclude this case
-      if (isSelected && !isCompleted) {
-        return false;
+      if (isSelected) {
+        hasAnySelectedTask = true;
+        // If a task is selected but not completed, exclude this case
+        if (!isCompleted) {
+          return false;
+        }
       }
     }
-    // All selected tasks are completed (or no tasks selected)
-    return true;
+
+    // Include only if there was at least one selected task and all were completed
+    return hasAnySelectedTask;
   });
 }
 
 export function filterOutCompletedCases(cases: SurgeryCase[]): SurgeryCase[] {
   return cases.filter((surgeryCase) => {
-    // Check if at least one selected task is not completed
+    let hasAnySelectedTask = false;
+
     for (const item of CHECKLIST_ITEMS) {
       const isSelected = surgeryCase.task[item.selectedField];
       const isCompleted = surgeryCase.task[item.completedField];
 
-      // If a task is selected but not completed, include this case
-      if (isSelected && !isCompleted) {
-        return true;
+      if (isSelected) {
+        hasAnySelectedTask = true;
+        // If a task is selected but not completed, include this case
+        if (!isCompleted) {
+          return true;
+        }
       }
     }
-    // All selected tasks are completed, exclude this case
+
+    // If no tasks are selected at all, include the case (it's not "completed")
+    if (!hasAnySelectedTask) {
+      return true;
+    }
+
+    // All selected tasks are completed — exclude this case
     return false;
   });
 }

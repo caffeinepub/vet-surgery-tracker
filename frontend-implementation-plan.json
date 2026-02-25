@@ -1,87 +1,57 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Dashboard patient card resize, species icons, New Case button relocation, and completed case search inclusion",
+  "title": "Fix Version 78 Regressions: Cases Display and App Logo",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Reduce patient card size on the Dashboard to show more cards without scrolling",
+      "summary": "Restore cases list display by auditing and fixing filtering, search, and query logic that incorrectly filters out or fails to load existing cases",
       "acceptanceCriteria": [
-        "Patient cards on the Dashboard are visibly more compact than before",
-        "Card content (patient name, species icon, task count, etc.) remains readable",
-        "Multiple cards fit in the viewport without scrolling on a standard desktop screen"
+        "Cases that exist in the backend are rendered in the cases list view without any filtering accidentally excluding them.",
+        "The 'No cases found' message only appears when there are genuinely no cases stored.",
+        "All filtering, search, and sort controls continue to work as expected after the fix."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/features/dashboard/components/DashboardView.tsx",
+          "path": "frontend/src/features/cases/components/CasesListView.tsx",
           "operation": "modify",
-          "description": "Reduce the grid gap between cards and adjust the card container layout to accommodate more compact cards. Update grid-cols classes to show more cards per row on larger screens."
+          "description": "Audit the filter chain (species filter, tasks filter, completion status filter, search filter) to identify logic that incorrectly excludes valid cases. Ensure the initial state or default filter values do not accidentally filter out all cases. Add defensive checks to handle empty or undefined filter states gracefully. Verify that the filtered cases logic correctly handles cases when no filters are active."
         },
         {
-          "path": "frontend/src/features/cases/components/CaseCard.tsx",
+          "path": "frontend/src/hooks/useQueries.ts",
           "operation": "modify",
-          "description": "Reduce card padding, decrease font sizes for all text elements (patient name, species, MRN, owner, task count), and reduce the overall card height. Maintain readability while making the card significantly more compact."
+          "description": "Review the useGetAllCases hook to ensure it correctly fetches and returns all cases from the backend. Verify that the query is enabled when the actor is available and that error states are properly handled. Ensure the hook does not inadvertently return an empty array when cases exist in the backend."
+        },
+        {
+          "path": "frontend/src/features/cases/filtering.ts",
+          "operation": "modify",
+          "description": "Review filterCasesBySpecies, filterCasesByIncompleteTasks, and related filter functions to ensure they do not incorrectly exclude cases. Verify that when no species or task filters are selected (empty arrays), the functions return all cases instead of filtering everything out. Add explicit handling for empty filter arrays to pass through all cases."
+        },
+        {
+          "path": "frontend/src/features/cases/search.ts",
+          "operation": "modify",
+          "description": "Audit the searchCases function to ensure it correctly matches cases when the search query is empty or whitespace-only. Verify that an empty search term returns all cases unchanged. Check for any edge cases in string matching that might exclude valid cases."
+        },
+        {
+          "path": "frontend/src/utils/urlParams.ts",
+          "operation": "modify",
+          "description": "Review URL parameter and sessionStorage handling for filter state persistence. Ensure that persisted filter values from previous sessions do not inadvertently exclude all cases on page load. Add logic to validate and sanitize persisted filter values, falling back to safe defaults (no filters active) if invalid state is detected."
         }
       ]
     },
     {
       "id": "REQ-2",
-      "summary": "Relocate the '+ New Case' button from page-level to the top navigation header, positioned left of the Dashboard button",
+      "summary": "Fix the broken app logo in the navigation header by using a valid image asset or inline SVG component",
       "acceptanceCriteria": [
-        "The '+ New Case' button appears in the top navigation/header bar on all authenticated views",
-        "The button is positioned to the left of the Dashboard nav button",
-        "Clicking '+ New Case' from the header opens the new case dialog/form as before",
-        "The button is no longer rendered in its previous location (e.g., page-level header of the Dashboard or Cases list)"
+        "The app logo is visible and renders correctly in the top-left corner of the navigation header.",
+        "No broken image placeholder (paper icon with a line through it) is shown.",
+        "The logo displays consistently across the Dashboard, Cases, and Settings views."
       ],
       "file_operations": [
         {
           "path": "frontend/src/App.tsx",
           "operation": "modify",
-          "description": "Add the '+ New Case' button to the top navigation bar within the authenticated header section. Position it to the left of the Dashboard nav button. Wire it to call handleNewCase to open the CaseFormDialog. Ensure the button is visible on all authenticated views (dashboard, cases, settings)."
-        },
-        {
-          "path": "frontend/src/features/dashboard/components/DashboardView.tsx",
-          "operation": "modify",
-          "description": "Remove the '+ New Case' button from the DashboardView page-level header since it now lives in the top navigation. Keep all other controls (search, filters, export) in their current positions."
-        },
-        {
-          "path": "frontend/src/features/cases/components/CasesListView.tsx",
-          "operation": "modify",
-          "description": "Remove the '+ New Case' button from the CasesListView page-level header since it now lives in the top navigation. Keep all other controls (search, filters, sort) in their current positions."
-        }
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "summary": "Replace species text labels with colored animal silhouette icons on patient cards",
-      "acceptanceCriteria": [
-        "Patient cards display a colored animal silhouette icon instead of the text label 'Canine', 'Feline', or 'Other'",
-        "Dog silhouette is shown for Canine cases, cat silhouette for Feline cases",
-        "A random animal silhouette is shown for Other species cases",
-        "Each species icon uses a visually distinct color",
-        "Icons are appropriately sized within the compact card layout"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/features/cases/components/CaseCard.tsx",
-          "operation": "modify",
-          "description": "Replace the species text label with an <img> element that displays the appropriate silhouette icon based on species. For Canine, use frontend/public/assets/generated/dog-silhouette.dim_64x64.png. For Feline, use frontend/public/assets/generated/cat-silhouette.dim_64x64.png. For Other, use frontend/public/assets/generated/other-animal-silhouette.dim_64x64.png. Size the icons appropriately for the compact card (e.g., 24x24 or 32x32 pixels). The images are already colored (amber/orange for dog, teal/green for cat, lavender/purple for rabbit)."
-        }
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "summary": "Include completed cases in the previous-case search within the New Case form",
-      "acceptanceCriteria": [
-        "The previous-case lookup in the New Case form returns cases regardless of task completion status",
-        "Cases where every task is marked complete are included in search/autocomplete results",
-        "Existing search matching logic (by MRN, pet name, owner, etc.) is otherwise unchanged"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/features/cases/components/CaseFormDialog.tsx",
-          "operation": "modify",
-          "description": "Update the MRN-based previous-case lookup logic to remove any filtering that excludes cases where all tasks are completed. Ensure that the searchCasesByMedicalRecordNumber results and any autocomplete/dropdown for selecting prior cases include fully completed cases. The filtering logic in filtering.ts (excludeFullyCompleted) should not be applied during the New Case form search."
+          "description": "Replace the broken `/assets/logo.png` reference with a valid logo asset path. Use one of the existing generated icon assets from the workspace: `frontend/public/assets/generated/surgery-case-log-icon.dim_512x512.png` for a high-quality logo, or `frontend/public/assets/generated/favicon-192x192.dim_192x192.png` for a smaller icon. Update the img src attribute to use the correct path (e.g., `/assets/generated/surgery-case-log-icon.dim_512x512.png`) and ensure appropriate width/height styling is applied for the header size."
         }
       ]
     }
