@@ -1,32 +1,39 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "New project",
+  "summary": "Project involves a case management app with a 'New Case' button and related functionality that needs to be restored from version 77.",
   "architectural_notes": [],
   "known_issues": [
-    "Version 78 regression: Cases not displaying — shows 'No cases found' (worked in Version 77)",
-    "Version 78 regression: App logo in top left is broken (shows paper icon with line through it)"
+    "'New Case' button and functionality missing from current build (lost during revert/deployment)"
   ],
   "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-restore-the-cases-list-display-so-that-existing-cases-are-visible-in-the-cases-view-in-version-78-the-list-shows-no-cases-found-even-though-cases-existed-and-displayed-correctly-in-version-77-audit-changes-made-in-version-78-to-caseslistview-filtering-search-and-query-hooks-and-revert-or-fix-any-logic-that-incorrectly-filters-out-or-fails-to-load-cases",
-      "title": "Restore the cases list display so that existing cases are visible in the Cases view. In Version 78, the list shows 'No cases found' even though cases existed and displayed correctly in Version 77. Audit changes made in Version 78 to CasesListView, filtering, search, and query hooks, and revert or fix any logic that incorrectly filters out or fails to load cases.",
+      "id": "feature-restore-the-new-case-button-in-caseslistview-tsx-as-it-existed-in-version-77-including-the-button-s-visual-appearance-placement-and-click-handler-that-opens-the-caseformdialog",
+      "title": "Restore the 'New Case' button in CasesListView.tsx as it existed in version 77, including the button's visual appearance, placement, and click handler that opens the CaseFormDialog.",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Restore 'New Case' button and functionality from version 77",
+      "reqIds": [],
+      "status": "pending"
     },
     {
-      "id": "feature-fix-the-broken-app-logo-in-the-top-left-corner-of-the-navigation-header-the-image-is-rendering-as-a-broken-image-placeholder-paper-icon-with-a-line-through-it-locate-the-logo-asset-reference-in-app-tsx-and-ensure-the-correct-image-path-or-inline-svg-component-is-used-so-the-logo-displays-properly",
-      "title": "Fix the broken app logo in the top-left corner of the navigation header. The image is rendering as a broken image placeholder (paper icon with a line through it). Locate the logo asset reference in App.tsx and ensure the correct image path or inline SVG/component is used so the logo displays properly.",
+      "id": "AR-3",
+      "summary": "Restore the full 'New Case' form functionality in CaseFormDialog.tsx as it existed in version 77, including form fields (MRN, dates, patient info, notes), form validation, speech-to-text quick-fill, AI-assisted structured text parsing, previous-case lookup, checklist task selection, and case submission via the create case mutation.",
       "reqIds": [
         "REQ-2"
       ],
-      "version": 1
+      "status": "pending"
     }
   ],
-  "new_feature_requests": [],
+  "gameProjectType": "none",
   "projectName": "SurgiPaw",
   "clarification_mode": "instant",
   "clarification_rounds": 0

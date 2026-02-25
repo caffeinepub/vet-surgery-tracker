@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -17,12 +17,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
 import { useCreateCase, useGetAllCases } from '../../../hooks/useQueries';
 import type { SurgeryCase, Task } from '../../../backend';
 import { Species, Sex } from '../../../backend';
-import { SPECIES_OPTIONS, SEX_OPTIONS } from '../types';
+import { SEX_OPTIONS } from '../types';
 import type { CaseFormData } from '../types';
-import { getDefaultTaskSelections } from '../checklist';
+import { CHECKLIST_ITEMS } from '../checklist';
 import {
   validateMedicalRecordNumber,
   validatePetName,
@@ -33,7 +34,6 @@ import {
 import { parseStructuredText } from '../parsing/parseStructuredText';
 import { toast } from 'sonner';
 import DateField from './DateField';
-import ChecklistEditor from './ChecklistEditor';
 import { Mic, MicOff, Loader2, Wand2, ChevronDown } from 'lucide-react';
 import { useSpeechRecognition } from '../hooks/useSpeechRecognition';
 import { useDebouncedValue } from '../../../hooks/useDebouncedValue';
@@ -53,6 +53,17 @@ interface FormErrors {
   sex?: string;
 }
 
+// Task selections stored separately from CaseFormData
+interface TaskSelections {
+  dischargeNotes: boolean;
+  pdvmNotified: boolean;
+  labs: boolean;
+  histo: boolean;
+  surgeryReport: boolean;
+  imaging: boolean;
+  culture: boolean;
+}
+
 const EMPTY_FORM: CaseFormData = {
   medicalRecordNumber: '',
   arrivalDate: new Date(),
@@ -66,9 +77,30 @@ const EMPTY_FORM: CaseFormData = {
   notes: '',
 };
 
+const DEFAULT_TASK_SELECTIONS: TaskSelections = {
+  dischargeNotes: true,
+  pdvmNotified: true,
+  labs: false,
+  histo: false,
+  surgeryReport: false,
+  imaging: false,
+  culture: false,
+};
+
+// Map checklist item keys to TaskSelections keys
+const TASK_KEY_MAP: Record<string, keyof TaskSelections> = {
+  dischargeNotes: 'dischargeNotes',
+  pdvmNotified: 'pdvmNotified',
+  labs: 'labs',
+  histo: 'histo',
+  surgeryReport: 'surgeryReport',
+  imaging: 'imaging',
+  culture: 'culture',
+};
+
 export default function CaseFormDialog({ open, onOpenChange, onCaseCreated }: CaseFormDialogProps) {
   const [form, setForm] = useState<CaseFormData>(EMPTY_FORM);
-  const [task, setTask] = useState<Task>(getDefaultTaskSelections());
+  const [taskSelections, setTaskSelections] = useState<TaskSelections>(DEFAULT_TASK_SELECTIONS);
   const [errors, setErrors] = useState<FormErrors>({});
   const [quickFillText, setQuickFillText] = useState('');
   const [isParsing, setIsParsing] = useState(false);
@@ -101,7 +133,7 @@ export default function CaseFormDialog({ open, onOpenChange, onCaseCreated }: Ca
   const debouncedOwner = useDebouncedValue(form.ownerLastName, 300);
 
   // Previous cases: search ALL cases (including completed) by MRN, pet name, owner
-  const previousCases = useCallback((): SurgeryCase[] => {
+  const getPreviousCases = (): SurgeryCase[] => {
     const mrn = debouncedMRN.trim().toLowerCase();
     const pet = debouncedPetName.trim().toLowerCase();
     const owner = debouncedOwner.trim().toLowerCase();
@@ -111,7 +143,6 @@ export default function CaseFormDialog({ open, onOpenChange, onCaseCreated }: Ca
     const seen = new Set<string>();
     const results: SurgeryCase[] = [];
 
-    // Search ALL cases — no completed-case filtering applied here
     for (const c of allCases as SurgeryCase[]) {
       if (seen.has(String(c.id))) continue;
       const matchMRN = mrn && c.medicalRecordNumber.toLowerCase().includes(mrn);
@@ -124,9 +155,9 @@ export default function CaseFormDialog({ open, onOpenChange, onCaseCreated }: Ca
     }
 
     return results.slice(0, 8);
-  }, [debouncedMRN, debouncedPetName, debouncedOwner, allCases]);
+  };
 
-  const prevCases = previousCases();
+  const prevCases = getPreviousCases();
   const hasPrevCases = prevCases.length > 0;
 
   const handleFieldChange = <K extends keyof CaseFormData>(field: K, value: CaseFormData[K]) => {
@@ -218,13 +249,13 @@ export default function CaseFormDialog({ open, onOpenChange, onCaseCreated }: Ca
         presentingComplaint: form.presentingComplaint,
         notes: form.notes,
         taskOptions: {
-          dischargeNotes: task.dischargeNotesSelected,
-          pdvmNotified: task.pdvmNotifiedSelected,
-          labs: task.labsSelected,
-          histo: task.histoSelected,
-          surgeryReport: task.surgeryReportSelected,
-          imaging: task.imagingSelected,
-          culture: task.cultureSelected,
+          dischargeNotes: taskSelections.dischargeNotes,
+          pdvmNotified: taskSelections.pdvmNotified,
+          labs: taskSelections.labs,
+          histo: taskSelections.histo,
+          surgeryReport: taskSelections.surgeryReport,
+          imaging: taskSelections.imaging,
+          culture: taskSelections.culture,
         },
       });
 
@@ -240,7 +271,7 @@ export default function CaseFormDialog({ open, onOpenChange, onCaseCreated }: Ca
   const handleClose = () => {
     onOpenChange(false);
     setForm(EMPTY_FORM);
-    setTask(getDefaultTaskSelections());
+    setTaskSelections(DEFAULT_TASK_SELECTIONS);
     setQuickFillText('');
     setErrors({});
     setShowPreviousCases(false);
@@ -250,7 +281,7 @@ export default function CaseFormDialog({ open, onOpenChange, onCaseCreated }: Ca
   useEffect(() => {
     if (!open) {
       setForm(EMPTY_FORM);
-      setTask(getDefaultTaskSelections());
+      setTaskSelections(DEFAULT_TASK_SELECTIONS);
       setQuickFillText('');
       setErrors({});
       setShowPreviousCases(false);
@@ -263,6 +294,10 @@ export default function CaseFormDialog({ open, onOpenChange, onCaseCreated }: Ca
     } else {
       startRecording();
     }
+  };
+
+  const toggleTask = (key: keyof TaskSelections) => {
+    setTaskSelections(prev => ({ ...prev, [key]: !prev[key] }));
   };
 
   return (
@@ -313,7 +348,7 @@ export default function CaseFormDialog({ open, onOpenChange, onCaseCreated }: Ca
             </Button>
           </div>
 
-          {/* Previous Cases — includes completed cases */}
+          {/* Previous Cases */}
           {hasPrevCases && (
             <div className="rounded-md border border-border bg-muted/40 p-2">
               <button
@@ -420,11 +455,24 @@ export default function CaseFormDialog({ open, onOpenChange, onCaseCreated }: Ca
                   <SelectValue placeholder="Select species" />
                 </SelectTrigger>
                 <SelectContent>
-                  {SPECIES_OPTIONS.map((opt) => (
-                    <SelectItem key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </SelectItem>
-                  ))}
+                  <SelectItem value={Species.canine}>
+                    <span className="flex items-center gap-2">
+                      <img src="/assets/Dog icon.ico" alt="Canine" className="w-4 h-4 object-contain" />
+                      Canine
+                    </span>
+                  </SelectItem>
+                  <SelectItem value={Species.feline}>
+                    <span className="flex items-center gap-2">
+                      <img src="/assets/Cat icon.ico" alt="Feline" className="w-4 h-4 object-contain" />
+                      Feline
+                    </span>
+                  </SelectItem>
+                  <SelectItem value={Species.other}>
+                    <span className="flex items-center gap-2">
+                      <img src="/assets/Other icon.ico" alt="Other" className="w-4 h-4 object-contain" />
+                      Other
+                    </span>
+                  </SelectItem>
                 </SelectContent>
               </Select>
               {errors.species && (
@@ -504,13 +552,26 @@ export default function CaseFormDialog({ open, onOpenChange, onCaseCreated }: Ca
           </div>
 
           {/* Tasks */}
-          <div className="space-y-1">
+          <div className="space-y-2">
             <Label className="text-xs">Tasks</Label>
-            <ChecklistEditor
-              task={task}
-              onChange={setTask}
-              mode="creation"
-            />
+            <div className="grid grid-cols-2 gap-2">
+              {CHECKLIST_ITEMS.map(item => {
+                const taskKey = TASK_KEY_MAP[item.key];
+                if (!taskKey) return null;
+                return (
+                  <label
+                    key={item.key}
+                    className="flex items-center gap-2 p-2 rounded border border-border cursor-pointer hover:bg-muted/50"
+                  >
+                    <Checkbox
+                      checked={taskSelections[taskKey]}
+                      onCheckedChange={() => toggleTask(taskKey)}
+                    />
+                    <span className="text-sm">{item.label}</span>
+                  </label>
+                );
+              })}
+            </div>
           </div>
         </div>
 

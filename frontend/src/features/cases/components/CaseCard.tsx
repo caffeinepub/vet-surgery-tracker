@@ -1,220 +1,201 @@
 import { useState } from 'react';
-import type { SurgeryCase, Species, Sex } from '../../../backend';
-import { cn } from '@/lib/utils';
-import {
-  CHECKLIST_ITEMS,
-  getTaskBorderColor,
-  getTaskBackgroundColor,
-  getRemainingChecklistItems,
-} from '../checklist';
-import { useUpdateTask } from '../../../hooks/useQueries';
-import { nanosecondsToDate } from '../validation';
+import type { SurgeryCase, Task } from '../../../backend';
+import { Species, Sex } from '../../../backend';
+import { CHECKLIST_ITEMS, getTaskBackgroundColor } from '../checklist';
+import { Pencil } from 'lucide-react';
 
 interface CaseCardProps {
   surgeryCase: SurgeryCase;
-  isHighlighted?: boolean;
+  onTaskClick?: (caseId: bigint, taskKey: string, completed: boolean) => void;
+  onEditClick?: (surgeryCase: SurgeryCase) => void;
+  size?: 'default' | 'dashboard';
+  highlighted?: boolean;
 }
 
-function SpeciesIcon({ species }: { species: Species }) {
-  if (species === 'canine') {
-    return (
-      <img
-        src="/assets/generated/dog-silhouette.dim_64x64.png"
-        alt="Canine"
-        title="Canine"
-        className="w-6 h-6 object-contain shrink-0"
-      />
-    );
-  }
-  if (species === 'feline') {
-    return (
-      <img
-        src="/assets/generated/cat-silhouette.dim_64x64.png"
-        alt="Feline"
-        title="Feline"
-        className="w-6 h-6 object-contain shrink-0"
-      />
-    );
-  }
+function getSpeciesIcon(species: Species, size: 'default' | 'dashboard' = 'default') {
+  const iconSize = size === 'dashboard' ? 'w-10 h-10' : 'w-7 h-7';
+  const iconMap: Record<string, string> = {
+    [Species.canine]: '/assets/Dog icon.ico',
+    [Species.feline]: '/assets/Cat icon.ico',
+    [Species.other]: '/assets/Other icon.ico',
+  };
+  const altMap: Record<string, string> = {
+    [Species.canine]: 'Canine',
+    [Species.feline]: 'Feline',
+    [Species.other]: 'Other',
+  };
   return (
     <img
-      src="/assets/generated/other-animal-silhouette.dim_64x64.png"
-      alt="Other"
-      title="Other"
-      className="w-6 h-6 object-contain shrink-0"
+      src={iconMap[species] ?? '/assets/Other icon.ico'}
+      alt={altMap[species] ?? 'Other'}
+      className={`${iconSize} object-contain`}
     />
   );
 }
 
-function formatAge(dateOfBirth?: bigint): string {
-  if (!dateOfBirth) return '';
-  const dob = nanosecondsToDate(dateOfBirth);
-  const now = new Date();
-  const totalMonths =
-    (now.getFullYear() - dob.getFullYear()) * 12 +
-    (now.getMonth() - dob.getMonth()) +
-    (now.getDate() < dob.getDate() ? -1 : 0);
-  const months = Math.max(0, totalMonths);
-  const y = Math.floor(months / 12);
-  const m = months % 12;
-  if (y === 0) return `${m}mo`;
-  if (m === 0) return `${y}yr`;
-  return `${y}yr ${m}mo`;
-}
-
 function formatSex(sex: Sex): string {
   switch (sex) {
-    case 'male': return 'M';
-    case 'female': return 'F';
-    case 'maleNeutered': return 'MN';
-    case 'femaleSpayed': return 'FS';
+    case Sex.male: return 'M';
+    case Sex.maleNeutered: return 'MN';
+    case Sex.female: return 'F';
+    case Sex.femaleSpayed: return 'FS';
     default: return '';
   }
 }
 
-function formatArrivalDate(arrivalDate: bigint): string {
-  const date = nanosecondsToDate(arrivalDate);
-  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+function formatAge(dateOfBirth?: bigint): string {
+  if (!dateOfBirth) return '';
+  const dob = new Date(Number(dateOfBirth) / 1_000_000);
+  const now = new Date();
+  const years = now.getFullYear() - dob.getFullYear();
+  const months = now.getMonth() - dob.getMonth();
+  const totalMonths = years * 12 + months;
+  if (totalMonths < 12) return `${totalMonths}mo`;
+  return `${Math.floor(totalMonths / 12)}yr`;
 }
 
-export default function CaseCard({ surgeryCase, isHighlighted }: CaseCardProps) {
+function formatDate(time: bigint): string {
+  const date = new Date(Number(time) / 1_000_000);
+  return date.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: '2-digit' });
+}
+
+function getTaskField<K extends keyof Task>(task: Task, field: K): boolean {
+  return (task as unknown as Record<string, boolean>)[field as string] ?? false;
+}
+
+export default function CaseCard({ surgeryCase, onTaskClick, onEditClick, size = 'default', highlighted = false }: CaseCardProps) {
   const [expanded, setExpanded] = useState(false);
-  const updateTaskMutation = useUpdateTask();
 
-  const remainingItems = getRemainingChecklistItems(surgeryCase.task);
-  const allCompleted = remainingItems.length === 0;
+  const isDashboard = size === 'dashboard';
 
-  const selectedItems = CHECKLIST_ITEMS.filter(
-    (item) => surgeryCase.task[item.selectedField] as boolean
+  const selectedTasks = CHECKLIST_ITEMS.filter(item =>
+    getTaskField(surgeryCase.task, item.selectedField)
   );
 
-  const handleToggleTask = async (completedField: keyof typeof surgeryCase.task) => {
-    const isCurrentlyCompleted = surgeryCase.task[completedField] as boolean;
-    const updatedTask = {
-      ...surgeryCase.task,
-      [completedField]: !isCurrentlyCompleted,
-    };
-    await updateTaskMutation.mutateAsync({
-      id: surgeryCase.id,
-      task: updatedTask,
-    });
-  };
+  const remainingTasks = selectedTasks.filter(item =>
+    !getTaskField(surgeryCase.task, item.completedField)
+  );
+
+  const allCompleted = selectedTasks.length > 0 && remainingTasks.length === 0;
 
   return (
     <div
-      className={cn(
-        'bg-card border border-border rounded-lg overflow-hidden transition-all duration-200 hover:shadow-md',
-        isHighlighted && 'ring-2 ring-primary ring-offset-1 animate-pulse',
-        allCompleted && 'opacity-70'
-      )}
+      className={`rounded-lg border bg-card shadow-sm transition-all ${
+        highlighted ? 'ring-2 ring-primary ring-offset-2' : ''
+      } ${allCompleted ? 'opacity-70' : ''} ${isDashboard ? 'text-base' : 'text-sm'}`}
     >
-      {/* Card Header — always visible, click to expand */}
+      {/* Header */}
       <div
-        className="px-3 py-2 cursor-pointer select-none"
-        onClick={() => setExpanded((v) => !v)}
+        className={`flex items-center gap-3 cursor-pointer select-none ${isDashboard ? 'p-4' : 'p-3'}`}
+        onClick={() => setExpanded(e => !e)}
       >
-        <div className="flex items-center justify-between gap-2">
-          {/* Left: species icon + name */}
-          <div className="flex items-center gap-2 min-w-0">
-            <SpeciesIcon species={surgeryCase.species} />
-            <div className="min-w-0">
-              <div className="flex items-center gap-1.5 flex-wrap">
-                <span className="font-semibold text-sm text-foreground truncate">
-                  {surgeryCase.petName}
-                </span>
-                <span className="text-xs text-muted-foreground">
-                  {formatSex(surgeryCase.sex)}
-                  {surgeryCase.dateOfBirth ? ` · ${formatAge(surgeryCase.dateOfBirth)}` : ''}
-                </span>
-              </div>
-              <div className="flex items-center gap-1.5 flex-wrap">
-                <span className="text-xs font-mono font-semibold text-primary">
-                  {surgeryCase.medicalRecordNumber}
-                </span>
-                <span className="text-xs text-muted-foreground truncate">
-                  {surgeryCase.ownerLastName}
-                </span>
-              </div>
-            </div>
-          </div>
+        {/* Species Icon */}
+        <div className="flex-shrink-0">
+          {getSpeciesIcon(surgeryCase.species, size)}
+        </div>
 
-          {/* Right: task dots + arrival date */}
-          <div className="flex flex-col items-end gap-1 shrink-0">
-            <div className="flex items-center gap-0.5">
-              {selectedItems.map((item) => {
-                const isCompleted = surgeryCase.task[item.completedField] as boolean;
-                return (
-                  <div
-                    key={item.key}
-                    title={item.label}
-                    className={cn(
-                      'w-2 h-2 rounded-full border',
-                      isCompleted
-                        ? 'bg-muted border-muted-foreground/30'
-                        : getTaskBackgroundColor(item.color).split(' ')[0] + ' ' + getTaskBorderColor(item.color)
-                    )}
-                  />
-                );
-              })}
-            </div>
-            <span className="text-[10px] text-muted-foreground whitespace-nowrap">
-              {formatArrivalDate(surgeryCase.arrivalDate)}
+        {/* Patient Info */}
+        <div className="flex-1 min-w-0">
+          <div className={`font-semibold text-foreground truncate ${isDashboard ? 'text-lg' : 'text-sm'}`}>
+            {surgeryCase.petName}
+            <span className={`font-normal text-muted-foreground ml-2 ${isDashboard ? 'text-sm' : 'text-xs'}`}>
+              {surgeryCase.ownerLastName}
             </span>
+          </div>
+          <div className={`text-muted-foreground flex items-center gap-2 ${isDashboard ? 'text-sm' : 'text-xs'}`}>
+            <span className="font-mono">{surgeryCase.medicalRecordNumber}</span>
+            <span>·</span>
+            <span>{formatSex(surgeryCase.sex)}</span>
+            {surgeryCase.dateOfBirth && (
+              <>
+                <span>·</span>
+                <span>{formatAge(surgeryCase.dateOfBirth)}</span>
+              </>
+            )}
           </div>
         </div>
 
-        {/* Presenting complaint — always visible, truncated */}
-        {surgeryCase.presentingComplaint && (
-          <p className="text-xs text-muted-foreground mt-1 truncate">
-            {surgeryCase.presentingComplaint}
-          </p>
+        {/* Task dots */}
+        <div className="flex flex-wrap gap-1 justify-end max-w-[80px]">
+          {selectedTasks.map(item => {
+            const isCompleted = getTaskField(surgeryCase.task, item.completedField);
+            return (
+              <div
+                key={item.key}
+                className={`w-2.5 h-2.5 rounded-full border ${
+                  isCompleted
+                    ? 'bg-green-500 border-green-600'
+                    : `border-2 ${getTaskBackgroundColor(item.color)}`
+                }`}
+                title={item.key}
+              />
+            );
+          })}
+        </div>
+
+        {/* Arrival date */}
+        <div className={`text-muted-foreground flex-shrink-0 ${isDashboard ? 'text-sm' : 'text-xs'}`}>
+          {formatDate(surgeryCase.arrivalDate)}
+        </div>
+
+        {/* Edit button */}
+        {onEditClick && (
+          <button
+            onClick={e => { e.stopPropagation(); onEditClick(surgeryCase); }}
+            className="flex-shrink-0 p-1.5 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+            title="Edit case"
+          >
+            <Pencil className={isDashboard ? 'w-5 h-5' : 'w-4 h-4'} />
+          </button>
         )}
       </div>
 
-      {/* Expanded section */}
+      {/* Expanded content */}
       {expanded && (
-        <div className="border-t border-border px-3 py-2 space-y-2">
-          {/* Breed */}
+        <div className={`border-t border-border ${isDashboard ? 'px-4 pb-4 pt-3' : 'px-3 pb-3 pt-2'}`}>
           {surgeryCase.breed && (
-            <p className="text-xs text-muted-foreground">
+            <div className={`text-muted-foreground mb-2 ${isDashboard ? 'text-sm' : 'text-xs'}`}>
               <span className="font-medium text-foreground">Breed:</span> {surgeryCase.breed}
-            </p>
+            </div>
           )}
-
-          {/* Notes */}
+          {surgeryCase.presentingComplaint && (
+            <div className={`mb-2 ${isDashboard ? 'text-sm' : 'text-xs'}`}>
+              <span className="font-medium text-foreground">Complaint:</span>{' '}
+              <span className="text-muted-foreground">{surgeryCase.presentingComplaint}</span>
+            </div>
+          )}
           {surgeryCase.notes && (
-            <p className="text-xs text-muted-foreground">
-              <span className="font-medium text-foreground">Notes:</span> {surgeryCase.notes}
-            </p>
+            <div className={`mb-3 ${isDashboard ? 'text-sm' : 'text-xs'}`}>
+              <span className="font-medium text-foreground">Notes:</span>{' '}
+              <span className="text-muted-foreground">{surgeryCase.notes}</span>
+            </div>
           )}
 
-          {/* Tasks */}
-          {selectedItems.length > 0 && (
-            <div className="space-y-1">
-              <p className="text-xs font-medium text-foreground">Tasks:</p>
-              <div className="flex flex-wrap gap-1">
-                {selectedItems.map((item) => {
-                  const isCompleted = surgeryCase.task[item.completedField] as boolean;
-                  return (
-                    <button
-                      key={item.key}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleToggleTask(item.completedField);
-                      }}
-                      disabled={updateTaskMutation.isPending}
-                      className={cn(
-                        'text-[10px] px-2 py-0.5 rounded-full border font-medium transition-all',
-                        isCompleted
-                          ? 'line-through opacity-50 bg-muted border-muted-foreground/20 text-muted-foreground'
-                          : cn(getTaskBorderColor(item.color), getTaskBackgroundColor(item.color), 'text-foreground')
-                      )}
-                    >
-                      {item.label}
-                    </button>
-                  );
-                })}
-              </div>
+          {/* Task pills */}
+          {selectedTasks.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 mt-2">
+              {selectedTasks.map(item => {
+                const isCompleted = getTaskField(surgeryCase.task, item.completedField);
+                return (
+                  <button
+                    key={item.key}
+                    onClick={() => onTaskClick?.(surgeryCase.id, item.key, !isCompleted)}
+                    className={`px-2 py-0.5 rounded-full text-xs font-medium border transition-colors ${
+                      isCompleted
+                        ? 'bg-green-100 border-green-300 text-green-800 line-through'
+                        : `${getTaskBackgroundColor(item.color)} border-current text-foreground hover:opacity-80`
+                    }`}
+                  >
+                    {item.key}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          {selectedTasks.length === 0 && (
+            <div className={`text-muted-foreground italic ${isDashboard ? 'text-sm' : 'text-xs'}`}>
+              No tasks assigned
             </div>
           )}
         </div>

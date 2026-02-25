@@ -1,10 +1,10 @@
 # Specification
 
 ## Summary
-**Goal:** Fix two regressions introduced in Version 78: cases not displaying in the Cases view, and the broken app logo in the navigation header.
+**Goal:** Restore the "New Case" button and full case creation form functionality in SurgiPaw as it existed in version 77.
 
 **Planned changes:**
-- Audit and fix the CasesListView, filtering, search, and query hooks changed in Version 78 so that existing cases are correctly loaded and displayed (reverting or correcting any logic that causes "No cases found" when cases exist).
-- Fix the broken app logo in the top-left navigation header by correcting the image path or asset reference in App.tsx so the logo renders properly.
+- Restore the "New Case" button in `CasesListView.tsx` with its original visual appearance, placement, and click handler that opens `CaseFormDialog`
+- Restore `CaseFormDialog.tsx` with all form fields (MRN, dates, patient info, species, sex, notes), form validation, speech-to-text quick-fill, AI-assisted structured text parsing, previous-case lookup, checklist task selection, and case submission via the create case mutation
 
-**User-visible outcome:** Existing cases are visible in the Cases list view, and the app logo displays correctly in the navigation header across all views.
+**User-visible outcome:** Users can click the "New Case" button in the cases list, fill out the full case creation form, and submit it to create a new surgery case that immediately appears in the list.

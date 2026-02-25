@@ -1,111 +1,121 @@
-import { useState, useMemo } from 'react';
-import { useGetAllCases } from '../../../hooks/useQueries';
+import { useState } from 'react';
+import { useGetAllCases, useUpdateTask } from '../../../hooks/useQueries';
+import type { SurgeryCase, Species } from '../../../backend';
 import CaseCard from '../../cases/components/CaseCard';
 import CasesSearchBar from '../../cases/components/CasesSearchBar';
 import CasesSpeciesFilter from '../../cases/components/CasesSpeciesFilter';
 import CasesTasksFilter from '../../cases/components/CasesTasksFilter';
 import CasesSortControl from '../../cases/components/CasesSortControl';
 import { searchCases } from '../../cases/search';
-import {
-  filterCasesBySpecies,
-  filterCasesByTaskTypes,
-  filterOutCompletedCases,
-  filterCasesByAllTasksCompleted,
-} from '../../cases/filtering';
+import { filterCasesBySpecies, filterCasesByTaskTypes, filterOutCompletedCases } from '../../cases/filtering';
 import { sortCases, SORT_OPTIONS } from '../../cases/sorting';
-import type { SurgeryCase, Species } from '../../../backend';
-import { generateCasePdf } from '../../cases/pdf/generateCasePdf';
-import { FileDown } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import type { SortOption } from '../../cases/sorting';
+import { CHECKLIST_ITEMS } from '../../cases/checklist';
+import { Skeleton } from '@/components/ui/skeleton';
+import { getTotalOpenTasksCount } from '../utils/openTasksCalculation';
 
 interface DashboardViewProps {
-  onNewCase: () => void;
-  highlightedCaseId?: bigint | null;
+  onNavigateToCase?: (caseId: bigint) => void;
 }
 
-export default function DashboardView({ onNewCase: _onNewCase, highlightedCaseId }: DashboardViewProps) {
-  const { data: allCases = [], isLoading } = useGetAllCases();
+export default function DashboardView({ onNavigateToCase }: DashboardViewProps) {
+  const { data: cases = [], isLoading } = useGetAllCases();
+  const updateTask = useUpdateTask();
+
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSpecies, setSelectedSpecies] = useState<Set<Species>>(new Set());
   const [selectedTaskTypes, setSelectedTaskTypes] = useState<Set<string>>(new Set());
-  const [showAllTasksCompleted, setShowAllTasksCompleted] = useState(false);
-  const [sortOption, setSortOption] = useState(SORT_OPTIONS[1].value);
+  const [sortOption, setSortOption] = useState<SortOption>(SORT_OPTIONS[0].value);
 
-  const filteredCases = useMemo(() => {
-    let cases = allCases as SurgeryCase[];
+  const handleTaskClick = async (caseId: bigint, taskKey: string, completed: boolean) => {
+    const surgeryCase = cases.find(c => c.id === caseId);
+    if (!surgeryCase) return;
 
-    // Show/hide completed cases
-    if (showAllTasksCompleted) {
-      cases = filterCasesByAllTasksCompleted(cases);
-    } else {
-      cases = filterOutCompletedCases(cases);
-    }
+    const item = CHECKLIST_ITEMS.find(i => i.key === taskKey);
+    if (!item) return;
 
-    // Species filter
-    if (selectedSpecies.size > 0) {
-      cases = filterCasesBySpecies(cases, selectedSpecies);
-    }
+    const updatedTask = {
+      ...surgeryCase.task,
+      [item.completedField]: completed,
+    };
 
-    // Task types filter
-    if (selectedTaskTypes.size > 0) {
-      cases = filterCasesByTaskTypes(cases, selectedTaskTypes);
-    }
-
-    // Search
-    if (searchQuery.trim()) {
-      cases = searchCases(cases, searchQuery);
-    }
-
-    return sortCases(cases, sortOption);
-  }, [allCases, searchQuery, selectedSpecies, selectedTaskTypes, showAllTasksCompleted, sortOption]);
-
-  const handleExportPdf = () => {
-    generateCasePdf(filteredCases);
+    await updateTask.mutateAsync({ id: caseId, task: updatedTask });
   };
 
+  // Apply filters
+  let filtered = filterOutCompletedCases(cases);
+
+  if (selectedSpecies.size > 0) {
+    filtered = filterCasesBySpecies(filtered, selectedSpecies);
+  }
+
+  if (selectedTaskTypes.size > 0) {
+    filtered = filterCasesByTaskTypes(filtered, selectedTaskTypes);
+  }
+
+  if (searchQuery.trim()) {
+    filtered = searchCases(filtered, searchQuery);
+  }
+
+  filtered = sortCases(filtered, sortOption);
+
+  const totalOpenTasks = getTotalOpenTasksCount(cases);
+
   return (
-    <div className="max-w-7xl mx-auto px-4 py-4">
-      {/* Page header */}
-      <div className="flex items-center justify-between mb-4 gap-2 flex-wrap">
-        <h1 className="text-xl font-bold text-foreground">Dashboard</h1>
-        <div className="flex items-center gap-2 flex-wrap">
-          <CasesSearchBar value={searchQuery} onChange={setSearchQuery} />
-          <CasesSpeciesFilter selectedSpecies={selectedSpecies} onSpeciesChange={setSelectedSpecies} />
-          <CasesTasksFilter
-            selectedTaskTypes={selectedTaskTypes}
-            onTaskTypesChange={setSelectedTaskTypes}
-            showAllTasksCompleted={showAllTasksCompleted}
-            onShowAllTasksCompletedChange={setShowAllTasksCompleted}
-          />
-          <CasesSortControl value={sortOption} onSortChange={setSortOption} />
-          <Button variant="outline" size="sm" onClick={handleExportPdf} className="gap-1.5 h-8 text-xs">
-            <FileDown className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Export PDF</span>
-          </Button>
+    <div className="flex flex-col gap-6">
+      {/* Stats bar */}
+      <div className="flex items-center gap-4">
+        <div className="bg-card border border-border rounded-lg px-5 py-3 flex flex-col">
+          <span className="text-2xl font-bold text-foreground">{filtered.length}</span>
+          <span className="text-xs text-muted-foreground">Active Cases</span>
+        </div>
+        <div className="bg-card border border-border rounded-lg px-5 py-3 flex flex-col">
+          <span className="text-2xl font-bold text-foreground">{totalOpenTasks}</span>
+          <span className="text-xs text-muted-foreground">Open Tasks</span>
         </div>
       </div>
 
-      {/* Cases grid */}
+      {/* Filters */}
+      <div className="flex flex-wrap items-center gap-2">
+        <CasesSearchBar value={searchQuery} onChange={setSearchQuery} />
+        <CasesSpeciesFilter
+          selectedSpecies={selectedSpecies}
+          onSpeciesChange={setSelectedSpecies}
+        />
+        <CasesTasksFilter
+          selectedTaskTypes={selectedTaskTypes}
+          onTaskTypesChange={setSelectedTaskTypes}
+          showAllTasksCompleted={false}
+          onShowAllTasksCompletedChange={() => {}}
+        />
+        <CasesSortControl value={sortOption} onSortChange={setSortOption} />
+      </div>
+
+      {/* Cases grid - larger cards (dashboard size = 50% bigger) */}
       {isLoading ? (
-        <div className="flex items-center justify-center py-16">
-          <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Skeleton key={i} className="h-36 rounded-lg" />
+          ))}
         </div>
-      ) : filteredCases.length === 0 ? (
+      ) : filtered.length === 0 ? (
         <div className="text-center py-16 text-muted-foreground">
-          <p className="text-sm">No cases found.</p>
+          {cases.length === 0 ? 'No active cases.' : 'No cases match your filters.'}
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-          {filteredCases.map((c) => (
-            <CaseCard
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filtered.map(c => (
+            <div
               key={String(c.id)}
-              surgeryCase={c}
-              isHighlighted={
-                highlightedCaseId !== null &&
-                highlightedCaseId !== undefined &&
-                c.id === highlightedCaseId
-              }
-            />
+              className="cursor-pointer"
+              onClick={() => onNavigateToCase?.(c.id)}
+            >
+              <CaseCard
+                surgeryCase={c}
+                onTaskClick={handleTaskClick}
+                size="dashboard"
+              />
+            </div>
           ))}
         </div>
       )}

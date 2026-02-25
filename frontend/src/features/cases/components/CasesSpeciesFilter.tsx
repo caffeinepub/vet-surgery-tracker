@@ -1,11 +1,10 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import { Filter } from 'lucide-react';
-import { SPECIES_OPTIONS } from '../types';
 import type { Species } from '../../../backend';
+import { Species as SpeciesEnum } from '../../../backend';
 
 interface CasesSpeciesFilterProps {
   selectedSpecies: Set<Species>;
@@ -14,10 +13,15 @@ interface CasesSpeciesFilterProps {
 
 const STORAGE_KEY = 'surgery-cases-species-filter';
 
-export default function CasesSpeciesFilter({
-  selectedSpecies,
-  onSpeciesChange,
-}: CasesSpeciesFilterProps) {
+const SPECIES_OPTIONS = [
+  { value: SpeciesEnum.canine, label: 'Canine', icon: '/assets/Dog icon.ico' },
+  { value: SpeciesEnum.feline, label: 'Feline', icon: '/assets/Cat icon.ico' },
+  { value: SpeciesEnum.other, label: 'Other', icon: '/assets/Other icon.ico' },
+];
+
+export default function CasesSpeciesFilter({ selectedSpecies, onSpeciesChange }: CasesSpeciesFilterProps) {
+  const [open, setOpen] = useState(false);
+
   // Load from session storage on mount
   useEffect(() => {
     const stored = sessionStorage.getItem(STORAGE_KEY);
@@ -53,46 +57,42 @@ export default function CasesSpeciesFilter({
   const activeCount = selectedSpecies.size;
 
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="outline" className="gap-2">
-          <Filter className="h-4 w-4" />
+        <Button variant="outline" size="sm" className="flex items-center gap-1.5">
+          <Filter className="w-3.5 h-3.5" />
           Species
           {activeCount > 0 && (
-            <span className="ml-1 rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">
+            <span className="ml-1 bg-primary text-primary-foreground rounded-full w-4 h-4 text-xs flex items-center justify-center">
               {activeCount}
             </span>
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-56" align="start">
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h4 className="font-medium text-sm">Filter by Species</h4>
-            {activeCount > 0 && (
-              <Button variant="ghost" size="sm" onClick={handleClear} className="h-auto p-1 text-xs">
-                Clear
-              </Button>
-            )}
-          </div>
-          <div className="space-y-3">
-            {SPECIES_OPTIONS.map((option) => (
-              <div key={option.value} className="flex items-center space-x-2">
-                <Checkbox
-                  id={`species-${option.value}`}
-                  checked={selectedSpecies.has(option.value as Species)}
-                  onCheckedChange={() => handleToggle(option.value as Species)}
-                />
-                <Label
-                  htmlFor={`species-${option.value}`}
-                  className="text-sm font-normal cursor-pointer"
-                >
-                  {option.label}
-                </Label>
-              </div>
-            ))}
-          </div>
+      <PopoverContent className="w-48 p-2" align="start">
+        <div className="flex flex-col gap-1">
+          {SPECIES_OPTIONS.map(opt => (
+            <label
+              key={opt.value}
+              className="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-muted cursor-pointer"
+            >
+              <Checkbox
+                checked={selectedSpecies.has(opt.value)}
+                onCheckedChange={() => handleToggle(opt.value)}
+              />
+              <img src={opt.icon} alt={opt.label} className="w-5 h-5 object-contain" />
+              <span className="text-sm">{opt.label}</span>
+            </label>
+          ))}
         </div>
+        {activeCount > 0 && (
+          <button
+            onClick={handleClear}
+            className="mt-2 w-full text-xs text-muted-foreground hover:text-foreground text-center"
+          >
+            Clear filters
+          </button>
+        )}
       </PopoverContent>
     </Popover>
   );

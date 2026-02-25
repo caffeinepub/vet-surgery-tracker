@@ -1,54 +1,60 @@
 {
   "kind": "build_request",
-  "title": "Fix Version 78 regressions: cases not displaying and broken app logo",
+  "title": "Restore 'New Case' button and functionality from version 77",
   "projectName": "SurgiPaw",
   "priority": "high",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Restore the cases list display so that existing cases are visible in the Cases view. In Version 78, the list shows 'No cases found' even though cases existed and displayed correctly in Version 77. Audit changes made in Version 78 to CasesListView, filtering, search, and query hooks, and revert or fix any logic that incorrectly filters out or fails to load cases.",
+      "text": "Restore the 'New Case' button in CasesListView.tsx as it existed in version 77, including the button's visual appearance, placement, and click handler that opens the CaseFormDialog.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-latest"
+          "msg-5"
         ],
         "quotes": [
-          "Cases were displaying correctly in Version 77. In Version 78 it says No cases found."
+          "Bring back the \"New Case\" functionality and button from version 77"
         ]
       },
       "acceptanceCriteria": [
-        "Cases that exist in the backend are rendered in the cases list view without any filtering accidentally excluding them.",
-        "The 'No cases found' message only appears when there are genuinely no cases stored.",
-        "All filtering, search, and sort controls continue to work as expected after the fix."
+        "A 'New Case' button is visible in the cases list view",
+        "Clicking the button opens the CaseFormDialog modal",
+        "The button is styled and positioned consistently with the rest of the UI"
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Fix the broken app logo in the top-left corner of the navigation header. The image is rendering as a broken image placeholder (paper icon with a line through it). Locate the logo asset reference in App.tsx and ensure the correct image path or inline SVG/component is used so the logo displays properly.",
+      "text": "Restore the full 'New Case' form functionality in CaseFormDialog.tsx as it existed in version 77, including form fields (MRN, dates, patient info, notes), form validation, speech-to-text quick-fill, AI-assisted structured text parsing, previous-case lookup, checklist task selection, and case submission via the create case mutation.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-latest"
+          "msg-5"
         ],
         "quotes": [
-          "It is the app logo; it is a paper icon with a line through it"
+          "Bring back the \"New Case\" functionality and button from version 77"
         ]
       },
       "acceptanceCriteria": [
-        "The app logo is visible and renders correctly in the top-left corner of the navigation header.",
-        "No broken image placeholder (paper icon with a line through it) is shown.",
-        "The logo displays consistently across the Dashboard, Cases, and Settings views."
+        "CaseFormDialog opens when triggered from the 'New Case' button",
+        "All form fields (MRN, dates, patient info, species, sex, notes) are present and functional",
+        "Form validation prevents submission of incomplete or invalid data",
+        "Speech-to-text quick-fill feature is present and functional",
+        "AI-assisted structured text parsing is available",
+        "Checklist task selection is available during case creation",
+        "Submitting the form creates a new surgery case via the backend mutation",
+        "After successful creation the dialog closes and the new case appears in the list"
       ]
     }
   ],
   "constraints": [
-    "Do not introduce new features or UI changes beyond fixing the two identified regressions.",
-    "Preserve all Version 78 improvements (species icons, compact cards, relocated + New Case button, updated search) except where they are the direct cause of the regressions."
+    "Do not modify any immutable frontend paths (useInternetIdentity.ts, useActor.ts, main.tsx, components/ui)",
+    "Do not alter backend data models or CRUD logic — only frontend restoration is needed",
+    "Preserve all existing case display and filter logic restored in version 82"
   ],
   "nonGoals": [
-    "Redesigning or restyling the app logo.",
-    "Changes to backend data models or CRUD operations.",
-    "Adding new filtering or sorting options."
+    "Adding new fields or features to the New Case form beyond what existed in version 77",
+    "Modifying backend actor or data schema",
+    "Changing the case list display or filter behavior"
   ],
   "imageRequirements": {
     "required": [],

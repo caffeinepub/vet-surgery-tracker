@@ -1,57 +1,42 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Fix Version 78 Regressions: Cases Display and App Logo",
+  "title": "Restore 'New Case' button and functionality from version 77",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Restore cases list display by auditing and fixing filtering, search, and query logic that incorrectly filters out or fails to load existing cases",
+      "summary": "Restore the 'New Case' button in CasesListView.tsx as it existed in version 77, including the button's visual appearance, placement, and click handler that opens the CaseFormDialog",
       "acceptanceCriteria": [
-        "Cases that exist in the backend are rendered in the cases list view without any filtering accidentally excluding them.",
-        "The 'No cases found' message only appears when there are genuinely no cases stored.",
-        "All filtering, search, and sort controls continue to work as expected after the fix."
+        "A 'New Case' button is visible in the cases list view",
+        "Clicking the button opens the CaseFormDialog modal",
+        "The button is styled and positioned consistently with the rest of the UI"
       ],
       "file_operations": [
         {
           "path": "frontend/src/features/cases/components/CasesListView.tsx",
           "operation": "modify",
-          "description": "Audit the filter chain (species filter, tasks filter, completion status filter, search filter) to identify logic that incorrectly excludes valid cases. Ensure the initial state or default filter values do not accidentally filter out all cases. Add defensive checks to handle empty or undefined filter states gracefully. Verify that the filtered cases logic correctly handles cases when no filters are active."
-        },
-        {
-          "path": "frontend/src/hooks/useQueries.ts",
-          "operation": "modify",
-          "description": "Review the useGetAllCases hook to ensure it correctly fetches and returns all cases from the backend. Verify that the query is enabled when the actor is available and that error states are properly handled. Ensure the hook does not inadvertently return an empty array when cases exist in the backend."
-        },
-        {
-          "path": "frontend/src/features/cases/filtering.ts",
-          "operation": "modify",
-          "description": "Review filterCasesBySpecies, filterCasesByIncompleteTasks, and related filter functions to ensure they do not incorrectly exclude cases. Verify that when no species or task filters are selected (empty arrays), the functions return all cases instead of filtering everything out. Add explicit handling for empty filter arrays to pass through all cases."
-        },
-        {
-          "path": "frontend/src/features/cases/search.ts",
-          "operation": "modify",
-          "description": "Audit the searchCases function to ensure it correctly matches cases when the search query is empty or whitespace-only. Verify that an empty search term returns all cases unchanged. Check for any edge cases in string matching that might exclude valid cases."
-        },
-        {
-          "path": "frontend/src/utils/urlParams.ts",
-          "operation": "modify",
-          "description": "Review URL parameter and sessionStorage handling for filter state persistence. Ensure that persisted filter values from previous sessions do not inadvertently exclude all cases on page load. Add logic to validate and sanitize persisted filter values, falling back to safe defaults (no filters active) if invalid state is detected."
+          "description": "Add the 'New Case' button to the CasesListView header section alongside existing search/filter/sort controls. Add state management for the CaseFormDialog open/close state using useState. Add a handleCreateCase callback that sets the dialog open state to true. Wire the button's onClick handler to open the CaseFormDialog. Position the button prominently in the toolbar area with consistent styling (primary color, appropriate padding, icon if needed). Ensure the button is only visible to authenticated users with appropriate permissions."
         }
       ]
     },
     {
       "id": "REQ-2",
-      "summary": "Fix the broken app logo in the navigation header by using a valid image asset or inline SVG component",
+      "summary": "Restore the full 'New Case' form functionality in CaseFormDialog.tsx as it existed in version 77, including form fields, validation, speech-to-text quick-fill, AI-assisted structured text parsing, previous-case lookup, checklist task selection, and case submission via the create case mutation",
       "acceptanceCriteria": [
-        "The app logo is visible and renders correctly in the top-left corner of the navigation header.",
-        "No broken image placeholder (paper icon with a line through it) is shown.",
-        "The logo displays consistently across the Dashboard, Cases, and Settings views."
+        "CaseFormDialog opens when triggered from the 'New Case' button",
+        "All form fields (MRN, dates, patient info, species, sex, notes) are present and functional",
+        "Form validation prevents submission of incomplete or invalid data",
+        "Speech-to-text quick-fill feature is present and functional",
+        "AI-assisted structured text parsing is available",
+        "Checklist task selection is available during case creation",
+        "Submitting the form creates a new surgery case via the backend mutation",
+        "After successful creation the dialog closes and the new case appears in the list"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/App.tsx",
+          "path": "frontend/src/features/cases/components/CaseFormDialog.tsx",
           "operation": "modify",
-          "description": "Replace the broken `/assets/logo.png` reference with a valid logo asset path. Use one of the existing generated icon assets from the workspace: `frontend/public/assets/generated/surgery-case-log-icon.dim_512x512.png` for a high-quality logo, or `frontend/public/assets/generated/favicon-192x192.dim_192x192.png` for a smaller icon. Update the img src attribute to use the correct path (e.g., `/assets/generated/surgery-case-log-icon.dim_512x512.png`) and ensure appropriate width/height styling is applied for the header size."
+          "description": "Restore all form functionality including: form state management for all case fields (medicalRecordNumber, arrivalDate, petName, ownerLastName, species, breed, sex, dateOfBirth, presentingComplaint, notes), task selection state using TaskOptions interface. Restore form validation logic that checks required fields before enabling submission. Restore speech-to-text integration using the useSpeechRecognition hook with UI controls (record button, status indicator, transcript display). Restore AI-assisted structured text parsing feature that analyzes captured/transcribed text and auto-fills form fields via parseStructuredText utility. Restore previous-case lookup functionality that searches for cases by MRN using getCaseByMedicalRecordNumber and offers to pre-fill owner/patient data. Restore ChecklistEditor component integration in creation mode for task selection. Wire form submission to useCreateCase mutation hook with proper error handling. Add success handling that closes dialog, clears form state, and triggers case list refresh. Ensure dialog can be opened/closed via props and handles all edge cases (validation errors, API errors, loading states)."
         }
       ]
     }

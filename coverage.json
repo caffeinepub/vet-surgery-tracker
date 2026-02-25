@@ -1,40 +1,34 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-25T01:13:16.733Z",
+  "generatedAt": "2026-02-25T04:36:57.197Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
     "total": 2,
-    "implemented": 2,
+    "implemented": 1,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Restore the cases list display so that existing cases are visible in the Cases view. In Version 78, the list shows 'No cases found' even though cases existed and displayed correctly in Version 77. Audit changes made in Version 78 to CasesListView, filtering, search, and query hooks, and revert or fix any logic that incorrectly filters out or fails to load cases.",
+        "summary": "Restore the 'New Case' button in CasesListView.tsx as it existed in version 77, including the button's visual appearance, placement, and click handler that opens the CaseFormDialog.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/features/cases/components/CasesListView.tsx",
-          "frontend/src/hooks/useQueries.ts",
-          "frontend/src/features/cases/filtering.ts",
-          "frontend/src/features/cases/search.ts",
-          "frontend/src/utils/urlParams.ts"
+          "frontend/src/features/cases/components/CasesListView.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/features/cases/filtering.ts"
+          "frontend/src/features/cases/components/CasesListView.tsx"
         ]
       },
       {
         "id": "REQ-2",
-        "summary": "Fix the broken app logo in the top-left corner of the navigation header. The image is rendering as a broken image placeholder (paper icon with a line through it). Locate the logo asset reference in App.tsx and ensure the correct image path or inline SVG/component is used so the logo displays properly.",
-        "status": "implemented",
+        "summary": "Restore the full 'New Case' form functionality in CaseFormDialog.tsx as it existed in version 77, including form fields (MRN, dates, patient info, notes), form validation, speech-to-text quick-fill, AI-assisted structured text parsing, previous-case lookup, checklist task selection, and case submission via the create case mutation.",
+        "status": "missing",
         "plannedFiles": [
-          "frontend/src/App.tsx"
+          "frontend/src/features/cases/components/CaseFormDialog.tsx"
         ],
-        "matchedFiles": [
-          "frontend/src/App.tsx"
-        ]
+        "matchedFiles": []
       }
     ]
   },
@@ -43,8 +37,7 @@
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/App.tsx",
-    "frontend/src/features/cases/filtering.ts",
+    "frontend/src/features/cases/components/CasesListView.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",
