@@ -6,12 +6,16 @@ import CasesSearchBar from '../../cases/components/CasesSearchBar';
 import CasesSpeciesFilter from '../../cases/components/CasesSpeciesFilter';
 import CasesTasksFilter from '../../cases/components/CasesTasksFilter';
 import CasesSortControl from '../../cases/components/CasesSortControl';
+import CaseFormDialog from '../../cases/components/CaseFormDialog';
 import { searchCases } from '../../cases/search';
 import { filterCasesBySpecies, filterCasesByTaskTypes, filterOutCompletedCases } from '../../cases/filtering';
 import { sortCases, SORT_OPTIONS } from '../../cases/sorting';
 import type { SortOption } from '../../cases/sorting';
 import { CHECKLIST_ITEMS } from '../../cases/checklist';
+import { generateCasePdf } from '../../cases/pdf/generateCasePdf';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
+import { Plus, Download } from 'lucide-react';
 import { getTotalOpenTasksCount } from '../utils/openTasksCalculation';
 
 interface DashboardViewProps {
@@ -26,6 +30,7 @@ export default function DashboardView({ onNavigateToCase }: DashboardViewProps) 
   const [selectedSpecies, setSelectedSpecies] = useState<Set<Species>>(new Set());
   const [selectedTaskTypes, setSelectedTaskTypes] = useState<Set<string>>(new Set());
   const [sortOption, setSortOption] = useState<SortOption>(SORT_OPTIONS[0].value);
+  const [newCaseOpen, setNewCaseOpen] = useState(false);
 
   const handleTaskClick = async (caseId: bigint, taskKey: string, completed: boolean) => {
     const surgeryCase = cases.find(c => c.id === caseId);
@@ -40,6 +45,10 @@ export default function DashboardView({ onNavigateToCase }: DashboardViewProps) 
     };
 
     await updateTask.mutateAsync({ id: caseId, task: updatedTask });
+  };
+
+  const handleExportPdf = () => {
+    generateCasePdf(cases);
   };
 
   // Apply filters
@@ -63,15 +72,36 @@ export default function DashboardView({ onNavigateToCase }: DashboardViewProps) 
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Stats bar */}
-      <div className="flex items-center gap-4">
-        <div className="bg-card border border-border rounded-lg px-5 py-3 flex flex-col">
-          <span className="text-2xl font-bold text-foreground">{filtered.length}</span>
-          <span className="text-xs text-muted-foreground">Active Cases</span>
+      {/* Header row: Stats + action buttons */}
+      <div className="flex items-center justify-between gap-4 flex-wrap">
+        <div className="flex items-center gap-4">
+          <div className="bg-card border border-border rounded-lg px-5 py-3 flex flex-col">
+            <span className="text-2xl font-bold text-foreground">{filtered.length}</span>
+            <span className="text-xs text-muted-foreground">Active Cases</span>
+          </div>
+          <div className="bg-card border border-border rounded-lg px-5 py-3 flex flex-col">
+            <span className="text-2xl font-bold text-foreground">{totalOpenTasks}</span>
+            <span className="text-xs text-muted-foreground">Open Tasks</span>
+          </div>
         </div>
-        <div className="bg-card border border-border rounded-lg px-5 py-3 flex flex-col">
-          <span className="text-2xl font-bold text-foreground">{totalOpenTasks}</span>
-          <span className="text-xs text-muted-foreground">Open Tasks</span>
+
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            onClick={handleExportPdf}
+            className="flex items-center gap-1"
+            title="Export cases with outstanding tasks to PDF"
+          >
+            <Download className="h-4 w-4" />
+            Export PDF
+          </Button>
+          <Button
+            onClick={() => setNewCaseOpen(true)}
+            className="flex items-center gap-1"
+          >
+            <Plus className="h-4 w-4" />
+            New Case
+          </Button>
         </div>
       </div>
 
@@ -91,7 +121,7 @@ export default function DashboardView({ onNavigateToCase }: DashboardViewProps) 
         <CasesSortControl value={sortOption} onSortChange={setSortOption} />
       </div>
 
-      {/* Cases grid - larger cards (dashboard size = 50% bigger) */}
+      {/* Cases grid */}
       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {Array.from({ length: 6 }).map((_, i) => (
@@ -119,6 +149,12 @@ export default function DashboardView({ onNavigateToCase }: DashboardViewProps) 
           ))}
         </div>
       )}
+
+      {/* New Case Dialog */}
+      <CaseFormDialog
+        open={newCaseOpen}
+        onOpenChange={setNewCaseOpen}
+      />
     </div>
   );
 }

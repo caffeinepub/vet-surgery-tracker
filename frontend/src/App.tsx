@@ -5,13 +5,12 @@ import LoginButton from './features/auth/components/LoginButton';
 import ProfileSetupModal from './features/auth/components/ProfileSetupModal';
 import DashboardView from './features/dashboard/components/DashboardView';
 import CasesListView from './features/cases/components/CasesListView';
-import SettingsView from './features/settings/components/SettingsView';
-import { LayoutDashboard, FolderOpen, Settings } from 'lucide-react';
+import { LayoutDashboard, FolderOpen } from 'lucide-react';
 
 export default function App() {
   const { identity, isInitializing } = useInternetIdentity();
   const isAuthenticated = !!identity;
-  const [currentView, setCurrentView] = useState<'dashboard' | 'cases' | 'settings'>('dashboard');
+  const [currentView, setCurrentView] = useState<'dashboard' | 'cases'>('dashboard');
   const [highlightCaseId, setHighlightCaseId] = useState<bigint | null>(null);
 
   const { data: userProfile, isLoading: profileLoading, isFetched } = useGetCallerUserProfile();
@@ -79,17 +78,6 @@ export default function App() {
               <FolderOpen className="w-4 h-4" />
               <span className="hidden sm:inline">Cases</span>
             </button>
-            <button
-              onClick={() => setCurrentView('settings')}
-              className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                currentView === 'settings'
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-muted'
-              }`}
-            >
-              <Settings className="w-4 h-4" />
-              <span className="hidden sm:inline">Settings</span>
-            </button>
           </nav>
 
           <div className="flex items-center gap-2">
@@ -112,7 +100,6 @@ export default function App() {
             onHighlightClear={() => setHighlightCaseId(null)}
           />
         )}
-        {currentView === 'settings' && <SettingsView />}
       </main>
 
       {/* Footer */}

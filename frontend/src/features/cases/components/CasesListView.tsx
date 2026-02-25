@@ -10,10 +10,11 @@ import CasesTasksFilter from './CasesTasksFilter';
 import CasesSortControl from './CasesSortControl';
 import CsvImportExportPanel from './CsvImportExportPanel';
 import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
+import { Plus, Download } from 'lucide-react';
 import { searchCases } from '../search';
 import { filterCasesBySpecies, filterCasesByTaskTypes, filterCasesByAllTasksCompleted, filterOutCompletedCases } from '../filtering';
 import { sortCases, SortOption } from '../sorting';
+import { generateCasePdf } from '../pdf/generateCasePdf';
 
 interface CasesListViewProps {
   highlightCaseId?: bigint | null;
@@ -65,6 +66,10 @@ export default function CasesListView({ highlightCaseId, onHighlightClear }: Cas
 
   filtered = sortCases(filtered, sortOption);
 
+  const handleExportPdf = () => {
+    generateCasePdf(cases);
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-16">
@@ -95,6 +100,15 @@ export default function CasesListView({ highlightCaseId, onHighlightClear }: Cas
           onSortChange={setSortOption}
         />
         <CsvImportExportPanel cases={cases} />
+        <Button
+          variant="outline"
+          onClick={handleExportPdf}
+          className="flex items-center gap-1"
+          title="Export cases with outstanding tasks to PDF"
+        >
+          <Download className="h-4 w-4" />
+          Export PDF
+        </Button>
         <Button
           onClick={() => setNewCaseOpen(true)}
           className="flex items-center gap-1"

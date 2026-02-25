@@ -1,60 +1,89 @@
 {
   "kind": "build_request",
-  "title": "Restore 'New Case' button and functionality from version 77",
+  "title": "Task icons with color coding, presenting complaint on dashboard, and PDF export",
   "projectName": "SurgiPaw",
-  "priority": "high",
+  "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Restore the 'New Case' button in CasesListView.tsx as it existed in version 77, including the button's visual appearance, placement, and click handler that opens the CaseFormDialog.",
+      "text": "On the Dashboard view, display the presenting complaint as visible information on each case card/entry, alongside the existing patient info (MRN, name, species, etc.).",
       "target": "frontend",
       "source": {
         "messageIds": [
+          "msg-3",
           "msg-5"
         ],
         "quotes": [
-          "Bring back the \"New Case\" functionality and button from version 77"
+          "On the Dashboard page include the presenting complaint in visible information",
+          "On the Dashboard include presenting complaint"
         ]
       },
       "acceptanceCriteria": [
-        "A 'New Case' button is visible in the cases list view",
-        "Clicking the button opens the CaseFormDialog modal",
-        "The button is styled and positioned consistently with the rest of the UI"
+        "The presenting complaint field is visible on each case entry on the Dashboard without requiring expansion or interaction.",
+        "If a case has no presenting complaint, the field is either hidden or shows a graceful placeholder."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Restore the full 'New Case' form functionality in CaseFormDialog.tsx as it existed in version 77, including form fields (MRN, dates, patient info, notes), form validation, speech-to-text quick-fill, AI-assisted structured text parsing, previous-case lookup, checklist task selection, and case submission via the create case mutation.",
+      "text": "Replace the open dot indicators for checklist tasks on both the Dashboard and Cases pages with meaningful icons chosen based on task type, styled with the following color scheme: Green (#22c55e) for Discharge Notes, Yellow (#eab308) for pDVM Notified, Orange (#f97316) for Labs, Purple (#a855f7) for Histo, Blue (#3b82f6) for Imaging, Red (#ef4444) for Surgery Report, Pink (#ec4899) for Culture. Use the same color-coded icon system in the ChecklistEditor and CaseCard components. Icons should be sourced from an existing icon library (e.g., lucide-react) and chosen to visually represent each task type (e.g., a file/clipboard icon for Discharge Notes, a microscope or flask for Labs, a camera or scan for Imaging, etc.).",
       "target": "frontend",
       "source": {
         "messageIds": [
+          "msg-3",
           "msg-5"
         ],
         "quotes": [
-          "Bring back the \"New Case\" functionality and button from version 77"
+          "Change open dots to icons for the various tasks, same on the cases page",
+          "Choose the icons based on the task types and make them using the following color guide: Green — Discharge Notes, Yellow — pDVM Notified, Orange — Labs, Purple — Histo, Blue — Imaging, Red — Surgery Report, Pink — Culture"
         ]
       },
       "acceptanceCriteria": [
-        "CaseFormDialog opens when triggered from the 'New Case' button",
-        "All form fields (MRN, dates, patient info, species, sex, notes) are present and functional",
-        "Form validation prevents submission of incomplete or invalid data",
-        "Speech-to-text quick-fill feature is present and functional",
-        "AI-assisted structured text parsing is available",
-        "Checklist task selection is available during case creation",
-        "Submitting the form creates a new surgery case via the backend mutation",
-        "After successful creation the dialog closes and the new case appears in the list"
+        "Each task type on the Dashboard and Cases pages is represented by a distinct icon (not a dot).",
+        "Each icon is rendered in the specified color for its task type.",
+        "The same icon+color system is used consistently across the Dashboard, Cases list, CaseCard, and ChecklistEditor components.",
+        "Completed tasks are visually distinguishable from incomplete ones (e.g., dimmed, strikethrough, or checkmark overlay).",
+        "The CHECKLIST_ITEMS definitions in checklist.ts are updated with the correct icon and color for each task type."
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Add a Download/Export PDF button that generates a table-formatted PDF report of all cases that have remaining (incomplete) tasks. The report must include all case fields: MRN, patient name, presenting complaint, species, sex, age, arrival date, surgery date, attending clinician, and the list of outstanding tasks per case. Each outstanding task should be displayed using its task label. The PDF should use a landscape table layout. Implement this using the existing generateCasePdf.ts infrastructure or extend it as needed.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-3",
+          "msg-5"
+        ],
+        "quotes": [
+          "Add ability to export cases with remaining tasks to a table formatted PDF",
+          "Download button to generate a PDF report",
+          "Table/case card format showing all case fields (MRN, name, outstanding tasks, etc.)",
+          "Displays all cases with their remaining tasks"
+        ]
+      },
+      "acceptanceCriteria": [
+        "A clearly labeled Download or Export PDF button is visible on the Dashboard or Cases page.",
+        "Clicking the button generates and triggers download/print of a PDF report.",
+        "The PDF contains a table with columns for all case fields: MRN, patient name, presenting complaint, species, sex, age, arrival date, surgery date, attending clinician, and outstanding tasks.",
+        "Only cases with at least one remaining (incomplete) task are included in the report.",
+        "Outstanding tasks are listed per case using their human-readable task labels.",
+        "The PDF uses a landscape orientation and table layout for readability."
       ]
     }
   ],
   "constraints": [
-    "Do not modify any immutable frontend paths (useInternetIdentity.ts, useActor.ts, main.tsx, components/ui)",
-    "Do not alter backend data models or CRUD logic — only frontend restoration is needed",
-    "Preserve all existing case display and filter logic restored in version 82"
+    "Do not modify any files under frontend/src/hooks/ (immutable paths).",
+    "Do not modify files under frontend/src/components/ui (immutable paths).",
+    "All icon choices must come from an already-available icon library (e.g., lucide-react) — do not add new external dependencies unless strictly necessary.",
+    "Color values for task icons must match the specified color guide exactly: Green=Discharge Notes, Yellow=pDVM Notified, Orange=Labs, Purple=Histo, Blue=Imaging, Red=Surgery Report, Pink=Culture.",
+    "No backend changes are required for these features."
   ],
   "nonGoals": [
-    "Adding new fields or features to the New Case form beyond what existed in version 77",
-    "Modifying backend actor or data schema",
-    "Changing the case list display or filter behavior"
+    "Adding new task types not already defined in checklist.ts.",
+    "Changing the PDF export to a server-side rendering approach.",
+    "Modifying the authentication or user profile system.",
+    "Adding filtering or selection UI for which cases appear in the PDF (all cases with remaining tasks are always included).",
+    "Changing the CSV import/export functionality."
   ],
   "imageRequirements": {
     "required": [],

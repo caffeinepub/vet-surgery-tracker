@@ -2,7 +2,7 @@ import { useState } from 'react';
 import type { SurgeryCase, Task } from '../../../backend';
 import { Species, Sex } from '../../../backend';
 import { CHECKLIST_ITEMS, getTaskBackgroundColor } from '../checklist';
-import { Pencil } from 'lucide-react';
+import { Pencil, CheckCircle2 } from 'lucide-react';
 
 interface CaseCardProps {
   surgeryCase: SurgeryCase;
@@ -86,11 +86,11 @@ export default function CaseCard({ surgeryCase, onTaskClick, onEditClick, size =
     >
       {/* Header */}
       <div
-        className={`flex items-center gap-3 cursor-pointer select-none ${isDashboard ? 'p-4' : 'p-3'}`}
+        className={`flex items-start gap-3 cursor-pointer select-none ${isDashboard ? 'p-4' : 'p-3'}`}
         onClick={() => setExpanded(e => !e)}
       >
         {/* Species Icon */}
-        <div className="flex-shrink-0">
+        <div className="flex-shrink-0 mt-0.5">
           {getSpeciesIcon(surgeryCase.species, size)}
         </div>
 
@@ -102,7 +102,7 @@ export default function CaseCard({ surgeryCase, onTaskClick, onEditClick, size =
               {surgeryCase.ownerLastName}
             </span>
           </div>
-          <div className={`text-muted-foreground flex items-center gap-2 ${isDashboard ? 'text-sm' : 'text-xs'}`}>
+          <div className={`text-muted-foreground flex items-center gap-2 flex-wrap ${isDashboard ? 'text-sm' : 'text-xs'}`}>
             <span className="font-mono">{surgeryCase.medicalRecordNumber}</span>
             <span>·</span>
             <span>{formatSex(surgeryCase.sex)}</span>
@@ -112,30 +112,48 @@ export default function CaseCard({ surgeryCase, onTaskClick, onEditClick, size =
                 <span>{formatAge(surgeryCase.dateOfBirth)}</span>
               </>
             )}
+            <span>·</span>
+            <span>{formatDate(surgeryCase.arrivalDate)}</span>
           </div>
+          {/* Presenting Complaint — always visible */}
+          {surgeryCase.presentingComplaint && surgeryCase.presentingComplaint.trim() ? (
+            <div className={`mt-1 text-foreground/80 truncate ${isDashboard ? 'text-sm' : 'text-xs'}`}>
+              <span className="font-medium text-muted-foreground">Complaint:</span>{' '}
+              <span>{surgeryCase.presentingComplaint}</span>
+            </div>
+          ) : (
+            <div className={`mt-1 italic text-muted-foreground/60 ${isDashboard ? 'text-sm' : 'text-xs'}`}>
+              No complaint recorded
+            </div>
+          )}
         </div>
 
-        {/* Task dots */}
-        <div className="flex flex-wrap gap-1 justify-end max-w-[80px]">
+        {/* Task icons */}
+        <div className="flex flex-wrap gap-1 justify-end max-w-[90px] flex-shrink-0">
           {selectedTasks.map(item => {
             const isCompleted = getTaskField(surgeryCase.task, item.completedField);
+            const Icon = item.icon;
             return (
               <div
                 key={item.key}
-                className={`w-2.5 h-2.5 rounded-full border ${
-                  isCompleted
-                    ? 'bg-green-500 border-green-600'
-                    : `border-2 ${getTaskBackgroundColor(item.color)}`
-                }`}
-                title={item.key}
-              />
+                title={`${item.label}${isCompleted ? ' (completed)' : ' (pending)'}`}
+                className="relative"
+              >
+                <Icon
+                  className={`${isDashboard ? 'w-5 h-5' : 'w-4 h-4'} ${
+                    isCompleted
+                      ? 'opacity-30'
+                      : item.iconColorClass
+                  }`}
+                />
+                {isCompleted && (
+                  <CheckCircle2
+                    className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 text-green-500"
+                  />
+                )}
+              </div>
             );
           })}
-        </div>
-
-        {/* Arrival date */}
-        <div className={`text-muted-foreground flex-shrink-0 ${isDashboard ? 'text-sm' : 'text-xs'}`}>
-          {formatDate(surgeryCase.arrivalDate)}
         </div>
 
         {/* Edit button */}
@@ -158,12 +176,6 @@ export default function CaseCard({ surgeryCase, onTaskClick, onEditClick, size =
               <span className="font-medium text-foreground">Breed:</span> {surgeryCase.breed}
             </div>
           )}
-          {surgeryCase.presentingComplaint && (
-            <div className={`mb-2 ${isDashboard ? 'text-sm' : 'text-xs'}`}>
-              <span className="font-medium text-foreground">Complaint:</span>{' '}
-              <span className="text-muted-foreground">{surgeryCase.presentingComplaint}</span>
-            </div>
-          )}
           {surgeryCase.notes && (
             <div className={`mb-3 ${isDashboard ? 'text-sm' : 'text-xs'}`}>
               <span className="font-medium text-foreground">Notes:</span>{' '}
@@ -171,22 +183,26 @@ export default function CaseCard({ surgeryCase, onTaskClick, onEditClick, size =
             </div>
           )}
 
-          {/* Task pills */}
+          {/* Task pills with icons */}
           {selectedTasks.length > 0 && (
             <div className="flex flex-wrap gap-1.5 mt-2">
               {selectedTasks.map(item => {
                 const isCompleted = getTaskField(surgeryCase.task, item.completedField);
+                const Icon = item.icon;
                 return (
                   <button
                     key={item.key}
                     onClick={() => onTaskClick?.(surgeryCase.id, item.key, !isCompleted)}
-                    className={`px-2 py-0.5 rounded-full text-xs font-medium border transition-colors ${
+                    className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border transition-colors ${
                       isCompleted
-                        ? 'bg-green-100 border-green-300 text-green-800 line-through'
+                        ? 'bg-green-100 border-green-300 text-green-800 line-through opacity-60'
                         : `${getTaskBackgroundColor(item.color)} border-current text-foreground hover:opacity-80`
                     }`}
                   >
-                    {item.key}
+                    <Icon
+                      className={`w-3 h-3 flex-shrink-0 ${isCompleted ? 'text-green-600' : item.iconColorClass}`}
+                    />
+                    {item.label}
                   </button>
                 );
               })}

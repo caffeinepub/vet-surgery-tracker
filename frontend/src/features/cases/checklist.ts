@@ -1,4 +1,14 @@
 import type { Task } from '../../backend';
+import type { LucideIcon } from 'lucide-react';
+import {
+  FileText,
+  Phone,
+  FlaskConical,
+  Microscope,
+  ScanLine,
+  ClipboardList,
+  TestTube,
+} from 'lucide-react';
 
 export interface ChecklistItem {
   key: string;
@@ -7,64 +17,80 @@ export interface ChecklistItem {
   selectedField: keyof Task;
   completedField: keyof Task;
   color: string;
+  icon: LucideIcon;
+  iconColorClass: string;
 }
 
 export const CHECKLIST_ITEMS: ChecklistItem[] = [
-  { 
-    key: 'dischargeNotes', 
-    label: 'Discharge Notes', 
+  {
+    key: 'dischargeNotes',
+    label: 'Discharge Notes',
     defaultSelected: true,
     selectedField: 'dischargeNotesSelected',
     completedField: 'dischargeNotesCompleted',
-    color: 'green'
+    color: 'green',
+    icon: FileText,
+    iconColorClass: 'text-green-500',
   },
-  { 
-    key: 'pdvmNotified', 
-    label: 'pDVM Notified', 
+  {
+    key: 'pdvmNotified',
+    label: 'pDVM Notified',
     defaultSelected: true,
     selectedField: 'pdvmNotifiedSelected',
     completedField: 'pdvmNotifiedCompleted',
-    color: 'yellow'
+    color: 'yellow',
+    icon: Phone,
+    iconColorClass: 'text-yellow-500',
   },
-  { 
-    key: 'labs', 
-    label: 'Labs', 
+  {
+    key: 'labs',
+    label: 'Labs',
     defaultSelected: false,
     selectedField: 'labsSelected',
     completedField: 'labsCompleted',
-    color: 'orange'
+    color: 'orange',
+    icon: FlaskConical,
+    iconColorClass: 'text-orange-500',
   },
-  { 
-    key: 'histo', 
-    label: 'Histo', 
+  {
+    key: 'histo',
+    label: 'Histo',
     defaultSelected: false,
     selectedField: 'histoSelected',
     completedField: 'histoCompleted',
-    color: 'purple'
+    color: 'purple',
+    icon: Microscope,
+    iconColorClass: 'text-purple-500',
   },
-  { 
-    key: 'surgeryReport', 
-    label: 'Surgery Report', 
+  {
+    key: 'surgeryReport',
+    label: 'Surgery Report',
     defaultSelected: false,
     selectedField: 'surgeryReportSelected',
     completedField: 'surgeryReportCompleted',
-    color: 'red'
+    color: 'red',
+    icon: ClipboardList,
+    iconColorClass: 'text-red-500',
   },
-  { 
-    key: 'imaging', 
-    label: 'Imaging', 
+  {
+    key: 'imaging',
+    label: 'Imaging',
     defaultSelected: false,
     selectedField: 'imagingSelected',
     completedField: 'imagingCompleted',
-    color: 'blue'
+    color: 'blue',
+    icon: ScanLine,
+    iconColorClass: 'text-blue-500',
   },
-  { 
-    key: 'culture', 
-    label: 'Culture', 
+  {
+    key: 'culture',
+    label: 'Culture',
     defaultSelected: false,
     selectedField: 'cultureSelected',
     completedField: 'cultureCompleted',
-    color: 'pink'
+    color: 'pink',
+    icon: TestTube,
+    iconColorClass: 'text-pink-500',
   },
 ];
 
@@ -93,6 +119,8 @@ export interface RemainingItem {
   selectedField: keyof Task;
   completedField: keyof Task;
   color: string;
+  icon: LucideIcon;
+  iconColorClass: string;
 }
 
 export function getRemainingChecklistItems(task: Task): RemainingItem[] {
@@ -106,6 +134,8 @@ export function getRemainingChecklistItems(task: Task): RemainingItem[] {
     selectedField: item.selectedField,
     completedField: item.completedField,
     color: item.color,
+    icon: item.icon,
+    iconColorClass: item.iconColorClass,
   }));
 }
 

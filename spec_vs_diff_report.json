@@ -1,14 +1,36 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-25T04:36:57.194Z",
-  "summary": "The diff shows that REQ-1 (New Case button in CasesListView.tsx) is clearly implemented. REQ-2 (CaseFormDialog.tsx full functionality) is referenced in the file summaries as restored but the actual CaseFormDialog.tsx diff content is not directly shown — only its summary entry confirms it exists with the required features. The CasesListView.tsx diff confirms the button and dialog wiring. Overall both requirements appear addressed based on available evidence.",
-  "missing_requirements": [],
-  "hallucinated_features": [],
-  "confidence": 0.78,
+  "generatedAt": "2026-02-25T05:38:26.001Z",
+  "summary": "The diff implements most of REQ-1, REQ-2, and REQ-3. Presenting complaint is shown on CaseCard; color-coded icons are added to checklist.ts, CaseCard, and ChecklistEditor; and a PDF export button with landscape table layout is added to both DashboardView and CasesListView. However, the PDF report is missing several required columns (age, surgery date, attending clinician).",
+  "missing_requirements": [
+    {
+      "id": "REQ-3",
+      "requirement": "The PDF table must include columns for age, surgery date, and attending clinician.",
+      "reason": "The generateCasePdf.ts table rows include MRN, pet name, owner last name, species, breed, sex, arrival date, presenting complaint, and tasks — but there is no column for age, surgery date, or attending clinician, all of which are explicitly required by REQ-3.",
+      "evidence": [
+        "frontend/src/features/cases/pdf/generateCasePdf.ts"
+      ]
+    }
+  ],
+  "hallucinated_features": [
+    {
+      "description": "The PDF table includes owner last name and breed columns which were not listed as required PDF columns in the spec.",
+      "reason": "REQ-3 specifies exact columns: MRN, patient name, presenting complaint, species, sex, age, arrival date, surgery date, attending clinician, and outstanding tasks. The implementation added ownerLastName and breed while omitting age, surgery date, and attending clinician.",
+      "evidence": [
+        "frontend/src/features/cases/pdf/generateCasePdf.ts"
+      ]
+    }
+  ],
+  "confidence": 0.85,
   "changed_files": [
     "frontend-file-summaries.txt",
+    "frontend/src/features/cases/checklist.ts",
+    "frontend/src/features/cases/components/CaseCard.tsx",
     "frontend/src/features/cases/components/CasesListView.tsx",
+    "frontend/src/features/cases/components/ChecklistEditor.tsx",
+    "frontend/src/features/cases/pdf/generateCasePdf.ts",
+    "frontend/src/features/dashboard/components/DashboardView.tsx",
     "project_state.json"
   ]
 }

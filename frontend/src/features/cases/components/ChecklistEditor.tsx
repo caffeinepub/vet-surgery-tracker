@@ -15,13 +15,11 @@ export default function ChecklistEditor({ task, onChange, disabled, mode = 'comp
 
   const handleCheckboxChange = (item: typeof CHECKLIST_ITEMS[0], checked: boolean) => {
     if (isCreationMode) {
-      // In creation mode, toggle the *Selected field
       onChange({
         ...task,
         [item.selectedField]: checked,
       });
     } else {
-      // In completion mode, toggle the *Completed field
       onChange({
         ...task,
         [item.completedField]: checked,
@@ -38,8 +36,8 @@ export default function ChecklistEditor({ task, onChange, disabled, mode = 'comp
   };
 
   // In completion mode, only show tasks that are selected
-  const itemsToDisplay = isCreationMode 
-    ? CHECKLIST_ITEMS 
+  const itemsToDisplay = isCreationMode
+    ? CHECKLIST_ITEMS
     : CHECKLIST_ITEMS.filter(item => task[item.selectedField] === true);
 
   return (
@@ -48,27 +46,38 @@ export default function ChecklistEditor({ task, onChange, disabled, mode = 'comp
         {itemsToDisplay.map((item) => {
           const borderColor = getTaskBorderColor(item.color);
           const backgroundColor = getTaskBackgroundColor(item.color);
-          
+          const isChecked = getCheckboxState(item);
+          const Icon = item.icon;
+
           return (
-            <div 
-              key={item.key} 
+            <div
+              key={item.key}
               className={cn(
                 'flex items-center space-x-2 rounded-md p-2 -mx-2 border-2',
                 borderColor,
-                backgroundColor
+                backgroundColor,
+                !isCreationMode && isChecked ? 'opacity-60' : ''
               )}
             >
               <Checkbox
                 id={`checklist-${mode}-${item.key}`}
-                checked={getCheckboxState(item)}
+                checked={isChecked}
                 onCheckedChange={(checked) => handleCheckboxChange(item, checked as boolean)}
                 disabled={disabled}
+              />
+              <Icon
+                className={cn(
+                  'w-4 h-4 flex-shrink-0',
+                  item.iconColorClass,
+                  disabled ? 'opacity-50' : ''
+                )}
               />
               <Label
                 htmlFor={`checklist-${mode}-${item.key}`}
                 className={cn(
                   'text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70',
-                  disabled && 'opacity-50 cursor-not-allowed'
+                  disabled && 'opacity-50 cursor-not-allowed',
+                  !isCreationMode && isChecked ? 'line-through text-muted-foreground' : ''
                 )}
               >
                 {item.label}
@@ -82,7 +91,7 @@ export default function ChecklistEditor({ task, onChange, disabled, mode = 'comp
       </div>
       {isCreationMode && (
         <p className="text-xs text-muted-foreground mt-3 pt-3 border-t border-border">
-          Selected tasks will appear as incomplete checkboxes on the case card.
+          Selected tasks will appear as icons on the case card.
         </p>
       )}
     </div>

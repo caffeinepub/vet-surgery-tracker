@@ -407,4 +407,3 @@ actor {
     { openTasks = taskCount };
   };
 };
-
