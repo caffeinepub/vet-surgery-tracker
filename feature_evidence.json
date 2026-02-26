@@ -2,10 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-fix-the-dashboard-page-to-gracefully-handle-an-empty-canister-database-when-the-react-query-hook-returns-an-empty-array-zero-cases-display-a-clean-empty-state-ui-e-g-an-illustrated-or-icon-based-message-such-as-no-cases-yet-add-your-first-surgery-case-instead-of-a-blank-broken-list",
-      "featureTitle": "Fix the Dashboard page to gracefully handle an empty canister database: when the React Query hook returns an empty array (zero cases), display a clean empty state UI (e.g., an illustrated or icon-based message such as 'No cases yet — add your first surgery case') instead of a blank/broken list.",
+      "featureId": "feature-revert-the-data-fetching-logic-for-surgery-cases-in-the-frontend-to-the-implementation-from-version-93-this-applies-to-all-locations-where-cases-are-fetched-and-supplied-to-views-including-the-dashboard-dashboardview-tsx-and-the-cases-list-page-caseslistview-tsx-the-regression-introduced-in-version-97-caused-cases-to-not-appear-in-either-view-the-version-93-approach-must-be-restored-so-that-cases-load-and-render-correctly",
+      "featureTitle": "Revert the data-fetching logic for surgery cases in the frontend to the implementation from Version 93. This applies to all locations where cases are fetched and supplied to views, including the Dashboard (DashboardView.tsx) and the Cases list page (CasesListView.tsx). The regression introduced in Version 97 caused cases to not appear in either view; the Version 93 approach must be restored so that cases load and render correctly.",
       "files": [
-        "frontend/src/features/dashboard/components/DashboardView.tsx"
+        "frontend/src/hooks/useQueries.ts"
       ],
       "components": [
         "authorization@4.0.0",
@@ -19,27 +19,6 @@
       ],
       "testIds": [
         "REQ-1"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-fix-the-cases-list-page-caseslistview-to-gracefully-handle-an-empty-canister-database-when-the-react-query-hook-returns-an-empty-array-display-a-clean-empty-state-ui-consistent-with-the-dashboard-empty-state-rather-than-a-blank-list",
-      "featureTitle": "Fix the Cases list page (CasesListView) to gracefully handle an empty canister database: when the React Query hook returns an empty array, display a clean empty state UI consistent with the Dashboard empty state, rather than a blank list.",
-      "files": [
-        "frontend/src/features/cases/components/CasesListView.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "camera@1.0.0",
-        "http-outcalls@3.0.0"
-      ],
-      "testIds": [
-        "REQ-2"
       ],
       "confidence": "high"
     }

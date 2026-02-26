@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useActor } from './useActor';
+import { useInternetIdentity } from './useInternetIdentity';
 import type { SurgeryCase, Task, TaskOptions, TaskType, UserProfile, Dashboard, OpenAIConfig } from '../backend';
 import { Species } from '../backend';
 
@@ -7,6 +8,8 @@ import { Species } from '../backend';
 
 export function useGetAllCases() {
   const { actor, isFetching } = useActor();
+  const { identity } = useInternetIdentity();
+  const isAuthenticated = !!identity;
 
   return useQuery<SurgeryCase[]>({
     queryKey: ['cases'],
@@ -15,12 +18,16 @@ export function useGetAllCases() {
       const result = await actor.getAllCases();
       return result;
     },
-    enabled: !!actor && !isFetching,
+    enabled: !!actor && !isFetching && isAuthenticated,
+    staleTime: 0,
+    refetchOnMount: true,
   });
 }
 
 export function useGetCase(id: bigint) {
   const { actor, isFetching } = useActor();
+  const { identity } = useInternetIdentity();
+  const isAuthenticated = !!identity;
 
   return useQuery<SurgeryCase>({
     queryKey: ['cases', id.toString()],
@@ -28,7 +35,7 @@ export function useGetCase(id: bigint) {
       if (!actor) throw new Error('Actor not available');
       return actor.getCase(id);
     },
-    enabled: !!actor && !isFetching,
+    enabled: !!actor && !isFetching && isAuthenticated,
   });
 }
 
@@ -197,6 +204,8 @@ export function useUpdateCaseNotes() {
 
 export function useGetDashboard() {
   const { actor, isFetching } = useActor();
+  const { identity } = useInternetIdentity();
+  const isAuthenticated = !!identity;
 
   return useQuery<Dashboard>({
     queryKey: ['dashboard'],
@@ -204,7 +213,9 @@ export function useGetDashboard() {
       if (!actor) throw new Error('Actor not available');
       return actor.getDashboard();
     },
-    enabled: !!actor && !isFetching,
+    enabled: !!actor && !isFetching && isAuthenticated,
+    staleTime: 0,
+    refetchOnMount: true,
   });
 }
 
@@ -212,6 +223,8 @@ export function useGetDashboard() {
 
 export function useGetCallerUserProfile() {
   const { actor, isFetching: actorFetching } = useActor();
+  const { identity } = useInternetIdentity();
+  const isAuthenticated = !!identity;
 
   const query = useQuery<UserProfile | null>({
     queryKey: ['currentUserProfile'],
@@ -219,7 +232,7 @@ export function useGetCallerUserProfile() {
       if (!actor) throw new Error('Actor not available');
       return actor.getCallerUserProfile();
     },
-    enabled: !!actor && !actorFetching,
+    enabled: !!actor && !actorFetching && isAuthenticated,
     retry: false,
   });
 
@@ -249,6 +262,8 @@ export function useSaveCallerUserProfile() {
 
 export function useGetOpenAIConfig() {
   const { actor, isFetching } = useActor();
+  const { identity } = useInternetIdentity();
+  const isAuthenticated = !!identity;
 
   return useQuery<OpenAIConfig | null>({
     queryKey: ['openAIConfig'],
@@ -256,7 +271,7 @@ export function useGetOpenAIConfig() {
       if (!actor) throw new Error('Actor not available');
       return actor.getOpenAIConfig();
     },
-    enabled: !!actor && !isFetching,
+    enabled: !!actor && !isFetching && isAuthenticated,
   });
 }
 
@@ -277,6 +292,8 @@ export function useSaveOpenAIConfig() {
 
 export function useValidateOpenAIConfig() {
   const { actor, isFetching } = useActor();
+  const { identity } = useInternetIdentity();
+  const isAuthenticated = !!identity;
 
   return useQuery<boolean>({
     queryKey: ['validateOpenAIConfig'],
@@ -284,12 +301,14 @@ export function useValidateOpenAIConfig() {
       if (!actor) return false;
       return actor.validateOpenAIConfig();
     },
-    enabled: !!actor && !isFetching,
+    enabled: !!actor && !isFetching && isAuthenticated,
   });
 }
 
 export function useGetCallerUserRole() {
   const { actor, isFetching } = useActor();
+  const { identity } = useInternetIdentity();
+  const isAuthenticated = !!identity;
 
   return useQuery<import('../backend').UserRole>({
     queryKey: ['callerUserRole'],
@@ -297,12 +316,14 @@ export function useGetCallerUserRole() {
       if (!actor) throw new Error('Actor not available');
       return actor.getCallerUserRole();
     },
-    enabled: !!actor && !isFetching,
+    enabled: !!actor && !isFetching && isAuthenticated,
   });
 }
 
 export function useIsCallerAdmin() {
   const { actor, isFetching } = useActor();
+  const { identity } = useInternetIdentity();
+  const isAuthenticated = !!identity;
 
   return useQuery<boolean>({
     queryKey: ['isCallerAdmin'],
@@ -310,6 +331,6 @@ export function useIsCallerAdmin() {
       if (!actor) return false;
       return actor.isCallerAdmin();
     },
-    enabled: !!actor && !isFetching,
+    enabled: !!actor && !isFetching && isAuthenticated,
   });
 }

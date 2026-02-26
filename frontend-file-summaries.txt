@@ -1,6 +1,6 @@
 {
   "frontend/src/App.tsx": "Main application component with sticky header, navigation between Dashboard and Cases views, profile setup modal, and footer; uses named imports for DashboardView and CasesListView, and passes numeric caseId for navigation.",
-  "frontend/src/hooks/useQueries.ts": "React Query hooks for all backend operations (cases CRUD, task updates, dashboard stats, user profile, OpenAI config); fixed `useGetAllCases` and `useGetDashboard` to throw when actor is null (instead of returning empty array) so queries stay in loading state until the actor is ready.",
+  "frontend/src/hooks/useQueries.ts": "React Query hooks for all backend operations (cases CRUD, task updates, dashboard stats, user profile, OpenAI config); all authenticated queries now include `isAuthenticated` (derived from `useInternetIdentity`) in their `enabled` condition to prevent firing with the anonymous actor before login, and `useGetAllCases`/`useGetDashboard` have `staleTime: 0` and `refetchOnMount: true` to ensure fresh data loads after authentication.",
   "frontend/src/features/auth/components/LoginButton.tsx": "Login/logout button component using Internet Identity with query cache clearing on logout and default primary button styling.",
   "frontend/src/features/auth/components/ProfileSetupModal.tsx": "Modal dialog for first-time user profile setup that prompts for name on initial login using theme tokens.",
   "frontend/src/features/cases/types.ts": "TypeScript type definitions and constants for case form data, species options, and sex options.",

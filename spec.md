@@ -1,11 +1,10 @@
 # Specification
 
 ## Summary
-**Goal:** Fix empty state handling on the Dashboard and Cases list pages, and resolve duplicate agent initialization warnings in the SurgiPaw frontend.
+**Goal:** Revert the frontend data-fetching logic for surgery cases back to the Version 93 implementation to fix a regression introduced in Version 97 that caused cases to not appear.
 
 **Planned changes:**
-- Update the Dashboard page to display a clean empty state UI (with a message like "No cases yet — add your first surgery case" and a "New Case" button) when the canister returns zero cases, instead of a blank or broken area.
-- Update the Cases list page (CasesListView) to display a consistent empty state UI when the canister returns zero cases, with search/filter controls handling the empty dataset gracefully.
-- Fix the `createActor` call to pass either `agent` or `agentOptions` (not both), eliminating the "Detected both agent and agentOptions" console warning while keeping all backend queries functional.
+- Revert data-fetching hooks/queries in `DashboardView.tsx` to the Version 93 approach
+- Revert data-fetching hooks/queries in `CasesListView.tsx` to the Version 93 approach
 
-**User-visible outcome:** Users opening the app with an empty database will see friendly empty state messages with a clear call-to-action to add their first case, and the browser console will no longer show agent initialization warnings.
+**User-visible outcome:** Surgery cases load and display correctly on both the Dashboard and Cases list views after login.

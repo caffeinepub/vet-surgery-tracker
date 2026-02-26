@@ -1,52 +1,32 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Fix empty state handling and agent initialization warnings on Dashboard and Cases pages",
+  "title": "Revert Cases data-fetching logic to Version 93",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Add empty state UI to Dashboard when no cases exist",
+      "summary": "Revert the data-fetching logic for surgery cases in the frontend to the implementation from Version 93, restoring case visibility on both Dashboard and Cases list views",
       "acceptanceCriteria": [
-        "When the canister returns an empty array of cases, the Dashboard page renders a visible empty state message instead of a blank area.",
-        "The empty state is displayed without any console errors related to undefined or null case data.",
-        "A 'New Case' action (button or CTA) is visible in the empty state so users can add their first case."
+        "Surgery cases appear correctly on the Dashboard view after login.",
+        "Surgery cases appear correctly on the Cases list view after login.",
+        "The data-fetching hooks/queries used for cases match the approach from Version 93, not Version 97.",
+        "No regression is introduced to other views or features."
       ],
       "file_operations": [
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Revert the getAllCases query implementation to Version 93 approach. Ensure the query is properly enabled when the actor is available and the user is authenticated. Restore any query configuration options (staleTime, cacheTime, refetchOnMount) that were present in Version 93 but removed or changed in Version 97. Verify the query key structure matches Version 93."
+        },
         {
           "path": "frontend/src/features/dashboard/components/DashboardView.tsx",
           "operation": "modify",
-          "description": "Add conditional rendering to display an empty state component when cases.length === 0. The empty state should include an icon or illustration, a message like 'No cases yet — add your first surgery case', and a prominent 'New Case' button that opens the CaseFormDialog. Wrap the existing case list rendering in a conditional that only shows when cases.length > 0. Ensure the empty state is visually centered and uses appropriate spacing/padding for a clean appearance."
-        }
-      ]
-    },
-    {
-      "id": "REQ-2",
-      "summary": "Add empty state UI to Cases list page when no cases exist",
-      "acceptanceCriteria": [
-        "When the canister returns an empty array of cases, the Cases page renders a visible empty state message instead of a blank area.",
-        "The empty state is displayed without any console errors related to undefined or null case data.",
-        "Search and filter controls are either hidden or correctly show 'no results' if triggered on an empty dataset."
-      ],
-      "file_operations": [
+          "description": "Revert the data-fetching integration in DashboardView to Version 93 approach. Restore how the getAllCases query result is consumed, including proper handling of loading states, error states, and the data transformation pipeline. Ensure cases are passed correctly to child components and that filtering/sorting logic matches Version 93 implementation."
+        },
         {
           "path": "frontend/src/features/cases/components/CasesListView.tsx",
           "operation": "modify",
-          "description": "Add conditional rendering to display an empty state component when the original cases array (before filtering) is empty. The empty state should match the Dashboard empty state styling and include a 'New Case' button. When the original array is non-empty but the filtered array is empty, show a 'no results' message instead. Hide or disable search/filter controls when the original cases array is empty. Ensure all rendering branches handle empty arrays gracefully without accessing undefined properties."
-        }
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "summary": "Resolve duplicate agent initialization warning in actor creation",
-      "acceptanceCriteria": [
-        "The browser console no longer shows the 'Detected both agent and agentOptions' warning on any page load or actor initialization.",
-        "The actor is still created correctly and all backend queries continue to function."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/hooks/useActor.ts",
-          "operation": "modify",
-          "description": "Review the createActor call and ensure that either agent OR agentOptions is passed, but never both simultaneously. If an agent instance is already created from the identity, pass only the agent parameter. If using agentOptions to configure the agent, do not also pass a pre-created agent instance. Verify the logic ensures mutual exclusivity between these two parameters to eliminate the warning."
+          "description": "Revert the data-fetching integration in CasesListView to Version 93 approach. Restore how the getAllCases query result is consumed, including proper handling of loading states, error states, and the data transformation pipeline. Ensure cases flow correctly through the search, filter, sort, and pagination logic as implemented in Version 93."
         }
       ]
     }

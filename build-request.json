@@ -1,75 +1,37 @@
 {
   "kind": "build_request",
-  "title": "Fix empty state handling and agent initialization warnings on Dashboard and Cases pages",
+  "title": "Revert Cases data-fetching logic to Version 93",
   "projectName": "SurgiPaw",
   "priority": "high",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Fix the Dashboard page to gracefully handle an empty canister database: when the React Query hook returns an empty array (zero cases), display a clean empty state UI (e.g., an illustrated or icon-based message such as 'No cases yet — add your first surgery case') instead of a blank/broken list.",
+      "text": "Revert the data-fetching logic for surgery cases in the frontend to the implementation from Version 93. This applies to all locations where cases are fetched and supplied to views, including the Dashboard (DashboardView.tsx) and the Cases list page (CasesListView.tsx). The regression introduced in Version 97 caused cases to not appear in either view; the Version 93 approach must be restored so that cases load and render correctly.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-latest"
+          "msg-6"
         ],
         "quotes": [
-          "Blanl database",
-          "Cases are not loading on dashboard or cases pages"
+          "Revert to data-fetching logic from Version 93"
         ]
       },
       "acceptanceCriteria": [
-        "When the canister returns an empty array of cases, the Dashboard page renders a visible empty state message instead of a blank area.",
-        "The empty state is displayed without any console errors related to undefined or null case data.",
-        "A 'New Case' action (button or CTA) is visible in the empty state so users can add their first case."
-      ]
-    },
-    {
-      "id": "REQ-2",
-      "text": "Fix the Cases list page (CasesListView) to gracefully handle an empty canister database: when the React Query hook returns an empty array, display a clean empty state UI consistent with the Dashboard empty state, rather than a blank list.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-latest"
-        ],
-        "quotes": [
-          "Blanl database",
-          "Cases are not loading on dashboard or cases pages"
-        ]
-      },
-      "acceptanceCriteria": [
-        "When the canister returns an empty array of cases, the Cases page renders a visible empty state message instead of a blank area.",
-        "The empty state is displayed without any console errors related to undefined or null case data.",
-        "Search and filter controls are either hidden or correctly show 'no results' if triggered on an empty dataset."
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "text": "Resolve the duplicate agent initialization warning: 'Detected both agent and agentOptions passed to createActor. Ignoring agentOptions and proceeding with the provided agent.' Ensure that createActor is called with either agent or agentOptions, not both simultaneously.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-latest"
-        ],
-        "quotes": [
-          "Detected both agent and agentOptions passed to createActor. Ignoring agentOptions and proceeding with the provided agent."
-        ]
-      },
-      "acceptanceCriteria": [
-        "The browser console no longer shows the 'Detected both agent and agentOptions' warning on any page load or actor initialization.",
-        "The actor is still created correctly and all backend queries continue to function."
+        "Surgery cases appear correctly on the Dashboard view after login.",
+        "Surgery cases appear correctly on the Cases list view after login.",
+        "The data-fetching hooks/queries used for cases match the approach from Version 93, not Version 97.",
+        "No regression is introduced to other views or features."
       ]
     }
   ],
   "constraints": [
-    "Do not modify files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or frontend/src/components/ui.",
-    "All backend Motoko logic must remain in the single main actor file (backend/main.mo).",
-    "Do not alter existing case data model or canister storage logic."
+    "Do not change the backend Motoko actor or any backend data models.",
+    "Only revert data-fetching logic — do not alter unrelated UI, filtering, sorting, or form components."
   ],
   "nonGoals": [
-    "Adding seed/mock data to the canister for testing.",
-    "Changing the app's authentication flow or Internet Identity integration.",
-    "Fixing the PWA manifest icon (IMG_4505.ico) resource size error — this is a non-blocking asset issue.",
-    "Implementing any new case features beyond what is already present."
+    "Introducing new features or UI changes beyond restoring the Version 93 data-fetching behavior.",
+    "Changing backend query endpoints or data schemas.",
+    "Modifying immutable frontend paths such as useActor.ts, useInternetIdentity.ts, or main.tsx."
   ],
   "imageRequirements": {
     "required": [],
