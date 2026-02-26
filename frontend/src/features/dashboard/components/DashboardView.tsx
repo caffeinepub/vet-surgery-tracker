@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { RefreshCw, ClipboardList, CheckCircle2, AlertCircle } from 'lucide-react';
+import { RefreshCw, ClipboardList, CheckCircle2, AlertCircle, PlusCircle, Stethoscope } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -110,6 +110,52 @@ export function DashboardView({ onNavigateToCase }: DashboardViewProps) {
     showAllTasksCompleted ||
     searchQuery.trim().length > 0;
 
+  // Empty database state — no cases at all
+  if (totalCases === 0) {
+    return (
+      <div className="flex flex-col h-full">
+        {/* Stats bar — zeroed out */}
+        <div className="px-4 pt-4 pb-2 grid grid-cols-2 gap-3">
+          <div className="bg-card border border-border rounded-xl p-3 flex items-center gap-3">
+            <div className="bg-primary/10 rounded-lg p-2">
+              <ClipboardList className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Open Tasks</p>
+              <p className="text-xl font-bold text-foreground">0</p>
+            </div>
+          </div>
+          <div className="bg-card border border-border rounded-xl p-3 flex items-center gap-3">
+            <div className="bg-primary/10 rounded-lg p-2">
+              <CheckCircle2 className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Active Cases</p>
+              <p className="text-xl font-bold text-foreground">0</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Empty state */}
+        <div className="flex-1 flex flex-col items-center justify-center px-6 py-16 text-center">
+          <div className="bg-primary/10 rounded-full p-6 mb-5">
+            <Stethoscope className="h-12 w-12 text-primary" />
+          </div>
+          <h2 className="text-2xl font-bold text-foreground mb-2">No cases yet</h2>
+          <p className="text-muted-foreground mb-8 max-w-sm">
+            Add your first veterinary surgery case to get started tracking patient workflows and tasks.
+          </p>
+          <Button size="lg" onClick={() => setNewCaseOpen(true)} className="gap-2">
+            <PlusCircle className="h-5 w-5" />
+            Add First Case
+          </Button>
+        </div>
+
+        <CaseFormDialog open={newCaseOpen} onOpenChange={setNewCaseOpen} />
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col h-full">
       {/* Stats bar */}
@@ -176,12 +222,7 @@ export function DashboardView({ onNavigateToCase }: DashboardViewProps) {
       <div className="flex-1 overflow-y-auto p-4 space-y-3">
         {filteredAndSortedCases.length === 0 ? (
           <div className="text-center py-12 text-muted-foreground">
-            {totalCases === 0 ? (
-              <div>
-                <p className="text-lg font-medium mb-1">No cases yet</p>
-                <p className="text-sm">Create your first case using the + button above.</p>
-              </div>
-            ) : hasActiveFilters ? (
+            {hasActiveFilters ? (
               <div>
                 <p className="text-lg font-medium mb-1">No cases match your filters</p>
                 <p className="text-sm">Try adjusting your search or filter criteria.</p>

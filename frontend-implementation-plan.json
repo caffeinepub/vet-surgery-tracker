@@ -1,61 +1,52 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Fix blank Cases list regression on Dashboard and Cases pages",
+  "title": "Fix empty state handling and agent initialization warnings on Dashboard and Cases pages",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Restore Cases data rendering on the Dashboard page by repairing the data flow from React Query hook results to the DashboardView component rendering logic",
+      "summary": "Add empty state UI to Dashboard when no cases exist",
       "acceptanceCriteria": [
-        "The Dashboard page displays the full list of surgery cases returned by the backend canister",
-        "No empty list is shown when cases exist in the backend",
-        "No error messages or console errors appear related to case loading",
-        "The fix does not modify any backend Motoko code"
+        "When the canister returns an empty array of cases, the Dashboard page renders a visible empty state message instead of a blank area.",
+        "The empty state is displayed without any console errors related to undefined or null case data.",
+        "A 'New Case' action (button or CTA) is visible in the empty state so users can add their first case."
       ],
       "file_operations": [
         {
           "path": "frontend/src/features/dashboard/components/DashboardView.tsx",
           "operation": "modify",
-          "description": "Inspect and repair the data wiring between useGetAllCases query result and the CasesListView component. Ensure the cases array from the query is properly destructured and passed to CasesListView. Verify that loading, error, and empty states are correctly handled. Check that the data property from React Query is correctly accessed and that no undefined or null values are being passed where an array is expected."
-        },
-        {
-          "path": "frontend/src/hooks/useQueries.ts",
-          "operation": "modify",
-          "description": "Review the useGetAllCases hook implementation to ensure it returns a properly structured query result with a data property that defaults to an empty array when no data is available. Verify the queryKey, queryFn, and enabled logic are correct. Ensure the hook properly handles the case when actor is not yet initialized or when the query has not yet fetched data."
+          "description": "Add conditional rendering to display an empty state component when cases.length === 0. The empty state should include an icon or illustration, a message like 'No cases yet — add your first surgery case', and a prominent 'New Case' button that opens the CaseFormDialog. Wrap the existing case list rendering in a conditional that only shows when cases.length > 0. Ensure the empty state is visually centered and uses appropriate spacing/padding for a clean appearance."
         }
       ]
     },
     {
       "id": "REQ-2",
-      "summary": "Restore Cases data rendering on the Cases list page by repairing prop passing, query result destructuring, and data mapping in CasesListView, CaseCard, ChecklistEditor, and WorkflowIcon components",
+      "summary": "Add empty state UI to Cases list page when no cases exist",
       "acceptanceCriteria": [
-        "The Cases page displays the full list of surgery cases returned by the backend canister",
-        "No empty list is shown when cases exist in the backend",
-        "CaseCard components render correctly with case data including workflow task icons",
-        "ChecklistEditor receives and renders the correct task data per case",
-        "No error messages or console errors appear related to case loading",
-        "The fix does not modify any backend Motoko code"
+        "When the canister returns an empty array of cases, the Cases page renders a visible empty state message instead of a blank area.",
+        "The empty state is displayed without any console errors related to undefined or null case data.",
+        "Search and filter controls are either hidden or correctly show 'no results' if triggered on an empty dataset."
       ],
       "file_operations": [
         {
           "path": "frontend/src/features/cases/components/CasesListView.tsx",
           "operation": "modify",
-          "description": "Inspect the cases prop handling and verify that the incoming cases array is properly received, filtered, sorted, and mapped to CaseCard components. Check that all filtering logic (species, tasks, search) correctly handles the cases data structure. Ensure that the component gracefully handles empty arrays, loading states, and that no data transformation is breaking the case objects before they reach CaseCard. Verify that the highlightedCaseId logic does not interfere with rendering."
-        },
+          "description": "Add conditional rendering to display an empty state component when the original cases array (before filtering) is empty. The empty state should match the Dashboard empty state styling and include a 'New Case' button. When the original array is non-empty but the filtered array is empty, show a 'no results' message instead. Hide or disable search/filter controls when the original cases array is empty. Ensure all rendering branches handle empty arrays gracefully without accessing undefined properties."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Resolve duplicate agent initialization warning in actor creation",
+      "acceptanceCriteria": [
+        "The browser console no longer shows the 'Detected both agent and agentOptions' warning on any page load or actor initialization.",
+        "The actor is still created correctly and all backend queries continue to function."
+      ],
+      "file_operations": [
         {
-          "path": "frontend/src/features/cases/components/CaseCard.tsx",
+          "path": "frontend/src/hooks/useActor.ts",
           "operation": "modify",
-          "description": "Review the case prop destructuring and ensure all required properties (id, petName, ownerLastName, species, task, etc.) are correctly accessed from the SurgeryCase object. Verify that the task object is properly passed to ChecklistEditor and that WorkflowIcon receives the correct task type strings. Check that no undefined property accesses or type mismatches are causing silent rendering failures. Ensure the card renders even when optional fields are missing."
-        },
-        {
-          "path": "frontend/src/features/cases/components/ChecklistEditor.tsx",
-          "operation": "modify",
-          "description": "Inspect the tasks prop and selectedTasks state handling to ensure the component correctly receives and processes task data from the parent CaseCard. Verify that the checklist items are properly mapped to the task object structure and that the completion state checkboxes are wired to the correct task properties (e.g., labsCompleted, imagingCompleted). Check that the component handles both creation mode and completion mode correctly without breaking rendering when switching between modes or when task data is incomplete."
-        },
-        {
-          "path": "frontend/src/components/workflow-icons/WorkflowIcon.tsx",
-          "operation": "modify",
-          "description": "Review the type prop handling and the taskTypeToIconMap to ensure that all valid task type strings (pdvmNotified, histo, labs, culture, surgeryReport, imaging, dischargeNotes) are correctly mapped to their corresponding icon components. Verify that the component handles missing or invalid type values gracefully without breaking the parent component's render. Check that the icon components are imported correctly and that no refactoring broke the mapping logic."
+          "description": "Review the createActor call and ensure that either agent OR agentOptions is passed, but never both simultaneously. If an agent instance is already created from the identity, pass only the agent parameter. If using agentOptions to configure the agent, do not also pass a pre-created agent instance. Verify the logic ensures mutual exclusivity between these two parameters to eliminate the warning."
         }
       ]
     }

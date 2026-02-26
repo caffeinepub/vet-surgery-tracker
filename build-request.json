@@ -1,67 +1,75 @@
 {
   "kind": "build_request",
-  "title": "Fix blank Cases list regression on Dashboard and Cases pages",
+  "title": "Fix empty state handling and agent initialization warnings on Dashboard and Cases pages",
   "projectName": "SurgiPaw",
   "priority": "high",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Restore Cases data rendering on the Dashboard page so that surgery cases fetched from the backend canister display correctly, matching the behavior from version 93. The fix must ensure the React Query hook result is properly wired to the component's rendering logic without altering any backend calls.",
+      "text": "Fix the Dashboard page to gracefully handle an empty canister database: when the React Query hook returns an empty array (zero cases), display a clean empty state UI (e.g., an illustrated or icon-based message such as 'No cases yet — add your first surgery case') instead of a blank/broken list.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1",
-          "msg-2"
+          "msg-latest"
         ],
         "quotes": [
-          "Cases are not loading in the app",
-          "Blank list is loading on both the Cases and Dashboard pages",
-          "1. UI-related",
-          "2. No error messages"
+          "Blanl database",
+          "Cases are not loading on dashboard or cases pages"
         ]
       },
       "acceptanceCriteria": [
-        "The Dashboard page displays the full list of surgery cases returned by the backend canister",
-        "No empty list is shown when cases exist in the backend",
-        "No error messages or console errors appear related to case loading",
-        "The fix does not modify any backend Motoko code"
+        "When the canister returns an empty array of cases, the Dashboard page renders a visible empty state message instead of a blank area.",
+        "The empty state is displayed without any console errors related to undefined or null case data.",
+        "A 'New Case' action (button or CTA) is visible in the empty state so users can add their first case."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Restore Cases data rendering on the Cases list page (CasesListView) so that surgery cases fetched from the backend canister display correctly, matching the behavior from version 93. Inspect and repair any broken prop passing, query result destructuring, or data mapping introduced by the UI refactor between v93 and v95 (specifically changes related to WorkflowIcon.tsx, CaseCard.tsx, ChecklistEditor.tsx, and useQueries.ts).",
+      "text": "Fix the Cases list page (CasesListView) to gracefully handle an empty canister database: when the React Query hook returns an empty array, display a clean empty state UI consistent with the Dashboard empty state, rather than a blank list.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1",
-          "msg-2"
+          "msg-latest"
         ],
         "quotes": [
-          "Cases are not loading in the app",
-          "Blank list is loading on both the Cases and Dashboard pages",
-          "1. UI-related",
-          "2. No error messages"
+          "Blanl database",
+          "Cases are not loading on dashboard or cases pages"
         ]
       },
       "acceptanceCriteria": [
-        "The Cases page displays the full list of surgery cases returned by the backend canister",
-        "No empty list is shown when cases exist in the backend",
-        "CaseCard components render correctly with case data including workflow task icons",
-        "ChecklistEditor receives and renders the correct task data per case",
-        "No error messages or console errors appear related to case loading",
-        "The fix does not modify any backend Motoko code"
+        "When the canister returns an empty array of cases, the Cases page renders a visible empty state message instead of a blank area.",
+        "The empty state is displayed without any console errors related to undefined or null case data.",
+        "Search and filter controls are either hidden or correctly show 'no results' if triggered on an empty dataset."
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Resolve the duplicate agent initialization warning: 'Detected both agent and agentOptions passed to createActor. Ignoring agentOptions and proceeding with the provided agent.' Ensure that createActor is called with either agent or agentOptions, not both simultaneously.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-latest"
+        ],
+        "quotes": [
+          "Detected both agent and agentOptions passed to createActor. Ignoring agentOptions and proceeding with the provided agent."
+        ]
+      },
+      "acceptanceCriteria": [
+        "The browser console no longer shows the 'Detected both agent and agentOptions' warning on any page load or actor initialization.",
+        "The actor is still created correctly and all backend queries continue to function."
       ]
     }
   ],
   "constraints": [
-    "Do not modify any backend Motoko code",
-    "Do not change the data fetching logic in the backend canister interface",
-    "Immutable frontend paths (useInternetIdentity.ts, useActor.ts, main.tsx, components/ui) must not be edited"
+    "Do not modify files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or frontend/src/components/ui.",
+    "All backend Motoko logic must remain in the single main actor file (backend/main.mo).",
+    "Do not alter existing case data model or canister storage logic."
   ],
   "nonGoals": [
-    "Adding new features or UI changes beyond restoring the case list display",
-    "Changing the visual design or workflow icons introduced in v94/v95",
-    "Modifying backend data models or CRUD operations"
+    "Adding seed/mock data to the canister for testing.",
+    "Changing the app's authentication flow or Internet Identity integration.",
+    "Fixing the PWA manifest icon (IMG_4505.ico) resource size error — this is a non-blocking asset issue.",
+    "Implementing any new case features beyond what is already present."
   ],
   "imageRequirements": {
     "required": [],

@@ -2,11 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-restore-cases-data-rendering-on-the-dashboard-page-so-that-surgery-cases-fetched-from-the-backend-canister-display-correctly-matching-the-behavior-from-version-93-the-fix-must-ensure-the-react-query-hook-result-is-properly-wired-to-the-component-s-rendering-logic-without-altering-any-backend-calls",
-      "featureTitle": "Restore Cases data rendering on the Dashboard page so that surgery cases fetched from the backend canister display correctly, matching the behavior from version 93. The fix must ensure the React Query hook result is properly wired to the component's rendering logic without altering any backend calls.",
+      "featureId": "feature-fix-the-dashboard-page-to-gracefully-handle-an-empty-canister-database-when-the-react-query-hook-returns-an-empty-array-zero-cases-display-a-clean-empty-state-ui-e-g-an-illustrated-or-icon-based-message-such-as-no-cases-yet-add-your-first-surgery-case-instead-of-a-blank-broken-list",
+      "featureTitle": "Fix the Dashboard page to gracefully handle an empty canister database: when the React Query hook returns an empty array (zero cases), display a clean empty state UI (e.g., an illustrated or icon-based message such as 'No cases yet — add your first surgery case') instead of a blank/broken list.",
       "files": [
-        "frontend/src/features/dashboard/components/DashboardView.tsx",
-        "frontend/src/hooks/useQueries.ts"
+        "frontend/src/features/dashboard/components/DashboardView.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -24,13 +23,10 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-restore-cases-data-rendering-on-the-cases-list-page-caseslistview-so-that-surgery-cases-fetched-from-the-backend-canister-display-correctly-matching-the-behavior-from-version-93-inspect-and-repair-any-broken-prop-passing-query-result-destructuring-or-data-mapping-introduced-by-the-ui-refactor-between-v93-and-v95-specifically-changes-related-to-workflowicon-tsx-casecard-tsx-checklisteditor-tsx-and-usequeries-ts",
-      "featureTitle": "Restore Cases data rendering on the Cases list page (CasesListView) so that surgery cases fetched from the backend canister display correctly, matching the behavior from version 93. Inspect and repair any broken prop passing, query result destructuring, or data mapping introduced by the UI refactor between v93 and v95 (specifically changes related to WorkflowIcon.tsx, CaseCard.tsx, ChecklistEditor.tsx, and useQueries.ts).",
+      "featureId": "feature-fix-the-cases-list-page-caseslistview-to-gracefully-handle-an-empty-canister-database-when-the-react-query-hook-returns-an-empty-array-display-a-clean-empty-state-ui-consistent-with-the-dashboard-empty-state-rather-than-a-blank-list",
+      "featureTitle": "Fix the Cases list page (CasesListView) to gracefully handle an empty canister database: when the React Query hook returns an empty array, display a clean empty state UI consistent with the Dashboard empty state, rather than a blank list.",
       "files": [
-        "frontend/src/components/workflow-icons/WorkflowIcon.tsx",
-        "frontend/src/features/cases/components/CaseCard.tsx",
-        "frontend/src/features/cases/components/CasesListView.tsx",
-        "frontend/src/features/cases/components/ChecklistEditor.tsx"
+        "frontend/src/features/cases/components/CasesListView.tsx"
       ],
       "components": [
         "authorization@4.0.0",

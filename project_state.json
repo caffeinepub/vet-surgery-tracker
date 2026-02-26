@@ -1,35 +1,48 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "App with Cases feature stored in a backend canister. Cases are not loading (blank list) on both the Dashboard and Cases pages after a UI-related update in version 95, while version 93 worked fine. No error messages shown.",
+  "summary": "Veterinary surgery case tracking log built on the Internet Computer (ICP) backend. Cases are stored in a Motoko canister. Currently fixing empty-state handling on Dashboard and Cases pages, and addressing duplicate agent initialization warnings.",
   "architectural_notes": [
-    "Cases data is stored in a backend canister and displayed on both Dashboard and Cases pages."
+    "Cases are stored in an Internet Computer (ICP) Motoko canister backend",
+    "Frontend uses createActor with agent; duplicate agentOptions warning indicates agent and agentOptions are both being passed — agentOptions should be removed",
+    "Dashboard and Cases pages must handle empty canister state gracefully with a clean empty-state UI"
   ],
   "known_issues": [
-    "Cases show as blank list on Dashboard and Cases pages after v95 UI update; worked in v93. No error messages. Likely a prop/query wiring issue from the UI refactor."
+    "Cases not loading on Dashboard and Cases pages when canister database is empty — UI does not handle empty state",
+    "Duplicate agent initialization: both agent and agentOptions passed to createActor, agentOptions is ignored",
+    "Manifest icon error: IMG_4505.ico has incorrect resource size"
   ],
   "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-restore-cases-data-rendering-on-the-dashboard-page-so-that-surgery-cases-fetched-from-the-backend-canister-display-correctly-matching-the-behavior-from-version-93-the-fix-must-ensure-the-react-query-hook-result-is-properly-wired-to-the-component-s-rendering-logic-without-altering-any-backend-calls",
-      "title": "Restore Cases data rendering on the Dashboard page so that surgery cases fetched from the backend canister display correctly, matching the behavior from version 93. The fix must ensure the React Query hook result is properly wired to the component's rendering logic without altering any backend calls.",
+      "id": "feature-fix-the-dashboard-page-to-gracefully-handle-an-empty-canister-database-when-the-react-query-hook-returns-an-empty-array-zero-cases-display-a-clean-empty-state-ui-e-g-an-illustrated-or-icon-based-message-such-as-no-cases-yet-add-your-first-surgery-case-instead-of-a-blank-broken-list",
+      "title": "Fix the Dashboard page to gracefully handle an empty canister database: when the React Query hook returns an empty array (zero cases), display a clean empty state UI (e.g., an illustrated or icon-based message such as 'No cases yet — add your first surgery case') instead of a blank/broken list.",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-restore-cases-data-rendering-on-the-cases-list-page-caseslistview-so-that-surgery-cases-fetched-from-the-backend-canister-display-correctly-matching-the-behavior-from-version-93-inspect-and-repair-any-broken-prop-passing-query-result-destructuring-or-data-mapping-introduced-by-the-ui-refactor-between-v93-and-v95-specifically-changes-related-to-workflowicon-tsx-casecard-tsx-checklisteditor-tsx-and-usequeries-ts",
-      "title": "Restore Cases data rendering on the Cases list page (CasesListView) so that surgery cases fetched from the backend canister display correctly, matching the behavior from version 93. Inspect and repair any broken prop passing, query result destructuring, or data mapping introduced by the UI refactor between v93 and v95 (specifically changes related to WorkflowIcon.tsx, CaseCard.tsx, ChecklistEditor.tsx, and useQueries.ts).",
+      "id": "feature-fix-the-cases-list-page-caseslistview-to-gracefully-handle-an-empty-canister-database-when-the-react-query-hook-returns-an-empty-array-display-a-clean-empty-state-ui-consistent-with-the-dashboard-empty-state-rather-than-a-blank-list",
+      "title": "Fix the Cases list page (CasesListView) to gracefully handle an empty canister database: when the React Query hook returns an empty array, display a clean empty state UI consistent with the Dashboard empty state, rather than a blank list.",
       "reqIds": [
         "REQ-2"
       ],
       "version": 1
     }
   ],
-  "new_feature_requests": [],
+  "new_feature_requests": [
+    {
+      "id": "AR-3",
+      "summary": "Resolve the duplicate agent initialization warning: 'Detected both agent and agentOptions passed to createActor. Ignoring agentOptions and proceeding with the provided agent.' Ensure that createActor is called with either agent or agentOptions, not both simultaneously.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "status": "pending"
+    }
+  ],
   "gameProjectType": "none",
-  "projectName": "SurgiPaw",
+  "projectName": "Vet Surgery Case Log",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

@@ -11,7 +11,7 @@ export function useGetAllCases() {
   return useQuery<SurgeryCase[]>({
     queryKey: ['cases'],
     queryFn: async () => {
-      if (!actor) return [];
+      if (!actor) throw new Error('Actor not available');
       const result = await actor.getAllCases();
       return result;
     },

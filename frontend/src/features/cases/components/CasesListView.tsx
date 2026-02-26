@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { AlertCircle, RefreshCw } from 'lucide-react';
+import { AlertCircle, RefreshCw, PlusCircle, Stethoscope } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -40,9 +40,9 @@ export function CasesListView({ highlightCaseId, onHighlightClear }: CasesListVi
     refetch();
   }, [queryClient, refetch]);
 
-  const filteredAndSortedCases = useMemo(() => {
-    const allCases: SurgeryCase[] = cases ?? [];
+  const allCases: SurgeryCase[] = cases ?? [];
 
+  const filteredAndSortedCases = useMemo(() => {
     let filtered = [...allCases];
 
     filtered = filterBySpecies(filtered, selectedSpecies);
@@ -61,7 +61,7 @@ export function CasesListView({ highlightCaseId, onHighlightClear }: CasesListVi
     filtered = sortCases(filtered, sortOption);
 
     return filtered;
-  }, [cases, selectedSpecies, selectedTaskTypes, showAllTasksCompleted, searchQuery, sortOption]);
+  }, [allCases, selectedSpecies, selectedTaskTypes, showAllTasksCompleted, searchQuery, sortOption]);
 
   if (isLoading) {
     return (
@@ -89,12 +89,41 @@ export function CasesListView({ highlightCaseId, onHighlightClear }: CasesListVi
     );
   }
 
-  const totalCases = cases?.length ?? 0;
+  const totalCases = allCases.length;
   const hasActiveFilters =
     selectedSpecies.size > 0 ||
     selectedTaskTypes.size > 0 ||
     showAllTasksCompleted ||
     searchQuery.trim().length > 0;
+
+  // Empty database state — no cases at all
+  if (totalCases === 0) {
+    return (
+      <div className="flex flex-col h-full">
+        {/* Empty state */}
+        <div className="flex-1 flex flex-col items-center justify-center px-6 py-16 text-center">
+          <div className="bg-primary/10 rounded-full p-6 mb-5">
+            <Stethoscope className="h-12 w-12 text-primary" />
+          </div>
+          <h2 className="text-2xl font-bold text-foreground mb-2">No cases yet</h2>
+          <p className="text-muted-foreground mb-8 max-w-sm">
+            Add your first veterinary surgery case to start tracking patient workflows and tasks.
+          </p>
+          <Button size="lg" onClick={() => setNewCaseOpen(true)} className="gap-2">
+            <PlusCircle className="h-5 w-5" />
+            Add First Case
+          </Button>
+        </div>
+
+        {/* CSV import/export still available even when empty */}
+        <div className="border-t border-border px-4 py-3">
+          <CsvImportExportPanel cases={[]} />
+        </div>
+
+        <CaseFormDialog open={newCaseOpen} onOpenChange={setNewCaseOpen} />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-full">
@@ -140,12 +169,7 @@ export function CasesListView({ highlightCaseId, onHighlightClear }: CasesListVi
       <div className="flex-1 overflow-y-auto p-4 space-y-3">
         {filteredAndSortedCases.length === 0 ? (
           <div className="text-center py-12 text-muted-foreground">
-            {totalCases === 0 ? (
-              <div>
-                <p className="text-lg font-medium mb-1">No cases yet</p>
-                <p className="text-sm">Create your first case using the + button above.</p>
-              </div>
-            ) : hasActiveFilters ? (
+            {hasActiveFilters ? (
               <div>
                 <p className="text-lg font-medium mb-1">No cases match your filters</p>
                 <p className="text-sm">Try adjusting your search or filter criteria.</p>
@@ -171,7 +195,7 @@ export function CasesListView({ highlightCaseId, onHighlightClear }: CasesListVi
 
       {/* CSV import/export */}
       <div className="border-t border-border px-4 py-3">
-        <CsvImportExportPanel cases={cases ?? []} />
+        <CsvImportExportPanel cases={allCases} />
       </div>
 
       <CaseFormDialog open={newCaseOpen} onOpenChange={setNewCaseOpen} />
