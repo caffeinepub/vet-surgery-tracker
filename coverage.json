@@ -1,18 +1,25 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-26T02:50:45.657Z",
+  "generatedAt": "2026-02-26T03:02:17.155Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 2,
-    "implemented": 1,
+    "total": 4,
+    "implemented": 2,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Fix the data-fetching logic in `frontend/src/hooks/useQueries.ts` so that surgery cases are correctly fetched and returned for both the DashboardView and CasesListView components. Inspect the current implementation and identify why cases are not loading — likely a regression in query keys, actor calls, or result transformation introduced after Version 93 — and restore the correct fetching behavior.",
+        "summary": "Audit the backend `main.mo` actor to verify that the query functions for fetching surgery cases (e.g., `getCases`, `getDashboardData`, or equivalent) are correctly defined, exported, and return the expected data types. Confirm that stable variable declarations and any upgrade hooks are intact so stored case data survives canister upgrades.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-2",
+        "summary": "Audit `frontend/src/hooks/useQueries.ts` to identify and fix the root cause of the failing surgery case fetch. Check that the React Query hooks calling the backend actor use the correct method names matching those exported by `main.mo`, that the actor instance from `useActor` is valid before the query runs (i.e., the query is not enabled when actor is undefined/null), that query keys are stable and not causing unintended cache misses or stale states, and that error handling does not silently swallow failures.",
         "status": "implemented",
         "plannedFiles": [
           "frontend/src/hooks/useQueries.ts"
@@ -22,22 +29,38 @@
         ]
       },
       {
-        "id": "REQ-2",
-        "summary": "Verify that `DashboardView.tsx` and `CasesListView.tsx` correctly consume the cases query result from `useQueries.ts` — ensuring they handle loading, error, and success states properly — and fix any component-level issues that may prevent cases from rendering even when the query returns data.",
-        "status": "missing",
+        "id": "REQ-3",
+        "summary": "Audit `frontend/src/features/dashboard/components/DashboardView.tsx` and `frontend/src/features/cases/components/CasesListView.tsx` to confirm they correctly consume the query hooks from `useQueries.ts`, handle loading and error states, and render the returned case data. Fix any prop mismatches, missing null checks, or conditional rendering bugs that prevent cases from appearing even when the fetch succeeds.",
+        "status": "implemented",
         "plannedFiles": [
           "frontend/src/features/dashboard/components/DashboardView.tsx",
           "frontend/src/features/cases/components/CasesListView.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/features/dashboard/components/DashboardView.tsx",
+          "frontend/src/features/cases/components/CasesListView.tsx"
+        ]
+      },
+      {
+        "id": "REQ-4",
+        "summary": "Audit `frontend/src/hooks/useActor.ts` to verify the backend actor is correctly initialized using the current Internet Identity principal, that it is re-initialized when the identity changes, and that the actor instance is not stale or undefined when queries attempt to use it. Fix any initialization race conditions or missing dependency triggers.",
+        "status": "missing",
+        "plannedFiles": [
+          "frontend/src/hooks/useActor.ts"
         ],
         "matchedFiles": []
       }
     ]
   },
   "changedFiles": [
+    "backend/main.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
+    "frontend/src/App.tsx",
+    "frontend/src/features/cases/components/CasesListView.tsx",
+    "frontend/src/features/dashboard/components/DashboardView.tsx",
     "frontend/src/hooks/useQueries.ts",
     "project_state.json",
     "scratch/component-selection.json",

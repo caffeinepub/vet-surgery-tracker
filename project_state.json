@@ -1,32 +1,52 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "New project",
-  "architectural_notes": [],
+  "summary": "SurgiPaw - a veterinary case management app on ICP blockchain. Frontend data-fetching issue where cases fail to load on Dashboard and Cases pages (recurring across V94-99). Cases are stored safely in ICP canister stable storage but the frontend is not retrieving them correctly.",
+  "architectural_notes": [
+    "Backend runs on Internet Computer (ICP) blockchain canister with stable storage for cases",
+    "Cases data-fetching from ICP canister to frontend has been failing across versions V94-99"
+  ],
   "known_issues": [
-    "Cases not loading on Dashboard or Cases page (reported in v98)"
+    "Frontend fails to fetch and display cases from ICP backend canister (recurring V94-99)"
   ],
   "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-fix-the-data-fetching-logic-in-frontend-src-hooks-usequeries-ts-so-that-surgery-cases-are-correctly-fetched-and-returned-for-both-the-dashboardview-and-caseslistview-components-inspect-the-current-implementation-and-identify-why-cases-are-not-loading-likely-a-regression-in-query-keys-actor-calls-or-result-transformation-introduced-after-version-93-and-restore-the-correct-fetching-behavior",
-      "title": "Fix the data-fetching logic in `frontend/src/hooks/useQueries.ts` so that surgery cases are correctly fetched and returned for both the DashboardView and CasesListView components. Inspect the current implementation and identify why cases are not loading — likely a regression in query keys, actor calls, or result transformation introduced after Version 93 — and restore the correct fetching behavior.",
+      "id": "feature-audit-frontend-src-hooks-usequeries-ts-to-identify-and-fix-the-root-cause-of-the-failing-surgery-case-fetch-check-that-the-react-query-hooks-calling-the-backend-actor-use-the-correct-method-names-matching-those-exported-by-main-mo-that-the-actor-instance-from-useactor-is-valid-before-the-query-runs-i-e-the-query-is-not-enabled-when-actor-is-undefined-null-that-query-keys-are-stable-and-not-causing-unintended-cache-misses-or-stale-states-and-that-error-handling-does-not-silently-swallow-failures",
+      "title": "Audit `frontend/src/hooks/useQueries.ts` to identify and fix the root cause of the failing surgery case fetch. Check that the React Query hooks calling the backend actor use the correct method names matching those exported by `main.mo`, that the actor instance from `useActor` is valid before the query runs (i.e., the query is not enabled when actor is undefined/null), that query keys are stable and not causing unintended cache misses or stale states, and that error handling does not silently swallow failures.",
       "reqIds": [
-        "REQ-1"
+        "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-audit-frontend-src-features-dashboard-components-dashboardview-tsx-and-frontend-src-features-cases-components-caseslistview-tsx-to-confirm-they-correctly-consume-the-query-hooks-from-usequeries-ts-handle-loading-and-error-states-and-render-the-returned-case-data-fix-any-prop-mismatches-missing-null-checks-or-conditional-rendering-bugs-that-prevent-cases-from-appearing-even-when-the-fetch-succeeds",
+      "title": "Audit `frontend/src/features/dashboard/components/DashboardView.tsx` and `frontend/src/features/cases/components/CasesListView.tsx` to confirm they correctly consume the query hooks from `useQueries.ts`, handle loading and error states, and render the returned case data. Fix any prop mismatches, missing null checks, or conditional rendering bugs that prevent cases from appearing even when the fetch succeeds.",
+      "reqIds": [
+        "REQ-3"
       ],
       "version": 1
     }
   ],
   "new_feature_requests": [
     {
-      "id": "AR-2",
-      "summary": "Verify that `DashboardView.tsx` and `CasesListView.tsx` correctly consume the cases query result from `useQueries.ts` — ensuring they handle loading, error, and success states properly — and fix any component-level issues that may prevent cases from rendering even when the query returns data.",
+      "id": "AR-1",
+      "summary": "Audit the backend `main.mo` actor to verify that the query functions for fetching surgery cases (e.g., `getCases`, `getDashboardData`, or equivalent) are correctly defined, exported, and return the expected data types. Confirm that stable variable declarations and any upgrade hooks are intact so stored case data survives canister upgrades.",
       "reqIds": [
-        "REQ-2"
+        "REQ-1"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "Audit `frontend/src/hooks/useActor.ts` to verify the backend actor is correctly initialized using the current Internet Identity principal, that it is re-initialized when the identity changes, and that the actor instance is not stale or undefined when queries attempt to use it. Fix any initialization race conditions or missing dependency triggers.",
+      "reqIds": [
+        "REQ-4"
       ],
       "status": "pending"
     }
   ],
+  "gameProjectType": "none",
   "projectName": "SurgiPaw",
   "clarification_mode": "instant",
   "clarification_rounds": 0

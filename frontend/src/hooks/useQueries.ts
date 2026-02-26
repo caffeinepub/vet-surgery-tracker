@@ -1,41 +1,85 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useActor } from './useActor';
-import { useInternetIdentity } from './useInternetIdentity';
-import type { SurgeryCase, Task, TaskOptions, TaskType, UserProfile, Dashboard, OpenAIConfig } from '../backend';
-import { Species } from '../backend';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useActor } from "./useActor";
+import { useInternetIdentity } from "./useInternetIdentity";
+import type {
+  SurgeryCase,
+  Task,
+  TaskOptions,
+  TaskType,
+  UserProfile,
+  Dashboard,
+  OpenAIConfig,
+  Species,
+  Sex,
+} from "../backend";
+
+// ─── User Profile ────────────────────────────────────────────────────────────
+
+export function useGetCallerUserProfile() {
+  const { actor, isFetching: actorFetching } = useActor();
+  const { identity } = useInternetIdentity();
+
+  const query = useQuery<UserProfile | null>({
+    queryKey: ["currentUserProfile", identity?.getPrincipal().toString()],
+    queryFn: async () => {
+      if (!actor) throw new Error("Actor not available");
+      return actor.getCallerUserProfile();
+    },
+    enabled: !!actor && !actorFetching && !!identity,
+    retry: false,
+  });
+
+  return {
+    ...query,
+    isLoading: actorFetching || query.isLoading,
+    isFetched: !!actor && query.isFetched,
+  };
+}
+
+export function useSaveCallerUserProfile() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (profile: UserProfile) => {
+      if (!actor) throw new Error("Actor not available");
+      return actor.saveCallerUserProfile(profile);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["currentUserProfile"] });
+    },
+  });
+}
 
 // ─── Cases ───────────────────────────────────────────────────────────────────
 
 export function useGetAllCases() {
-  const { actor } = useActor();
+  const { actor, isFetching: actorFetching } = useActor();
   const { identity } = useInternetIdentity();
-  const isAuthenticated = !!identity;
 
   return useQuery<SurgeryCase[]>({
-    queryKey: ['cases'],
+    queryKey: ["cases", identity?.getPrincipal().toString()],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       const result = await actor.getAllCases();
       return result;
     },
-    enabled: !!actor && isAuthenticated,
-    staleTime: 0,
-    refetchOnMount: true,
+    enabled: !!actor && !actorFetching && !!identity,
+    retry: 2,
   });
 }
 
 export function useGetCase(id: bigint) {
-  const { actor } = useActor();
+  const { actor, isFetching: actorFetching } = useActor();
   const { identity } = useInternetIdentity();
-  const isAuthenticated = !!identity;
 
   return useQuery<SurgeryCase>({
-    queryKey: ['cases', id.toString()],
+    queryKey: ["case", id.toString(), identity?.getPrincipal().toString()],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.getCase(id);
     },
-    enabled: !!actor && isAuthenticated,
+    enabled: !!actor && !actorFetching && !!identity,
   });
 }
 
@@ -51,13 +95,13 @@ export function useCreateCase() {
       ownerLastName: string;
       species: Species;
       breed: string;
-      sex: import('../backend').Sex;
+      sex: Sex;
       dateOfBirth: bigint | null;
       presentingComplaint: string;
       notes: string;
       taskOptions: TaskOptions;
     }) => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.createCase(
         params.medicalRecordNumber,
         params.arrivalDate,
@@ -69,12 +113,12 @@ export function useCreateCase() {
         params.dateOfBirth,
         params.presentingComplaint,
         params.notes,
-        params.taskOptions,
+        params.taskOptions
       );
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['cases'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ["cases"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
     },
   });
 }
@@ -92,13 +136,13 @@ export function useUpdateCase() {
       ownerLastName: string;
       species: Species;
       breed: string;
-      sex: import('../backend').Sex;
+      sex: Sex;
       dateOfBirth: bigint | null;
       presentingComplaint: string;
       notes: string;
       task: Task;
     }) => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.updateCase(
         params.id,
         params.medicalRecordNumber,
@@ -111,12 +155,13 @@ export function useUpdateCase() {
         params.dateOfBirth,
         params.presentingComplaint,
         params.notes,
-        params.task,
+        params.task
       );
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['cases'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["cases"] });
+      queryClient.invalidateQueries({ queryKey: ["case", variables.id.toString()] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
     },
   });
 }
@@ -127,12 +172,12 @@ export function useDeleteCase() {
 
   return useMutation({
     mutationFn: async (id: bigint) => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.deleteCase(id);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['cases'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ["cases"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
     },
   });
 }
@@ -143,12 +188,13 @@ export function useUpdateTask() {
 
   return useMutation({
     mutationFn: async (params: { id: bigint; task: Task }) => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.updateTask(params.id, params.task);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['cases'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["cases"] });
+      queryClient.invalidateQueries({ queryKey: ["case", variables.id.toString()] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
     },
   });
 }
@@ -159,12 +205,13 @@ export function useUpdateTaskCompletion() {
 
   return useMutation({
     mutationFn: async (params: { id: bigint; taskType: TaskType }) => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.updateTaskCompletion(params.id, params.taskType);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['cases'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["cases"] });
+      queryClient.invalidateQueries({ queryKey: ["case", variables.id.toString()] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
     },
   });
 }
@@ -175,12 +222,13 @@ export function useUpdateRemainingTasks() {
 
   return useMutation({
     mutationFn: async (params: { id: bigint; taskOptions: TaskOptions }) => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.updateRemainingTasks(params.id, params.taskOptions);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['cases'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["cases"] });
+      queryClient.invalidateQueries({ queryKey: ["case", variables.id.toString()] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
     },
   });
 }
@@ -191,87 +239,75 @@ export function useUpdateCaseNotes() {
 
   return useMutation({
     mutationFn: async (params: { id: bigint; notes: string }) => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.updateCaseNotes(params.id, params.notes);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['cases'] });
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["cases"] });
+      queryClient.invalidateQueries({ queryKey: ["case", variables.id.toString()] });
     },
   });
 }
 
-// ─── Dashboard ────────────────────────────────────────────────────────────────
-
-export function useGetDashboard() {
-  const { actor } = useActor();
-  const { identity } = useInternetIdentity();
-  const isAuthenticated = !!identity;
-
-  return useQuery<Dashboard>({
-    queryKey: ['dashboard'],
-    queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
-      return actor.getDashboard();
-    },
-    enabled: !!actor && isAuthenticated,
-    staleTime: 0,
-    refetchOnMount: true,
-  });
-}
-
-// ─── User Profile ─────────────────────────────────────────────────────────────
-
-export function useGetCallerUserProfile() {
+export function useGetCasesByOwner(ownerLastName: string) {
   const { actor, isFetching: actorFetching } = useActor();
   const { identity } = useInternetIdentity();
-  const isAuthenticated = !!identity;
 
-  const query = useQuery<UserProfile | null>({
-    queryKey: ['currentUserProfile'],
+  return useQuery<SurgeryCase[]>({
+    queryKey: ["casesByOwner", ownerLastName, identity?.getPrincipal().toString()],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
-      return actor.getCallerUserProfile();
+      if (!actor) throw new Error("Actor not available");
+      return actor.getCasesByOwner(ownerLastName);
     },
-    enabled: !!actor && !actorFetching && isAuthenticated,
-    retry: false,
-  });
-
-  return {
-    ...query,
-    isLoading: actorFetching || query.isLoading,
-    isFetched: !!actor && query.isFetched,
-  };
-}
-
-export function useSaveCallerUserProfile() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (profile: UserProfile) => {
-      if (!actor) throw new Error('Actor not available');
-      return actor.saveCallerUserProfile(profile);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['currentUserProfile'] });
-    },
+    enabled: !!actor && !actorFetching && !!identity && ownerLastName.length > 0,
   });
 }
 
-// ─── OpenAI Config ────────────────────────────────────────────────────────────
+export function useSearchCasesByMRN(searchTerm: string) {
+  const { actor, isFetching: actorFetching } = useActor();
+  const { identity } = useInternetIdentity();
+
+  return useQuery<SurgeryCase[]>({
+    queryKey: ["searchCases", searchTerm, identity?.getPrincipal().toString()],
+    queryFn: async () => {
+      if (!actor) throw new Error("Actor not available");
+      return actor.searchCasesByMedicalRecordNumber(searchTerm);
+    },
+    enabled: !!actor && !actorFetching && !!identity && searchTerm.length > 0,
+  });
+}
+
+// ─── Dashboard ───────────────────────────────────────────────────────────────
+
+export function useGetDashboard() {
+  const { actor, isFetching: actorFetching } = useActor();
+  const { identity } = useInternetIdentity();
+
+  return useQuery<Dashboard>({
+    queryKey: ["dashboard", identity?.getPrincipal().toString()],
+    queryFn: async () => {
+      if (!actor) throw new Error("Actor not available");
+      return actor.getDashboard();
+    },
+    enabled: !!actor && !actorFetching && !!identity,
+    retry: 2,
+  });
+}
+
+// ─── OpenAI Config ───────────────────────────────────────────────────────────
 
 export function useGetOpenAIConfig() {
-  const { actor, isFetching } = useActor();
+  const { actor, isFetching: actorFetching } = useActor();
   const { identity } = useInternetIdentity();
-  const isAuthenticated = !!identity;
 
   return useQuery<OpenAIConfig | null>({
-    queryKey: ['openAIConfig'],
+    queryKey: ["openAIConfig", identity?.getPrincipal().toString()],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.getOpenAIConfig();
     },
-    enabled: !!actor && !isFetching && isAuthenticated,
+    enabled: !!actor && !actorFetching && !!identity,
+    retry: false,
   });
 }
 
@@ -281,56 +317,56 @@ export function useSaveOpenAIConfig() {
 
   return useMutation({
     mutationFn: async (apiKey: string) => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.setOpenAIConfig(apiKey);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['openAIConfig'] });
+      queryClient.invalidateQueries({ queryKey: ["openAIConfig"] });
     },
   });
 }
 
 export function useValidateOpenAIConfig() {
-  const { actor, isFetching } = useActor();
+  const { actor, isFetching: actorFetching } = useActor();
   const { identity } = useInternetIdentity();
-  const isAuthenticated = !!identity;
 
   return useQuery<boolean>({
-    queryKey: ['validateOpenAIConfig'],
+    queryKey: ["validateOpenAIConfig", identity?.getPrincipal().toString()],
     queryFn: async () => {
-      if (!actor) return false;
+      if (!actor) throw new Error("Actor not available");
       return actor.validateOpenAIConfig();
     },
-    enabled: !!actor && !isFetching && isAuthenticated,
+    enabled: !!actor && !actorFetching && !!identity,
+    retry: false,
   });
 }
 
 export function useGetCallerUserRole() {
-  const { actor, isFetching } = useActor();
+  const { actor, isFetching: actorFetching } = useActor();
   const { identity } = useInternetIdentity();
-  const isAuthenticated = !!identity;
 
-  return useQuery<import('../backend').UserRole>({
-    queryKey: ['callerUserRole'],
+  return useQuery({
+    queryKey: ["callerUserRole", identity?.getPrincipal().toString()],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
+      if (!actor) throw new Error("Actor not available");
       return actor.getCallerUserRole();
     },
-    enabled: !!actor && !isFetching && isAuthenticated,
+    enabled: !!actor && !actorFetching && !!identity,
+    retry: false,
   });
 }
 
 export function useIsCallerAdmin() {
-  const { actor, isFetching } = useActor();
+  const { actor, isFetching: actorFetching } = useActor();
   const { identity } = useInternetIdentity();
-  const isAuthenticated = !!identity;
 
   return useQuery<boolean>({
-    queryKey: ['isCallerAdmin'],
+    queryKey: ["isCallerAdmin", identity?.getPrincipal().toString()],
     queryFn: async () => {
-      if (!actor) return false;
+      if (!actor) throw new Error("Actor not available");
       return actor.isCallerAdmin();
     },
-    enabled: !!actor && !isFetching && isAuthenticated,
+    enabled: !!actor && !actorFetching && !!identity,
+    retry: false,
   });
 }

@@ -1,46 +1,60 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Fix cases not loading on Dashboard and Cases pages",
+  "title": "Diagnose and fix frontend data-fetching failure for surgery cases",
   "requirements": [
     {
-      "id": "REQ-1",
-      "summary": "Fix the data-fetching logic in useQueries.ts so that surgery cases are correctly fetched and returned for both the DashboardView and CasesListView components",
+      "id": "REQ-2",
+      "summary": "Audit and fix useQueries.ts to resolve surgery case fetch failures",
       "acceptanceCriteria": [
-        "The Dashboard page renders surgery case cards when cases exist in the backend.",
-        "The Cases list page renders surgery case cards when cases exist in the backend.",
-        "The `useCases` (or equivalent) query in useQueries.ts successfully returns an array of SurgeryCase objects.",
-        "No console errors related to case fetching appear in the browser.",
-        "Both pages show an appropriate empty state (not a blank or broken UI) when there are no cases."
+        "Query hooks only execute when a valid actor instance is available (enabled guard)",
+        "Method names called on the actor exactly match the names exported by backend main.mo",
+        "Fetch errors are surfaced visibly (not silently caught and discarded)",
+        "Cases load successfully on both DashboardView and CasesListView after login"
       ],
       "file_operations": [
         {
           "path": "frontend/src/hooks/useQueries.ts",
           "operation": "modify",
-          "description": "Fix the `useCases` query hook to ensure it properly fetches surgery cases from the backend. Verify the query configuration includes proper enabled conditions (actor must be available and not fetching), correct queryKey format, error handling with retry logic, and that the queryFn correctly calls actor.getAllCases() and returns the result. Ensure the hook returns proper loading states that account for actor dependency (isLoading should be true when actorFetching is true or query.isLoading is true). Review any recent changes to query keys, enabled conditions, or result transformation that may have caused a regression after Version 93."
+          "description": "Audit all React Query hooks that fetch surgery cases (useGetAllCases, useGetDashboard, useGetCase, etc.). Verify that each query has an enabled guard checking both `!!actor` and `!actorFetching` to prevent queries from running with undefined/null actors. Confirm method names called on the actor match backend interface exactly (getAllCases, getDashboard, getCase). Add explicit error logging and ensure errors are not silently swallowed. Return proper loading states that reflect actor dependency (isLoading should include actorFetching). Follow the pattern shown in authorization component usage for preventing modal flash."
         }
       ]
     },
     {
-      "id": "REQ-2",
-      "summary": "Verify that DashboardView.tsx and CasesListView.tsx correctly consume the cases query result from useQueries.ts",
+      "id": "REQ-3",
+      "summary": "Audit DashboardView and CasesListView to fix case rendering and error handling",
       "acceptanceCriteria": [
-        "DashboardView displays a loading indicator while cases are being fetched.",
-        "CasesListView displays a loading indicator while cases are being fetched.",
-        "DashboardView renders CaseCard components for each returned case.",
-        "CasesListView renders CaseCard components for each returned case.",
-        "Both views display a user-friendly error message if the fetch fails."
+        "DashboardView renders case cards when data is returned from the query hook",
+        "CasesListView renders case cards when data is returned from the query hook",
+        "Loading spinners/skeletons are shown while fetching and removed once data arrives",
+        "Error states display a user-facing message when the fetch fails"
       ],
       "file_operations": [
         {
           "path": "frontend/src/features/dashboard/components/DashboardView.tsx",
           "operation": "modify",
-          "description": "Verify that DashboardView correctly consumes the useCases query result. Ensure it properly destructures isLoading, error, and data from the query hook. Confirm that a loading indicator is shown when isLoading is true, an error message is displayed when error is not null, and CaseCard components are rendered for each case in the data array when data is available. Verify that an empty state message (e.g., 'No cases yet') is shown when data is an empty array. Fix any issues preventing proper rendering of fetched cases."
+          "description": "Audit how DashboardView consumes the useGetAllCases and useGetDashboard query hooks. Verify that loading state checks include both `isLoading` and `isFetching` from the query result. Ensure error states are rendered with user-visible messages when queries fail. Check that case data rendering handles empty arrays gracefully and doesn't fail on null/undefined checks. Verify that the component properly waits for both actor initialization and data fetch completion before attempting to render case cards."
         },
         {
           "path": "frontend/src/features/cases/components/CasesListView.tsx",
           "operation": "modify",
-          "description": "Verify that CasesListView correctly consumes the useCases query result. Ensure it properly destructures isLoading, error, and data from the query hook. Confirm that a loading indicator is shown when isLoading is true, an error message is displayed when error is not null, and CaseCard components are rendered for filtered/sorted cases when data is available. Verify that an empty state message is shown when the filtered cases array is empty. Fix any issues preventing proper rendering of fetched cases."
+          "description": "Audit how CasesListView consumes the useGetAllCases query hook. Verify that loading state checks include both `isLoading` and `isFetching` from the query result. Ensure error states are rendered with user-visible messages (not just console logs) when the query fails. Check that case filtering, searching, and sorting logic properly handles undefined/null data before processing. Verify that empty state, loading skeletons, and error UI are all properly wired and displayed at the correct times. Ensure the component waits for actor initialization before attempting data operations."
+        }
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "summary": "Audit useActor.ts to verify correct actor initialization and identity handling",
+      "acceptanceCriteria": [
+        "Actor is initialized with the authenticated identity before any case-fetch query runs",
+        "Actor is refreshed/reinitialised when the user's identity changes",
+        "useQueries hooks receive a non-null actor instance when the user is authenticated"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/hooks/useActor.ts",
+          "operation": "modify",
+          "description": "Audit the actor initialization logic to confirm it properly creates a backend actor using the current Internet Identity principal from useInternetIdentity. Verify that the actor is recreated when identity changes (proper useEffect dependency on identity). Check that isFetching state accurately reflects actor initialization progress and is false only when actor is fully ready. Ensure queryClient.invalidateQueries is called when identity changes to force dependent queries to refetch with the new actor. Verify there are no race conditions where queries attempt to use the actor before it is initialized. Confirm the actor instance is not stale or cached incorrectly across identity changes."
         }
       ]
     }

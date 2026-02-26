@@ -1,23 +1,32 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-26T02:50:45.654Z",
-  "summary": "The diff modifies `frontend/src/hooks/useQueries.ts` to fix a race condition in the `enabled` condition (removing `!isFetching` guard), which addresses REQ-1's data-fetching regression. However, there is no evidence that `DashboardView.tsx` or `CasesListView.tsx` were modified to fix component-level loading/error/success state handling as required by REQ-2. The file summary for `CasesListView.tsx` mentions an empty state improvement, but the actual component file was not listed as modified in the diff. No changes to `DashboardView.tsx` are evidenced at all.",
+  "generatedAt": "2026-02-26T03:02:17.152Z",
+  "summary": "The diff modifies backend/main.mo, several frontend files (useQueries.ts, DashboardView.tsx, CasesListView.tsx, App.tsx), and metadata files. REQ-2, REQ-3, and REQ-4 (as visible in useQueries.ts, DashboardView.tsx, CasesListView.tsx) appear substantially addressed. However, REQ-1 (backend audit) and REQ-4 (useActor.ts fix) cannot be fully verified: main.mo is truncated and does not show stable variable declarations or upgrade hooks, and useActor.ts is not present in the diff at all.",
   "missing_requirements": [
     {
-      "id": "REQ-2",
-      "requirement": "Verify that DashboardView.tsx and CasesListView.tsx correctly consume the cases query result from useQueries.ts — ensuring they handle loading, error, and success states properly — and fix any component-level issues that may prevent cases from rendering even when the query returns data.",
-      "reason": "Neither DashboardView.tsx nor CasesListView.tsx appear in the modified files list of the diff. The diff only modifies useQueries.ts, frontend-file-summaries.txt, and project_state.json. No evidence of loading indicator, error message, or CaseCard rendering fixes in either view component.",
+      "id": "REQ-1",
+      "requirement": "Audit backend main.mo to verify query functions are correctly defined/exported, stable variable declarations are present, and upgrade hooks are intact so case data survives canister upgrades.",
+      "reason": "The main.mo diff is truncated and does not show stable variable declarations. The visible code uses plain 'var nextId = 0' and 'let cases = Map.empty<Nat, SurgeryCase>()' without the 'stable' keyword, which would cause case data loss on canister upgrade. No preupgrade/postupgrade hooks are visible. The AC requiring stable keyword on storage variables cannot be confirmed as satisfied.",
       "evidence": [
-        "frontend/src/hooks/useQueries.ts",
-        "frontend-file-summaries.txt"
+        "backend/main.mo"
       ]
+    },
+    {
+      "id": "REQ-4",
+      "requirement": "Audit and fix frontend/src/hooks/useActor.ts to verify correct actor initialization with authenticated identity, re-initialization on identity change, and no stale/undefined actor instances.",
+      "reason": "The file frontend/src/hooks/useActor.ts does not appear anywhere in the diff (neither modified nor added). The build request explicitly requires auditing and fixing this file, but no changes to it are present.",
+      "evidence": []
     }
   ],
   "hallucinated_features": [],
   "confidence": 0.72,
   "changed_files": [
+    "backend/main.mo",
     "frontend-file-summaries.txt",
+    "frontend/src/App.tsx",
+    "frontend/src/features/cases/components/CasesListView.tsx",
+    "frontend/src/features/dashboard/components/DashboardView.tsx",
     "frontend/src/hooks/useQueries.ts",
     "project_state.json"
   ]

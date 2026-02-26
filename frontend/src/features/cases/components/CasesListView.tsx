@@ -1,10 +1,12 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { AlertCircle, RefreshCw, PlusCircle, Stethoscope } from 'lucide-react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { AlertCircle, RefreshCw, PlusCircle, Stethoscope, Loader2 } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useGetAllCases } from '../../../hooks/useQueries';
+import { useActor } from '../../../hooks/useActor';
+import { useInternetIdentity } from '../../../hooks/useInternetIdentity';
 import type { SurgeryCase } from '../../../backend';
 import { Species } from '../../../backend';
 import { CaseCard } from './CaseCard';
@@ -14,7 +16,12 @@ import CasesTasksFilter from './CasesTasksFilter';
 import CasesSortControl from './CasesSortControl';
 import CaseFormDialog from './CaseFormDialog';
 import CsvImportExportPanel from './CsvImportExportPanel';
-import { filterBySpecies, filterByTaskTypes, filterOutCompletedCases, filterAllTasksCompleted } from '../filtering';
+import {
+  filterBySpecies,
+  filterByTaskTypes,
+  filterOutCompletedCases,
+  filterAllTasksCompleted,
+} from '../filtering';
 import { searchCases } from '../search';
 import { sortCases, SORT_OPTIONS } from '../sorting';
 import type { SortOption } from '../sorting';
@@ -24,9 +31,18 @@ interface CasesListViewProps {
   onHighlightClear?: () => void;
 }
 
-export function CasesListView({ highlightCaseId, onHighlightClear }: CasesListViewProps) {
+export default function CasesListView({ highlightCaseId, onHighlightClear }: CasesListViewProps) {
   const queryClient = useQueryClient();
-  const { data: cases, isLoading, error, refetch } = useGetAllCases();
+  const { identity } = useInternetIdentity();
+  const { isFetching: actorFetching } = useActor();
+
+  const {
+    data: cases,
+    isLoading: casesLoading,
+    isFetching: casesFetching,
+    error,
+    refetch,
+  } = useGetAllCases();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSpecies, setSelectedSpecies] = useState<Set<Species>>(new Set());
@@ -34,6 +50,10 @@ export function CasesListView({ highlightCaseId, onHighlightClear }: CasesListVi
   const [showAllTasksCompleted, setShowAllTasksCompleted] = useState(false);
   const [sortOption, setSortOption] = useState<SortOption>(SORT_OPTIONS[0].value as SortOption);
   const [newCaseOpen, setNewCaseOpen] = useState(false);
+  const [showCsvPanel, setShowCsvPanel] = useState(false);
+
+  const isLoading = actorFetching || casesLoading;
+  const isAuthenticated = !!identity;
 
   const handleRefresh = useCallback(async () => {
     await queryClient.invalidateQueries({ queryKey: ['cases'] });
@@ -44,25 +64,30 @@ export function CasesListView({ highlightCaseId, onHighlightClear }: CasesListVi
 
   const filteredAndSortedCases = useMemo(() => {
     let filtered = [...allCases];
-
     filtered = filterBySpecies(filtered, selectedSpecies);
     filtered = filterByTaskTypes(filtered, selectedTaskTypes);
-
     if (showAllTasksCompleted) {
       filtered = filterAllTasksCompleted(filtered);
     } else {
       filtered = filterOutCompletedCases(filtered);
     }
-
     if (searchQuery.trim()) {
       filtered = searchCases(filtered, searchQuery.trim());
     }
-
-    filtered = sortCases(filtered, sortOption);
-
-    return filtered;
+    return sortCases(filtered, sortOption);
   }, [allCases, selectedSpecies, selectedTaskTypes, showAllTasksCompleted, searchQuery, sortOption]);
 
+  // Not authenticated
+  if (!isAuthenticated) {
+    return (
+      <div className="flex flex-col items-center justify-center py-24 gap-4">
+        <Stethoscope className="w-12 h-12 text-muted-foreground" />
+        <p className="text-muted-foreground text-lg">Please log in to view your cases.</p>
+      </div>
+    );
+  }
+
+  // Loading state
   if (isLoading) {
     return (
       <div className="p-4 space-y-3">
@@ -73,18 +98,24 @@ export function CasesListView({ highlightCaseId, onHighlightClear }: CasesListVi
     );
   }
 
+  // Error state
   if (error) {
+    const errorMessage =
+      error instanceof Error
+        ? error.message
+        : 'An unknown error occurred while loading cases.';
+
     return (
-      <div className="p-4">
+      <div className="p-6 space-y-4">
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
-            Failed to load cases.{' '}
-            <button onClick={handleRefresh} className="underline font-medium">
-              Try again
-            </button>
-          </AlertDescription>
+          <AlertTitle>Failed to load cases</AlertTitle>
+          <AlertDescription className="mt-1">{errorMessage}</AlertDescription>
         </Alert>
+        <Button variant="outline" onClick={handleRefresh} className="gap-2">
+          <RefreshCw className="w-4 h-4" />
+          Retry
+        </Button>
       </div>
     );
   }
@@ -109,16 +140,23 @@ export function CasesListView({ highlightCaseId, onHighlightClear }: CasesListVi
           <p className="text-muted-foreground mb-8 max-w-sm">
             Add your first veterinary surgery case to start tracking patient workflows and tasks.
           </p>
-          <Button size="lg" onClick={() => setNewCaseOpen(true)} className="gap-2">
-            <PlusCircle className="h-5 w-5" />
-            Add First Case
-          </Button>
+          <div className="flex gap-3">
+            <Button size="lg" onClick={() => setNewCaseOpen(true)} className="gap-2">
+              <PlusCircle className="h-5 w-5" />
+              Add First Case
+            </Button>
+            <Button size="lg" variant="outline" onClick={() => setShowCsvPanel((v) => !v)}>
+              Import CSV
+            </Button>
+          </div>
         </div>
 
         {/* CSV import/export still available even when empty */}
-        <div className="border-t border-border px-4 py-3">
-          <CsvImportExportPanel cases={[]} />
-        </div>
+        {showCsvPanel && (
+          <div className="border-t border-border px-4 py-3">
+            <CsvImportExportPanel cases={[]} />
+          </div>
+        )}
 
         <CaseFormDialog open={newCaseOpen} onOpenChange={setNewCaseOpen} />
       </div>
@@ -155,15 +193,29 @@ export function CasesListView({ highlightCaseId, onHighlightClear }: CasesListVi
           />
           <CasesTasksFilter
             selectedTaskTypes={selectedTaskTypes}
-            showAllTasksCompleted={showAllTasksCompleted}
             onTaskTypesChange={setSelectedTaskTypes}
+            showAllTasksCompleted={showAllTasksCompleted}
             onShowAllTasksCompletedChange={setShowAllTasksCompleted}
           />
-          <div className="ml-auto">
+          <div className="ml-auto flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowCsvPanel((v) => !v)}
+            >
+              CSV
+            </Button>
             <CasesSortControl value={sortOption} onSortChange={setSortOption} />
           </div>
         </div>
       </div>
+
+      {/* CSV panel */}
+      {showCsvPanel && (
+        <div className="border-b border-border px-4 py-3">
+          <CsvImportExportPanel cases={allCases} />
+        </div>
+      )}
 
       {/* Cases list */}
       <div className="flex-1 overflow-y-auto p-4 space-y-3">
@@ -193,10 +245,12 @@ export function CasesListView({ highlightCaseId, onHighlightClear }: CasesListVi
         )}
       </div>
 
-      {/* CSV import/export */}
-      <div className="border-t border-border px-4 py-3">
-        <CsvImportExportPanel cases={allCases} />
-      </div>
+      {casesFetching && !casesLoading && (
+        <div className="flex items-center justify-center gap-2 text-muted-foreground text-sm py-2">
+          <Loader2 className="w-4 h-4 animate-spin" />
+          Refreshing cases…
+        </div>
+      )}
 
       <CaseFormDialog open={newCaseOpen} onOpenChange={setNewCaseOpen} />
     </div>

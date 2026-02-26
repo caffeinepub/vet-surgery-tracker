@@ -1,59 +1,94 @@
 {
   "kind": "build_request",
-  "title": "Fix cases not loading on Dashboard and Cases pages",
+  "title": "Diagnose and fix frontend data-fetching failure for surgery cases",
   "projectName": "SurgiPaw",
   "priority": "high",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Fix the data-fetching logic in `frontend/src/hooks/useQueries.ts` so that surgery cases are correctly fetched and returned for both the DashboardView and CasesListView components. Inspect the current implementation and identify why cases are not loading — likely a regression in query keys, actor calls, or result transformation introduced after Version 93 — and restore the correct fetching behavior.",
-      "target": "frontend",
+      "text": "Audit the backend `main.mo` actor to verify that the query functions for fetching surgery cases (e.g., `getCases`, `getDashboardData`, or equivalent) are correctly defined, exported, and return the expected data types. Confirm that stable variable declarations and any upgrade hooks are intact so stored case data survives canister upgrades.",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-20"
         ],
         "quotes": [
-          "Cases not loading on either Dashboard or Cases page"
+          "take a fresh look at the current backend and frontend code to diagnose exactly why the fetch is failing"
         ]
       },
       "acceptanceCriteria": [
-        "The Dashboard page renders surgery case cards when cases exist in the backend.",
-        "The Cases list page renders surgery case cards when cases exist in the backend.",
-        "The `useCases` (or equivalent) query in useQueries.ts successfully returns an array of SurgeryCase objects.",
-        "No console errors related to case fetching appear in the browser.",
-        "Both pages show an appropriate empty state (not a blank or broken UI) when there are no cases."
+        "All case-fetching query functions are present and correctly typed in main.mo",
+        "Stable storage variables holding cases are declared with the `stable` keyword",
+        "No runtime trap or type mismatch would prevent case data from being returned to the frontend"
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Verify that `DashboardView.tsx` and `CasesListView.tsx` correctly consume the cases query result from `useQueries.ts` — ensuring they handle loading, error, and success states properly — and fix any component-level issues that may prevent cases from rendering even when the query returns data.",
+      "text": "Audit `frontend/src/hooks/useQueries.ts` to identify and fix the root cause of the failing surgery case fetch. Check that the React Query hooks calling the backend actor use the correct method names matching those exported by `main.mo`, that the actor instance from `useActor` is valid before the query runs (i.e., the query is not enabled when actor is undefined/null), that query keys are stable and not causing unintended cache misses or stale states, and that error handling does not silently swallow failures.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-20"
         ],
         "quotes": [
-          "Cases not loading on either Dashboard or Cases page"
+          "take a fresh look at the current backend and frontend code to diagnose exactly why the fetch is failing"
         ]
       },
       "acceptanceCriteria": [
-        "DashboardView displays a loading indicator while cases are being fetched.",
-        "CasesListView displays a loading indicator while cases are being fetched.",
-        "DashboardView renders CaseCard components for each returned case.",
-        "CasesListView renders CaseCard components for each returned case.",
-        "Both views display a user-friendly error message if the fetch fails."
+        "Query hooks only execute when a valid actor instance is available (enabled guard)",
+        "Method names called on the actor exactly match the names exported by backend main.mo",
+        "Fetch errors are surfaced visibly (not silently caught and discarded)",
+        "Cases load successfully on both DashboardView and CasesListView after login"
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Audit `frontend/src/features/dashboard/components/DashboardView.tsx` and `frontend/src/features/cases/components/CasesListView.tsx` to confirm they correctly consume the query hooks from `useQueries.ts`, handle loading and error states, and render the returned case data. Fix any prop mismatches, missing null checks, or conditional rendering bugs that prevent cases from appearing even when the fetch succeeds.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-20"
+        ],
+        "quotes": [
+          "take a fresh look at the current backend and frontend code to diagnose exactly why the fetch is failing"
+        ]
+      },
+      "acceptanceCriteria": [
+        "DashboardView renders case cards when data is returned from the query hook",
+        "CasesListView renders case cards when data is returned from the query hook",
+        "Loading spinners/skeletons are shown while fetching and removed once data arrives",
+        "Error states display a user-facing message when the fetch fails"
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Audit `frontend/src/hooks/useActor.ts` to verify the backend actor is correctly initialized using the current Internet Identity principal, that it is re-initialized when the identity changes, and that the actor instance is not stale or undefined when queries attempt to use it. Fix any initialization race conditions or missing dependency triggers.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-20"
+        ],
+        "quotes": [
+          "take a fresh look at the current backend and frontend code to diagnose exactly why the fetch is failing"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Actor is initialized with the authenticated identity before any case-fetch query runs",
+        "Actor is refreshed/reinitialised when the user's identity changes",
+        "useQueries hooks receive a non-null actor instance when the user is authenticated"
       ]
     }
   ],
   "constraints": [
-    "Do not modify files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or frontend/src/components/ui.",
-    "Do not change the backend Motoko actor or data schema.",
-    "Fix must be scoped to data-fetching and rendering logic only — do not alter unrelated UI or features."
+    "Do not modify files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts (only fix bugs found within it), frontend/src/main.tsx, or frontend/src/components/ui",
+    "Do not alter the backend stable storage schema in a way that would cause data loss — if schema changes are needed, generate migration.mo",
+    "Preserve all existing case data stored in the ICP canister"
   ],
   "nonGoals": [
-    "Adding new case fields or backend endpoints.",
-    "Changing the visual design or layout of Dashboard or Cases pages.",
-    "Modifying authentication or Internet Identity logic."
+    "Adding new features or UI redesigns",
+    "Changing authentication provider or identity flow",
+    "Migrating data to an external database",
+    "Fixing unrelated UI styling issues"
   ],
   "imageRequirements": {
     "required": [],

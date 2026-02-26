@@ -3,8 +3,8 @@ import { useInternetIdentity } from './hooks/useInternetIdentity';
 import { useGetCallerUserProfile } from './hooks/useQueries';
 import LoginButton from './features/auth/components/LoginButton';
 import ProfileSetupModal from './features/auth/components/ProfileSetupModal';
-import { DashboardView } from './features/dashboard/components/DashboardView';
-import { CasesListView } from './features/cases/components/CasesListView';
+import DashboardView from './features/dashboard/components/DashboardView';
+import CasesListView from './features/cases/components/CasesListView';
 import { LayoutDashboard, FolderOpen } from 'lucide-react';
 
 export default function App() {

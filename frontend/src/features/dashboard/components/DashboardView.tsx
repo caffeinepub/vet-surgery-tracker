@@ -1,22 +1,28 @@
-import React, { useState, useMemo, useCallback } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
-import { RefreshCw, ClipboardList, CheckCircle2, AlertCircle, PlusCircle, Stethoscope } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { Stethoscope, AlertCircle, Loader2, RefreshCw, ClipboardList, CheckCircle2, PlusCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useGetAllCases, useGetDashboard } from '../../../hooks/useQueries';
-import type { SurgeryCase } from '../../../backend';
-import { Species } from '../../../backend';
+import { useActor } from '../../../hooks/useActor';
+import { useInternetIdentity } from '../../../hooks/useInternetIdentity';
 import { CaseCard } from '../../cases/components/CaseCard';
 import CasesSearchBar from '../../cases/components/CasesSearchBar';
 import CasesSpeciesFilter from '../../cases/components/CasesSpeciesFilter';
 import CasesTasksFilter from '../../cases/components/CasesTasksFilter';
 import CasesSortControl from '../../cases/components/CasesSortControl';
 import CaseFormDialog from '../../cases/components/CaseFormDialog';
-import { filterBySpecies, filterByTaskTypes, filterOutCompletedCases, filterAllTasksCompleted } from '../../cases/filtering';
-import { searchCases } from '../../cases/search';
+import {
+  filterBySpecies,
+  filterByTaskTypes,
+  filterOutCompletedCases,
+  filterAllTasksCompleted,
+} from '../../cases/filtering';
 import { sortCases, SORT_OPTIONS } from '../../cases/sorting';
 import type { SortOption } from '../../cases/sorting';
+import { searchCases } from '../../cases/search';
+import { Species } from '../../../backend';
+import type { SurgeryCase } from '../../../backend';
 import { getTotalOpenTasksCount } from '../utils/openTasksCalculation';
 import { getRemainingChecklistItems } from '../../cases/checklist';
 
@@ -24,10 +30,24 @@ interface DashboardViewProps {
   onNavigateToCase?: (caseId: number) => void;
 }
 
-export function DashboardView({ onNavigateToCase }: DashboardViewProps) {
-  const queryClient = useQueryClient();
-  const { data: cases, isLoading: casesLoading, error: casesError, refetch: refetchCases } = useGetAllCases();
-  const { data: dashboard, isLoading: dashboardLoading, refetch: refetchDashboard } = useGetDashboard();
+export default function DashboardView({ onNavigateToCase }: DashboardViewProps) {
+  const { identity } = useInternetIdentity();
+  const { isFetching: actorFetching } = useActor();
+
+  const {
+    data: cases,
+    isLoading: casesLoading,
+    isFetching: casesFetching,
+    error: casesError,
+    refetch: refetchCases,
+  } = useGetAllCases();
+
+  const {
+    data: dashboard,
+    isLoading: dashboardLoading,
+    error: dashboardError,
+    refetch: refetchDashboard,
+  } = useGetDashboard();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSpecies, setSelectedSpecies] = useState<Set<Species>>(new Set());
@@ -36,42 +56,47 @@ export function DashboardView({ onNavigateToCase }: DashboardViewProps) {
   const [sortOption, setSortOption] = useState<SortOption>(SORT_OPTIONS[0].value as SortOption);
   const [newCaseOpen, setNewCaseOpen] = useState(false);
 
-  const handleRefresh = useCallback(async () => {
-    await queryClient.invalidateQueries({ queryKey: ['cases'] });
-    await queryClient.invalidateQueries({ queryKey: ['dashboard'] });
-    refetchCases();
-    refetchDashboard();
-  }, [queryClient, refetchCases, refetchDashboard]);
+  const isLoading = actorFetching || casesLoading || dashboardLoading;
+  const hasError = !!casesError || !!dashboardError;
+  const isAuthenticated = !!identity;
 
   const allCases: SurgeryCase[] = cases ?? [];
 
   const filteredAndSortedCases = useMemo(() => {
     let filtered = [...allCases];
-
     filtered = filterBySpecies(filtered, selectedSpecies);
     filtered = filterByTaskTypes(filtered, selectedTaskTypes);
-
     if (showAllTasksCompleted) {
       filtered = filterAllTasksCompleted(filtered);
     } else {
       filtered = filterOutCompletedCases(filtered);
     }
-
     if (searchQuery.trim()) {
       filtered = searchCases(filtered, searchQuery.trim());
     }
-
-    filtered = sortCases(filtered, sortOption);
-
-    return filtered;
+    return sortCases(filtered, sortOption);
   }, [allCases, selectedSpecies, selectedTaskTypes, showAllTasksCompleted, searchQuery, sortOption]);
 
   const openTasksCount = dashboard?.openTasks ?? BigInt(getTotalOpenTasksCount(allCases));
   const totalCases = allCases.length;
   const activeCasesCount = allCases.filter((c) => getRemainingChecklistItems(c.task).length > 0).length;
 
-  const isLoading = casesLoading || dashboardLoading;
+  const handleRefetch = () => {
+    refetchCases();
+    refetchDashboard();
+  };
 
+  // Not authenticated
+  if (!isAuthenticated) {
+    return (
+      <div className="flex flex-col items-center justify-center py-24 gap-4">
+        <Stethoscope className="w-12 h-12 text-muted-foreground" />
+        <p className="text-muted-foreground text-lg">Please log in to view your cases.</p>
+      </div>
+    );
+  }
+
+  // Loading state
   if (isLoading) {
     return (
       <div className="p-4 space-y-4">
@@ -88,29 +113,31 @@ export function DashboardView({ onNavigateToCase }: DashboardViewProps) {
     );
   }
 
-  if (casesError) {
+  // Error state
+  if (hasError) {
+    const errorMessage =
+      casesError instanceof Error
+        ? casesError.message
+        : dashboardError instanceof Error
+        ? dashboardError.message
+        : 'An unknown error occurred while loading cases.';
+
     return (
-      <div className="p-4">
+      <div className="p-6 space-y-4">
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
-            Failed to load cases.{' '}
-            <button onClick={handleRefresh} className="underline font-medium">
-              Try again
-            </button>
-          </AlertDescription>
+          <AlertTitle>Failed to load cases</AlertTitle>
+          <AlertDescription className="mt-1">{errorMessage}</AlertDescription>
         </Alert>
+        <Button variant="outline" onClick={handleRefetch} className="gap-2">
+          <RefreshCw className="w-4 h-4" />
+          Retry
+        </Button>
       </div>
     );
   }
 
-  const hasActiveFilters =
-    selectedSpecies.size > 0 ||
-    selectedTaskTypes.size > 0 ||
-    showAllTasksCompleted ||
-    searchQuery.trim().length > 0;
-
-  // Empty database state — no cases at all
+  // Empty database state
   if (totalCases === 0) {
     return (
       <div className="flex flex-col h-full">
@@ -156,6 +183,12 @@ export function DashboardView({ onNavigateToCase }: DashboardViewProps) {
     );
   }
 
+  const hasActiveFilters =
+    selectedSpecies.size > 0 ||
+    selectedTaskTypes.size > 0 ||
+    showAllTasksCompleted ||
+    searchQuery.trim().length > 0;
+
   return (
     <div className="flex flex-col h-full">
       {/* Stats bar */}
@@ -190,7 +223,7 @@ export function DashboardView({ onNavigateToCase }: DashboardViewProps) {
             <Button
               variant="ghost"
               size="icon"
-              onClick={handleRefresh}
+              onClick={handleRefetch}
               title="Refresh"
               className="h-8 w-8"
             >
@@ -208,8 +241,8 @@ export function DashboardView({ onNavigateToCase }: DashboardViewProps) {
           />
           <CasesTasksFilter
             selectedTaskTypes={selectedTaskTypes}
-            showAllTasksCompleted={showAllTasksCompleted}
             onTaskTypesChange={setSelectedTaskTypes}
+            showAllTasksCompleted={showAllTasksCompleted}
             onShowAllTasksCompletedChange={setShowAllTasksCompleted}
           />
           <div className="ml-auto">
@@ -244,6 +277,13 @@ export function DashboardView({ onNavigateToCase }: DashboardViewProps) {
           ))
         )}
       </div>
+
+      {casesFetching && !casesLoading && (
+        <div className="flex items-center justify-center gap-2 text-muted-foreground text-sm py-2">
+          <Loader2 className="w-4 h-4 animate-spin" />
+          Refreshing cases…
+        </div>
+      )}
 
       <CaseFormDialog open={newCaseOpen} onOpenChange={setNewCaseOpen} />
     </div>

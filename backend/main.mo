@@ -10,7 +10,7 @@ import Iter "mo:core/Iter";
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
 
-actor {
+(actor {
   public type Species = { #canine; #feline; #other };
   public type Sex = { #male; #maleNeutered; #female; #femaleSpayed };
 
@@ -469,4 +469,4 @@ actor {
 
     { openTasks = taskCount };
   };
-};
+});
