@@ -1,34 +1,43 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-25T23:17:05.996Z",
+  "generatedAt": "2026-02-26T01:38:15.204Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 1,
-    "implemented": 1,
+    "total": 2,
+    "implemented": 2,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Investigate and fix the Version 94 frontend regression that causes a blank Cases list on both the Dashboard and Cases pages. The only changes in Version 94 were to workflow/task icons and their associated logic. Compare the current frontend code for cases data fetching and rendering (useQueries.ts, CasesListView.tsx, DashboardView.tsx, CaseCard.tsx, ChecklistEditor.tsx, WorkflowIcon.tsx) against the last known working state to identify where the icon/workflow changes broke Cases loading. Restore Cases loading to the working state from Version 93 while keeping any valid icon improvements intact.",
+        "summary": "Restore Cases data rendering on the Dashboard page so that surgery cases fetched from the backend canister display correctly, matching the behavior from version 93. The fix must ensure the React Query hook result is properly wired to the component's rendering logic without altering any backend calls.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/components/workflow-icons/WorkflowIcon.tsx",
-          "frontend/src/features/cases/components/CaseCard.tsx",
-          "frontend/src/features/cases/components/ChecklistEditor.tsx",
-          "frontend/src/features/cases/components/CasesListView.tsx",
           "frontend/src/features/dashboard/components/DashboardView.tsx",
-          "frontend/src/features/cases/checklist.ts",
-          "frontend/src/hooks/useQueries.ts",
-          "frontend/src/components/workflow-icons/workflowTokens.ts"
+          "frontend/src/hooks/useQueries.ts"
         ],
         "matchedFiles": [
-          "frontend/src/components/workflow-icons/WorkflowIcon.tsx",
+          "frontend/src/features/dashboard/components/DashboardView.tsx",
+          "frontend/src/hooks/useQueries.ts"
+        ]
+      },
+      {
+        "id": "REQ-2",
+        "summary": "Restore Cases data rendering on the Cases list page (CasesListView) so that surgery cases fetched from the backend canister display correctly, matching the behavior from version 93. Inspect and repair any broken prop passing, query result destructuring, or data mapping introduced by the UI refactor between v93 and v95 (specifically changes related to WorkflowIcon.tsx, CaseCard.tsx, ChecklistEditor.tsx, and useQueries.ts).",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/features/cases/components/CasesListView.tsx",
           "frontend/src/features/cases/components/CaseCard.tsx",
           "frontend/src/features/cases/components/ChecklistEditor.tsx",
-          "frontend/src/hooks/useQueries.ts"
+          "frontend/src/components/workflow-icons/WorkflowIcon.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/features/cases/components/CasesListView.tsx",
+          "frontend/src/features/cases/components/CaseCard.tsx",
+          "frontend/src/features/cases/components/ChecklistEditor.tsx",
+          "frontend/src/components/workflow-icons/WorkflowIcon.tsx"
         ]
       }
     ]
@@ -38,13 +47,14 @@
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
+    "frontend/src/App.tsx",
     "frontend/src/components/workflow-icons/WorkflowIcon.tsx",
+    "frontend/src/features/cases/checklist.ts",
     "frontend/src/features/cases/components/CaseCard.tsx",
-    "frontend/src/features/cases/components/CaseEditDialog.tsx",
+    "frontend/src/features/cases/components/CasesListView.tsx",
     "frontend/src/features/cases/components/ChecklistEditor.tsx",
     "frontend/src/features/cases/filtering.ts",
-    "frontend/src/features/cases/search.ts",
-    "frontend/src/features/dashboard/utils/openTasksCalculation.ts",
+    "frontend/src/features/dashboard/components/DashboardView.tsx",
     "frontend/src/hooks/useQueries.ts",
     "project_state.json",
     "scratch/component-selection.json",

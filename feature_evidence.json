@@ -2,12 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-investigate-and-fix-the-version-94-frontend-regression-that-causes-a-blank-cases-list-on-both-the-dashboard-and-cases-pages-the-only-changes-in-version-94-were-to-workflow-task-icons-and-their-associated-logic-compare-the-current-frontend-code-for-cases-data-fetching-and-rendering-usequeries-ts-caseslistview-tsx-dashboardview-tsx-casecard-tsx-checklisteditor-tsx-workflowicon-tsx-against-the-last-known-working-state-to-identify-where-the-icon-workflow-changes-broke-cases-loading-restore-cases-loading-to-the-working-state-from-version-93-while-keeping-any-valid-icon-improvements-intact",
-      "featureTitle": "Investigate and fix the Version 94 frontend regression that causes a blank Cases list on both the Dashboard and Cases pages. The only changes in Version 94 were to workflow/task icons and their associated logic. Compare the current frontend code for cases data fetching and rendering (useQueries.ts, CasesListView.tsx, DashboardView.tsx, CaseCard.tsx, ChecklistEditor.tsx, WorkflowIcon.tsx) against the last known working state to identify where the icon/workflow changes broke Cases loading. Restore Cases loading to the working state from Version 93 while keeping any valid icon improvements intact.",
+      "featureId": "feature-restore-cases-data-rendering-on-the-dashboard-page-so-that-surgery-cases-fetched-from-the-backend-canister-display-correctly-matching-the-behavior-from-version-93-the-fix-must-ensure-the-react-query-hook-result-is-properly-wired-to-the-component-s-rendering-logic-without-altering-any-backend-calls",
+      "featureTitle": "Restore Cases data rendering on the Dashboard page so that surgery cases fetched from the backend canister display correctly, matching the behavior from version 93. The fix must ensure the React Query hook result is properly wired to the component's rendering logic without altering any backend calls.",
       "files": [
-        "frontend/src/components/workflow-icons/WorkflowIcon.tsx",
-        "frontend/src/features/cases/components/CaseCard.tsx",
-        "frontend/src/features/cases/components/ChecklistEditor.tsx",
+        "frontend/src/features/dashboard/components/DashboardView.tsx",
         "frontend/src/hooks/useQueries.ts"
       ],
       "components": [
@@ -22,6 +20,30 @@
       ],
       "testIds": [
         "REQ-1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-restore-cases-data-rendering-on-the-cases-list-page-caseslistview-so-that-surgery-cases-fetched-from-the-backend-canister-display-correctly-matching-the-behavior-from-version-93-inspect-and-repair-any-broken-prop-passing-query-result-destructuring-or-data-mapping-introduced-by-the-ui-refactor-between-v93-and-v95-specifically-changes-related-to-workflowicon-tsx-casecard-tsx-checklisteditor-tsx-and-usequeries-ts",
+      "featureTitle": "Restore Cases data rendering on the Cases list page (CasesListView) so that surgery cases fetched from the backend canister display correctly, matching the behavior from version 93. Inspect and repair any broken prop passing, query result destructuring, or data mapping introduced by the UI refactor between v93 and v95 (specifically changes related to WorkflowIcon.tsx, CaseCard.tsx, ChecklistEditor.tsx, and useQueries.ts).",
+      "files": [
+        "frontend/src/components/workflow-icons/WorkflowIcon.tsx",
+        "frontend/src/features/cases/components/CaseCard.tsx",
+        "frontend/src/features/cases/components/CasesListView.tsx",
+        "frontend/src/features/cases/components/ChecklistEditor.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "camera@1.0.0",
+        "http-outcalls@3.0.0"
+      ],
+      "testIds": [
+        "REQ-2"
       ],
       "confidence": "high"
     }

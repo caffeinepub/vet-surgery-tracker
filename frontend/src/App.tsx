@@ -3,21 +3,21 @@ import { useInternetIdentity } from './hooks/useInternetIdentity';
 import { useGetCallerUserProfile } from './hooks/useQueries';
 import LoginButton from './features/auth/components/LoginButton';
 import ProfileSetupModal from './features/auth/components/ProfileSetupModal';
-import DashboardView from './features/dashboard/components/DashboardView';
-import CasesListView from './features/cases/components/CasesListView';
+import { DashboardView } from './features/dashboard/components/DashboardView';
+import { CasesListView } from './features/cases/components/CasesListView';
 import { LayoutDashboard, FolderOpen } from 'lucide-react';
 
 export default function App() {
   const { identity, isInitializing } = useInternetIdentity();
   const isAuthenticated = !!identity;
   const [currentView, setCurrentView] = useState<'dashboard' | 'cases'>('dashboard');
-  const [highlightCaseId, setHighlightCaseId] = useState<bigint | null>(null);
+  const [highlightCaseId, setHighlightCaseId] = useState<number | null>(null);
 
   const { data: userProfile, isLoading: profileLoading, isFetched } = useGetCallerUserProfile();
 
   const showProfileSetup = isAuthenticated && !profileLoading && isFetched && userProfile === null;
 
-  const handleNavigateToCase = (caseId: bigint) => {
+  const handleNavigateToCase = (caseId: number) => {
     setHighlightCaseId(caseId);
     setCurrentView('cases');
   };

@@ -1,11 +1,12 @@
 {
   "kind": "build_request",
-  "title": "Fix Cases loading regression from Version 94 (blank list on Dashboard and Cases pages)",
+  "title": "Fix blank Cases list regression on Dashboard and Cases pages",
+  "projectName": "SurgiPaw",
   "priority": "high",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Investigate and fix the Version 94 frontend regression that causes a blank Cases list on both the Dashboard and Cases pages. The only changes in Version 94 were to workflow/task icons and their associated logic. Compare the current frontend code for cases data fetching and rendering (useQueries.ts, CasesListView.tsx, DashboardView.tsx, CaseCard.tsx, ChecklistEditor.tsx, WorkflowIcon.tsx) against the last known working state to identify where the icon/workflow changes broke Cases loading. Restore Cases loading to the working state from Version 93 while keeping any valid icon improvements intact.",
+      "text": "Restore Cases data rendering on the Dashboard page so that surgery cases fetched from the backend canister display correctly, matching the behavior from version 93. The fix must ensure the React Query hook result is properly wired to the component's rendering logic without altering any backend calls.",
       "target": "frontend",
       "source": {
         "messageIds": [
@@ -13,30 +14,54 @@
           "msg-2"
         ],
         "quotes": [
-          "Cases are not loading in the app. They are called cases in the app. Stored in the backend canister. They loaded fine in version 93",
-          "Blank list",
-          "Changes were related to changing icons for the tasks and the flow associated with those.",
-          "From what I can tell it is loading cases on both the Dashboard and Cases page"
+          "Cases are not loading in the app",
+          "Blank list is loading on both the Cases and Dashboard pages",
+          "1. UI-related",
+          "2. No error messages"
         ]
       },
       "acceptanceCriteria": [
-        "Cases list is no longer blank on the Cases page — existing cases from the backend canister are displayed.",
-        "Cases list is no longer blank on the Dashboard page — existing cases from the backend canister are displayed.",
-        "No console errors related to case fetching, task icons, or workflow rendering.",
-        "Workflow/task icons still render correctly on case cards.",
-        "Creating, editing, and filtering cases continues to work as expected."
+        "The Dashboard page displays the full list of surgery cases returned by the backend canister",
+        "No empty list is shown when cases exist in the backend",
+        "No error messages or console errors appear related to case loading",
+        "The fix does not modify any backend Motoko code"
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "text": "Restore Cases data rendering on the Cases list page (CasesListView) so that surgery cases fetched from the backend canister display correctly, matching the behavior from version 93. Inspect and repair any broken prop passing, query result destructuring, or data mapping introduced by the UI refactor between v93 and v95 (specifically changes related to WorkflowIcon.tsx, CaseCard.tsx, ChecklistEditor.tsx, and useQueries.ts).",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1",
+          "msg-2"
+        ],
+        "quotes": [
+          "Cases are not loading in the app",
+          "Blank list is loading on both the Cases and Dashboard pages",
+          "1. UI-related",
+          "2. No error messages"
+        ]
+      },
+      "acceptanceCriteria": [
+        "The Cases page displays the full list of surgery cases returned by the backend canister",
+        "No empty list is shown when cases exist in the backend",
+        "CaseCard components render correctly with case data including workflow task icons",
+        "ChecklistEditor receives and renders the correct task data per case",
+        "No error messages or console errors appear related to case loading",
+        "The fix does not modify any backend Motoko code"
       ]
     }
   ],
   "constraints": [
-    "Do not modify backend/main.mo — this is a frontend-only regression.",
-    "Do not remove or revert workflow icon components unless they are directly causing the rendering failure.",
-    "Preserve all valid Version 94 icon and workflow improvements that do not break case loading."
+    "Do not modify any backend Motoko code",
+    "Do not change the data fetching logic in the backend canister interface",
+    "Immutable frontend paths (useInternetIdentity.ts, useActor.ts, main.tsx, components/ui) must not be edited"
   ],
   "nonGoals": [
-    "Adding new features or UI changes beyond fixing the blank list regression.",
-    "Modifying backend data models or CRUD operations.",
-    "Changing the visual design of the app."
+    "Adding new features or UI changes beyond restoring the case list display",
+    "Changing the visual design or workflow icons introduced in v94/v95",
+    "Modifying backend data models or CRUD operations"
   ],
   "imageRequirements": {
     "required": [],

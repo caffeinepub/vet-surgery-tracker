@@ -1,11 +1,13 @@
 # Specification
 
 ## Summary
-**Goal:** Fix the Version 94 frontend regression that causes a blank Cases list on both the Dashboard and Cases pages.
+**Goal:** Fix a regression where surgery cases no longer display on the Dashboard and Cases list pages (introduced between v93 and v95).
 
 **Planned changes:**
-- Investigate the Version 94 changes to workflow/task icons and their associated logic to identify what broke Cases loading
-- Compare and fix the affected files (`useQueries.ts`, `CasesListView.tsx`, `DashboardView.tsx`, `CaseCard.tsx`, `ChecklistEditor.tsx`, `WorkflowIcon.tsx`) to restore cases data fetching and rendering to the working Version 93 state
-- Preserve any valid workflow/task icon improvements from Version 94 that do not cause the regression
+- Repair broken React Query hook result wiring on the Dashboard page so fetched cases render correctly
+- Repair broken prop passing, query result destructuring, or data mapping on the Cases list page (CasesListView)
+- Inspect and fix any issues introduced by the UI refactor involving WorkflowIcon.tsx, CaseCard.tsx, ChecklistEditor.tsx, and useQueries.ts
+- Ensure CaseCard components render correctly with case data including workflow task icons
+- Ensure ChecklistEditor receives and renders the correct task data per case
 
-**User-visible outcome:** Cases are displayed again on both the Dashboard and Cases pages, with workflow/task icons still rendering correctly and no console errors.
+**User-visible outcome:** Surgery cases fetched from the backend canister display correctly on both the Dashboard and Cases list pages, with no blank lists or console errors.

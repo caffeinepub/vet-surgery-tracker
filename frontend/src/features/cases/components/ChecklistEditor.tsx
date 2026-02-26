@@ -1,106 +1,56 @@
-import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
-import type { Task } from '../../../backend';
-import { CHECKLIST_ITEMS, getTaskBorderColor, getTaskBackgroundColor } from '../checklist';
-import WorkflowIcon from '../../../components/workflow-icons/WorkflowIcon';
+import React from 'react';
 import { cn } from '@/lib/utils';
+import { Checkbox } from '@/components/ui/checkbox';
+import { WorkflowIcon } from '../../../components/workflow-icons/WorkflowIcon';
+import { CHECKLIST_ITEMS } from '../checklist';
+import type { Task } from '../../../backend';
 
 interface ChecklistEditorProps {
   task: Task;
-  onChange: (task: Task) => void;
-  disabled?: boolean;
-  mode?: 'creation' | 'completion';
+  onToggleTask: (taskType: string) => void;
+  isLoading?: boolean;
 }
 
-export default function ChecklistEditor({ task, onChange, disabled, mode = 'completion' }: ChecklistEditorProps) {
-  const isCreationMode = mode === 'creation';
+export function ChecklistEditor({ task, onToggleTask, isLoading }: ChecklistEditorProps) {
+  // Only show items that are selected on this task
+  const visibleItems = CHECKLIST_ITEMS.filter((item) => task[item.selectedField] === true);
 
-  const handleCheckboxChange = (item: typeof CHECKLIST_ITEMS[0], checked: boolean) => {
-    if (isCreationMode) {
-      onChange({
-        ...task,
-        [item.selectedField]: checked,
-      });
-    } else {
-      onChange({
-        ...task,
-        [item.completedField]: checked,
-      });
-    }
-  };
-
-  const getCheckboxState = (item: typeof CHECKLIST_ITEMS[0]): boolean => {
-    if (isCreationMode) {
-      return task[item.selectedField] as boolean;
-    } else {
-      return task[item.completedField] as boolean;
-    }
-  };
-
-  // In completion mode, only show tasks that are selected
-  const itemsToDisplay = isCreationMode
-    ? CHECKLIST_ITEMS
-    : CHECKLIST_ITEMS.filter(item => task[item.selectedField] === true);
+  if (visibleItems.length === 0) return null;
 
   return (
-    <div className="space-y-3 rounded-lg border border-border bg-card p-4">
-      <div className="space-y-2">
-        {itemsToDisplay.map((item) => {
-          const borderColor = getTaskBorderColor(item.color);
-          const backgroundColor = getTaskBackgroundColor(item.color);
-          const isChecked = getCheckboxState(item);
-
-          return (
-            <div
-              key={item.key}
+    <div className="space-y-2">
+      {visibleItems.map((item) => {
+        const isCompleted = task[item.completedField] === true;
+        return (
+          <div
+            key={item.key}
+            className={cn(
+              'flex items-center gap-2 rounded-lg px-3 py-2 transition-colors',
+              isCompleted ? 'bg-muted/50' : 'bg-muted'
+            )}
+          >
+            <Checkbox
+              id={`task-${item.key}`}
+              checked={isCompleted}
+              onCheckedChange={() => onToggleTask(item.workflowType)}
+              disabled={isLoading}
+              className="shrink-0"
+            />
+            <div className="shrink-0">
+              <WorkflowIcon type={item.workflowType} />
+            </div>
+            <label
+              htmlFor={`task-${item.key}`}
               className={cn(
-                'flex items-center space-x-2 rounded-md p-2 -mx-2 border-2',
-                borderColor,
-                backgroundColor,
-                !isCreationMode && isChecked ? 'opacity-60' : ''
+                'text-sm cursor-pointer select-none flex-1',
+                isCompleted ? 'line-through text-muted-foreground' : 'text-foreground'
               )}
             >
-              <Checkbox
-                id={`checklist-${mode}-${item.key}`}
-                checked={isChecked}
-                onCheckedChange={(checked) => handleCheckboxChange(item, checked as boolean)}
-                disabled={disabled}
-              />
-              <span
-                style={{
-                  display: 'inline-flex',
-                  width: '16px',
-                  height: '16px',
-                  flexShrink: 0,
-                  transform: 'scale(0.667)',
-                  transformOrigin: 'center',
-                  opacity: disabled ? 0.5 : 1,
-                }}
-              >
-                <WorkflowIcon type={item.workflowType} />
-              </span>
-              <Label
-                htmlFor={`checklist-${mode}-${item.key}`}
-                className={cn(
-                  'text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70',
-                  disabled && 'opacity-50 cursor-not-allowed',
-                  !isCreationMode && isChecked ? 'line-through text-muted-foreground' : ''
-                )}
-              >
-                {item.label}
-                {isCreationMode && item.defaultSelected && (
-                  <span className="ml-2 text-xs text-muted-foreground">(default)</span>
-                )}
-              </Label>
-            </div>
-          );
-        })}
-      </div>
-      {isCreationMode && (
-        <p className="text-xs text-muted-foreground mt-3 pt-3 border-t border-border">
-          Selected tasks will appear as icons on the case card.
-        </p>
-      )}
+              {item.label}
+            </label>
+          </div>
+        );
+      })}
     </div>
   );
 }

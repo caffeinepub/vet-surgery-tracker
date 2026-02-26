@@ -1,265 +1,264 @@
-import { useState } from 'react';
-import type { SurgeryCase, Task } from '../../../backend';
-import { Species, Sex, TaskType } from '../../../backend';
-import { CHECKLIST_ITEMS, getTaskBackgroundColor } from '../checklist';
-import { useUpdateTaskCompletion } from '../../../hooks/useQueries';
-import WorkflowIcon from '../../../components/workflow-icons/WorkflowIcon';
-import { Pencil, CheckCircle2, Loader2 } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { ChevronDown, ChevronUp, Trash2, FileText, CheckCircle2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
+import type { SurgeryCase } from '../../../backend';
+import { Species, Sex } from '../../../backend';
+import { CHECKLIST_ITEMS, getRemainingChecklistItems } from '../checklist';
+import { WorkflowIcon } from '../../../components/workflow-icons/WorkflowIcon';
+import CaseEditDialog from './CaseEditDialog';
+import { ChecklistEditor } from './ChecklistEditor';
+import { useUpdateTaskCompletion, useDeleteCase } from '../../../hooks/useQueries';
 
 interface CaseCardProps {
   surgeryCase: SurgeryCase;
-  onEditClick?: (surgeryCase: SurgeryCase) => void;
-  size?: 'default' | 'dashboard';
-  highlighted?: boolean;
-}
-
-// Map checklist key strings to TaskType enum values
-const TASK_KEY_TO_TYPE: Record<string, TaskType> = {
-  dischargeNotes: TaskType.dischargeNotes,
-  pdvmNotified: TaskType.pdvmNotified,
-  labs: TaskType.labs,
-  histo: TaskType.histo,
-  surgeryReport: TaskType.surgeryReport,
-  imaging: TaskType.imaging,
-  culture: TaskType.culture,
-};
-
-function getSpeciesIcon(species: Species, size: 'default' | 'dashboard' = 'default') {
-  const iconSize = size === 'dashboard' ? 'w-10 h-10' : 'w-7 h-7';
-  const iconMap: Record<string, string> = {
-    [Species.canine]: '/assets/Dog Icon 3.ico',
-    [Species.feline]: '/assets/Cat Icon 3.ico',
-    [Species.other]: '/assets/Other Icon 3.ico',
-  };
-  const altMap: Record<string, string> = {
-    [Species.canine]: 'Canine',
-    [Species.feline]: 'Feline',
-    [Species.other]: 'Other',
-  };
-  return (
-    <img
-      src={iconMap[species] ?? '/assets/Other Icon 3.ico'}
-      alt={altMap[species] ?? 'Other'}
-      className={`${iconSize} object-contain`}
-    />
-  );
-}
-
-function formatSex(sex: Sex): string {
-  switch (sex) {
-    case Sex.male: return 'M';
-    case Sex.maleNeutered: return 'MN';
-    case Sex.female: return 'F';
-    case Sex.femaleSpayed: return 'FS';
-    default: return '';
-  }
-}
-
-function formatAge(dateOfBirth?: bigint): string {
-  if (!dateOfBirth) return '';
-  const dob = new Date(Number(dateOfBirth) / 1_000_000);
-  const now = new Date();
-  const years = now.getFullYear() - dob.getFullYear();
-  const months = now.getMonth() - dob.getMonth();
-  const totalMonths = years * 12 + months;
-  if (totalMonths < 12) return `${totalMonths}mo`;
-  return `${Math.floor(totalMonths / 12)}yr`;
+  isHighlighted?: boolean;
+  onHighlightClear?: () => void;
+  onNavigateToCase?: (caseId: number) => void;
 }
 
 function formatDate(time: bigint): string {
-  const date = new Date(Number(time) / 1_000_000);
-  return date.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: '2-digit' });
+  try {
+    const ms = Number(time) / 1_000_000;
+    const date = new Date(ms);
+    if (isNaN(date.getTime())) return '—';
+    return date.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' });
+  } catch {
+    return '—';
+  }
 }
 
-function getTaskField<K extends keyof Task>(task: Task, field: K): boolean {
-  return (task as unknown as Record<string, boolean>)[field as string] ?? false;
+function getSpeciesIcon(species: Species): string {
+  switch (species) {
+    case Species.canine:
+      return '/assets/Dog icon.ico';
+    case Species.feline:
+      return '/assets/Cat icon.ico';
+    default:
+      return '/assets/Other icon.ico';
+  }
 }
 
-export default function CaseCard({ surgeryCase, onEditClick, size = 'default', highlighted = false }: CaseCardProps) {
-  const [expanded, setExpanded] = useState(false);
+function getSexLabel(sex: Sex): string {
+  switch (sex) {
+    case Sex.male:
+      return 'M';
+    case Sex.maleNeutered:
+      return 'MN';
+    case Sex.female:
+      return 'F';
+    case Sex.femaleSpayed:
+      return 'FS';
+    default:
+      return '—';
+  }
+}
+
+export function CaseCard({ surgeryCase, isHighlighted, onHighlightClear, onNavigateToCase }: CaseCardProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
+
   const updateTaskCompletion = useUpdateTaskCompletion();
+  const deleteCase = useDeleteCase();
 
-  const isDashboard = size === 'dashboard';
+  const remainingItems = getRemainingChecklistItems(surgeryCase.task);
+  const allTasksCompleted = remainingItems.length === 0;
 
-  const selectedTasks = CHECKLIST_ITEMS.filter(item =>
-    getTaskField(surgeryCase.task, item.selectedField)
+  const selectedItems = CHECKLIST_ITEMS.filter(
+    (item) => surgeryCase.task[item.selectedField] === true
   );
 
-  const remainingTasks = selectedTasks.filter(item =>
-    !getTaskField(surgeryCase.task, item.completedField)
-  );
+  useEffect(() => {
+    if (isHighlighted && cardRef.current) {
+      cardRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setIsExpanded(true);
+      onHighlightClear?.();
+    }
+  }, [isHighlighted, onHighlightClear]);
 
-  const allCompleted = selectedTasks.length > 0 && remainingTasks.length === 0;
+  const handleToggleTask = async (taskType: string) => {
+    try {
+      await updateTaskCompletion.mutateAsync({
+        id: surgeryCase.id,
+        taskType: taskType as import('../../../backend').TaskType,
+      });
+    } catch {
+      // silently ignore
+    }
+  };
 
-  const handleTaskClick = (taskKey: string) => {
-    const taskType = TASK_KEY_TO_TYPE[taskKey];
-    if (!taskType) return;
-    updateTaskCompletion.mutate({ id: surgeryCase.id, taskType });
+  const handleDelete = async () => {
+    if (!window.confirm(`Delete case for ${surgeryCase.petName}?`)) return;
+    try {
+      await deleteCase.mutateAsync(surgeryCase.id);
+    } catch {
+      // silently ignore
+    }
   };
 
   return (
-    <div
-      className={`rounded-lg border bg-card shadow-sm transition-all ${
-        highlighted ? 'ring-2 ring-primary ring-offset-2' : ''
-      } ${allCompleted ? 'opacity-70' : ''} ${isDashboard ? 'text-base' : 'text-sm'}`}
-    >
-      {/* Header */}
+    <>
       <div
-        className={`flex items-start gap-3 cursor-pointer select-none ${isDashboard ? 'p-4' : 'p-3'}`}
-        onClick={() => setExpanded(e => !e)}
+        ref={cardRef}
+        className={cn(
+          'bg-card border border-border rounded-xl overflow-hidden transition-all duration-200',
+          isHighlighted && 'ring-2 ring-primary',
+          allTasksCompleted && 'opacity-75'
+        )}
       >
-        {/* Species Icon */}
-        <div className="flex-shrink-0 mt-0.5">
-          {getSpeciesIcon(surgeryCase.species, size)}
-        </div>
+        {/* Card header */}
+        <div
+          className="flex items-center gap-3 px-4 py-3 cursor-pointer select-none"
+          onClick={() => setIsExpanded((v) => !v)}
+        >
+          {/* Species icon */}
+          <img
+            src={getSpeciesIcon(surgeryCase.species)}
+            alt={surgeryCase.species}
+            className="h-8 w-8 object-contain shrink-0"
+            onError={(e) => {
+              (e.target as HTMLImageElement).style.display = 'none';
+            }}
+          />
 
-        {/* Patient Info */}
-        <div className="flex-1 min-w-0">
-          <div className={`font-semibold text-foreground truncate ${isDashboard ? 'text-lg' : 'text-sm'}`}>
-            {surgeryCase.petName}
-            <span className={`font-normal text-muted-foreground ml-2 ${isDashboard ? 'text-sm' : 'text-xs'}`}>
-              {surgeryCase.ownerLastName}
-            </span>
-          </div>
-          <div className={`text-muted-foreground flex items-center gap-2 flex-wrap ${isDashboard ? 'text-sm' : 'text-xs'}`}>
-            <span className="font-mono">{surgeryCase.medicalRecordNumber}</span>
-            <span>·</span>
-            <span>{formatSex(surgeryCase.sex)}</span>
-            {surgeryCase.dateOfBirth && (
-              <>
-                <span>·</span>
-                <span>{formatAge(surgeryCase.dateOfBirth)}</span>
-              </>
-            )}
-            <span>·</span>
-            <span>{formatDate(surgeryCase.arrivalDate)}</span>
-          </div>
-          {surgeryCase.presentingComplaint && surgeryCase.presentingComplaint.trim() ? (
-            <div className={`mt-1 text-foreground/80 truncate ${isDashboard ? 'text-sm' : 'text-xs'}`}>
-              <span className="font-medium text-muted-foreground">Complaint:</span>{' '}
-              <span>{surgeryCase.presentingComplaint}</span>
+          {/* Patient info */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="font-semibold text-foreground truncate">
+                {surgeryCase.petName}
+              </span>
+              <span className="text-muted-foreground text-sm">
+                {surgeryCase.ownerLastName}
+              </span>
+              <Badge variant="outline" className="text-xs shrink-0">
+                {getSexLabel(surgeryCase.sex)}
+              </Badge>
+              {surgeryCase.medicalRecordNumber && (
+                <span className="text-xs text-muted-foreground font-mono shrink-0">
+                  #{surgeryCase.medicalRecordNumber}
+                </span>
+              )}
             </div>
-          ) : (
-            <div className={`mt-1 italic text-muted-foreground/60 ${isDashboard ? 'text-sm' : 'text-xs'}`}>
-              No complaint recorded
+            <div className="flex items-center gap-2 mt-0.5">
+              <span className="text-xs text-muted-foreground">
+                {formatDate(surgeryCase.arrivalDate)}
+              </span>
+              {surgeryCase.breed && (
+                <span className="text-xs text-muted-foreground truncate">· {surgeryCase.breed}</span>
+              )}
             </div>
-          )}
-        </div>
+          </div>
 
-        {/* Task workflow icons */}
-        <div className="flex flex-wrap gap-1 justify-end max-w-[90px] flex-shrink-0">
-          {selectedTasks.map(item => {
-            const isCompleted = getTaskField(surgeryCase.task, item.completedField);
-            return (
-              <div
-                key={item.key}
-                title={`${item.label}${isCompleted ? ' (completed)' : ' (pending)'}`}
-                className={`relative ${isDashboard ? 'w-5 h-5' : 'w-4 h-4'} ${isCompleted ? 'opacity-30' : ''}`}
-                style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
-              >
-                <span
-                  style={{
-                    display: 'inline-flex',
-                    width: isDashboard ? '20px' : '16px',
-                    height: isDashboard ? '20px' : '16px',
-                    transform: `scale(${isDashboard ? 20 / 24 : 16 / 24})`,
-                    transformOrigin: 'center',
-                  }}
+          {/* Workflow icon strip */}
+          <div className="flex items-center gap-1 shrink-0">
+            {selectedItems.map((item) => {
+              const isCompleted = surgeryCase.task[item.completedField] === true;
+              return (
+                <div
+                  key={item.key}
+                  className={cn(
+                    'transition-opacity',
+                    isCompleted ? 'opacity-30' : 'opacity-100'
+                  )}
+                  title={item.label}
                 >
                   <WorkflowIcon type={item.workflowType} />
-                </span>
-                {isCompleted && (
-                  <CheckCircle2
-                    className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 text-green-500"
-                  />
-                )}
-              </div>
-            );
-          })}
+                </div>
+              );
+            })}
+            {allTasksCompleted && selectedItems.length > 0 && (
+              <CheckCircle2 className="h-4 w-4 text-green-500 ml-1" />
+            )}
+          </div>
+
+          {/* Expand chevron */}
+          <div className="shrink-0 text-muted-foreground">
+            {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+          </div>
         </div>
 
-        {/* Edit button (non-dashboard) */}
-        {!isDashboard && onEditClick && (
-          <button
-            className="flex-shrink-0 p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-            onClick={e => { e.stopPropagation(); onEditClick(surgeryCase); }}
-            title="Edit case"
-          >
-            <Pencil className="w-3.5 h-3.5" />
-          </button>
+        {/* Expanded content */}
+        {isExpanded && (
+          <div className="border-t border-border px-4 py-3 space-y-3">
+            {/* Presenting complaint */}
+            {surgeryCase.presentingComplaint && (
+              <div className="text-sm">
+                <span className="font-medium text-muted-foreground">Complaint: </span>
+                <span className="text-foreground">{surgeryCase.presentingComplaint}</span>
+              </div>
+            )}
+
+            {/* Notes */}
+            {surgeryCase.notes && (
+              <div className="text-sm">
+                <span className="font-medium text-muted-foreground">Notes: </span>
+                <span className="text-foreground">{surgeryCase.notes}</span>
+              </div>
+            )}
+
+            {/* Task checklist */}
+            {selectedItems.length > 0 && (
+              <ChecklistEditor
+                task={surgeryCase.task}
+                onToggleTask={handleToggleTask}
+                isLoading={updateTaskCompletion.isPending}
+              />
+            )}
+
+            {/* Action buttons */}
+            <div className="flex items-center gap-2 pt-1">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setEditOpen(true);
+                }}
+                className="gap-1"
+              >
+                <FileText className="h-3.5 w-3.5" />
+                Edit
+              </Button>
+              {onNavigateToCase && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onNavigateToCase(Number(surgeryCase.id));
+                  }}
+                  className="gap-1"
+                >
+                  <FileText className="h-3.5 w-3.5" />
+                  View
+                </Button>
+              )}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDelete();
+                }}
+                className="gap-1 text-destructive hover:text-destructive ml-auto"
+                disabled={deleteCase.isPending}
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+                Delete
+              </Button>
+            </div>
+          </div>
         )}
       </div>
 
-      {/* Expanded section */}
-      {expanded && (
-        <div className={`border-t border-border ${isDashboard ? 'p-4' : 'p-3'} space-y-3`}>
-          {/* Tasks */}
-          {selectedTasks.length > 0 && (
-            <div>
-              <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Tasks</div>
-              <div className="flex flex-wrap gap-2">
-                {selectedTasks.map(item => {
-                  const isCompleted = getTaskField(surgeryCase.task, item.completedField);
-                  const isPending =
-                    updateTaskCompletion.isPending &&
-                    updateTaskCompletion.variables?.id === surgeryCase.id &&
-                    updateTaskCompletion.variables?.taskType === TASK_KEY_TO_TYPE[item.key];
-
-                  return (
-                    <button
-                      key={item.key}
-                      onClick={e => {
-                        e.stopPropagation();
-                        handleTaskClick(item.key);
-                      }}
-                      disabled={isPending}
-                      className={`flex items-center gap-1.5 px-2 py-1 rounded-full text-xs border transition-all ${
-                        isCompleted
-                          ? 'bg-muted/50 border-border text-muted-foreground line-through opacity-60'
-                          : `${getTaskBackgroundColor(item.color)} border-transparent text-foreground`
-                      } ${isPending ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:opacity-80'}`}
-                      title={isCompleted ? `Mark ${item.label} as incomplete` : `Mark ${item.label} as complete`}
-                    >
-                      {isPending ? (
-                        <Loader2 className="w-3 h-3 animate-spin" />
-                      ) : (
-                        <span
-                          style={{
-                            display: 'inline-flex',
-                            width: '12px',
-                            height: '12px',
-                            transform: 'scale(0.5)',
-                            transformOrigin: 'center',
-                            opacity: isCompleted ? 0.5 : 1,
-                          }}
-                        >
-                          <WorkflowIcon type={item.workflowType} />
-                        </span>
-                      )}
-                      {item.label}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* Notes */}
-          {surgeryCase.notes && surgeryCase.notes.trim() && (
-            <div>
-              <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Notes</div>
-              <p className="text-xs text-foreground/80 whitespace-pre-wrap">{surgeryCase.notes}</p>
-            </div>
-          )}
-
-          {/* Breed */}
-          {surgeryCase.breed && surgeryCase.breed.trim() && (
-            <div className="text-xs text-muted-foreground">
-              <span className="font-medium">Breed:</span> {surgeryCase.breed}
-            </div>
-          )}
-        </div>
-      )}
-    </div>
+      {/* Edit dialog rendered outside the card to avoid click propagation issues */}
+      <CaseEditDialog
+        surgeryCase={surgeryCase}
+        open={editOpen}
+        onOpenChange={setEditOpen}
+      />
+    </>
   );
 }

@@ -1,58 +1,61 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Fix Cases loading regression from Version 94 (blank list on Dashboard and Cases pages)",
+  "title": "Fix blank Cases list regression on Dashboard and Cases pages",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Investigate and fix the Version 94 frontend regression causing blank Cases lists on Dashboard and Cases pages due to workflow/task icon changes",
+      "summary": "Restore Cases data rendering on the Dashboard page by repairing the data flow from React Query hook results to the DashboardView component rendering logic",
       "acceptanceCriteria": [
-        "Cases list is no longer blank on the Cases page — existing cases from the backend canister are displayed.",
-        "Cases list is no longer blank on the Dashboard page — existing cases from the backend canister are displayed.",
-        "No console errors related to case fetching, task icons, or workflow rendering.",
-        "Workflow/task icons still render correctly on case cards.",
-        "Creating, editing, and filtering cases continues to work as expected."
+        "The Dashboard page displays the full list of surgery cases returned by the backend canister",
+        "No empty list is shown when cases exist in the backend",
+        "No error messages or console errors appear related to case loading",
+        "The fix does not modify any backend Motoko code"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/workflow-icons/WorkflowIcon.tsx",
-          "operation": "modify",
-          "description": "Review and fix the WorkflowIcon dispatcher component to ensure it handles all WorkflowType values correctly without causing rendering errors that would break the parent CaseCard component. Verify that the component gracefully handles unknown or undefined workflow types by returning null or a fallback instead of throwing errors. Check that the mapping logic from WorkflowType strings to icon components is complete and matches the types used in checklist.ts."
-        },
-        {
-          "path": "frontend/src/features/cases/components/CaseCard.tsx",
-          "operation": "modify",
-          "description": "Review the CaseCard component to identify and fix any errors introduced by the workflow icon integration in Version 94. Ensure that WorkflowIcon component usage includes proper error boundaries or null checks. Verify that the checklist rendering logic does not break when WorkflowIcon returns undefined or encounters an unknown task type. Add defensive error handling around icon rendering to prevent the entire card from failing to render if a single icon has issues. Confirm that the expandable checklist section properly handles all task states."
-        },
-        {
-          "path": "frontend/src/features/cases/components/ChecklistEditor.tsx",
-          "operation": "modify",
-          "description": "Review the ChecklistEditor component for any workflow icon integration issues that could prevent case lists from rendering. Ensure WorkflowIcon usage includes proper null checks and does not cause the component to fail silently or throw errors. Verify that the checklist items array mapping correctly handles all task types defined in checklist.ts. Add error boundaries or fallback rendering for cases where icon components fail to load."
-        },
-        {
-          "path": "frontend/src/features/cases/components/CasesListView.tsx",
-          "operation": "modify",
-          "description": "Review the CasesListView component to ensure it properly handles rendering errors from child CaseCard components. Add defensive checks to ensure that if individual case cards fail to render due to icon issues, the entire list does not become blank. Verify that the cases data from useGetAllCases is being correctly mapped and passed to CaseCard components. Add console logging or error boundaries to catch and display any rendering failures. Ensure the empty state message displays when cases array is empty versus when rendering fails."
-        },
-        {
           "path": "frontend/src/features/dashboard/components/DashboardView.tsx",
           "operation": "modify",
-          "description": "Review the DashboardView component to ensure it properly handles rendering errors from the embedded cases list. Verify that the cases data from useGetAllCases is correctly fetched and passed down. Add defensive checks to prevent the entire dashboard from going blank if case card rendering fails. Ensure proper error boundaries or fallback UI displays when individual components fail. Verify that filtering and sorting logic does not inadvertently filter out all cases due to icon-related data issues."
-        },
-        {
-          "path": "frontend/src/features/cases/checklist.ts",
-          "operation": "modify",
-          "description": "Review the checklist item definitions and helper functions to ensure the WorkflowType values match exactly with those expected by WorkflowIcon.tsx. Verify that getRemainingTaskItems and other functions return task objects with properly formatted type fields. Check for any changes in Version 94 that might have introduced type mismatches or undefined values that would break icon rendering."
+          "description": "Inspect and repair the data wiring between useGetAllCases query result and the CasesListView component. Ensure the cases array from the query is properly destructured and passed to CasesListView. Verify that loading, error, and empty states are correctly handled. Check that the data property from React Query is correctly accessed and that no undefined or null values are being passed where an array is expected."
         },
         {
           "path": "frontend/src/hooks/useQueries.ts",
           "operation": "modify",
-          "description": "Review the useGetAllCases hook to ensure it is properly fetching and returning cases data without silent failures. Verify that the query is enabled correctly and that error states are being surfaced. Add logging to confirm that the backend getAllCases function is being called and returning data. Ensure the query key and data transformation logic has not been inadvertently broken by Version 94 changes."
+          "description": "Review the useGetAllCases hook implementation to ensure it returns a properly structured query result with a data property that defaults to an empty array when no data is available. Verify the queryKey, queryFn, and enabled logic are correct. Ensure the hook properly handles the case when actor is not yet initialized or when the query has not yet fetched data."
+        }
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "summary": "Restore Cases data rendering on the Cases list page by repairing prop passing, query result destructuring, and data mapping in CasesListView, CaseCard, ChecklistEditor, and WorkflowIcon components",
+      "acceptanceCriteria": [
+        "The Cases page displays the full list of surgery cases returned by the backend canister",
+        "No empty list is shown when cases exist in the backend",
+        "CaseCard components render correctly with case data including workflow task icons",
+        "ChecklistEditor receives and renders the correct task data per case",
+        "No error messages or console errors appear related to case loading",
+        "The fix does not modify any backend Motoko code"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/features/cases/components/CasesListView.tsx",
+          "operation": "modify",
+          "description": "Inspect the cases prop handling and verify that the incoming cases array is properly received, filtered, sorted, and mapped to CaseCard components. Check that all filtering logic (species, tasks, search) correctly handles the cases data structure. Ensure that the component gracefully handles empty arrays, loading states, and that no data transformation is breaking the case objects before they reach CaseCard. Verify that the highlightedCaseId logic does not interfere with rendering."
         },
         {
-          "path": "frontend/src/components/workflow-icons/workflowTokens.ts",
+          "path": "frontend/src/features/cases/components/CaseCard.tsx",
           "operation": "modify",
-          "description": "Review the workflow token definitions to ensure all required task types have corresponding color tokens. Verify that the workflowColors mapping includes entries for all task types used in checklist.ts. Check for any missing or misnamed entries that would cause icon components to fail when trying to access color values."
+          "description": "Review the case prop destructuring and ensure all required properties (id, petName, ownerLastName, species, task, etc.) are correctly accessed from the SurgeryCase object. Verify that the task object is properly passed to ChecklistEditor and that WorkflowIcon receives the correct task type strings. Check that no undefined property accesses or type mismatches are causing silent rendering failures. Ensure the card renders even when optional fields are missing."
+        },
+        {
+          "path": "frontend/src/features/cases/components/ChecklistEditor.tsx",
+          "operation": "modify",
+          "description": "Inspect the tasks prop and selectedTasks state handling to ensure the component correctly receives and processes task data from the parent CaseCard. Verify that the checklist items are properly mapped to the task object structure and that the completion state checkboxes are wired to the correct task properties (e.g., labsCompleted, imagingCompleted). Check that the component handles both creation mode and completion mode correctly without breaking rendering when switching between modes or when task data is incomplete."
+        },
+        {
+          "path": "frontend/src/components/workflow-icons/WorkflowIcon.tsx",
+          "operation": "modify",
+          "description": "Review the type prop handling and the taskTypeToIconMap to ensure that all valid task type strings (pdvmNotified, histo, labs, culture, surgeryReport, imaging, dischargeNotes) are correctly mapped to their corresponding icon components. Verify that the component handles missing or invalid type values gracefully without breaking the parent component's render. Check that the icon components are imported correctly and that no refactoring broke the mapping logic."
         }
       ]
     }

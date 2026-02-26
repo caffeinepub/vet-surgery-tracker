@@ -1,42 +1,33 @@
 import React from 'react';
-import IconDischarge from './IconDischarge';
 import IconNotified from './IconNotified';
-import IconLabs from './IconLabs';
 import IconHisto from './IconHisto';
-import IconImaging from './IconImaging';
-import IconSurgery from './IconSurgery';
+import IconLabs from './IconLabs';
 import IconCulture from './IconCulture';
+import IconSurgery from './IconSurgery';
+import IconImaging from './IconImaging';
+import IconDischarge from './IconDischarge';
 import IconFollowUp from './IconFollowUp';
 
-export type WorkflowType =
-  | 'discharge'
-  | 'notified'
-  | 'labs'
-  | 'histo'
-  | 'imaging'
-  | 'surgery'
-  | 'culture'
-  | 'followup';
+type IconComponent = React.FC;
 
-interface WorkflowIconProps {
-  type: WorkflowType | string | undefined | null;
-  className?: string;
-}
-
-const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
-  discharge: IconDischarge,
-  notified: IconNotified,
-  labs: IconLabs,
+const taskTypeToIconMap: Record<string, IconComponent> = {
+  pdvmNotified: IconNotified,
   histo: IconHisto,
-  imaging: IconImaging,
-  surgery: IconSurgery,
+  labs: IconLabs,
   culture: IconCulture,
-  followup: IconFollowUp,
+  surgeryReport: IconSurgery,
+  imaging: IconImaging,
+  dischargeNotes: IconDischarge,
+  followUp: IconFollowUp,
 };
 
-export default function WorkflowIcon({ type, className }: WorkflowIconProps) {
+interface WorkflowIconProps {
+  type: string | null | undefined;
+}
+
+export function WorkflowIcon({ type }: WorkflowIconProps) {
   if (!type) return null;
-  const IconComponent = iconMap[type];
+  const IconComponent = taskTypeToIconMap[type];
   if (!IconComponent) return null;
-  return <IconComponent className={className} />;
+  return <IconComponent />;
 }
