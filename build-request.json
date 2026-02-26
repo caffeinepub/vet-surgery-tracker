@@ -1,37 +1,59 @@
 {
   "kind": "build_request",
-  "title": "Revert Cases data-fetching logic to Version 93",
+  "title": "Fix cases not loading on Dashboard and Cases pages",
   "projectName": "SurgiPaw",
   "priority": "high",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Revert the data-fetching logic for surgery cases in the frontend to the implementation from Version 93. This applies to all locations where cases are fetched and supplied to views, including the Dashboard (DashboardView.tsx) and the Cases list page (CasesListView.tsx). The regression introduced in Version 97 caused cases to not appear in either view; the Version 93 approach must be restored so that cases load and render correctly.",
+      "text": "Fix the data-fetching logic in `frontend/src/hooks/useQueries.ts` so that surgery cases are correctly fetched and returned for both the DashboardView and CasesListView components. Inspect the current implementation and identify why cases are not loading — likely a regression in query keys, actor calls, or result transformation introduced after Version 93 — and restore the correct fetching behavior.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-6"
+          "msg-1"
         ],
         "quotes": [
-          "Revert to data-fetching logic from Version 93"
+          "Cases not loading on either Dashboard or Cases page"
         ]
       },
       "acceptanceCriteria": [
-        "Surgery cases appear correctly on the Dashboard view after login.",
-        "Surgery cases appear correctly on the Cases list view after login.",
-        "The data-fetching hooks/queries used for cases match the approach from Version 93, not Version 97.",
-        "No regression is introduced to other views or features."
+        "The Dashboard page renders surgery case cards when cases exist in the backend.",
+        "The Cases list page renders surgery case cards when cases exist in the backend.",
+        "The `useCases` (or equivalent) query in useQueries.ts successfully returns an array of SurgeryCase objects.",
+        "No console errors related to case fetching appear in the browser.",
+        "Both pages show an appropriate empty state (not a blank or broken UI) when there are no cases."
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "text": "Verify that `DashboardView.tsx` and `CasesListView.tsx` correctly consume the cases query result from `useQueries.ts` — ensuring they handle loading, error, and success states properly — and fix any component-level issues that may prevent cases from rendering even when the query returns data.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "Cases not loading on either Dashboard or Cases page"
+        ]
+      },
+      "acceptanceCriteria": [
+        "DashboardView displays a loading indicator while cases are being fetched.",
+        "CasesListView displays a loading indicator while cases are being fetched.",
+        "DashboardView renders CaseCard components for each returned case.",
+        "CasesListView renders CaseCard components for each returned case.",
+        "Both views display a user-friendly error message if the fetch fails."
       ]
     }
   ],
   "constraints": [
-    "Do not change the backend Motoko actor or any backend data models.",
-    "Only revert data-fetching logic — do not alter unrelated UI, filtering, sorting, or form components."
+    "Do not modify files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or frontend/src/components/ui.",
+    "Do not change the backend Motoko actor or data schema.",
+    "Fix must be scoped to data-fetching and rendering logic only — do not alter unrelated UI or features."
   ],
   "nonGoals": [
-    "Introducing new features or UI changes beyond restoring the Version 93 data-fetching behavior.",
-    "Changing backend query endpoints or data schemas.",
-    "Modifying immutable frontend paths such as useActor.ts, useInternetIdentity.ts, or main.tsx."
+    "Adding new case fields or backend endpoints.",
+    "Changing the visual design or layout of Dashboard or Cases pages.",
+    "Modifying authentication or Internet Identity logic."
   ],
   "imageRequirements": {
     "required": [],

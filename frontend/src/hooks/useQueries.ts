@@ -7,7 +7,7 @@ import { Species } from '../backend';
 // ─── Cases ───────────────────────────────────────────────────────────────────
 
 export function useGetAllCases() {
-  const { actor, isFetching } = useActor();
+  const { actor } = useActor();
   const { identity } = useInternetIdentity();
   const isAuthenticated = !!identity;
 
@@ -18,14 +18,14 @@ export function useGetAllCases() {
       const result = await actor.getAllCases();
       return result;
     },
-    enabled: !!actor && !isFetching && isAuthenticated,
+    enabled: !!actor && isAuthenticated,
     staleTime: 0,
     refetchOnMount: true,
   });
 }
 
 export function useGetCase(id: bigint) {
-  const { actor, isFetching } = useActor();
+  const { actor } = useActor();
   const { identity } = useInternetIdentity();
   const isAuthenticated = !!identity;
 
@@ -35,7 +35,7 @@ export function useGetCase(id: bigint) {
       if (!actor) throw new Error('Actor not available');
       return actor.getCase(id);
     },
-    enabled: !!actor && !isFetching && isAuthenticated,
+    enabled: !!actor && isAuthenticated,
   });
 }
 
@@ -203,7 +203,7 @@ export function useUpdateCaseNotes() {
 // ─── Dashboard ────────────────────────────────────────────────────────────────
 
 export function useGetDashboard() {
-  const { actor, isFetching } = useActor();
+  const { actor } = useActor();
   const { identity } = useInternetIdentity();
   const isAuthenticated = !!identity;
 
@@ -213,7 +213,7 @@ export function useGetDashboard() {
       if (!actor) throw new Error('Actor not available');
       return actor.getDashboard();
     },
-    enabled: !!actor && !isFetching && isAuthenticated,
+    enabled: !!actor && isAuthenticated,
     staleTime: 0,
     refetchOnMount: true,
   });

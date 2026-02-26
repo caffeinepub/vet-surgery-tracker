@@ -4,20 +4,29 @@
   "summary": "New project",
   "architectural_notes": [],
   "known_issues": [
-    "Cases not showing up on Dashboard and Cases pages; reverting data-fetching logic to Version 93 to fix regression introduced in Version 97"
+    "Cases not loading on Dashboard or Cases page (reported in v98)"
   ],
   "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-revert-the-data-fetching-logic-for-surgery-cases-in-the-frontend-to-the-implementation-from-version-93-this-applies-to-all-locations-where-cases-are-fetched-and-supplied-to-views-including-the-dashboard-dashboardview-tsx-and-the-cases-list-page-caseslistview-tsx-the-regression-introduced-in-version-97-caused-cases-to-not-appear-in-either-view-the-version-93-approach-must-be-restored-so-that-cases-load-and-render-correctly",
-      "title": "Revert the data-fetching logic for surgery cases in the frontend to the implementation from Version 93. This applies to all locations where cases are fetched and supplied to views, including the Dashboard (DashboardView.tsx) and the Cases list page (CasesListView.tsx). The regression introduced in Version 97 caused cases to not appear in either view; the Version 93 approach must be restored so that cases load and render correctly.",
+      "id": "feature-fix-the-data-fetching-logic-in-frontend-src-hooks-usequeries-ts-so-that-surgery-cases-are-correctly-fetched-and-returned-for-both-the-dashboardview-and-caseslistview-components-inspect-the-current-implementation-and-identify-why-cases-are-not-loading-likely-a-regression-in-query-keys-actor-calls-or-result-transformation-introduced-after-version-93-and-restore-the-correct-fetching-behavior",
+      "title": "Fix the data-fetching logic in `frontend/src/hooks/useQueries.ts` so that surgery cases are correctly fetched and returned for both the DashboardView and CasesListView components. Inspect the current implementation and identify why cases are not loading — likely a regression in query keys, actor calls, or result transformation introduced after Version 93 — and restore the correct fetching behavior.",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     }
   ],
-  "new_feature_requests": [],
+  "new_feature_requests": [
+    {
+      "id": "AR-2",
+      "summary": "Verify that `DashboardView.tsx` and `CasesListView.tsx` correctly consume the cases query result from `useQueries.ts` — ensuring they handle loading, error, and success states properly — and fix any component-level issues that may prevent cases from rendering even when the query returns data.",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "status": "pending"
+    }
+  ],
   "projectName": "SurgiPaw",
   "clarification_mode": "instant",
   "clarification_rounds": 0

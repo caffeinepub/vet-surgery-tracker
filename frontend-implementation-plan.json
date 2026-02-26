@@ -1,32 +1,46 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Revert Cases data-fetching logic to Version 93",
+  "title": "Fix cases not loading on Dashboard and Cases pages",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Revert the data-fetching logic for surgery cases in the frontend to the implementation from Version 93, restoring case visibility on both Dashboard and Cases list views",
+      "summary": "Fix the data-fetching logic in useQueries.ts so that surgery cases are correctly fetched and returned for both the DashboardView and CasesListView components",
       "acceptanceCriteria": [
-        "Surgery cases appear correctly on the Dashboard view after login.",
-        "Surgery cases appear correctly on the Cases list view after login.",
-        "The data-fetching hooks/queries used for cases match the approach from Version 93, not Version 97.",
-        "No regression is introduced to other views or features."
+        "The Dashboard page renders surgery case cards when cases exist in the backend.",
+        "The Cases list page renders surgery case cards when cases exist in the backend.",
+        "The `useCases` (or equivalent) query in useQueries.ts successfully returns an array of SurgeryCase objects.",
+        "No console errors related to case fetching appear in the browser.",
+        "Both pages show an appropriate empty state (not a blank or broken UI) when there are no cases."
       ],
       "file_operations": [
         {
           "path": "frontend/src/hooks/useQueries.ts",
           "operation": "modify",
-          "description": "Revert the getAllCases query implementation to Version 93 approach. Ensure the query is properly enabled when the actor is available and the user is authenticated. Restore any query configuration options (staleTime, cacheTime, refetchOnMount) that were present in Version 93 but removed or changed in Version 97. Verify the query key structure matches Version 93."
-        },
+          "description": "Fix the `useCases` query hook to ensure it properly fetches surgery cases from the backend. Verify the query configuration includes proper enabled conditions (actor must be available and not fetching), correct queryKey format, error handling with retry logic, and that the queryFn correctly calls actor.getAllCases() and returns the result. Ensure the hook returns proper loading states that account for actor dependency (isLoading should be true when actorFetching is true or query.isLoading is true). Review any recent changes to query keys, enabled conditions, or result transformation that may have caused a regression after Version 93."
+        }
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "summary": "Verify that DashboardView.tsx and CasesListView.tsx correctly consume the cases query result from useQueries.ts",
+      "acceptanceCriteria": [
+        "DashboardView displays a loading indicator while cases are being fetched.",
+        "CasesListView displays a loading indicator while cases are being fetched.",
+        "DashboardView renders CaseCard components for each returned case.",
+        "CasesListView renders CaseCard components for each returned case.",
+        "Both views display a user-friendly error message if the fetch fails."
+      ],
+      "file_operations": [
         {
           "path": "frontend/src/features/dashboard/components/DashboardView.tsx",
           "operation": "modify",
-          "description": "Revert the data-fetching integration in DashboardView to Version 93 approach. Restore how the getAllCases query result is consumed, including proper handling of loading states, error states, and the data transformation pipeline. Ensure cases are passed correctly to child components and that filtering/sorting logic matches Version 93 implementation."
+          "description": "Verify that DashboardView correctly consumes the useCases query result. Ensure it properly destructures isLoading, error, and data from the query hook. Confirm that a loading indicator is shown when isLoading is true, an error message is displayed when error is not null, and CaseCard components are rendered for each case in the data array when data is available. Verify that an empty state message (e.g., 'No cases yet') is shown when data is an empty array. Fix any issues preventing proper rendering of fetched cases."
         },
         {
           "path": "frontend/src/features/cases/components/CasesListView.tsx",
           "operation": "modify",
-          "description": "Revert the data-fetching integration in CasesListView to Version 93 approach. Restore how the getAllCases query result is consumed, including proper handling of loading states, error states, and the data transformation pipeline. Ensure cases flow correctly through the search, filter, sort, and pagination logic as implemented in Version 93."
+          "description": "Verify that CasesListView correctly consumes the useCases query result. Ensure it properly destructures isLoading, error, and data from the query hook. Confirm that a loading indicator is shown when isLoading is true, an error message is displayed when error is not null, and CaseCard components are rendered for filtered/sorted cases when data is available. Verify that an empty state message is shown when the filtered cases array is empty. Fix any issues preventing proper rendering of fetched cases."
         }
       ]
     }

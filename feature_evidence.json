@@ -2,8 +2,8 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-revert-the-data-fetching-logic-for-surgery-cases-in-the-frontend-to-the-implementation-from-version-93-this-applies-to-all-locations-where-cases-are-fetched-and-supplied-to-views-including-the-dashboard-dashboardview-tsx-and-the-cases-list-page-caseslistview-tsx-the-regression-introduced-in-version-97-caused-cases-to-not-appear-in-either-view-the-version-93-approach-must-be-restored-so-that-cases-load-and-render-correctly",
-      "featureTitle": "Revert the data-fetching logic for surgery cases in the frontend to the implementation from Version 93. This applies to all locations where cases are fetched and supplied to views, including the Dashboard (DashboardView.tsx) and the Cases list page (CasesListView.tsx). The regression introduced in Version 97 caused cases to not appear in either view; the Version 93 approach must be restored so that cases load and render correctly.",
+      "featureId": "feature-fix-the-data-fetching-logic-in-frontend-src-hooks-usequeries-ts-so-that-surgery-cases-are-correctly-fetched-and-returned-for-both-the-dashboardview-and-caseslistview-components-inspect-the-current-implementation-and-identify-why-cases-are-not-loading-likely-a-regression-in-query-keys-actor-calls-or-result-transformation-introduced-after-version-93-and-restore-the-correct-fetching-behavior",
+      "featureTitle": "Fix the data-fetching logic in `frontend/src/hooks/useQueries.ts` so that surgery cases are correctly fetched and returned for both the DashboardView and CasesListView components. Inspect the current implementation and identify why cases are not loading — likely a regression in query keys, actor calls, or result transformation introduced after Version 93 — and restore the correct fetching behavior.",
       "files": [
         "frontend/src/hooks/useQueries.ts"
       ],
