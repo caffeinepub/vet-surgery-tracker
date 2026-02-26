@@ -114,8 +114,9 @@ export default function CsvImportExportPanel({ cases }: CsvImportExportPanelProp
               surgeryReport: caseData.data.task.surgeryReportSelected,
               imaging: caseData.data.task.imagingSelected,
               culture: caseData.data.task.cultureSelected,
+              followUp: caseData.data.task.followUpSelected,
             };
-            
+
             const newCase = await createCase.mutateAsync({
               medicalRecordNumber: caseData.data.medicalRecordNumber,
               arrivalDate: caseData.data.arrivalDate,
@@ -254,26 +255,20 @@ export default function CsvImportExportPanel({ cases }: CsvImportExportPanelProp
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Import Errors ({importErrors.length})</AlertTitle>
           <AlertDescription>
-            <div className="mt-2 space-y-2 max-h-60 overflow-y-auto">
-              {Object.entries(groupErrorsByType(importErrors)).map(([field, errors]) => (
-                <div key={field} className="text-sm">
-                  <div className="font-semibold">{field}:</div>
-                  <ul className="list-disc list-inside pl-2">
-                    {errors.map((error, idx) => (
-                      <li key={idx}>
-                        Row {error.row}: {error.message}
-                        {error.value && <span className="text-xs ml-1">(value: "{error.value}")</span>}
+            <div className="mt-2 space-y-2 max-h-48 overflow-y-auto">
+              {Object.entries(groupErrorsByType(importErrors)).map(([field, fieldErrors]) => (
+                <div key={field}>
+                  <p className="font-semibold text-xs uppercase tracking-wide">{field}</p>
+                  <ul className="list-disc list-inside space-y-0.5">
+                    {fieldErrors.map((err, idx) => (
+                      <li key={idx} className="text-xs">
+                        Row {err.row}: {err.message}
+                        {err.value && <span className="opacity-70"> (got: "{err.value}")</span>}
                       </li>
                     ))}
                   </ul>
                 </div>
               ))}
-            </div>
-            <div className="mt-3 text-xs">
-              <strong>Expected CSV format:</strong> 17 columns with headers: Medical Record #, Arrival Date (M/D/YYYY), 
-              Pet Name, Owner Last Name, Species (canine/feline/other), Breed, Sex (male/maleNeutered/female/femaleSpayed), 
-              Date of Birth (M/D/YYYY), Presenting Complaint, Notes, Discharge Notes, pDVM Notified, Labs, Histo, 
-              Surgery Report, Imaging, Culture (TRUE/FALSE or YES/NO or X/empty or 1/0)
             </div>
           </AlertDescription>
         </Alert>

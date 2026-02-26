@@ -7,10 +7,13 @@ import Order "mo:core/Order";
 import Runtime "mo:core/Runtime";
 import Principal "mo:core/Principal";
 import Iter "mo:core/Iter";
+import Migration "migration";
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
 
-(actor {
+// Migrate changes in actor state (new Task types)
+(with migration = Migration.run)
+actor {
   public type Species = { #canine; #feline; #other };
   public type Sex = { #male; #maleNeutered; #female; #femaleSpayed };
 
@@ -35,6 +38,9 @@ import AccessControl "authorization/access-control";
 
     cultureSelected : Bool;
     cultureCompleted : Bool;
+
+    followUpSelected : Bool;
+    followUpCompleted : Bool;
   };
 
   public type TaskType = {
@@ -45,6 +51,7 @@ import AccessControl "authorization/access-control";
     #surgeryReport;
     #imaging;
     #culture;
+    #followUp;
   };
 
   public type TaskOptions = {
@@ -55,6 +62,7 @@ import AccessControl "authorization/access-control";
     surgeryReport : Bool;
     imaging : Bool;
     culture : Bool;
+    followUp : Bool;
   };
 
   public type SurgeryCase = {
@@ -154,6 +162,9 @@ import AccessControl "authorization/access-control";
 
       cultureSelected = taskOptions.culture;
       cultureCompleted = false;
+
+      followUpSelected = taskOptions.followUp;
+      followUpCompleted = false;
     };
 
     let newCase : SurgeryCase = {
@@ -317,6 +328,12 @@ import AccessControl "authorization/access-control";
           cultureCompleted = not task.cultureCompleted;
         };
       };
+      case (#followUp) {
+        {
+          task with
+          followUpCompleted = not task.followUpCompleted;
+        };
+      };
     };
   };
 
@@ -347,6 +364,9 @@ import AccessControl "authorization/access-control";
 
           cultureSelected = taskOptions.culture;
           cultureCompleted = false;
+
+          followUpSelected = taskOptions.followUp;
+          followUpCompleted = false;
         };
         let updatedCase : SurgeryCase = {
           existingCase with
@@ -465,8 +485,11 @@ import AccessControl "authorization/access-control";
       if (caseMap.task.cultureSelected and not caseMap.task.cultureCompleted) {
         taskCount += 1;
       };
+      if (caseMap.task.followUpSelected and not caseMap.task.followUpCompleted) {
+        taskCount += 1;
+      };
     };
 
     { openTasks = taskCount };
   };
-});
+};

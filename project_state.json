@@ -1,29 +1,20 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "SurgiPaw - a veterinary case management app on ICP blockchain. Frontend data-fetching issue where cases fail to load on Dashboard and Cases pages (recurring across V94-99). Cases are stored safely in ICP canister stable storage but the frontend is not retrieving them correctly.",
+  "summary": "SurgiPaw project on ICP (Internet Computer blockchain) using canister stable storage. Adding 'Follow up' task button with circular arrow icon in aqua color to both Dashboard and Cases pages.",
   "architectural_notes": [
-    "Backend runs on Internet Computer (ICP) blockchain canister with stable storage for cases",
-    "Cases data-fetching from ICP canister to frontend has been failing across versions V94-99"
+    "App uses ICP canister stable storage (no traditional database); Draft and production versions have separate canister storage"
   ],
   "known_issues": [
-    "Frontend fails to fetch and display cases from ICP backend canister (recurring V94-99)"
+    "Draft versions have separate canister storage from production — data does not sync between environments"
   ],
-  "isFixRequest": true,
+  "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-audit-frontend-src-hooks-usequeries-ts-to-identify-and-fix-the-root-cause-of-the-failing-surgery-case-fetch-check-that-the-react-query-hooks-calling-the-backend-actor-use-the-correct-method-names-matching-those-exported-by-main-mo-that-the-actor-instance-from-useactor-is-valid-before-the-query-runs-i-e-the-query-is-not-enabled-when-actor-is-undefined-null-that-query-keys-are-stable-and-not-causing-unintended-cache-misses-or-stale-states-and-that-error-handling-does-not-silently-swallow-failures",
-      "title": "Audit `frontend/src/hooks/useQueries.ts` to identify and fix the root cause of the failing surgery case fetch. Check that the React Query hooks calling the backend actor use the correct method names matching those exported by `main.mo`, that the actor instance from `useActor` is valid before the query runs (i.e., the query is not enabled when actor is undefined/null), that query keys are stable and not causing unintended cache misses or stale states, and that error handling does not silently swallow failures.",
+      "id": "feature-add-follow-up-as-a-checklist-item-in-frontend-src-features-cases-checklist-ts-with-an-aqua-color-token-so-it-appears-in-the-default-checklist-selections-and-is-included-in-task-filtering-and-counting-logic",
+      "title": "Add 'Follow Up' as a checklist item in frontend/src/features/cases/checklist.ts with an aqua color token, so it appears in the default checklist selections and is included in task filtering and counting logic.",
       "reqIds": [
         "REQ-2"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-audit-frontend-src-features-dashboard-components-dashboardview-tsx-and-frontend-src-features-cases-components-caseslistview-tsx-to-confirm-they-correctly-consume-the-query-hooks-from-usequeries-ts-handle-loading-and-error-states-and-render-the-returned-case-data-fix-any-prop-mismatches-missing-null-checks-or-conditional-rendering-bugs-that-prevent-cases-from-appearing-even-when-the-fetch-succeeds",
-      "title": "Audit `frontend/src/features/dashboard/components/DashboardView.tsx` and `frontend/src/features/cases/components/CasesListView.tsx` to confirm they correctly consume the query hooks from `useQueries.ts`, handle loading and error states, and render the returned case data. Fix any prop mismatches, missing null checks, or conditional rendering bugs that prevent cases from appearing even when the fetch succeeds.",
-      "reqIds": [
-        "REQ-3"
       ],
       "version": 1
     }
@@ -31,7 +22,13 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Audit the backend `main.mo` actor to verify that the query functions for fetching surgery cases (e.g., `getCases`, `getDashboardData`, or equivalent) are correctly defined, exported, and return the expected data types. Confirm that stable variable declarations and any upgrade hooks are intact so stored case data survives canister upgrades.",
+      "summary": "Add 'Follow up' task with circular arrow icon in aqua color to both Dashboard and Cases pages",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Add a 'Follow Up' task type to the backend checklist/task definitions so it is recognized as a valid task on SurgeryCase records.",
       "reqIds": [
         "REQ-1"
       ],
@@ -39,7 +36,15 @@
     },
     {
       "id": "AR-4",
-      "summary": "Audit `frontend/src/hooks/useActor.ts` to verify the backend actor is correctly initialized using the current Internet Identity principal, that it is re-initialized when the identity changes, and that the actor instance is not stale or undefined when queries attempt to use it. Fix any initialization race conditions or missing dependency triggers.",
+      "summary": "Update frontend/src/components/workflow-icons/workflowTokens.ts to assign an aqua color token (e.g. #00BFBF or equivalent OKLCH aqua) to the 'Follow Up' task type, and ensure the existing IconFollowUp.tsx icon uses this aqua color.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-5",
+      "summary": "Ensure the WorkflowIcon dispatcher in frontend/src/components/workflow-icons/WorkflowIcon.tsx maps the 'Follow Up' task type string to the IconFollowUp component so the aqua circular arrow icon renders on both the Dashboard and Cases pages wherever workflow task icons are shown.",
       "reqIds": [
         "REQ-4"
       ],

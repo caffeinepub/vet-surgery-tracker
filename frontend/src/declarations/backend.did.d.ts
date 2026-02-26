@@ -37,8 +37,10 @@ export interface Task {
   'cultureCompleted' : boolean,
   'cultureSelected' : boolean,
   'pdvmNotifiedCompleted' : boolean,
+  'followUpCompleted' : boolean,
   'histoSelected' : boolean,
   'labsSelected' : boolean,
+  'followUpSelected' : boolean,
   'imagingCompleted' : boolean,
   'surgeryReportCompleted' : boolean,
   'imagingSelected' : boolean,
@@ -54,6 +56,7 @@ export interface TaskOptions {
   'histo' : boolean,
   'labs' : boolean,
   'culture' : boolean,
+  'followUp' : boolean,
   'surgeryReport' : boolean,
   'imaging' : boolean,
   'dischargeNotes' : boolean,
@@ -62,6 +65,7 @@ export type TaskType = { 'pdvmNotified' : null } |
   { 'histo' : null } |
   { 'labs' : null } |
   { 'culture' : null } |
+  { 'followUp' : null } |
   { 'surgeryReport' : null } |
   { 'imaging' : null } |
   { 'dischargeNotes' : null };

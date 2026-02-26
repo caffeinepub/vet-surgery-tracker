@@ -1,52 +1,48 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-26T03:02:17.155Z",
+  "generatedAt": "2026-02-26T03:38:24.652Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
     "total": 4,
-    "implemented": 2,
+    "implemented": 1,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Audit the backend `main.mo` actor to verify that the query functions for fetching surgery cases (e.g., `getCases`, `getDashboardData`, or equivalent) are correctly defined, exported, and return the expected data types. Confirm that stable variable declarations and any upgrade hooks are intact so stored case data survives canister upgrades.",
+        "summary": "Add a 'Follow Up' task type to the backend checklist/task definitions so it is recognized as a valid task on SurgeryCase records.",
         "status": "unknown",
         "plannedFiles": [],
         "matchedFiles": []
       },
       {
         "id": "REQ-2",
-        "summary": "Audit `frontend/src/hooks/useQueries.ts` to identify and fix the root cause of the failing surgery case fetch. Check that the React Query hooks calling the backend actor use the correct method names matching those exported by `main.mo`, that the actor instance from `useActor` is valid before the query runs (i.e., the query is not enabled when actor is undefined/null), that query keys are stable and not causing unintended cache misses or stale states, and that error handling does not silently swallow failures.",
+        "summary": "Add 'Follow Up' as a checklist item in frontend/src/features/cases/checklist.ts with an aqua color token, so it appears in the default checklist selections and is included in task filtering and counting logic.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/hooks/useQueries.ts"
+          "frontend/src/features/cases/checklist.ts"
         ],
         "matchedFiles": [
-          "frontend/src/hooks/useQueries.ts"
+          "frontend/src/features/cases/checklist.ts"
         ]
       },
       {
         "id": "REQ-3",
-        "summary": "Audit `frontend/src/features/dashboard/components/DashboardView.tsx` and `frontend/src/features/cases/components/CasesListView.tsx` to confirm they correctly consume the query hooks from `useQueries.ts`, handle loading and error states, and render the returned case data. Fix any prop mismatches, missing null checks, or conditional rendering bugs that prevent cases from appearing even when the fetch succeeds.",
-        "status": "implemented",
+        "summary": "Update frontend/src/components/workflow-icons/workflowTokens.ts to assign an aqua color token (e.g. #00BFBF or equivalent OKLCH aqua) to the 'Follow Up' task type, and ensure the existing IconFollowUp.tsx icon uses this aqua color.",
+        "status": "missing",
         "plannedFiles": [
-          "frontend/src/features/dashboard/components/DashboardView.tsx",
-          "frontend/src/features/cases/components/CasesListView.tsx"
+          "frontend/src/components/workflow-icons/workflowTokens.ts"
         ],
-        "matchedFiles": [
-          "frontend/src/features/dashboard/components/DashboardView.tsx",
-          "frontend/src/features/cases/components/CasesListView.tsx"
-        ]
+        "matchedFiles": []
       },
       {
         "id": "REQ-4",
-        "summary": "Audit `frontend/src/hooks/useActor.ts` to verify the backend actor is correctly initialized using the current Internet Identity principal, that it is re-initialized when the identity changes, and that the actor instance is not stale or undefined when queries attempt to use it. Fix any initialization race conditions or missing dependency triggers.",
+        "summary": "Ensure the WorkflowIcon dispatcher in frontend/src/components/workflow-icons/WorkflowIcon.tsx maps the 'Follow Up' task type string to the IconFollowUp component so the aqua circular arrow icon renders on both the Dashboard and Cases pages wherever workflow task icons are shown.",
         "status": "missing",
         "plannedFiles": [
-          "frontend/src/hooks/useActor.ts"
+          "frontend/src/components/workflow-icons/WorkflowIcon.tsx"
         ],
         "matchedFiles": []
       }
@@ -54,14 +50,20 @@
   },
   "changedFiles": [
     "backend/main.mo",
+    "backend/migration.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/App.tsx",
-    "frontend/src/features/cases/components/CasesListView.tsx",
-    "frontend/src/features/dashboard/components/DashboardView.tsx",
-    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/backend.d.ts",
+    "frontend/src/backend.ts",
+    "frontend/src/declarations/backend.did.d.ts",
+    "frontend/src/declarations/backend.did.js",
+    "frontend/src/features/cases/checklist.ts",
+    "frontend/src/features/cases/components/CaseEditDialog.tsx",
+    "frontend/src/features/cases/components/CaseFormDialog.tsx",
+    "frontend/src/features/cases/components/CsvImportExportPanel.tsx",
+    "frontend/src/features/cases/csv/caseCsv.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

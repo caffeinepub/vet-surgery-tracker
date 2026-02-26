@@ -2,10 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-audit-frontend-src-hooks-usequeries-ts-to-identify-and-fix-the-root-cause-of-the-failing-surgery-case-fetch-check-that-the-react-query-hooks-calling-the-backend-actor-use-the-correct-method-names-matching-those-exported-by-main-mo-that-the-actor-instance-from-useactor-is-valid-before-the-query-runs-i-e-the-query-is-not-enabled-when-actor-is-undefined-null-that-query-keys-are-stable-and-not-causing-unintended-cache-misses-or-stale-states-and-that-error-handling-does-not-silently-swallow-failures",
-      "featureTitle": "Audit `frontend/src/hooks/useQueries.ts` to identify and fix the root cause of the failing surgery case fetch. Check that the React Query hooks calling the backend actor use the correct method names matching those exported by `main.mo`, that the actor instance from `useActor` is valid before the query runs (i.e., the query is not enabled when actor is undefined/null), that query keys are stable and not causing unintended cache misses or stale states, and that error handling does not silently swallow failures.",
+      "featureId": "feature-add-follow-up-as-a-checklist-item-in-frontend-src-features-cases-checklist-ts-with-an-aqua-color-token-so-it-appears-in-the-default-checklist-selections-and-is-included-in-task-filtering-and-counting-logic",
+      "featureTitle": "Add 'Follow Up' as a checklist item in frontend/src/features/cases/checklist.ts with an aqua color token, so it appears in the default checklist selections and is included in task filtering and counting logic.",
       "files": [
-        "frontend/src/hooks/useQueries.ts"
+        "frontend/src/features/cases/checklist.ts"
       ],
       "components": [
         "authorization@4.0.0",
@@ -19,28 +19,6 @@
       ],
       "testIds": [
         "REQ-2"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-audit-frontend-src-features-dashboard-components-dashboardview-tsx-and-frontend-src-features-cases-components-caseslistview-tsx-to-confirm-they-correctly-consume-the-query-hooks-from-usequeries-ts-handle-loading-and-error-states-and-render-the-returned-case-data-fix-any-prop-mismatches-missing-null-checks-or-conditional-rendering-bugs-that-prevent-cases-from-appearing-even-when-the-fetch-succeeds",
-      "featureTitle": "Audit `frontend/src/features/dashboard/components/DashboardView.tsx` and `frontend/src/features/cases/components/CasesListView.tsx` to confirm they correctly consume the query hooks from `useQueries.ts`, handle loading and error states, and render the returned case data. Fix any prop mismatches, missing null checks, or conditional rendering bugs that prevent cases from appearing even when the fetch succeeds.",
-      "files": [
-        "frontend/src/features/cases/components/CasesListView.tsx",
-        "frontend/src/features/dashboard/components/DashboardView.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "camera@1.0.0",
-        "http-outcalls@3.0.0"
-      ],
-      "testIds": [
-        "REQ-3"
       ],
       "confidence": "high"
     }

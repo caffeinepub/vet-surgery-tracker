@@ -99,6 +99,7 @@ export interface TaskOptions {
     histo: boolean;
     labs: boolean;
     culture: boolean;
+    followUp: boolean;
     surgeryReport: boolean;
     imaging: boolean;
     dischargeNotes: boolean;
@@ -107,8 +108,10 @@ export interface Task {
     cultureCompleted: boolean;
     cultureSelected: boolean;
     pdvmNotifiedCompleted: boolean;
+    followUpCompleted: boolean;
     histoSelected: boolean;
     labsSelected: boolean;
+    followUpSelected: boolean;
     imagingCompleted: boolean;
     surgeryReportCompleted: boolean;
     imagingSelected: boolean;
@@ -155,6 +158,7 @@ export enum TaskType {
     histo = "histo",
     labs = "labs",
     culture = "culture",
+    followUp = "followUp",
     surgeryReport = "surgeryReport",
     imaging = "imaging",
     dischargeNotes = "dischargeNotes"
@@ -682,6 +686,8 @@ function to_candid_variant_n22(_uploadFile: (file: ExternalBlob) => Promise<Uint
 } | {
     culture: null;
 } | {
+    followUp: null;
+} | {
     surgeryReport: null;
 } | {
     imaging: null;
@@ -696,6 +702,8 @@ function to_candid_variant_n22(_uploadFile: (file: ExternalBlob) => Promise<Uint
         labs: null
     } : value == TaskType.culture ? {
         culture: null
+    } : value == TaskType.followUp ? {
+        followUp: null
     } : value == TaskType.surgeryReport ? {
         surgeryReport: null
     } : value == TaskType.imaging ? {

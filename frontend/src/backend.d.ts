@@ -17,6 +17,7 @@ export interface TaskOptions {
     histo: boolean;
     labs: boolean;
     culture: boolean;
+    followUp: boolean;
     surgeryReport: boolean;
     imaging: boolean;
     dischargeNotes: boolean;
@@ -25,8 +26,10 @@ export interface Task {
     cultureCompleted: boolean;
     cultureSelected: boolean;
     pdvmNotifiedCompleted: boolean;
+    followUpCompleted: boolean;
     histoSelected: boolean;
     labsSelected: boolean;
+    followUpSelected: boolean;
     imagingCompleted: boolean;
     surgeryReportCompleted: boolean;
     imagingSelected: boolean;
@@ -73,6 +76,7 @@ export enum TaskType {
     histo = "histo",
     labs = "labs",
     culture = "culture",
+    followUp = "followUp",
     surgeryReport = "surgeryReport",
     imaging = "imaging",
     dischargeNotes = "dischargeNotes"

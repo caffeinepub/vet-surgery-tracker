@@ -1,11 +1,11 @@
-import WorkflowIconBase from "./WorkflowIconBase";
-import { workflowColors } from "./workflowTokens";
-
 export default function IconImaging() {
   return (
-    <WorkflowIconBase color={workflowColors.imaging}>
-      <rect x="3" y="3" width="18" height="18" rx="3" />
-      <polyline points="6 15 10 11 13 13 18 8" />
-    </WorkflowIconBase>
+    <img
+      src="/assets/generated/xray-bone-icon.dim_128x128.png"
+      alt="X-ray imaging"
+      width={24}
+      height={24}
+      style={{ width: 24, height: 24, objectFit: 'contain', filter: 'grayscale(1)' }}
+    />
   );
 }

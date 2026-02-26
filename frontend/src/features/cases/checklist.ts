@@ -90,6 +90,17 @@ export const CHECKLIST_ITEMS: ChecklistItem[] = [
     iconColorClass: 'text-green-500',
     workflowType: 'dischargeNotes',
   },
+  {
+    key: 'followUp',
+    label: 'Follow Up',
+    defaultSelected: true,
+    selectedField: 'followUpSelected',
+    completedField: 'followUpCompleted',
+    color: '#06B6D4',
+    icon: 'followup',
+    iconColorClass: 'text-cyan-500',
+    workflowType: 'followUp',
+  },
 ];
 
 export function getDefaultTaskSelections(): Record<string, boolean> {

@@ -1,12 +1,12 @@
 # Specification
 
 ## Summary
-**Goal:** Diagnose and fix the frontend data-fetching failure that prevents surgery cases from loading in SurgiPaw after login.
+**Goal:** Add a "Follow Up" task type with an aqua circular arrow icon to the Dashboard and Cases pages in SurgiPaw.
 
 **Planned changes:**
-- Audit `backend/main.mo` to verify case-fetching query functions are correctly defined, exported, and use stable variable declarations so data survives upgrades
-- Audit and fix `frontend/src/hooks/useActor.ts` to ensure the backend actor is properly initialized with the authenticated identity and refreshed when the identity changes
-- Audit and fix `frontend/src/hooks/useQueries.ts` to ensure React Query hooks use correct backend method names, only run when a valid actor is available, and surface errors visibly
-- Audit and fix `frontend/src/features/dashboard/components/DashboardView.tsx` and `frontend/src/features/cases/components/CasesListView.tsx` to correctly consume query hooks, handle loading/error states, and render case data
+- Add a "Follow Up" task variant to the backend task type definitions
+- Add a "Follow Up" checklist item with an aqua color token to the frontend checklist definitions, included in default selections and task counting logic
+- Assign an aqua color (e.g. `#00BFBF`) to the "Follow Up" task type in `workflowTokens.ts` and apply it to the existing `IconFollowUp.tsx` circular arrow icon
+- Map the "Follow Up" task type string to `IconFollowUp` in the `WorkflowIcon` dispatcher so the aqua circular arrow renders on case cards in both DashboardView and CasesListView
 
-**User-visible outcome:** After logging in, surgery cases load and display correctly on both the Dashboard and Cases List views, with loading indicators while fetching and error messages if the fetch fails.
+**User-visible outcome:** A "Follow Up" checklist task with an aqua circular arrow icon appears on both the Dashboard and Cases pages, participates in open-task counts, and is included by default on new cases.

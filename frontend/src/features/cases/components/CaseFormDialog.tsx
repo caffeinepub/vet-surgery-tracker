@@ -19,7 +19,7 @@ import {
 } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useCreateCase, useGetAllCases } from '../../../hooks/useQueries';
-import type { SurgeryCase, Task } from '../../../backend';
+import type { SurgeryCase } from '../../../backend';
 import { Species, Sex } from '../../../backend';
 import { SEX_OPTIONS } from '../types';
 import type { CaseFormData } from '../types';
@@ -62,6 +62,7 @@ interface TaskSelections {
   surgeryReport: boolean;
   imaging: boolean;
   culture: boolean;
+  followUp: boolean;
 }
 
 const EMPTY_FORM: CaseFormData = {
@@ -85,6 +86,7 @@ const DEFAULT_TASK_SELECTIONS: TaskSelections = {
   surgeryReport: false,
   imaging: false,
   culture: false,
+  followUp: true,
 };
 
 // Map checklist item keys to TaskSelections keys
@@ -96,6 +98,7 @@ const TASK_KEY_MAP: Record<string, keyof TaskSelections> = {
   surgeryReport: 'surgeryReport',
   imaging: 'imaging',
   culture: 'culture',
+  followUp: 'followUp',
 };
 
 export default function CaseFormDialog({ open, onOpenChange, onCaseCreated }: CaseFormDialogProps) {
@@ -256,6 +259,7 @@ export default function CaseFormDialog({ open, onOpenChange, onCaseCreated }: Ca
           surgeryReport: taskSelections.surgeryReport,
           imaging: taskSelections.imaging,
           culture: taskSelections.culture,
+          followUp: taskSelections.followUp,
         },
       });
 
@@ -525,68 +529,74 @@ export default function CaseFormDialog({ open, onOpenChange, onCaseCreated }: Ca
                 className="h-8 text-sm"
               />
             </div>
-          </div>
 
-          {/* Presenting Complaint */}
-          <div className="space-y-1">
-            <Label htmlFor="presentingComplaint" className="text-xs">Presenting Complaint</Label>
-            <Input
-              id="presentingComplaint"
-              value={form.presentingComplaint}
-              onChange={(e) => handleFieldChange('presentingComplaint', e.target.value)}
-              placeholder="e.g. Routine spay"
-              className="h-8 text-sm"
-            />
-          </div>
+            {/* Presenting Complaint */}
+            <div className="col-span-2 space-y-1">
+              <Label htmlFor="presentingComplaint" className="text-xs">Presenting Complaint</Label>
+              <Input
+                id="presentingComplaint"
+                value={form.presentingComplaint}
+                onChange={(e) => handleFieldChange('presentingComplaint', e.target.value)}
+                placeholder="e.g. Limping on right front leg"
+                className="h-8 text-sm"
+              />
+            </div>
 
-          {/* Notes */}
-          <div className="space-y-1">
-            <Label htmlFor="notes" className="text-xs">Notes</Label>
-            <Textarea
-              id="notes"
-              value={form.notes}
-              onChange={(e) => handleFieldChange('notes', e.target.value)}
-              placeholder="Additional notes…"
-              className="min-h-[60px] text-sm resize-none"
-            />
+            {/* Notes */}
+            <div className="col-span-2 space-y-1">
+              <Label htmlFor="notes" className="text-xs">Notes</Label>
+              <Textarea
+                id="notes"
+                value={form.notes}
+                onChange={(e) => handleFieldChange('notes', e.target.value)}
+                placeholder="Additional notes..."
+                className="text-sm resize-none"
+                rows={2}
+              />
+            </div>
           </div>
 
           {/* Tasks */}
           <div className="space-y-2">
-            <Label className="text-xs">Tasks</Label>
+            <Label className="text-sm font-medium">Tasks</Label>
             <div className="grid grid-cols-2 gap-2">
-              {CHECKLIST_ITEMS.map(item => {
+              {CHECKLIST_ITEMS.map((item) => {
                 const taskKey = TASK_KEY_MAP[item.key];
                 if (!taskKey) return null;
                 return (
-                  <label
-                    key={item.key}
-                    className="flex items-center gap-2 p-2 rounded border border-border cursor-pointer hover:bg-muted/50"
-                  >
+                  <div key={item.key} className="flex items-center gap-2">
                     <Checkbox
+                      id={`task-${item.key}`}
                       checked={taskSelections[taskKey]}
                       onCheckedChange={() => toggleTask(taskKey)}
                     />
-                    <span className="text-sm">{item.label}</span>
-                  </label>
+                    <label
+                      htmlFor={`task-${item.key}`}
+                      className="text-sm cursor-pointer"
+                      style={{ color: item.color }}
+                    >
+                      {item.label}
+                    </label>
+                  </div>
                 );
               })}
             </div>
           </div>
         </div>
 
-        <DialogFooter className="gap-2 pt-2">
-          <Button variant="outline" size="sm" onClick={handleClose}>
+        <DialogFooter className="mt-4">
+          <Button variant="outline" onClick={handleClose}>
             Cancel
           </Button>
-          <Button
-            size="sm"
-            onClick={handleSubmit}
-            disabled={createCaseMutation.isPending}
-            className="gap-1.5"
-          >
-            {createCaseMutation.isPending && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-            Create Case
+          <Button onClick={handleSubmit} disabled={createCaseMutation.isPending}>
+            {createCaseMutation.isPending ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Creating...
+              </>
+            ) : (
+              'Create Case'
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>

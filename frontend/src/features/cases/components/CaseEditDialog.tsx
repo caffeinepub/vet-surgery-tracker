@@ -67,6 +67,8 @@ const emptyTask: Task = {
   imagingCompleted: false,
   cultureSelected: false,
   cultureCompleted: false,
+  followUpSelected: false,
+  followUpCompleted: false,
 };
 
 export default function CaseEditDialog({ surgeryCase, open, onOpenChange }: CaseEditDialogProps) {

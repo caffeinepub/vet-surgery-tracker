@@ -265,6 +265,8 @@ export async function importCasesFromCsv(file: File, existingCases: SurgeryCase[
       imagingCompleted,
       cultureSelected: true,
       cultureCompleted,
+      followUpSelected: false,
+      followUpCompleted: false,
     };
 
     cases.push({

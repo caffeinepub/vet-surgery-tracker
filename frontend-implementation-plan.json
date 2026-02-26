@@ -1,60 +1,51 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Diagnose and fix frontend data-fetching failure for surgery cases",
+  "title": "Add 'Follow Up' task to Dashboard and Cases pages",
   "requirements": [
     {
       "id": "REQ-2",
-      "summary": "Audit and fix useQueries.ts to resolve surgery case fetch failures",
+      "summary": "Add 'Follow Up' as a checklist item in frontend/src/features/cases/checklist.ts with an aqua color token so it appears in the default checklist selections and is included in task filtering and counting logic",
       "acceptanceCriteria": [
-        "Query hooks only execute when a valid actor instance is available (enabled guard)",
-        "Method names called on the actor exactly match the names exported by backend main.mo",
-        "Fetch errors are surfaced visibly (not silently caught and discarded)",
-        "Cases load successfully on both DashboardView and CasesListView after login"
+        "A 'Follow Up' checklist item is defined with a label of 'Follow Up' and an aqua color",
+        "The item is included in the default checklist selections for new cases",
+        "The item participates in open-task count calculations on both Dashboard and Cases pages"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/hooks/useQueries.ts",
+          "path": "frontend/src/features/cases/checklist.ts",
           "operation": "modify",
-          "description": "Audit all React Query hooks that fetch surgery cases (useGetAllCases, useGetDashboard, useGetCase, etc.). Verify that each query has an enabled guard checking both `!!actor` and `!actorFetching` to prevent queries from running with undefined/null actors. Confirm method names called on the actor match backend interface exactly (getAllCases, getDashboard, getCase). Add explicit error logging and ensure errors are not silently swallowed. Return proper loading states that reflect actor dependency (isLoading should include actorFetching). Follow the pattern shown in authorization component usage for preventing modal flash."
+          "description": "Add a new ChecklistItem for 'Follow Up' in the CHECKLIST_ITEMS array with key 'followUp', label 'Follow Up', and an aqua color value (e.g., 'oklch(0.75 0.15 195)'). Include it in the default selected items returned by getDefaultChecklistSelections() so new cases include this task by default. Ensure getTaskColor() returns the aqua color for the 'followUp' key. Verify the existing getRemainingChecklistItems() logic correctly identifies incomplete Follow Up tasks for open task counts."
         }
       ]
     },
     {
       "id": "REQ-3",
-      "summary": "Audit DashboardView and CasesListView to fix case rendering and error handling",
+      "summary": "Update frontend/src/components/workflow-icons/workflowTokens.ts to assign an aqua color token to the 'Follow Up' task type and ensure the IconFollowUp.tsx icon uses this aqua color",
       "acceptanceCriteria": [
-        "DashboardView renders case cards when data is returned from the query hook",
-        "CasesListView renders case cards when data is returned from the query hook",
-        "Loading spinners/skeletons are shown while fetching and removed once data arrives",
-        "Error states display a user-facing message when the fetch fails"
+        "The 'Follow Up' task color in workflowTokens.ts is set to an aqua value",
+        "The IconFollowUp circular arrow SVG icon renders in aqua when displayed in checklist and task views"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/features/dashboard/components/DashboardView.tsx",
+          "path": "frontend/src/components/workflow-icons/workflowTokens.ts",
           "operation": "modify",
-          "description": "Audit how DashboardView consumes the useGetAllCases and useGetDashboard query hooks. Verify that loading state checks include both `isLoading` and `isFetching` from the query result. Ensure error states are rendered with user-visible messages when queries fail. Check that case data rendering handles empty arrays gracefully and doesn't fail on null/undefined checks. Verify that the component properly waits for both actor initialization and data fetch completion before attempting to render case cards."
-        },
-        {
-          "path": "frontend/src/features/cases/components/CasesListView.tsx",
-          "operation": "modify",
-          "description": "Audit how CasesListView consumes the useGetAllCases query hook. Verify that loading state checks include both `isLoading` and `isFetching` from the query result. Ensure error states are rendered with user-visible messages (not just console logs) when the query fails. Check that case filtering, searching, and sorting logic properly handles undefined/null data before processing. Verify that empty state, loading skeletons, and error UI are all properly wired and displayed at the correct times. Ensure the component waits for actor initialization before attempting data operations."
+          "description": "Add a 'followUp' property to WORKFLOW_COLORS with an aqua OKLCH color value matching the one used in checklist.ts (e.g., 'oklch(0.75 0.15 195)'). Ensure consistency with REQ-2 so the Follow Up task displays in the same aqua color across all UI components."
         }
       ]
     },
     {
       "id": "REQ-4",
-      "summary": "Audit useActor.ts to verify correct actor initialization and identity handling",
+      "summary": "Ensure the WorkflowIcon dispatcher in frontend/src/components/workflow-icons/WorkflowIcon.tsx maps the 'Follow Up' task type string to the IconFollowUp component so the aqua circular arrow icon renders on both the Dashboard and Cases pages wherever workflow task icons are shown",
       "acceptanceCriteria": [
-        "Actor is initialized with the authenticated identity before any case-fetch query runs",
-        "Actor is refreshed/reinitialised when the user's identity changes",
-        "useQueries hooks receive a non-null actor instance when the user is authenticated"
+        "WorkflowIcon renders IconFollowUp when given the 'Follow Up' task type",
+        "The aqua circular arrow icon is visible on case cards in both DashboardView and CasesListView"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/hooks/useActor.ts",
+          "path": "frontend/src/components/workflow-icons/WorkflowIcon.tsx",
           "operation": "modify",
-          "description": "Audit the actor initialization logic to confirm it properly creates a backend actor using the current Internet Identity principal from useInternetIdentity. Verify that the actor is recreated when identity changes (proper useEffect dependency on identity). Check that isFetching state accurately reflects actor initialization progress and is false only when actor is fully ready. Ensure queryClient.invalidateQueries is called when identity changes to force dependent queries to refetch with the new actor. Verify there are no race conditions where queries attempt to use the actor before it is initialized. Confirm the actor instance is not stale or cached incorrectly across identity changes."
+          "description": "Add a case for 'Follow Up' in the getIconComponent() switch statement that returns <IconFollowUp color={color} />. Ensure the case string matches the 'followUp' key used in checklist.ts and the backend TaskType enum. The icon will automatically receive the aqua color from workflowTokens.ts via the existing color lookup logic."
         }
       ]
     }
