@@ -1,63 +1,96 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Diagnose and fix blank page / database fetch failure",
+  "title": "Add Weekly Calendar View to Dashboard with Toggle",
   "requirements": [
     {
-      "id": "REQ-2",
-      "summary": "Audit and fix frontend actor instantiation and React Query hooks to eliminate silent fetch failures",
+      "id": "REQ-1",
+      "summary": "Add a weekly calendar view component that displays surgery cases in a 7-column grid (Sunday through Saturday) based on Arrival Date",
       "acceptanceCriteria": [
-        "useActor hook returns a valid actor instance on both authenticated and anonymous sessions.",
-        "All React Query hooks in useQueries.ts successfully call the canister and return data without errors.",
-        "No unhandled promise rejections or silent failures occur during data fetching."
+        "Dashboard displays a 7-column grid with columns labeled Sun through Sat",
+        "Each case appears in the column matching its Arrival Date",
+        "Cases with no arrival date or arrival dates outside the current week are not shown in the calendar view"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/hooks/useActor.ts",
-          "operation": "modify",
-          "description": "Audit the actor instantiation logic to ensure the actor is correctly initialized for both authenticated and anonymous principals. Verify that the React Query caching of the actor does not cause stale references. Check that the actor invalidation logic properly triggers dependent query refetches. Add defensive error handling for actor creation failures and log any errors to the console for debugging. Ensure the hook properly returns isFetching state while the actor is being created."
+          "path": "frontend/src/features/dashboard/components/WeeklyCalendarView.tsx",
+          "operation": "create",
+          "description": "Create the WeeklyCalendarView component that renders a 7-column grid (Sun-Sat). For each day column, filter cases where the Arrival Date (Time bigint) falls on that day. Use the existing CaseCard component to render each case within its day column. Apply responsive grid layout using Tailwind CSS classes."
         },
         {
-          "path": "frontend/src/hooks/useQueries.ts",
+          "path": "frontend/src/features/dashboard/utils/calendarUtils.ts",
+          "operation": "create",
+          "description": "Create utility functions: getWeekDays(weekOffset: number) to return an array of 7 Date objects for the current week plus offset; isSameDay(date1: Date, date2: Date) to compare dates; filterCasesByDay(cases: SurgeryCase[], targetDate: Date) to filter cases matching a specific day based on arrivalDate (Time bigint converted to Date); formatWeekRange(startDate: Date, endDate: Date) to format the week header date range."
+        }
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "summary": "The weekly calendar view defaults to the current week with Previous and Next navigation arrows",
+      "acceptanceCriteria": [
+        "On initial load the calendar shows the week containing today's date",
+        "Previous arrow shifts the displayed week back by 7 days",
+        "Next arrow shifts the displayed week forward by 7 days",
+        "The week header shows the date range for the currently displayed week"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/features/dashboard/components/WeeklyCalendarView.tsx",
           "operation": "modify",
-          "description": "Audit all React Query hooks (useGetAllCases, useGetDashboard, useGetCallerUserProfile, etc.) to verify they properly handle the actor dependency. Ensure the 'enabled' flag correctly waits for both actor availability and authentication state before executing queries. Fix any missing error handling or incorrect async/await usage that could cause silent failures. Verify that query keys are unique and stable. Add try-catch blocks around actor method calls and log errors. Ensure queries do not execute when actor is null or undefined. Review the useGetCallerUserProfile hook to ensure it follows the pattern from the authorization component usage instructions (checking actorFetching and returning proper isLoading/isFetched states)."
+          "description": "Add state management for weekOffset (number, default 0). Add a header section above the calendar grid with: a week range display (formatted using formatWeekRange from calendarUtils.ts), a Previous arrow button that decrements weekOffset, and a Next arrow button that increments weekOffset. Use the weekOffset to calculate the displayed week via getWeekDays(weekOffset). Use shadcn/ui Button components for the navigation arrows."
         }
       ]
     },
     {
       "id": "REQ-3",
-      "summary": "Audit Dashboard and Cases pages to ensure proper loading/error states and eliminate blank page rendering",
+      "summary": "Add a toggle button on the Dashboard that switches between weekly calendar view and existing card grid view, defaulting to calendar view",
       "acceptanceCriteria": [
-        "Dashboard and Cases pages render a loading indicator while data is being fetched.",
-        "If a fetch error occurs, a descriptive error message is shown instead of a blank page.",
-        "Once the canister returns data, cases are rendered correctly on both pages."
+        "A toggle control is visible on the Dashboard",
+        "Clicking the toggle switches between the weekly calendar view and the existing card grid view",
+        "The weekly calendar view is displayed by default when the Dashboard loads",
+        "The existing card grid view remains fully functional when toggled to"
       ],
       "file_operations": [
         {
           "path": "frontend/src/features/dashboard/components/DashboardView.tsx",
           "operation": "modify",
-          "description": "Audit the component to ensure it properly consumes the useGetAllCases and useGetDashboard hooks. Verify that the component checks isLoading states from both hooks and displays a loading indicator (spinner or skeleton) while data is being fetched. Add or fix error handling to display a meaningful error message if either query fails, instead of rendering nothing or causing a blank page. Ensure the component does not attempt to render case data before it is available. Check that the component handles empty arrays gracefully (e.g., 'No cases found' message). Verify that filter and sort operations do not cause the UI to disappear if no results match."
-        },
-        {
-          "path": "frontend/src/features/cases/components/CasesListView.tsx",
-          "operation": "modify",
-          "description": "Audit the component to ensure it properly consumes the useGetAllCases hook and handles all possible states: loading, error, empty data, and success. Add a visible loading indicator while isLoading is true. Display a descriptive error message (including error.message) if the query fails. Handle the empty cases array case with a friendly 'No cases yet' message. Verify that filtering logic does not hide all UI when no cases match filters. Check that the component does not render child components (CaseCard) before cases data is available, which could cause rendering errors that result in a blank page."
+          "description": "Add state for view mode (useState) with initial value 'calendar'. Add a toggle control (using shadcn/ui Toggle or Tabs component) above the dashboard content area with options for 'Calendar' and 'List'. Conditionally render either the new WeeklyCalendarView component (when mode is 'calendar') or the existing case card grid (when mode is 'list'). Import WeeklyCalendarView and pass the filtered/sorted cases array to it. Ensure all existing filtering, sorting, and search controls remain active and affect both views."
         }
       ]
     },
     {
       "id": "REQ-4",
-      "summary": "Fix authentication gating and race conditions in App.tsx to prevent blank page for authenticated users",
+      "summary": "In the weekly calendar view, each case card displays Pet Name, MRN, Species badge, Presenting Complaint, and task status icons, with completed cases visually shaded out",
       "acceptanceCriteria": [
-        "The app does not show a blank page for authenticated users waiting for profile data.",
-        "Navigation between Dashboard and Cases works without triggering blank rendering states.",
-        "Profile setup modal only blocks the UI when a new profile is genuinely required."
+        "Each calendar card shows Pet Name, MRN, Species badge, Presenting Complaint, and task status icons",
+        "Cards with all tasks completed are visually shaded out (e.g., reduced opacity or muted/greyed background)",
+        "Active cases (with incomplete tasks) appear at full opacity with normal styling"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/App.tsx",
+          "path": "frontend/src/features/cases/components/CalendarCaseCard.tsx",
+          "operation": "create",
+          "description": "Create a compact CalendarCaseCard component specifically for the calendar view. Display: Pet Name (bold), MRN (small text), Species badge (using existing species badge styling), Presenting Complaint (truncated if long), and task status icons (using WorkflowIcon components from workflow-icons). Calculate if all selected tasks are completed using checklist utilities from frontend/src/features/cases/checklist.ts. If all tasks are complete, apply reduced opacity (e.g., opacity-50) and a muted background class. Make the card clickable to expand details (similar to existing CaseCard behavior). Use Tailwind CSS for compact layout suitable for calendar cells."
+        },
+        {
+          "path": "frontend/src/features/dashboard/components/WeeklyCalendarView.tsx",
           "operation": "modify",
-          "description": "Audit the root App component for any authentication-gating logic that could prevent the Dashboard or Cases pages from rendering. Verify that the profile loading logic using useGetCallerUserProfile follows the authorization component pattern (checking both actorFetching and query isFetched before deciding to show the profile setup modal). Fix any race conditions where the app waits for profile data before rendering navigation or main content, causing a blank page. Ensure that navigation buttons and main content render independently of profile loading state (show loading indicators within sections if needed, but do not block the entire app). Check that the conditional rendering logic for the profile setup modal uses: 'isAuthenticated && !profileLoading && isFetched && userProfile === null' to avoid flashing or blocking the UI unnecessarily. Verify that the app renders at least the navigation header and a loading state while waiting for initial data, never a completely blank page."
+          "description": "Replace the usage of CaseCard with the new CalendarCaseCard component for rendering cases within day columns. Pass each SurgeryCase to CalendarCaseCard along with any required props for expand/collapse behavior."
+        }
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "summary": "Day columns with no cases display a subtle empty-state placeholder note",
+      "acceptanceCriteria": [
+        "Day columns with no cases show a subtle placeholder text such as 'No cases'",
+        "The placeholder is visually understated and does not dominate the layout"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/features/dashboard/components/WeeklyCalendarView.tsx",
+          "operation": "modify",
+          "description": "For each day column in the calendar grid, check if the filtered cases array for that day is empty. If empty, render a subtle placeholder div with text 'No cases' styled with muted text color (text-muted-foreground) and small font size. Position it vertically centered in the column with appropriate padding. Ensure the placeholder does not break the grid layout."
         }
       ]
     }

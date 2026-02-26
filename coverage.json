@@ -1,59 +1,85 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-26T07:39:26.616Z",
+  "generatedAt": "2026-02-26T23:46:21.400Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 4,
-    "implemented": 0,
+    "total": 5,
+    "implemented": 5,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Audit the backend Motoko actor (backend/main.mo) and verify that all public query and update methods are correctly defined, exported, and free of runtime errors that could cause the canister to silently fail on fetch. Fix any issues found (e.g., missing or mis-typed return types, broken async flows, actor initialization errors).",
-        "status": "unknown",
-        "plannedFiles": [],
-        "matchedFiles": []
+        "summary": "Add a weekly calendar view to the DashboardView component that displays surgery cases in a 7-column grid (Sunday through Saturday), where each case is placed into its day column based on its Arrival Date field.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/features/dashboard/components/WeeklyCalendarView.tsx",
+          "frontend/src/features/dashboard/utils/calendarUtils.ts"
+        ],
+        "matchedFiles": [
+          "frontend/src/features/dashboard/components/WeeklyCalendarView.tsx",
+          "frontend/src/features/dashboard/utils/calendarUtils.ts"
+        ]
       },
       {
         "id": "REQ-2",
-        "summary": "Audit frontend/src/hooks/useQueries.ts and frontend/src/hooks/useActor.ts to verify the actor is correctly instantiated and all React Query fetch hooks are properly wired to the canister methods. Fix any broken canister method calls, incorrect actor references, missing await/async handling, or type mismatches that cause fetches to silently fail and produce a blank page.",
-        "status": "missing",
+        "summary": "The weekly calendar view defaults to the current week on load, with Previous and Next week navigation arrows that shift the displayed week backward or forward by 7 days.",
+        "status": "implemented",
         "plannedFiles": [
-          "frontend/src/hooks/useActor.ts",
-          "frontend/src/hooks/useQueries.ts"
+          "frontend/src/features/dashboard/components/WeeklyCalendarView.tsx"
         ],
-        "matchedFiles": []
+        "matchedFiles": [
+          "frontend/src/features/dashboard/components/WeeklyCalendarView.tsx"
+        ]
       },
       {
         "id": "REQ-3",
-        "summary": "Audit the Dashboard page (frontend/src/features/dashboard/components/DashboardView.tsx) and Cases list page (frontend/src/features/cases/components/CasesListView.tsx) to ensure they correctly consume the React Query hooks, handle loading and error states, and never render a blank page when data is unavailable. Add or fix error boundary / fallback UI so any fetch failure displays a meaningful message rather than a blank screen.",
-        "status": "missing",
+        "summary": "Add a toggle button on the Dashboard that switches between the new weekly calendar view and the existing case card grid view. The calendar view should be the default view.",
+        "status": "implemented",
         "plannedFiles": [
-          "frontend/src/features/dashboard/components/DashboardView.tsx",
-          "frontend/src/features/cases/components/CasesListView.tsx"
+          "frontend/src/features/dashboard/components/DashboardView.tsx"
         ],
-        "matchedFiles": []
+        "matchedFiles": [
+          "frontend/src/features/dashboard/components/DashboardView.tsx"
+        ]
       },
       {
         "id": "REQ-4",
-        "summary": "Check frontend/src/App.tsx for any authentication-gating logic or conditional rendering that might prevent the Dashboard or Cases pages from mounting before a user profile is loaded, causing a blank page for returning authenticated users. Fix any race conditions or missing guard clauses.",
-        "status": "missing",
+        "summary": "In the weekly calendar view, each case card must display: Pet Name, MRN, Species badge, Presenting Complaint, and task status icons. Cases where all tasks are completed must be visually shaded out (e.g., reduced opacity or muted background) to distinguish them from active cases.",
+        "status": "implemented",
         "plannedFiles": [
-          "frontend/src/App.tsx"
+          "frontend/src/features/cases/components/CalendarCaseCard.tsx",
+          "frontend/src/features/dashboard/components/WeeklyCalendarView.tsx"
         ],
-        "matchedFiles": []
+        "matchedFiles": [
+          "frontend/src/features/cases/components/CalendarCaseCard.tsx",
+          "frontend/src/features/dashboard/components/WeeklyCalendarView.tsx"
+        ]
+      },
+      {
+        "id": "REQ-5",
+        "summary": "Day columns in the weekly calendar view that have no cases assigned to them must display a subtle empty-state placeholder note (e.g., 'No cases') instead of being completely blank.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/features/dashboard/components/WeeklyCalendarView.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/features/dashboard/components/WeeklyCalendarView.tsx"
+        ]
       }
     ]
   },
   "changedFiles": [
-    "backend/main.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
+    "frontend/src/features/cases/components/CalendarCaseCard.tsx",
+    "frontend/src/features/dashboard/components/DashboardView.tsx",
+    "frontend/src/features/dashboard/components/WeeklyCalendarView.tsx",
+    "frontend/src/features/dashboard/utils/calendarUtils.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

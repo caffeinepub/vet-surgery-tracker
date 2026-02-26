@@ -1,4 +1,112 @@
 {
   "kind": "feature_evidence_report",
-  "features": []
+  "features": [
+    {
+      "featureId": "feature-add-a-weekly-calendar-view-to-the-dashboardview-component-that-displays-surgery-cases-in-a-7-column-grid-sunday-through-saturday-where-each-case-is-placed-into-its-day-column-based-on-its-arrival-date-field",
+      "featureTitle": "Add a weekly calendar view to the DashboardView component that displays surgery cases in a 7-column grid (Sunday through Saturday), where each case is placed into its day column based on its Arrival Date field.",
+      "files": [
+        "frontend/src/features/dashboard/components/WeeklyCalendarView.tsx",
+        "frontend/src/features/dashboard/utils/calendarUtils.ts"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "camera@1.0.0",
+        "http-outcalls@3.0.0"
+      ],
+      "testIds": [
+        "REQ-1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-the-weekly-calendar-view-defaults-to-the-current-week-on-load-with-previous-and-next-week-navigation-arrows-that-shift-the-displayed-week-backward-or-forward-by-7-days",
+      "featureTitle": "The weekly calendar view defaults to the current week on load, with Previous and Next week navigation arrows that shift the displayed week backward or forward by 7 days.",
+      "files": [
+        "frontend/src/features/dashboard/components/WeeklyCalendarView.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "camera@1.0.0",
+        "http-outcalls@3.0.0"
+      ],
+      "testIds": [
+        "REQ-2"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-a-toggle-button-on-the-dashboard-that-switches-between-the-new-weekly-calendar-view-and-the-existing-case-card-grid-view-the-calendar-view-should-be-the-default-view",
+      "featureTitle": "Add a toggle button on the Dashboard that switches between the new weekly calendar view and the existing case card grid view. The calendar view should be the default view.",
+      "files": [
+        "frontend/src/features/dashboard/components/DashboardView.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "camera@1.0.0",
+        "http-outcalls@3.0.0"
+      ],
+      "testIds": [
+        "REQ-3"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-in-the-weekly-calendar-view-each-case-card-must-display-pet-name-mrn-species-badge-presenting-complaint-and-task-status-icons-cases-where-all-tasks-are-completed-must-be-visually-shaded-out-e-g-reduced-opacity-or-muted-background-to-distinguish-them-from-active-cases",
+      "featureTitle": "In the weekly calendar view, each case card must display: Pet Name, MRN, Species badge, Presenting Complaint, and task status icons. Cases where all tasks are completed must be visually shaded out (e.g., reduced opacity or muted background) to distinguish them from active cases.",
+      "files": [
+        "frontend/src/features/cases/components/CalendarCaseCard.tsx",
+        "frontend/src/features/dashboard/components/WeeklyCalendarView.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "camera@1.0.0",
+        "http-outcalls@3.0.0"
+      ],
+      "testIds": [
+        "REQ-4"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-day-columns-in-the-weekly-calendar-view-that-have-no-cases-assigned-to-them-must-display-a-subtle-empty-state-placeholder-note-e-g-no-cases-instead-of-being-completely-blank",
+      "featureTitle": "Day columns in the weekly calendar view that have no cases assigned to them must display a subtle empty-state placeholder note (e.g., 'No cases') instead of being completely blank.",
+      "files": [
+        "frontend/src/features/dashboard/components/WeeklyCalendarView.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "camera@1.0.0",
+        "http-outcalls@3.0.0"
+      ],
+      "testIds": [
+        "REQ-5"
+      ],
+      "confidence": "high"
+    }
+  ]
 }

@@ -1,91 +1,118 @@
 {
   "kind": "build_request",
-  "title": "Diagnose and fix blank page / database fetch failure",
+  "title": "Add Weekly Calendar View to Dashboard with Toggle",
   "projectName": "SurgiPaw",
-  "priority": "high",
+  "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Audit the backend Motoko actor (backend/main.mo) and verify that all public query and update methods are correctly defined, exported, and free of runtime errors that could cause the canister to silently fail on fetch. Fix any issues found (e.g., missing or mis-typed return types, broken async flows, actor initialization errors).",
-      "target": "backend",
+      "text": "Add a weekly calendar view to the DashboardView component that displays surgery cases in a 7-column grid (Sunday through Saturday), where each case is placed into its day column based on its Arrival Date field.",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-user-latest"
+          "msg-user-weekly-calendar",
+          "msg-user-answers"
         ],
         "quotes": [
-          "take a fresh look at the current backend and frontend code to diagnose exactly why the fetch is failing"
+          "7-day columns (Sun-Sat) showing the current week",
+          "Each day column shows case cards for patients who arrived that day",
+          "Arrival Date for placement"
         ]
       },
       "acceptanceCriteria": [
-        "The Motoko canister compiles without errors or warnings that affect runtime behavior.",
-        "All query methods (e.g., getCases, getUserProfile) return valid data when called from dfx or the frontend.",
-        "No blank/empty responses are returned due to actor-level bugs."
+        "Dashboard displays a 7-column grid with columns labeled Sun through Sat",
+        "Each case appears in the column matching its Arrival Date",
+        "Cases with no arrival date or arrival dates outside the current week are not shown in the calendar view"
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Audit frontend/src/hooks/useQueries.ts and frontend/src/hooks/useActor.ts to verify the actor is correctly instantiated and all React Query fetch hooks are properly wired to the canister methods. Fix any broken canister method calls, incorrect actor references, missing await/async handling, or type mismatches that cause fetches to silently fail and produce a blank page.",
+      "text": "The weekly calendar view defaults to the current week on load, with Previous and Next week navigation arrows that shift the displayed week backward or forward by 7 days.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-user-latest"
+          "msg-user-answers"
         ],
         "quotes": [
-          "diagnose exactly why the fetch is failing"
+          "Default week to current week"
         ]
       },
       "acceptanceCriteria": [
-        "useActor hook returns a valid actor instance on both authenticated and anonymous sessions.",
-        "All React Query hooks in useQueries.ts successfully call the canister and return data without errors.",
-        "No unhandled promise rejections or silent failures occur during data fetching."
+        "On initial load the calendar shows the week containing today's date",
+        "Previous arrow shifts the displayed week back by 7 days",
+        "Next arrow shifts the displayed week forward by 7 days",
+        "The week header shows the date range for the currently displayed week"
       ]
     },
     {
       "id": "REQ-3",
-      "text": "Audit the Dashboard page (frontend/src/features/dashboard/components/DashboardView.tsx) and Cases list page (frontend/src/features/cases/components/CasesListView.tsx) to ensure they correctly consume the React Query hooks, handle loading and error states, and never render a blank page when data is unavailable. Add or fix error boundary / fallback UI so any fetch failure displays a meaningful message rather than a blank screen.",
+      "text": "Add a toggle button on the Dashboard that switches between the new weekly calendar view and the existing case card grid view. The calendar view should be the default view.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-user-latest"
+          "msg-user-weekly-calendar",
+          "msg-user-answers"
         ],
         "quotes": [
-          "Database is not showing in the Draft or Live app; just a blank page"
+          "A toggle button to switch between the current card grid and the weekly calendar",
+          "Toggle"
         ]
       },
       "acceptanceCriteria": [
-        "Dashboard and Cases pages render a loading indicator while data is being fetched.",
-        "If a fetch error occurs, a descriptive error message is shown instead of a blank page.",
-        "Once the canister returns data, cases are rendered correctly on both pages."
+        "A toggle control is visible on the Dashboard",
+        "Clicking the toggle switches between the weekly calendar view and the existing card grid view",
+        "The weekly calendar view is displayed by default when the Dashboard loads",
+        "The existing card grid view remains fully functional when toggled to"
       ]
     },
     {
       "id": "REQ-4",
-      "text": "Check frontend/src/App.tsx for any authentication-gating logic or conditional rendering that might prevent the Dashboard or Cases pages from mounting before a user profile is loaded, causing a blank page for returning authenticated users. Fix any race conditions or missing guard clauses.",
+      "text": "In the weekly calendar view, each case card must display: Pet Name, MRN, Species badge, Presenting Complaint, and task status icons. Cases where all tasks are completed must be visually shaded out (e.g., reduced opacity or muted background) to distinguish them from active cases.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-user-latest"
+          "msg-user-weekly-calendar"
         ],
         "quotes": [
-          "blank page"
+          "Cards show: Pet Name, MRN, Species badge, presenting complaint, and task status icons",
+          "When all tasks are completed the card will be shaded out to make it more noticeable"
         ]
       },
       "acceptanceCriteria": [
-        "The app does not show a blank page for authenticated users waiting for profile data.",
-        "Navigation between Dashboard and Cases works without triggering blank rendering states.",
-        "Profile setup modal only blocks the UI when a new profile is genuinely required."
+        "Each calendar card shows Pet Name, MRN, Species badge, Presenting Complaint, and task status icons",
+        "Cards with all tasks completed are visually shaded out (e.g., reduced opacity or muted/greyed background)",
+        "Active cases (with incomplete tasks) appear at full opacity with normal styling"
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "text": "Day columns in the weekly calendar view that have no cases assigned to them must display a subtle empty-state placeholder note (e.g., 'No cases') instead of being completely blank.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-user-weekly-calendar"
+        ],
+        "quotes": [
+          "Days with no cases show an empty column with a subtle note"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Day columns with no cases show a subtle placeholder text such as 'No cases'",
+        "The placeholder is visually understated and does not dominate the layout"
       ]
     }
   ],
   "constraints": [
-    "Do not alter immutable frontend paths: frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, frontend/src/components/ui.",
-    "All Motoko changes must remain within the single actor in backend/main.mo.",
-    "Only generate migration.mo if stable variable types in the backend are changed."
+    "Do not modify the existing card grid view behavior — it must remain fully functional as a toggle option",
+    "Do not alter backend data models or API calls; read Arrival Date from the existing SurgeryCase type",
+    "Do not edit files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or frontend/src/components/ui"
   ],
   "nonGoals": [
-    "Adding new features or UI changes unrelated to the fetch failure.",
-    "Redesigning the Dashboard or Cases layout.",
-    "Changes to CSV import/export or PDF generation logic."
+    "Replacing the existing card grid view entirely",
+    "Adding drag-and-drop case rescheduling on the calendar",
+    "Adding new case creation directly from the calendar",
+    "Month or day view calendars — only weekly view is in scope",
+    "Any backend changes"
   ],
   "imageRequirements": {
     "required": [],

@@ -1,46 +1,59 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 3,
-  "summary": "Veterinary case management app with Dashboard and Cases pages. Currently debugging a critical issue where the database is not loading (blank page) in both Draft and Live versions. Investigating backend (Motoko canister) and frontend (React/TypeScript) fetch failures.",
+  "projectStateVersion": 5,
+  "summary": "Veterinary case management app with Dashboard and Cases pages. Fixed database loading issue (blank page). Now adding a weekly calendar view to the Dashboard with toggle, arrival date placement, current week default, and completed case shading.",
   "architectural_notes": [
     "Backend uses Motoko canisters on ICP; frontend uses React/TypeScript"
   ],
-  "known_issues": [
-    "Database not loading in Draft or Live app — blank page; fetch from canister failing"
-  ],
-  "isFixRequest": true,
-  "existing_features": [],
-  "new_feature_requests": [
+  "known_issues": [],
+  "isFixRequest": false,
+  "existing_features": [
     {
-      "id": "AR-1",
-      "summary": "Audit the backend Motoko actor (backend/main.mo) and verify that all public query and update methods are correctly defined, exported, and free of runtime errors that could cause the canister to silently fail on fetch. Fix any issues found (e.g., missing or mis-typed return types, broken async flows, actor initialization errors).",
+      "id": "feature-add-a-weekly-calendar-view-to-the-dashboardview-component-that-displays-surgery-cases-in-a-7-column-grid-sunday-through-saturday-where-each-case-is-placed-into-its-day-column-based-on-its-arrival-date-field",
+      "title": "Add a weekly calendar view to the DashboardView component that displays surgery cases in a 7-column grid (Sunday through Saturday), where each case is placed into its day column based on its Arrival Date field.",
       "reqIds": [
         "REQ-1"
       ],
-      "status": "pending"
+      "version": 1
     },
     {
-      "id": "AR-2",
-      "summary": "Audit frontend/src/hooks/useQueries.ts and frontend/src/hooks/useActor.ts to verify the actor is correctly instantiated and all React Query fetch hooks are properly wired to the canister methods. Fix any broken canister method calls, incorrect actor references, missing await/async handling, or type mismatches that cause fetches to silently fail and produce a blank page.",
+      "id": "feature-the-weekly-calendar-view-defaults-to-the-current-week-on-load-with-previous-and-next-week-navigation-arrows-that-shift-the-displayed-week-backward-or-forward-by-7-days",
+      "title": "The weekly calendar view defaults to the current week on load, with Previous and Next week navigation arrows that shift the displayed week backward or forward by 7 days.",
       "reqIds": [
         "REQ-2"
       ],
-      "status": "pending"
+      "version": 1
     },
     {
-      "id": "AR-3",
-      "summary": "Audit the Dashboard page (frontend/src/features/dashboard/components/DashboardView.tsx) and Cases list page (frontend/src/features/cases/components/CasesListView.tsx) to ensure they correctly consume the React Query hooks, handle loading and error states, and never render a blank page when data is unavailable. Add or fix error boundary / fallback UI so any fetch failure displays a meaningful message rather than a blank screen.",
+      "id": "feature-add-a-toggle-button-on-the-dashboard-that-switches-between-the-new-weekly-calendar-view-and-the-existing-case-card-grid-view-the-calendar-view-should-be-the-default-view",
+      "title": "Add a toggle button on the Dashboard that switches between the new weekly calendar view and the existing case card grid view. The calendar view should be the default view.",
       "reqIds": [
         "REQ-3"
       ],
-      "status": "pending"
+      "version": 1
     },
     {
-      "id": "AR-4",
-      "summary": "Check frontend/src/App.tsx for any authentication-gating logic or conditional rendering that might prevent the Dashboard or Cases pages from mounting before a user profile is loaded, causing a blank page for returning authenticated users. Fix any race conditions or missing guard clauses.",
+      "id": "feature-in-the-weekly-calendar-view-each-case-card-must-display-pet-name-mrn-species-badge-presenting-complaint-and-task-status-icons-cases-where-all-tasks-are-completed-must-be-visually-shaded-out-e-g-reduced-opacity-or-muted-background-to-distinguish-them-from-active-cases",
+      "title": "In the weekly calendar view, each case card must display: Pet Name, MRN, Species badge, Presenting Complaint, and task status icons. Cases where all tasks are completed must be visually shaded out (e.g., reduced opacity or muted background) to distinguish them from active cases.",
       "reqIds": [
         "REQ-4"
       ],
+      "version": 1
+    },
+    {
+      "id": "feature-day-columns-in-the-weekly-calendar-view-that-have-no-cases-assigned-to-them-must-display-a-subtle-empty-state-placeholder-note-e-g-no-cases-instead-of-being-completely-blank",
+      "title": "Day columns in the weekly calendar view that have no cases assigned to them must display a subtle empty-state placeholder note (e.g., 'No cases') instead of being completely blank.",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-5",
+      "summary": "Add a weekly calendar view to the Dashboard. 7-day columns (Sun-Sat) showing the current week by default, with Previous/Next week navigation. Cases placed by Arrival Date. Cards show Pet Name, MRN, Species badge, Presenting Complaint, and task status icons. Completed cases are shaded out. Empty days show a subtle placeholder note. Toggle button to switch between the new calendar view and the existing card grid.",
+      "reqIds": [],
       "status": "pending"
     }
   ],

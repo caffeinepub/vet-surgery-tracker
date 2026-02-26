@@ -1,50 +1,46 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-26T07:39:26.613Z",
-  "summary": "The diff modifies backend/main.mo and several frontend files. The backend changes appear to address REQ-1 (actor method correctness). Frontend changes touch App.tsx (REQ-4), useQueries.ts (REQ-2), and CasesListView.tsx (REQ-3). However, DashboardView.tsx is not modified per the diff, meaning REQ-3's requirement to audit and fix the Dashboard page for loading/error states and blank-page prevention is not evidenced. The frontend-file-summaries.txt describes useQueries.ts changes but does not include an entry for DashboardView.tsx.",
-  "missing_requirements": [
-    {
-      "id": "REQ-3",
-      "requirement": "Audit DashboardView.tsx to ensure it correctly consumes React Query hooks, handles loading and error states, and never renders a blank page when data is unavailable. Add or fix error boundary/fallback UI for fetch failures.",
-      "reason": "DashboardView.tsx does not appear in the modified files list and has no entry in frontend-file-summaries.txt, indicating it was not changed.",
-      "evidence": [
-        "frontend-file-summaries.txt"
-      ]
-    }
-  ],
+  "generatedAt": "2026-02-26T23:46:21.396Z",
+  "summary": "The diff implements all five requirements. A WeeklyCalendarView component with 7-column grid, week navigation, date-range header, and empty-state placeholders was added. A CalendarCaseCard showing Pet Name, MRN, species icon, presenting complaint, task status icons, and completed-case shading was added. DashboardView was modified to include a toggle (defaulting to calendar view) and to wire up the new components. Supporting utility functions (calendarUtils.ts) handle week computation, day filtering, and formatting. All REQ-1 through REQ-5 acceptance criteria appear to be satisfied.",
+  "missing_requirements": [],
   "hallucinated_features": [
     {
-      "description": "Addition of a 'Follow Up' checklist task with aqua color #06B6D4 and defaultSelected=true",
-      "reason": "The build request explicitly lists adding new features unrelated to the fetch failure as a non-goal. Adding a new Follow Up task item is a feature addition unrelated to diagnosing or fixing the blank page.",
+      "description": "CalendarCaseCard includes expand/collapse functionality (ChevronDown/ChevronUp toggle with isExpanded state), a full ChecklistEditor, edit dialog (CaseEditDialog), and a delete button (Trash2 icon with confirmation prompt).",
+      "reason": "The requirements only specify displaying Pet Name, MRN, Species badge, Presenting Complaint, and task status icons with completed-case shading. Interactive expand/collapse, inline checklist editing, case edit dialog, and delete functionality from calendar cards were not requested.",
       "evidence": [
-        "frontend-file-summaries.txt",
-        "frontend/src/features/cases/checklist.ts",
-        "frontend/src/features/cases/components/CaseFormDialog.tsx",
-        "frontend/src/features/cases/components/CsvImportExportPanel.tsx"
+        "frontend/src/features/cases/components/CalendarCaseCard.tsx"
       ]
     },
     {
-      "description": "CaseCard updated with new species icons and a new showPresentingComplaintCollapsed prop",
-      "reason": "These are UI changes unrelated to the fetch failure fix, which is explicitly a non-goal.",
+      "description": "A 'Today' button appears in the week navigation header when the user is not viewing the current week, allowing a one-click jump back to the current week.",
+      "reason": "The requirements describe only Previous and Next week navigation arrows. A dedicated 'Today' shortcut button was not requested.",
       "evidence": [
-        "frontend-file-summaries.txt",
-        "frontend/src/features/cases/components/CaseCard.tsx"
+        "frontend/src/features/dashboard/components/WeeklyCalendarView.tsx"
       ]
     },
     {
-      "description": "CasesListView toolbar sticky offset changed to top-14 and highlight prop renamed to isHighlighted",
-      "reason": "Sticky toolbar offset and prop renaming are layout/UI changes unrelated to the blank page or fetch failure diagnosis, falling under the non-goal of redesigning the Cases layout.",
+      "description": "Day column headers display a case-count badge showing the number of cases when dayCases.length is greater than 0.",
+      "reason": "The requirements do not mention a case count badge on day column headers.",
       "evidence": [
-        "frontend-file-summaries.txt",
-        "frontend/src/features/cases/components/CasesListView.tsx"
+        "frontend/src/features/dashboard/components/WeeklyCalendarView.tsx"
+      ]
+    },
+    {
+      "description": "Today's date column is visually highlighted with primary color styling on the day label and a circular background on the date number.",
+      "reason": "No requirement specifies a visual highlight for the current day's column.",
+      "evidence": [
+        "frontend/src/features/dashboard/components/WeeklyCalendarView.tsx"
       ]
     }
   ],
-  "confidence": 0.72,
+  "confidence": 0.82,
   "changed_files": [
-    "backend/main.mo",
     "frontend-file-summaries.txt",
+    "frontend/src/features/cases/components/CalendarCaseCard.tsx",
+    "frontend/src/features/dashboard/components/DashboardView.tsx",
+    "frontend/src/features/dashboard/components/WeeklyCalendarView.tsx",
+    "frontend/src/features/dashboard/utils/calendarUtils.ts",
     "project_state.json"
   ]
 }
