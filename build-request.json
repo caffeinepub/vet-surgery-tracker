@@ -1,137 +1,42 @@
 {
   "kind": "build_request",
-  "title": "Add Veterinary Workflow Icons component system and integrate into Dashboard and Cases pages",
-  "projectName": "SurgiPaw",
-  "priority": "normal",
+  "title": "Fix Cases loading regression from Version 94 (blank list on Dashboard and Cases pages)",
+  "priority": "high",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Create the file `frontend/src/components/workflow-icons/workflowTokens.ts` exporting `workflowColors` (an object mapping workflow type keys to hex color strings: discharge=#22C55E, notified=#EAB308, labs=#F97316, histo=#8B5CF6, imaging=#3B82F6, surgery=#EF4444, culture=#EC4899, followup=#06B6D4), `iconSize=24`, and `strokeWidth=2`.",
+      "text": "Investigate and fix the Version 94 frontend regression that causes a blank Cases list on both the Dashboard and Cases pages. The only changes in Version 94 were to workflow/task icons and their associated logic. Compare the current frontend code for cases data fetching and rendering (useQueries.ts, CasesListView.tsx, DashboardView.tsx, CaseCard.tsx, ChecklistEditor.tsx, WorkflowIcon.tsx) against the last known working state to identify where the icon/workflow changes broke Cases loading. Restore Cases loading to the working state from Version 93 while keeping any valid icon improvements intact.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-latest"
+          "msg-1",
+          "msg-2"
         ],
         "quotes": [
-          "export const workflowColors = { discharge: \"#22C55E\", ... }"
+          "Cases are not loading in the app. They are called cases in the app. Stored in the backend canister. They loaded fine in version 93",
+          "Blank list",
+          "Changes were related to changing icons for the tasks and the flow associated with those.",
+          "From what I can tell it is loading cases on both the Dashboard and Cases page"
         ]
       },
       "acceptanceCriteria": [
-        "File exists at frontend/src/components/workflow-icons/workflowTokens.ts",
-        "All 8 workflow color keys are exported with correct hex values",
-        "iconSize and strokeWidth are exported as numeric constants"
-      ]
-    },
-    {
-      "id": "REQ-2",
-      "text": "Create `frontend/src/components/workflow-icons/WorkflowIconBase.tsx` — a base SVG wrapper component accepting `color: string` and `children: React.ReactNode`, rendering an SVG with width/height from `iconSize`, strokeWidth from `strokeWidth`, and strokeLinecap/strokeLinejoin set to 'round'.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-latest"
-        ],
-        "quotes": [
-          "export default function WorkflowIconBase({ color, children }: Props)"
-        ]
-      },
-      "acceptanceCriteria": [
-        "File exists at frontend/src/components/workflow-icons/WorkflowIconBase.tsx",
-        "Component renders an SVG using iconSize, strokeWidth tokens from workflowTokens",
-        "Accepts color and children props correctly"
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "text": "Create the following individual icon components under `frontend/src/components/workflow-icons/`, each using `WorkflowIconBase` with the corresponding color from `workflowColors` and the exact SVG path data provided: `IconDischarge.tsx`, `IconNotified.tsx`, `IconLabs.tsx`, `IconHisto.tsx`, `IconImaging.tsx`, `IconSurgery.tsx`, `IconCulture.tsx`, `IconFollowUp.tsx`.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-latest"
-        ],
-        "quotes": [
-          "export default function IconDischarge()",
-          "export default function IconNotified()",
-          "export default function IconLabs()",
-          "export default function IconHisto()",
-          "export default function IconImaging()",
-          "export default function IconSurgery()",
-          "export default function IconCulture()",
-          "export default function IconFollowUp()"
-        ]
-      },
-      "acceptanceCriteria": [
-        "All 8 icon files exist under frontend/src/components/workflow-icons/",
-        "Each icon uses the correct workflowColors key",
-        "Each icon uses the exact SVG geometry provided in the user's code"
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "text": "Create `frontend/src/components/workflow-icons/WorkflowIcon.tsx` — a dispatcher component that accepts a `type` prop of `WorkflowType` (union: 'discharge' | 'notified' | 'labs' | 'histo' | 'imaging' | 'surgery' | 'culture' | 'followup') and renders the corresponding icon component, returning null for unknown types. Export the `WorkflowType` type from this file.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-latest"
-        ],
-        "quotes": [
-          "export default function WorkflowIcon({ type }: { type: WorkflowType })"
-        ]
-      },
-      "acceptanceCriteria": [
-        "File exists at frontend/src/components/workflow-icons/WorkflowIcon.tsx",
-        "WorkflowType union type is exported",
-        "Component dispatches to the correct icon for each valid type",
-        "Returns null for unrecognized types"
-      ]
-    },
-    {
-      "id": "REQ-5",
-      "text": "Replace existing task/checklist icons on the Dashboard page (`frontend/src/features/dashboard/components/DashboardView.tsx`) with `WorkflowIcon` components. Map each displayed task type to the corresponding `WorkflowType` value (e.g., discharge, labs, imaging, surgery, culture, histo, notified, followup) so that the colored workflow icon appears wherever a task type indicator is rendered.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-latest"
-        ],
-        "quotes": [
-          "These should replace the existing tasks on the Dashboard and Cases page"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Dashboard task entries display the WorkflowIcon component instead of any previous icon or text indicator",
-        "Each task type renders its correctly colored icon",
-        "No broken imports or missing icon types"
-      ]
-    },
-    {
-      "id": "REQ-6",
-      "text": "Replace existing task/checklist icons on the Cases page (`frontend/src/features/cases/components/CaseCard.tsx` and `frontend/src/features/cases/components/ChecklistEditor.tsx`) with `WorkflowIcon` components. Map each checklist item's task key to its corresponding `WorkflowType` so the colored workflow icon appears next to each task in the checklist.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-latest"
-        ],
-        "quotes": [
-          "These should replace the existing tasks on the Dashboard and Cases page"
-        ]
-      },
-      "acceptanceCriteria": [
-        "CaseCard checklist items display WorkflowIcon for each task type",
-        "ChecklistEditor renders WorkflowIcon next to each task label",
-        "Task type mapping from checklist.ts keys to WorkflowType values is complete and correct",
-        "No existing checklist functionality (toggle, color, completion state) is broken"
+        "Cases list is no longer blank on the Cases page — existing cases from the backend canister are displayed.",
+        "Cases list is no longer blank on the Dashboard page — existing cases from the backend canister are displayed.",
+        "No console errors related to case fetching, task icons, or workflow rendering.",
+        "Workflow/task icons still render correctly on case cards.",
+        "Creating, editing, and filtering cases continues to work as expected."
       ]
     }
   ],
   "constraints": [
-    "Do not modify any files under frontend/src/components/ui/ or other immutable paths",
-    "Preserve all existing checklist toggle/completion functionality in CaseCard and ChecklistEditor",
-    "Use the exact SVG path data and color values provided by the user — do not alter icon geometry or colors"
+    "Do not modify backend/main.mo — this is a frontend-only regression.",
+    "Do not remove or revert workflow icon components unless they are directly causing the rendering failure.",
+    "Preserve all valid Version 94 icon and workflow improvements that do not break case loading."
   ],
   "nonGoals": [
-    "Adding new workflow types beyond the 8 provided",
-    "Animating or adding interactivity to icons beyond what already exists",
-    "Backend changes",
-    "Modifying the workflowColors design tokens"
+    "Adding new features or UI changes beyond fixing the blank list regression.",
+    "Modifying backend data models or CRUD operations.",
+    "Changing the visual design of the app."
   ],
   "imageRequirements": {
     "required": [],

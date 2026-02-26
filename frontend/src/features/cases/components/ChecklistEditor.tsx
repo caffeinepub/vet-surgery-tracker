@@ -3,6 +3,7 @@ import { Label } from '@/components/ui/label';
 import type { Task } from '../../../backend';
 import { CHECKLIST_ITEMS, getTaskBorderColor, getTaskBackgroundColor } from '../checklist';
 import WorkflowIcon from '../../../components/workflow-icons/WorkflowIcon';
+import { cn } from '@/lib/utils';
 
 interface ChecklistEditorProps {
   task: Task;
@@ -102,8 +103,4 @@ export default function ChecklistEditor({ task, onChange, disabled, mode = 'comp
       )}
     </div>
   );
-}
-
-function cn(...classes: (string | boolean | undefined)[]) {
-  return classes.filter(Boolean).join(' ');
 }

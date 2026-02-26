@@ -1,14 +1,11 @@
 # Specification
 
 ## Summary
-**Goal:** Create a reusable Veterinary Workflow Icons component system and integrate it into the Dashboard and Cases pages, replacing existing task/checklist icons with colored, type-specific SVG icons.
+**Goal:** Fix the Version 94 frontend regression that causes a blank Cases list on both the Dashboard and Cases pages.
 
 **Planned changes:**
-- Create `workflowTokens.ts` exporting 8 workflow color hex values (`discharge`, `notified`, `labs`, `histo`, `imaging`, `surgery`, `culture`, `followup`), `iconSize`, and `strokeWidth` constants
-- Create `WorkflowIconBase.tsx` as a base SVG wrapper accepting `color` and `children` props
-- Create 8 individual icon components (`IconDischarge`, `IconNotified`, `IconLabs`, `IconHisto`, `IconImaging`, `IconSurgery`, `IconCulture`, `IconFollowUp`), each using the correct color token and SVG path data
-- Create `WorkflowIcon.tsx` dispatcher component accepting a `WorkflowType` union prop and rendering the matching icon
-- Replace existing task/checklist icons in `DashboardView.tsx` with `WorkflowIcon` components mapped to their workflow types
-- Replace existing task/checklist icons in `CaseCard.tsx` and `ChecklistEditor.tsx` with `WorkflowIcon` components, preserving all existing toggle/completion functionality
+- Investigate the Version 94 changes to workflow/task icons and their associated logic to identify what broke Cases loading
+- Compare and fix the affected files (`useQueries.ts`, `CasesListView.tsx`, `DashboardView.tsx`, `CaseCard.tsx`, `ChecklistEditor.tsx`, `WorkflowIcon.tsx`) to restore cases data fetching and rendering to the working Version 93 state
+- Preserve any valid workflow/task icon improvements from Version 94 that do not cause the regression
 
-**User-visible outcome:** Task and checklist items throughout the Dashboard and Cases pages display distinct, colored SVG icons for each workflow type (discharge, labs, imaging, surgery, etc.) instead of the previous generic icons or text indicators.
+**User-visible outcome:** Cases are displayed again on both the Dashboard and Cases pages, with workflow/task icons still rendering correctly and no console errors.

@@ -286,7 +286,7 @@ export default function CaseEditDialog({ surgeryCase, open, onOpenChange }: Case
                         onCheckedChange={() => toggleTaskField(item.selectedField)}
                       />
                       <label htmlFor={`sel-${item.key}`} className="text-sm font-medium cursor-pointer">
-                        {item.key}
+                        {item.label}
                       </label>
                     </div>
                     {isSelected && (

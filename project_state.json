@@ -1,79 +1,26 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Veterinary workflow management app with a frontend/backend architecture. Features a Dashboard and Cases page with task management. Currently adding a Veterinary Workflow Icons component system to replace existing task icons on the Dashboard and Cases pages.",
+  "summary": "App with Cases feature (stored in backend canister). Version 94 introduced task icon and workflow changes that broke Cases loading on both Dashboard and Cases pages (blank list regression from Version 93).",
   "architectural_notes": [
-    "Frontend source lives at frontend/src/; backend at backend/",
-    "Workflow icons use a token-based color system (workflowTokens.ts) with a base SVG wrapper (WorkflowIconBase.tsx) and a unified dispatcher (WorkflowIcon.tsx); icon size 24px, strokeWidth 2"
+    "Cases are stored in a backend Motoko canister and displayed on both the Dashboard and Cases pages."
   ],
-  "known_issues": [],
-  "isFixRequest": false,
+  "known_issues": [
+    "Version 94 regression: Cases show blank list on Dashboard and Cases pages; worked fine in Version 93. Changes in V94 were frontend-only (task icons and workflow logic)."
+  ],
+  "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-create-the-file-frontend-src-components-workflow-icons-workflowtokens-ts-exporting-workflowcolors-an-object-mapping-workflow-type-keys-to-hex-color-strings-discharge-22c55e-notified-eab308-labs-f97316-histo-8b5cf6-imaging-3b82f6-surgery-ef4444-culture-ec4899-followup-06b6d4-iconsize-24-and-strokewidth-2",
-      "title": "Create the file `frontend/src/components/workflow-icons/workflowTokens.ts` exporting `workflowColors` (an object mapping workflow type keys to hex color strings: discharge=#22C55E, notified=#EAB308, labs=#F97316, histo=#8B5CF6, imaging=#3B82F6, surgery=#EF4444, culture=#EC4899, followup=#06B6D4), `iconSize=24`, and `strokeWidth=2`.",
+      "id": "feature-investigate-and-fix-the-version-94-frontend-regression-that-causes-a-blank-cases-list-on-both-the-dashboard-and-cases-pages-the-only-changes-in-version-94-were-to-workflow-task-icons-and-their-associated-logic-compare-the-current-frontend-code-for-cases-data-fetching-and-rendering-usequeries-ts-caseslistview-tsx-dashboardview-tsx-casecard-tsx-checklisteditor-tsx-workflowicon-tsx-against-the-last-known-working-state-to-identify-where-the-icon-workflow-changes-broke-cases-loading-restore-cases-loading-to-the-working-state-from-version-93-while-keeping-any-valid-icon-improvements-intact",
+      "title": "Investigate and fix the Version 94 frontend regression that causes a blank Cases list on both the Dashboard and Cases pages. The only changes in Version 94 were to workflow/task icons and their associated logic. Compare the current frontend code for cases data fetching and rendering (useQueries.ts, CasesListView.tsx, DashboardView.tsx, CaseCard.tsx, ChecklistEditor.tsx, WorkflowIcon.tsx) against the last known working state to identify where the icon/workflow changes broke Cases loading. Restore Cases loading to the working state from Version 93 while keeping any valid icon improvements intact.",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
-    },
-    {
-      "id": "feature-create-frontend-src-components-workflow-icons-workflowiconbase-tsx-a-base-svg-wrapper-component-accepting-color-string-and-children-react-reactnode-rendering-an-svg-with-width-height-from-iconsize-strokewidth-from-strokewidth-and-strokelinecap-strokelinejoin-set-to-round",
-      "title": "Create `frontend/src/components/workflow-icons/WorkflowIconBase.tsx` — a base SVG wrapper component accepting `color: string` and `children: React.ReactNode`, rendering an SVG with width/height from `iconSize`, strokeWidth from `strokeWidth`, and strokeLinecap/strokeLinejoin set to 'round'.",
-      "reqIds": [
-        "REQ-2"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-create-the-following-individual-icon-components-under-frontend-src-components-workflow-icons-each-using-workflowiconbase-with-the-corresponding-color-from-workflowcolors-and-the-exact-svg-path-data-provided-icondischarge-tsx-iconnotified-tsx-iconlabs-tsx-iconhisto-tsx-iconimaging-tsx-iconsurgery-tsx-iconculture-tsx-iconfollowup-tsx",
-      "title": "Create the following individual icon components under `frontend/src/components/workflow-icons/`, each using `WorkflowIconBase` with the corresponding color from `workflowColors` and the exact SVG path data provided: `IconDischarge.tsx`, `IconNotified.tsx`, `IconLabs.tsx`, `IconHisto.tsx`, `IconImaging.tsx`, `IconSurgery.tsx`, `IconCulture.tsx`, `IconFollowUp.tsx`.",
-      "reqIds": [
-        "REQ-3"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-create-frontend-src-components-workflow-icons-workflowicon-tsx-a-dispatcher-component-that-accepts-a-type-prop-of-workflowtype-union-discharge-notified-labs-histo-imaging-surgery-culture-followup-and-renders-the-corresponding-icon-component-returning-null-for-unknown-types-export-the-workflowtype-type-from-this-file",
-      "title": "Create `frontend/src/components/workflow-icons/WorkflowIcon.tsx` — a dispatcher component that accepts a `type` prop of `WorkflowType` (union: 'discharge' | 'notified' | 'labs' | 'histo' | 'imaging' | 'surgery' | 'culture' | 'followup') and renders the corresponding icon component, returning null for unknown types. Export the `WorkflowType` type from this file.",
-      "reqIds": [
-        "REQ-4"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-replace-existing-task-checklist-icons-on-the-cases-page-frontend-src-features-cases-components-casecard-tsx-and-frontend-src-features-cases-components-checklisteditor-tsx-with-workflowicon-components-map-each-checklist-item-s-task-key-to-its-corresponding-workflowtype-so-the-colored-workflow-icon-appears-next-to-each-task-in-the-checklist",
-      "title": "Replace existing task/checklist icons on the Cases page (`frontend/src/features/cases/components/CaseCard.tsx` and `frontend/src/features/cases/components/ChecklistEditor.tsx`) with `WorkflowIcon` components. Map each checklist item's task key to its corresponding `WorkflowType` so the colored workflow icon appears next to each task in the checklist.",
-      "reqIds": [
-        "REQ-6"
-      ],
-      "version": 1
     }
   ],
-  "new_feature_requests": [
-    {
-      "id": "AR-1",
-      "summary": "Add workflow-icons component system (workflowTokens, WorkflowIconBase, 8 individual icons, WorkflowIcon dispatcher) under frontend/src/components/workflow-icons/",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-2",
-      "summary": "Replace existing task icons on Dashboard and Cases pages with the new WorkflowIcon components",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-7",
-      "summary": "Replace existing task/checklist icons on the Dashboard page (`frontend/src/features/dashboard/components/DashboardView.tsx`) with `WorkflowIcon` components. Map each displayed task type to the corresponding `WorkflowType` value (e.g., discharge, labs, imaging, surgery, culture, histo, notified, followup) so that the colored workflow icon appears wherever a task type indicator is rendered.",
-      "reqIds": [
-        "REQ-5"
-      ],
-      "status": "pending"
-    }
-  ],
-  "gameProjectType": "none",
-  "projectName": "SurgiPaw",
+  "new_feature_requests": [],
+  "projectName": "Fix Cases loading regression from Version 94 (blank list on Dashboard and Cases pages)",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

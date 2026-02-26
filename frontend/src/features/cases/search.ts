@@ -9,7 +9,6 @@ export function searchCases(cases: SurgeryCase[], query: string): SurgeryCase[] 
   }
 
   return cases.filter((surgeryCase) => {
-    // Search in basic fields
     if (
       surgeryCase.medicalRecordNumber.toLowerCase().includes(lowerQuery) ||
       surgeryCase.petName.toLowerCase().includes(lowerQuery) ||
@@ -23,7 +22,6 @@ export function searchCases(cases: SurgeryCase[], query: string): SurgeryCase[] 
       return true;
     }
 
-    // Search in task items - match if the task is selected but not completed (remaining)
     for (const item of CHECKLIST_ITEMS) {
       if (item.label.toLowerCase().includes(lowerQuery)) {
         const isSelected = surgeryCase.task[item.selectedField];

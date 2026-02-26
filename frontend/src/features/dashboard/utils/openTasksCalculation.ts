@@ -12,13 +12,10 @@ export interface OpenTaskItem {
   taskLabel: string;
 }
 
-/**
- * Extracts all open tasks from a single case
- */
 export function getOpenTasksFromCase(surgeryCase: SurgeryCase): OpenTaskItem[] {
   const remainingTasks = getRemainingChecklistItems(surgeryCase.task);
-  
-  return remainingTasks.map(task => ({
+
+  return remainingTasks.map((task) => ({
     caseId: surgeryCase.id,
     medicalRecordNumber: surgeryCase.medicalRecordNumber,
     petName: surgeryCase.petName,
@@ -30,9 +27,6 @@ export function getOpenTasksFromCase(surgeryCase: SurgeryCase): OpenTaskItem[] {
   }));
 }
 
-/**
- * Calculates the total number of open tasks across all cases
- */
 export function getTotalOpenTasksCount(cases: SurgeryCase[]): number {
   return cases.reduce((total, surgeryCase) => {
     const remainingTasks = getRemainingChecklistItems(surgeryCase.task);

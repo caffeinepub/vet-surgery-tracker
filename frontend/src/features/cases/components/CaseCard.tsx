@@ -134,7 +134,6 @@ export default function CaseCard({ surgeryCase, onEditClick, size = 'default', h
             <span>·</span>
             <span>{formatDate(surgeryCase.arrivalDate)}</span>
           </div>
-          {/* Presenting Complaint — always visible */}
           {surgeryCase.presentingComplaint && surgeryCase.presentingComplaint.trim() ? (
             <div className={`mt-1 text-foreground/80 truncate ${isDashboard ? 'text-sm' : 'text-xs'}`}>
               <span className="font-medium text-muted-foreground">Complaint:</span>{' '}
@@ -217,7 +216,7 @@ export default function CaseCard({ surgeryCase, onEditClick, size = 'default', h
                       className={`flex items-center gap-1.5 px-2 py-1 rounded-full text-xs border transition-all ${
                         isCompleted
                           ? 'bg-muted/50 border-border text-muted-foreground line-through opacity-60'
-                          : `${getTaskBackgroundColor(item.key)} border-transparent text-foreground`
+                          : `${getTaskBackgroundColor(item.color)} border-transparent text-foreground`
                       } ${isPending ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:opacity-80'}`}
                       title={isCompleted ? `Mark ${item.label} as incomplete` : `Mark ${item.label} as complete`}
                     >
