@@ -1,26 +1,4 @@
 {
   "kind": "feature_evidence_report",
-  "features": [
-    {
-      "featureId": "feature-add-follow-up-as-a-checklist-item-in-frontend-src-features-cases-checklist-ts-with-an-aqua-color-token-so-it-appears-in-the-default-checklist-selections-and-is-included-in-task-filtering-and-counting-logic",
-      "featureTitle": "Add 'Follow Up' as a checklist item in frontend/src/features/cases/checklist.ts with an aqua color token, so it appears in the default checklist selections and is included in task filtering and counting logic.",
-      "files": [
-        "frontend/src/features/cases/checklist.ts"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "camera@1.0.0",
-        "http-outcalls@3.0.0"
-      ],
-      "testIds": [
-        "REQ-2"
-      ],
-      "confidence": "high"
-    }
-  ]
+  "features": []
 }

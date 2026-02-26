@@ -16,6 +16,8 @@ interface CaseCardProps {
   isHighlighted?: boolean;
   onHighlightClear?: () => void;
   onNavigateToCase?: (caseId: number) => void;
+  /** When true, shows the presenting complaint on the collapsed card header */
+  showPresentingComplaintCollapsed?: boolean;
 }
 
 function formatDate(time: bigint): string {
@@ -32,11 +34,11 @@ function formatDate(time: bigint): string {
 function getSpeciesIcon(species: Species): string {
   switch (species) {
     case Species.canine:
-      return '/assets/Dog icon.ico';
+      return '/assets/Dog Icon 3.ico';
     case Species.feline:
-      return '/assets/Cat icon.ico';
+      return '/assets/Cat Icon 3.ico';
     default:
-      return '/assets/Other icon.ico';
+      return '/assets/Other Icon 3.ico';
   }
 }
 
@@ -55,7 +57,13 @@ function getSexLabel(sex: Sex): string {
   }
 }
 
-export function CaseCard({ surgeryCase, isHighlighted, onHighlightClear, onNavigateToCase }: CaseCardProps) {
+export function CaseCard({
+  surgeryCase,
+  isHighlighted,
+  onHighlightClear,
+  onNavigateToCase,
+  showPresentingComplaintCollapsed = false,
+}: CaseCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
@@ -97,6 +105,10 @@ export function CaseCard({ surgeryCase, isHighlighted, onHighlightClear, onNavig
       // silently ignore
     }
   };
+
+  const presentingComplaint = surgeryCase.presentingComplaint?.trim();
+  const showCollapsedComplaint =
+    showPresentingComplaintCollapsed && !isExpanded && !!presentingComplaint;
 
   return (
     <>
@@ -149,6 +161,13 @@ export function CaseCard({ surgeryCase, isHighlighted, onHighlightClear, onNavig
                 <span className="text-xs text-muted-foreground truncate">· {surgeryCase.breed}</span>
               )}
             </div>
+            {/* Presenting complaint shown on collapsed card (Dashboard only) */}
+            {showCollapsedComplaint && (
+              <div className="mt-1">
+                <span className="text-xs text-muted-foreground font-medium">Complaint: </span>
+                <span className="text-xs text-foreground">{presentingComplaint}</span>
+              </div>
+            )}
           </div>
 
           {/* Workflow icon strip */}

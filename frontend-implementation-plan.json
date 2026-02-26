@@ -1,51 +1,63 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Add 'Follow Up' task to Dashboard and Cases pages",
+  "title": "Diagnose and fix blank page / database fetch failure",
   "requirements": [
     {
       "id": "REQ-2",
-      "summary": "Add 'Follow Up' as a checklist item in frontend/src/features/cases/checklist.ts with an aqua color token so it appears in the default checklist selections and is included in task filtering and counting logic",
+      "summary": "Audit and fix frontend actor instantiation and React Query hooks to eliminate silent fetch failures",
       "acceptanceCriteria": [
-        "A 'Follow Up' checklist item is defined with a label of 'Follow Up' and an aqua color",
-        "The item is included in the default checklist selections for new cases",
-        "The item participates in open-task count calculations on both Dashboard and Cases pages"
+        "useActor hook returns a valid actor instance on both authenticated and anonymous sessions.",
+        "All React Query hooks in useQueries.ts successfully call the canister and return data without errors.",
+        "No unhandled promise rejections or silent failures occur during data fetching."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/features/cases/checklist.ts",
+          "path": "frontend/src/hooks/useActor.ts",
           "operation": "modify",
-          "description": "Add a new ChecklistItem for 'Follow Up' in the CHECKLIST_ITEMS array with key 'followUp', label 'Follow Up', and an aqua color value (e.g., 'oklch(0.75 0.15 195)'). Include it in the default selected items returned by getDefaultChecklistSelections() so new cases include this task by default. Ensure getTaskColor() returns the aqua color for the 'followUp' key. Verify the existing getRemainingChecklistItems() logic correctly identifies incomplete Follow Up tasks for open task counts."
+          "description": "Audit the actor instantiation logic to ensure the actor is correctly initialized for both authenticated and anonymous principals. Verify that the React Query caching of the actor does not cause stale references. Check that the actor invalidation logic properly triggers dependent query refetches. Add defensive error handling for actor creation failures and log any errors to the console for debugging. Ensure the hook properly returns isFetching state while the actor is being created."
+        },
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Audit all React Query hooks (useGetAllCases, useGetDashboard, useGetCallerUserProfile, etc.) to verify they properly handle the actor dependency. Ensure the 'enabled' flag correctly waits for both actor availability and authentication state before executing queries. Fix any missing error handling or incorrect async/await usage that could cause silent failures. Verify that query keys are unique and stable. Add try-catch blocks around actor method calls and log errors. Ensure queries do not execute when actor is null or undefined. Review the useGetCallerUserProfile hook to ensure it follows the pattern from the authorization component usage instructions (checking actorFetching and returning proper isLoading/isFetched states)."
         }
       ]
     },
     {
       "id": "REQ-3",
-      "summary": "Update frontend/src/components/workflow-icons/workflowTokens.ts to assign an aqua color token to the 'Follow Up' task type and ensure the IconFollowUp.tsx icon uses this aqua color",
+      "summary": "Audit Dashboard and Cases pages to ensure proper loading/error states and eliminate blank page rendering",
       "acceptanceCriteria": [
-        "The 'Follow Up' task color in workflowTokens.ts is set to an aqua value",
-        "The IconFollowUp circular arrow SVG icon renders in aqua when displayed in checklist and task views"
+        "Dashboard and Cases pages render a loading indicator while data is being fetched.",
+        "If a fetch error occurs, a descriptive error message is shown instead of a blank page.",
+        "Once the canister returns data, cases are rendered correctly on both pages."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/workflow-icons/workflowTokens.ts",
+          "path": "frontend/src/features/dashboard/components/DashboardView.tsx",
           "operation": "modify",
-          "description": "Add a 'followUp' property to WORKFLOW_COLORS with an aqua OKLCH color value matching the one used in checklist.ts (e.g., 'oklch(0.75 0.15 195)'). Ensure consistency with REQ-2 so the Follow Up task displays in the same aqua color across all UI components."
+          "description": "Audit the component to ensure it properly consumes the useGetAllCases and useGetDashboard hooks. Verify that the component checks isLoading states from both hooks and displays a loading indicator (spinner or skeleton) while data is being fetched. Add or fix error handling to display a meaningful error message if either query fails, instead of rendering nothing or causing a blank page. Ensure the component does not attempt to render case data before it is available. Check that the component handles empty arrays gracefully (e.g., 'No cases found' message). Verify that filter and sort operations do not cause the UI to disappear if no results match."
+        },
+        {
+          "path": "frontend/src/features/cases/components/CasesListView.tsx",
+          "operation": "modify",
+          "description": "Audit the component to ensure it properly consumes the useGetAllCases hook and handles all possible states: loading, error, empty data, and success. Add a visible loading indicator while isLoading is true. Display a descriptive error message (including error.message) if the query fails. Handle the empty cases array case with a friendly 'No cases yet' message. Verify that filtering logic does not hide all UI when no cases match filters. Check that the component does not render child components (CaseCard) before cases data is available, which could cause rendering errors that result in a blank page."
         }
       ]
     },
     {
       "id": "REQ-4",
-      "summary": "Ensure the WorkflowIcon dispatcher in frontend/src/components/workflow-icons/WorkflowIcon.tsx maps the 'Follow Up' task type string to the IconFollowUp component so the aqua circular arrow icon renders on both the Dashboard and Cases pages wherever workflow task icons are shown",
+      "summary": "Fix authentication gating and race conditions in App.tsx to prevent blank page for authenticated users",
       "acceptanceCriteria": [
-        "WorkflowIcon renders IconFollowUp when given the 'Follow Up' task type",
-        "The aqua circular arrow icon is visible on case cards in both DashboardView and CasesListView"
+        "The app does not show a blank page for authenticated users waiting for profile data.",
+        "Navigation between Dashboard and Cases works without triggering blank rendering states.",
+        "Profile setup modal only blocks the UI when a new profile is genuinely required."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/workflow-icons/WorkflowIcon.tsx",
+          "path": "frontend/src/App.tsx",
           "operation": "modify",
-          "description": "Add a case for 'Follow Up' in the getIconComponent() switch statement that returns <IconFollowUp color={color} />. Ensure the case string matches the 'followUp' key used in checklist.ts and the backend TaskType enum. The icon will automatically receive the aqua color from workflowTokens.ts via the existing color lookup logic."
+          "description": "Audit the root App component for any authentication-gating logic that could prevent the Dashboard or Cases pages from rendering. Verify that the profile loading logic using useGetCallerUserProfile follows the authorization component pattern (checking both actorFetching and query isFetched before deciding to show the profile setup modal). Fix any race conditions where the app waits for profile data before rendering navigation or main content, causing a blank page. Ensure that navigation buttons and main content render independently of profile loading state (show loading indicators within sections if needed, but do not block the entire app). Check that the conditional rendering logic for the profile setup modal uses: 'isAuthenticated && !profileLoading && isFetched && userProfile === null' to avoid flashing or blocking the UI unnecessarily. Verify that the app renders at least the navigation header and a loading state while waiting for initial data, never a completely blank page."
         }
       ]
     }

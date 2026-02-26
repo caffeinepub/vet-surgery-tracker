@@ -1,88 +1,91 @@
 {
   "kind": "build_request",
-  "title": "Add 'Follow Up' task to Dashboard and Cases pages",
+  "title": "Diagnose and fix blank page / database fetch failure",
   "projectName": "SurgiPaw",
-  "priority": "normal",
+  "priority": "high",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Add a 'Follow Up' task type to the backend checklist/task definitions so it is recognized as a valid task on SurgeryCase records.",
+      "text": "Audit the backend Motoko actor (backend/main.mo) and verify that all public query and update methods are correctly defined, exported, and free of runtime errors that could cause the canister to silently fail on fetch. Fix any issues found (e.g., missing or mis-typed return types, broken async flows, actor initialization errors).",
       "target": "backend",
       "source": {
         "messageIds": [
-          "msg-recent"
+          "msg-user-latest"
         ],
         "quotes": [
-          "Add a task to both pages for \"Follow up\" with a circular arrow in the color aqua"
+          "take a fresh look at the current backend and frontend code to diagnose exactly why the fetch is failing"
         ]
       },
       "acceptanceCriteria": [
-        "A 'Follow Up' task variant exists in the backend Task type",
-        "Existing cases are not broken by the addition of this new task type"
+        "The Motoko canister compiles without errors or warnings that affect runtime behavior.",
+        "All query methods (e.g., getCases, getUserProfile) return valid data when called from dfx or the frontend.",
+        "No blank/empty responses are returned due to actor-level bugs."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Add 'Follow Up' as a checklist item in frontend/src/features/cases/checklist.ts with an aqua color token, so it appears in the default checklist selections and is included in task filtering and counting logic.",
+      "text": "Audit frontend/src/hooks/useQueries.ts and frontend/src/hooks/useActor.ts to verify the actor is correctly instantiated and all React Query fetch hooks are properly wired to the canister methods. Fix any broken canister method calls, incorrect actor references, missing await/async handling, or type mismatches that cause fetches to silently fail and produce a blank page.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-recent"
+          "msg-user-latest"
         ],
         "quotes": [
-          "Add a task to both pages for \"Follow up\" with a circular arrow in the color aqua"
+          "diagnose exactly why the fetch is failing"
         ]
       },
       "acceptanceCriteria": [
-        "A 'Follow Up' checklist item is defined with a label of 'Follow Up' and an aqua color",
-        "The item is included in the default checklist selections for new cases",
-        "The item participates in open-task count calculations on both Dashboard and Cases pages"
+        "useActor hook returns a valid actor instance on both authenticated and anonymous sessions.",
+        "All React Query hooks in useQueries.ts successfully call the canister and return data without errors.",
+        "No unhandled promise rejections or silent failures occur during data fetching."
       ]
     },
     {
       "id": "REQ-3",
-      "text": "Update frontend/src/components/workflow-icons/workflowTokens.ts to assign an aqua color token (e.g. #00BFBF or equivalent OKLCH aqua) to the 'Follow Up' task type, and ensure the existing IconFollowUp.tsx icon uses this aqua color.",
+      "text": "Audit the Dashboard page (frontend/src/features/dashboard/components/DashboardView.tsx) and Cases list page (frontend/src/features/cases/components/CasesListView.tsx) to ensure they correctly consume the React Query hooks, handle loading and error states, and never render a blank page when data is unavailable. Add or fix error boundary / fallback UI so any fetch failure displays a meaningful message rather than a blank screen.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-recent"
+          "msg-user-latest"
         ],
         "quotes": [
-          "with a circular arrow in the color aqua"
+          "Database is not showing in the Draft or Live app; just a blank page"
         ]
       },
       "acceptanceCriteria": [
-        "The 'Follow Up' task color in workflowTokens.ts is set to an aqua value",
-        "The IconFollowUp circular arrow SVG icon renders in aqua when displayed in checklist and task views"
+        "Dashboard and Cases pages render a loading indicator while data is being fetched.",
+        "If a fetch error occurs, a descriptive error message is shown instead of a blank page.",
+        "Once the canister returns data, cases are rendered correctly on both pages."
       ]
     },
     {
       "id": "REQ-4",
-      "text": "Ensure the WorkflowIcon dispatcher in frontend/src/components/workflow-icons/WorkflowIcon.tsx maps the 'Follow Up' task type string to the IconFollowUp component so the aqua circular arrow icon renders on both the Dashboard and Cases pages wherever workflow task icons are shown.",
+      "text": "Check frontend/src/App.tsx for any authentication-gating logic or conditional rendering that might prevent the Dashboard or Cases pages from mounting before a user profile is loaded, causing a blank page for returning authenticated users. Fix any race conditions or missing guard clauses.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-recent"
+          "msg-user-latest"
         ],
         "quotes": [
-          "Add a task to both pages for \"Follow up\" with a circular arrow in the color aqua"
+          "blank page"
         ]
       },
       "acceptanceCriteria": [
-        "WorkflowIcon renders IconFollowUp when given the 'Follow Up' task type",
-        "The aqua circular arrow icon is visible on case cards in both DashboardView and CasesListView"
+        "The app does not show a blank page for authenticated users waiting for profile data.",
+        "Navigation between Dashboard and Cases works without triggering blank rendering states.",
+        "Profile setup modal only blocks the UI when a new profile is genuinely required."
       ]
     }
   ],
   "constraints": [
-    "Do not break existing task types or checklist items",
-    "Use the existing IconFollowUp.tsx circular arrow icon — do not create a new icon component",
-    "Aqua color must be consistent between workflowTokens.ts and checklist.ts"
+    "Do not alter immutable frontend paths: frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, frontend/src/components/ui.",
+    "All Motoko changes must remain within the single actor in backend/main.mo.",
+    "Only generate migration.mo if stable variable types in the backend are changed."
   ],
   "nonGoals": [
-    "Redesigning the checklist or workflow icon layout",
-    "Adding any other new task types",
-    "Changing the styling or color of existing task icons"
+    "Adding new features or UI changes unrelated to the fetch failure.",
+    "Redesigning the Dashboard or Cases layout.",
+    "Changes to CSV import/export or PDF generation logic."
   ],
   "imageRequirements": {
     "required": [],

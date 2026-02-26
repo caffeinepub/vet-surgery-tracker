@@ -7,12 +7,10 @@ import Order "mo:core/Order";
 import Runtime "mo:core/Runtime";
 import Principal "mo:core/Principal";
 import Iter "mo:core/Iter";
-import Migration "migration";
+
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
 
-// Migrate changes in actor state (new Task types)
-(with migration = Migration.run)
 actor {
   public type Species = { #canine; #feline; #other };
   public type Sex = { #male; #maleNeutered; #female; #femaleSpayed };

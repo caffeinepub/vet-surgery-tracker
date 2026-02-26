@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Stethoscope, AlertCircle, Loader2, RefreshCw, ClipboardList, CheckCircle2, PlusCircle } from 'lucide-react';
+import { Stethoscope, AlertCircle, Loader2, RefreshCw, ClipboardList, CheckCircle2, PlusCircle, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -25,6 +25,7 @@ import { Species } from '../../../backend';
 import type { SurgeryCase } from '../../../backend';
 import { getTotalOpenTasksCount } from '../utils/openTasksCalculation';
 import { getRemainingChecklistItems } from '../../cases/checklist';
+import { generateCasePdf } from '../../cases/pdf/generateCasePdf';
 
 interface DashboardViewProps {
   onNavigateToCase?: (caseId: number) => void;
@@ -84,6 +85,10 @@ export default function DashboardView({ onNavigateToCase }: DashboardViewProps) 
   const handleRefetch = () => {
     refetchCases();
     refetchDashboard();
+  };
+
+  const handleExportPdf = () => {
+    generateCasePdf(allCases);
   };
 
   // Not authenticated
@@ -213,13 +218,32 @@ export default function DashboardView({ onNavigateToCase }: DashboardViewProps) 
         </div>
       </div>
 
-      {/* Sticky filter/search toolbar */}
-      <div className="sticky top-0 z-10 bg-background border-b border-border px-4 py-3 space-y-3">
+      {/* Sticky filter/search toolbar — offset by header height (top-14) */}
+      <div className="sticky top-14 z-10 bg-background border-b border-border px-4 py-3 space-y-3">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 flex-1 min-w-0">
             <CasesSearchBar value={searchQuery} onChange={setSearchQuery} />
           </div>
           <div className="flex items-center gap-2 shrink-0">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleExportPdf}
+              className="gap-1.5 hidden sm:flex"
+              title="Export to PDF"
+            >
+              <FileText className="h-4 w-4" />
+              Export PDF
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleExportPdf}
+              title="Export to PDF"
+              className="h-8 w-8 sm:hidden"
+            >
+              <FileText className="h-4 w-4" />
+            </Button>
             <Button
               variant="ghost"
               size="icon"
@@ -273,6 +297,7 @@ export default function DashboardView({ onNavigateToCase }: DashboardViewProps) 
               key={surgeryCase.id.toString()}
               surgeryCase={surgeryCase}
               onNavigateToCase={onNavigateToCase}
+              showPresentingComplaintCollapsed={true}
             />
           ))
         )}

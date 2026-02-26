@@ -165,8 +165,8 @@ export default function CasesListView({ highlightCaseId, onHighlightClear }: Cas
 
   return (
     <div className="flex flex-col h-full">
-      {/* Sticky top bar */}
-      <div className="sticky top-0 z-10 bg-background border-b border-border px-4 py-3 space-y-3">
+      {/* Sticky top bar — offset by header height (top-14) so it sticks below the app header */}
+      <div className="sticky top-14 z-10 bg-background border-b border-border px-4 py-3 space-y-3">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 flex-1 min-w-0">
             <CasesSearchBar value={searchQuery} onChange={setSearchQuery} />
@@ -202,8 +202,9 @@ export default function CasesListView({ highlightCaseId, onHighlightClear }: Cas
               variant="outline"
               size="sm"
               onClick={() => setShowCsvPanel((v) => !v)}
+              className="text-xs"
             >
-              CSV
+              {showCsvPanel ? 'Hide CSV' : 'CSV Import/Export'}
             </Button>
             <CasesSortControl value={sortOption} onSortChange={setSortOption} />
           </div>
@@ -212,13 +213,20 @@ export default function CasesListView({ highlightCaseId, onHighlightClear }: Cas
 
       {/* CSV panel */}
       {showCsvPanel && (
-        <div className="border-b border-border px-4 py-3">
+        <div className="border-b border-border px-4 py-3 bg-muted/30">
           <CsvImportExportPanel cases={allCases} />
         </div>
       )}
 
       {/* Cases list */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3">
+      <div className="flex-1 p-4 space-y-3">
+        {casesFetching && !casesLoading && (
+          <div className="flex items-center gap-2 text-muted-foreground text-sm pb-1">
+            <Loader2 className="w-4 h-4 animate-spin" />
+            Refreshing cases…
+          </div>
+        )}
+
         {filteredAndSortedCases.length === 0 ? (
           <div className="text-center py-12 text-muted-foreground">
             {hasActiveFilters ? (
@@ -238,19 +246,16 @@ export default function CasesListView({ highlightCaseId, onHighlightClear }: Cas
             <CaseCard
               key={surgeryCase.id.toString()}
               surgeryCase={surgeryCase}
-              isHighlighted={highlightCaseId != null && Number(surgeryCase.id) === highlightCaseId}
+              isHighlighted={
+                highlightCaseId !== null &&
+                highlightCaseId !== undefined &&
+                Number(surgeryCase.id) === highlightCaseId
+              }
               onHighlightClear={onHighlightClear}
             />
           ))
         )}
       </div>
-
-      {casesFetching && !casesLoading && (
-        <div className="flex items-center justify-center gap-2 text-muted-foreground text-sm py-2">
-          <Loader2 className="w-4 h-4 animate-spin" />
-          Refreshing cases…
-        </div>
-      )}
 
       <CaseFormDialog open={newCaseOpen} onOpenChange={setNewCaseOpen} />
     </div>

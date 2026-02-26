@@ -1,33 +1,50 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-26T03:38:24.648Z",
-  "summary": "The diff implements most of the required changes for adding 'Follow Up' task support. REQ-1 (backend) and REQ-2 (frontend checklist) are fully implemented. REQ-3 and REQ-4 cannot be confirmed from the diff as the key files workflowTokens.ts, IconFollowUp.tsx, and WorkflowIcon.tsx are not included in the modified files list.",
+  "generatedAt": "2026-02-26T07:39:26.613Z",
+  "summary": "The diff modifies backend/main.mo and several frontend files. The backend changes appear to address REQ-1 (actor method correctness). Frontend changes touch App.tsx (REQ-4), useQueries.ts (REQ-2), and CasesListView.tsx (REQ-3). However, DashboardView.tsx is not modified per the diff, meaning REQ-3's requirement to audit and fix the Dashboard page for loading/error states and blank-page prevention is not evidenced. The frontend-file-summaries.txt describes useQueries.ts changes but does not include an entry for DashboardView.tsx.",
   "missing_requirements": [
     {
       "id": "REQ-3",
-      "requirement": "Update workflowTokens.ts to assign an aqua color token to 'Follow Up' and ensure IconFollowUp.tsx uses this aqua color.",
-      "reason": "Neither frontend/src/components/workflow-icons/workflowTokens.ts nor frontend/src/components/workflow-icons/IconFollowUp.tsx appear in the diff as added or modified files. There is no evidence these files were updated.",
-      "evidence": []
-    },
-    {
-      "id": "REQ-4",
-      "requirement": "WorkflowIcon.tsx must map the 'Follow Up' task type string to the IconFollowUp component.",
-      "reason": "frontend/src/components/workflow-icons/WorkflowIcon.tsx does not appear in the diff as added or modified. There is no evidence the dispatcher was updated to handle the 'Follow Up' task type.",
-      "evidence": []
+      "requirement": "Audit DashboardView.tsx to ensure it correctly consumes React Query hooks, handles loading and error states, and never renders a blank page when data is unavailable. Add or fix error boundary/fallback UI for fetch failures.",
+      "reason": "DashboardView.tsx does not appear in the modified files list and has no entry in frontend-file-summaries.txt, indicating it was not changed.",
+      "evidence": [
+        "frontend-file-summaries.txt"
+      ]
     }
   ],
-  "hallucinated_features": [],
-  "confidence": 0.82,
+  "hallucinated_features": [
+    {
+      "description": "Addition of a 'Follow Up' checklist task with aqua color #06B6D4 and defaultSelected=true",
+      "reason": "The build request explicitly lists adding new features unrelated to the fetch failure as a non-goal. Adding a new Follow Up task item is a feature addition unrelated to diagnosing or fixing the blank page.",
+      "evidence": [
+        "frontend-file-summaries.txt",
+        "frontend/src/features/cases/checklist.ts",
+        "frontend/src/features/cases/components/CaseFormDialog.tsx",
+        "frontend/src/features/cases/components/CsvImportExportPanel.tsx"
+      ]
+    },
+    {
+      "description": "CaseCard updated with new species icons and a new showPresentingComplaintCollapsed prop",
+      "reason": "These are UI changes unrelated to the fetch failure fix, which is explicitly a non-goal.",
+      "evidence": [
+        "frontend-file-summaries.txt",
+        "frontend/src/features/cases/components/CaseCard.tsx"
+      ]
+    },
+    {
+      "description": "CasesListView toolbar sticky offset changed to top-14 and highlight prop renamed to isHighlighted",
+      "reason": "Sticky toolbar offset and prop renaming are layout/UI changes unrelated to the blank page or fetch failure diagnosis, falling under the non-goal of redesigning the Cases layout.",
+      "evidence": [
+        "frontend-file-summaries.txt",
+        "frontend/src/features/cases/components/CasesListView.tsx"
+      ]
+    }
+  ],
+  "confidence": 0.72,
   "changed_files": [
     "backend/main.mo",
-    "backend/migration.mo",
     "frontend-file-summaries.txt",
-    "frontend/src/features/cases/checklist.ts",
-    "frontend/src/features/cases/components/CaseEditDialog.tsx",
-    "frontend/src/features/cases/components/CaseFormDialog.tsx",
-    "frontend/src/features/cases/components/CsvImportExportPanel.tsx",
-    "frontend/src/features/cases/csv/caseCsv.ts",
     "project_state.json"
   ]
 }
