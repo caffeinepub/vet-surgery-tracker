@@ -1,36 +1,53 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Fix browser console warnings: PWA manifest meta tag and icon resource",
+  "title": "Fix blank page: revert data-fetching logic to Version 107",
   "requirements": [
     {
-      "id": "REQ-10",
-      "summary": "Add mobile-web-app-capable meta tag to resolve browser deprecation warning",
+      "id": "REQ-2",
+      "summary": "Revert data-fetching logic in useQueries.ts to Version 107 implementation, restoring original React Query hooks for surgery cases, dashboard data, and user profiles",
       "acceptanceCriteria": [
-        "<meta name=\"mobile-web-app-capable\" content=\"yes\"> is present in frontend/index.html",
-        "No deprecation warning about apple-mobile-web-app-capable appears in the browser console"
+        "useQueries.ts matches the Version 107 implementation for all data-fetching hooks",
+        "The Dashboard view loads and displays surgery cases without a blank page",
+        "The Cases list view loads and displays surgery cases without a blank page",
+        "React Query fetches complete successfully and do not remain in a loading or error state indefinitely"
       ],
       "file_operations": [
         {
-          "path": "frontend/index.html",
+          "path": "frontend/src/hooks/useQueries.ts",
           "operation": "modify",
-          "description": "Add <meta name=\"mobile-web-app-capable\" content=\"yes\"> tag to the <head> section alongside the existing apple-mobile-web-app-capable meta tag. Place it immediately after the apple-mobile-web-app-capable tag to maintain grouping of PWA-related meta tags."
+          "description": "Revert all data-fetching hooks (useGetAllCases, useGetDashboard, useGetCallerUserProfile, and related mutations) to their Version 107 implementation. Restore original query keys, actor invocation patterns, enabled conditions, error handling, retry logic, and staleTime/cacheTime settings exactly as they existed in Version 107. Ensure that each hook properly checks for actor availability before executing queries and handles the actorFetching state correctly to prevent premature query execution. Verify that queryFn implementations match Version 107's actor method call syntax and return type handling."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Review and restore any changes to how data-fetching hooks are consumed in the main App component. Ensure that loading states, error boundaries, and conditional rendering logic for Dashboard and Cases views match Version 107 behavior. Verify that the ProfileSetupModal display logic correctly waits for both actor initialization and profile fetch completion before showing or hiding the modal, preventing flash-of-content issues. Restore any Version 107 patterns for handling authentication-dependent data fetching."
         }
       ]
     },
     {
-      "id": "REQ-11",
-      "summary": "Fix PWA manifest icon entries to use valid PNG icons at correct dimensions",
+      "id": "REQ-3",
+      "summary": "Audit actor wiring between frontend and backend to ensure actor instance is correctly passed to all data-fetching calls and canister ID/IDL alignment matches deployed backend",
       "acceptanceCriteria": [
-        "frontend/public/manifest.json references valid PNG icon files at standard PWA sizes (192x192 and 512x512)",
-        "No manifest icon error appears in the browser console",
-        "The .ico file reference is removed or replaced with a correctly formatted PNG entry"
+        "The actor instance in useActor.ts successfully resolves and is passed to all query hooks",
+        "No 'actor is undefined' or 'method not found' errors appear in the browser console",
+        "Data loads correctly on both Dashboard and Cases pages after login"
       ],
       "file_operations": [
         {
-          "path": "frontend/public/manifest.json",
+          "path": "frontend/src/hooks/useQueries.ts",
           "operation": "modify",
-          "description": "Update the icons array to reference the generated PNG icon files at frontend/public/assets/generated/app-icon.dim_512x512.png and frontend/public/assets/generated/app-icon-192.dim_192x192.png. Remove or replace any .ico file references (IMG_4505.ico) with these PNG entries. Ensure each icon entry includes src, sizes, type (image/png), and purpose fields following PWA manifest specification."
+          "description": "Audit and verify that every data-fetching hook in useQueries.ts correctly destructures the actor from useActor() and includes proper enabled conditions (e.g., enabled: !!actor && !actorFetching). Ensure that no hook attempts to call actor methods when actor is null or undefined. Verify that the actor instance being passed to backend methods matches the expected interface defined in frontend/src/backend.d.ts. Fix any mismatches in method names, parameter types, or return types that may have been introduced after Version 107. Confirm that all hooks properly handle the isFetching state from useActor to prevent race conditions during actor initialization."
+        },
+        {
+          "path": "frontend/src/features/dashboard/components/DashboardView.tsx",
+          "operation": "modify",
+          "description": "Audit how DashboardView consumes data from useGetAllCases and useGetDashboard hooks. Verify that loading states, error states, and data availability checks match Version 107 patterns. Ensure that the component does not attempt to render case data before the actor is initialized and queries have successfully completed. Fix any conditional rendering logic that may cause blank pages when data is loading or when the actor is still initializing. Restore Version 107 error handling and fallback UI patterns."
+        },
+        {
+          "path": "frontend/src/features/cases/components/CasesListView.tsx",
+          "operation": "modify",
+          "description": "Audit how CasesListView consumes data from useGetAllCases and related hooks. Verify that loading states, error states, and data availability checks match Version 107 patterns. Ensure that the component does not attempt to render case cards before the actor is initialized and queries have successfully completed. Fix any conditional rendering logic that may cause blank pages when data is loading or when the actor is still initializing. Restore Version 107 error handling and fallback UI patterns for empty states and fetch errors."
         }
       ]
     }

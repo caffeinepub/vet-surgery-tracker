@@ -1,10 +1,11 @@
 # Specification
 
 ## Summary
-**Goal:** Fix browser console warnings related to the PWA manifest meta tag and icon resource in the SurgiPaw frontend.
+**Goal:** Fix the blank page issue in both Draft and Live app by diagnosing the data-fetching failure and reverting frontend data-fetching logic to the Version 107 implementation.
 
 **Planned changes:**
-- Add `<meta name="mobile-web-app-capable" content="yes">` to `frontend/index.html` to resolve the deprecation warning for `apple-mobile-web-app-capable`
-- Update `frontend/public/manifest.json` to reference valid PNG icon files (192x192 and 512x512) instead of the `.ico` file, removing the `IMG_4505.ico` reference
+- Audit the backend `main.mo` actor to ensure all query and update methods (e.g., `getCases`, `getDashboardData`) are publicly exposed, correctly typed, and free of runtime traps or missing stable variable declarations.
+- Revert `frontend/src/hooks/useQueries.ts` (and any related hooks or utilities changed after Version 107) to exactly match the Version 107 data-fetching implementation, including query keys, actor invocation patterns, enabled conditions, and error handling.
+- Audit the actor wiring between `useActor.ts` and `useQueries.ts` to ensure the actor instance, canister ID, and IDL are correctly aligned with the deployed backend, fixing any mismatches introduced after Version 107.
 
-**User-visible outcome:** No PWA-related errors or deprecation warnings appear in the browser console when using the app.
+**User-visible outcome:** The Dashboard and Cases list views load and display surgery cases without a blank page; React Query fetches complete successfully after login.

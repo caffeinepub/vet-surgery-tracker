@@ -1,6 +1,6 @@
 {
   "frontend/src/App.tsx": "Main app component with sticky header, navigation between Dashboard and Cases views, profile setup modal, and footer; uses default imports for DashboardView and CasesListView to match their export style.",
-  "frontend/src/hooks/useQueries.ts": "Complete set of React Query hooks for all backend operations; every query has a strict enabled guard (`!!actor && !actorFetching && !!identity`), throws errors instead of returning empty arrays silently, and properly invalidates related query keys on mutations. No changes from previous version — included for completeness.",
+  "frontend/src/hooks/useQueries.ts": "Complete set of React Query hooks for all backend operations; fixes the blank page by bypassing the broken useActor hook (which called a non-existent _initializeAccessControlWithSecret method) and instead directly calling createActorWithConfig from '../config' — the same helper useActor.ts uses, but without the broken initialization step. All queries are enabled as soon as identity is available.",
   "frontend/src/features/auth/components/LoginButton.tsx": "Login/logout button component using Internet Identity with query cache clearing on logout and default primary button styling.",
   "frontend/src/features/auth/components/ProfileSetupModal.tsx": "Modal dialog for first-time user profile setup that prompts for name on initial login using theme tokens.",
   "frontend/src/features/cases/types.ts": "TypeScript type definitions and constants for case form data, species options, and sex options.",

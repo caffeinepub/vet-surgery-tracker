@@ -1,137 +1,41 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 9,
-  "summary": "Veterinary case management app with Dashboard and Cases pages. Weekly calendar view added to Dashboard with toggle, arrival date placement, current week default, and completed case shading. Now implementing: Follow Up task default unchecked, completed cases stay on Dashboard but shaded, X overlay on completed task icons, and new Daily Summary task on both pages.",
-  "architectural_notes": [
-    "Backend uses Motoko canisters on ICP; frontend uses React/TypeScript"
+  "projectStateVersion": 3,
+  "summary": "New project",
+  "architectural_notes": [],
+  "known_issues": [
+    "Database not showing in Draft or Live app (blank page); data-fetching logic being reverted to Version 107"
   ],
-  "known_issues": [],
-  "isFixRequest": false,
-  "imageRequirements": "## Required Images\n- App icon for PWA manifest — clean paw print or veterinary cross symbol on a solid background (app-icon.dim_512x512.png)\n- App icon small size variant (app-icon-192.dim_192x192.png)",
+  "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-add-a-weekly-calendar-view-to-the-dashboardview-component-that-displays-surgery-cases-in-a-7-column-grid-sunday-through-saturday-where-each-case-is-placed-into-its-day-column-based-on-its-arrival-date-field",
-      "title": "Add a weekly calendar view to the DashboardView component that displays surgery cases in a 7-column grid (Sunday through Saturday), where each case is placed into its day column based on its Arrival Date field.",
-      "reqIds": [
-        "REQ-1"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-the-weekly-calendar-view-defaults-to-the-current-week-on-load-with-previous-and-next-week-navigation-arrows-that-shift-the-displayed-week-backward-or-forward-by-7-days",
-      "title": "The weekly calendar view defaults to the current week on load, with Previous and Next week navigation arrows that shift the displayed week backward or forward by 7 days.",
+      "id": "feature-revert-the-data-fetching-logic-in-frontend-src-hooks-usequeries-ts-and-any-related-hooks-or-utilities-modified-after-version-107-to-exactly-how-it-was-implemented-in-version-107-this-includes-restoring-the-original-react-query-hooks-for-fetching-surgery-cases-dashboard-data-and-user-profiles-including-query-keys-actor-invocation-patterns-enabled-conditions-and-error-handling-as-they-existed-in-version-107",
+      "title": "Revert the data-fetching logic in frontend/src/hooks/useQueries.ts (and any related hooks or utilities modified after Version 107) to exactly how it was implemented in Version 107. This includes restoring the original React Query hooks for fetching surgery cases, dashboard data, and user profiles — including query keys, actor invocation patterns, enabled conditions, and error handling — as they existed in Version 107.",
       "reqIds": [
         "REQ-2"
       ],
       "version": 1
     },
     {
-      "id": "feature-add-a-toggle-button-on-the-dashboard-that-switches-between-the-new-weekly-calendar-view-and-the-existing-case-card-grid-view-the-calendar-view-should-be-the-default-view",
-      "title": "Add a toggle button on the Dashboard that switches between the new weekly calendar view and the existing case card grid view. The calendar view should be the default view.",
+      "id": "feature-audit-the-actor-wiring-between-the-frontend-and-backend-verify-that-the-actor-created-in-frontend-src-hooks-useactor-ts-is-correctly-passed-to-all-data-fetching-calls-in-usequeries-ts-and-that-the-actor-s-canister-id-and-idl-are-aligned-with-the-current-deployed-backend-fix-any-mismatch-introduced-after-version-107-e-g-wrong-actor-configuration-missing-method-bindings-or-incorrect-canister-id-references",
+      "title": "Audit the actor wiring between the frontend and backend: verify that the actor created in frontend/src/hooks/useActor.ts is correctly passed to all data-fetching calls in useQueries.ts, and that the actor's canister ID and IDL are aligned with the current deployed backend. Fix any mismatch introduced after Version 107 (e.g., wrong actor configuration, missing method bindings, or incorrect canister ID references).",
       "reqIds": [
         "REQ-3"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-in-the-weekly-calendar-view-each-case-card-must-display-pet-name-mrn-species-badge-presenting-complaint-and-task-status-icons-cases-where-all-tasks-are-completed-must-be-visually-shaded-out-e-g-reduced-opacity-or-muted-background-to-distinguish-them-from-active-cases",
-      "title": "In the weekly calendar view, each case card must display: Pet Name, MRN, Species badge, Presenting Complaint, and task status icons. Cases where all tasks are completed must be visually shaded out (e.g., reduced opacity or muted background) to distinguish them from active cases.",
-      "reqIds": [
-        "REQ-4"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-day-columns-in-the-weekly-calendar-view-that-have-no-cases-assigned-to-them-must-display-a-subtle-empty-state-placeholder-note-e-g-no-cases-instead-of-being-completely-blank",
-      "title": "Day columns in the weekly calendar view that have no cases assigned to them must display a subtle empty-state placeholder note (e.g., 'No cases') instead of being completely blank.",
-      "reqIds": [
-        "REQ-5"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-change-the-follow-up-task-default-state-to-unchecked-in-the-checklist-configuration-so-that-new-cases-are-created-with-follow-up-unselected-by-default",
-      "title": "Change the Follow Up task default state to unchecked in the checklist configuration so that new cases are created with Follow Up unselected by default.",
-      "reqIds": [
-        "REQ-6"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-completed-cases-must-remain-visible-on-the-dashboard-both-in-calendar-view-and-list-grid-view-but-rendered-with-a-visually-shaded-out-appearance-e-g-reduced-opacity-or-muted-background-they-must-not-be-removed-or-hidden",
-      "title": "Completed cases must remain visible on the Dashboard (both in calendar view and list/grid view) but rendered with a visually shaded-out appearance (e.g., reduced opacity or muted background). They must not be removed or hidden.",
-      "reqIds": [
-        "REQ-7"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-when-a-task-is-marked-as-completed-render-an-x-overlay-on-top-of-the-task-s-icon-the-x-should-be-visually-overlaid-on-the-icon-itself-not-on-the-text-label-this-applies-to-task-icons-in-casecard-calendarcasecard-and-checklisteditor-components",
-      "title": "When a task is marked as completed, render an X overlay on top of the task's icon. The X should be visually overlaid on the icon itself (not on the text label). This applies to task icons in CaseCard, CalendarCaseCard, and ChecklistEditor components.",
-      "reqIds": [
-        "REQ-8"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-add-a-new-daily-summary-task-to-the-checklist-configuration-used-on-both-the-dashboard-and-cases-pages-the-task-defaults-to-unchecked-its-icon-should-depict-a-tear-off-calendar-page-a-page-with-two-digits-numbers-on-it-like-a-daily-calendar-sheet-the-task-must-appear-in-caseformdialog-caseeditdialog-checklisteditor-casecard-and-calendarcasecard-wherever-other-workflow-tasks-appear",
-      "title": "Add a new 'Daily Summary' task to the checklist configuration used on both the Dashboard and Cases pages. The task defaults to unchecked. Its icon should depict a tear-off calendar page (a page with two digits/numbers on it, like a daily calendar sheet). The task must appear in CaseFormDialog, CaseEditDialog, ChecklistEditor, CaseCard, and CalendarCaseCard wherever other workflow tasks appear.",
-      "reqIds": [
-        "REQ-9"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-add-meta-name-mobile-web-app-capable-content-yes-to-frontend-index-html-alongside-or-replacing-the-deprecated-meta-name-apple-mobile-web-app-capable-content-yes-tag-to-resolve-the-browser-deprecation-warning",
-      "title": "Add <meta name=\"mobile-web-app-capable\" content=\"yes\"> to frontend/index.html alongside or replacing the deprecated <meta name=\"apple-mobile-web-app-capable\" content=\"yes\"> tag to resolve the browser deprecation warning.",
-      "reqIds": [
-        "REQ-10"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-fix-the-pwa-manifest-icon-entry-in-frontend-public-manifest-json-so-that-the-icon-referenced-img-4505-ico-or-equivalent-uses-a-valid-image-file-with-correct-dimensions-and-format-replace-the-ico-reference-with-a-properly-sized-png-icon-e-g-192x192-and-512x512-so-the-browser-can-load-the-manifest-icon-without-a-resource-size-is-not-correct-error",
-      "title": "Fix the PWA manifest icon entry in frontend/public/manifest.json so that the icon referenced (IMG_4505.ico or equivalent) uses a valid image file with correct dimensions and format. Replace the .ico reference with a properly sized PNG icon (e.g., 192x192 and 512x512) so the browser can load the manifest icon without a 'Resource size is not correct' error.",
-      "reqIds": [
-        "REQ-11"
       ],
       "version": 1
     }
   ],
   "new_feature_requests": [
     {
-      "id": "AR-5",
-      "summary": "Add a weekly calendar view to the Dashboard. 7-day columns (Sun-Sat) showing the current week by default, with Previous/Next week navigation. Cases placed by Arrival Date. Cards show Pet Name, MRN, Species badge, Presenting Complaint, and task status icons. Completed cases are shaded out. Empty days show a subtle placeholder note. Toggle button to switch between the new calendar view and the existing card grid.",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-6",
-      "summary": "Change Follow Up task default to unchecked",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-7",
-      "summary": "Keep completed cases on Dashboard but shaded out (not removed)",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-8",
-      "summary": "Show an X overlay on task icons when a task is completed",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-9",
-      "summary": "Add 'Daily Summary' task to both Dashboard and Cases pages; default unchecked; icon is a tear-off calendar page",
-      "reqIds": [],
+      "id": "AR-1",
+      "summary": "Diagnose why the database is not loading in both Draft and Live app (blank page). Inspect the current backend main.mo actor — verify that all query and update methods are correctly defined, publicly exposed, and return the expected types. Ensure there are no runtime traps, missing stable variables, or broken upgrade paths that would cause fetches to silently fail.",
+      "reqIds": [
+        "REQ-1"
+      ],
       "status": "pending"
     }
   ],
-  "gameProjectType": "none",
-  "projectName": "SurgiPaw",
+  "projectName": "Fix blank page: revert data-fetching logic to Version 107",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }
