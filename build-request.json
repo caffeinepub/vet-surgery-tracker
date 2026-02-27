@@ -1,74 +1,135 @@
 {
   "kind": "build_request",
-  "title": "Fix blank page: revert data-fetching logic to Version 107",
-  "priority": "high",
+  "title": "Add Daily Summary task, toggle view button, update icons, and remove surgery report default",
+  "projectName": "SurgiPaw",
+  "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Diagnose why the database is not loading in both Draft and Live app (blank page). Inspect the current backend main.mo actor — verify that all query and update methods are correctly defined, publicly exposed, and return the expected types. Ensure there are no runtime traps, missing stable variables, or broken upgrade paths that would cause fetches to silently fail.",
-      "target": "backend",
+      "text": "Remove 'Surgery Report' from the default task selections when creating a new case. It should no longer be pre-checked in CaseFormDialog.",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-last"
         ],
         "quotes": [
-          "take a fresh look at the current backend and frontend code to diagnose exactly why the fetch is failing"
+          "Remove \"surgery report\" as a default"
         ]
       },
       "acceptanceCriteria": [
-        "Backend actor compiles without errors",
-        "All query methods (e.g., getCases, getDashboardData) are publicly callable and return non-empty results when data exists",
-        "No silent traps or missing stable variable declarations on upgrade"
+        "When opening the new case creation dialog (CaseFormDialog), the Surgery Report task is unchecked by default.",
+        "All other previously defaulted tasks remain unchanged.",
+        "The checklist.ts CHECKLIST_ITEMS configuration no longer marks surgeryReport as a default."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Revert the data-fetching logic in frontend/src/hooks/useQueries.ts (and any related hooks or utilities modified after Version 107) to exactly how it was implemented in Version 107. This includes restoring the original React Query hooks for fetching surgery cases, dashboard data, and user profiles — including query keys, actor invocation patterns, enabled conditions, and error handling — as they existed in Version 107.",
-      "target": "frontend",
+      "text": "Add a new 'Daily Summary' task type to the checklist system. It must appear on both the Dashboard page and the Cases (CasesListView) page. It must be unchecked by default when creating a new case. Use a tear-off calendar page SVG icon (create a new IconDailySummary component if one does not exist, or confirm the existing one at frontend/src/components/workflow-icons/IconDailySummary.tsx is wired up).",
+      "target": "both",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-last"
         ],
         "quotes": [
-          "Revert to data-fetching logic from Version 107"
+          "New \"Daily Summary\" task: added to both pages, default unchecked, with a tear-off calendar page icon"
         ]
       },
       "acceptanceCriteria": [
-        "useQueries.ts matches the Version 107 implementation for all data-fetching hooks",
-        "The Dashboard view loads and displays surgery cases without a blank page",
-        "The Cases list view loads and displays surgery cases without a blank page",
-        "React Query fetches complete successfully and do not remain in a loading or error state indefinitely"
+        "A 'Daily Summary' task type is defined in CHECKLIST_ITEMS in checklist.ts with default unchecked.",
+        "The Daily Summary task appears in the checklist editor on case cards in both the Dashboard and Cases list views.",
+        "The Daily Summary task is not pre-selected when creating a new case.",
+        "The WorkflowIcon dispatcher (WorkflowIcon.tsx) maps the dailySummary type to an IconDailySummary component.",
+        "IconDailySummary renders a tear-off calendar page SVG icon.",
+        "The backend Task type in main.mo is updated to include a dailySummary variant.",
+        "The CSV schema (caseCsvSchema.ts) and any related CSV import/export logic is updated to include the dailySummary field."
       ]
     },
     {
       "id": "REQ-3",
-      "text": "Audit the actor wiring between the frontend and backend: verify that the actor created in frontend/src/hooks/useActor.ts is correctly passed to all data-fetching calls in useQueries.ts, and that the actor's canister ID and IDL are aligned with the current deployed backend. Fix any mismatch introduced after Version 107 (e.g., wrong actor configuration, missing method bindings, or incorrect canister ID references).",
-      "target": "both",
+      "text": "Add a toggle button to the Dashboard page (DashboardView.tsx) that switches between the Weekly Calendar view and the Card Grid view. The toggle should be visible in the dashboard header/controls area. Persist the selected view mode in component state (no URL or sessionStorage required).",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-last"
         ],
         "quotes": [
-          "take a fresh look at the current backend and frontend code to diagnose exactly why the fetch is failing"
+          "Add Toggle button to switch between the weekly calendar view and the card grid"
         ]
       },
       "acceptanceCriteria": [
-        "The actor instance in useActor.ts successfully resolves and is passed to all query hooks",
-        "No 'actor is undefined' or 'method not found' errors appear in the browser console",
-        "Data loads correctly on both Dashboard and Cases pages after login"
+        "A toggle button (or segmented control) is visible on the Dashboard page.",
+        "Clicking the toggle switches between the Weekly Calendar view (WeeklyCalendarView) and the Card Grid (case cards) view.",
+        "The currently active view is visually indicated in the toggle button.",
+        "The toggle defaults to the Weekly Calendar view on initial load.",
+        "Both views render the same set of filtered/sorted cases."
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Replace the Histology (histo) workflow icon with a microscope SVG. Update IconHisto.tsx to render a microscope shape instead of the current sun/radial path.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-last"
+        ],
+        "quotes": [
+          "histo icon to a microscope"
+        ]
+      },
+      "acceptanceCriteria": [
+        "IconHisto.tsx renders a recognizable microscope SVG icon.",
+        "The histo color token from workflowTokens.ts is still applied.",
+        "The completed-state overlay (X mark) still applies correctly via WorkflowIconBase."
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "text": "Replace the Surgery Report workflow icon with a scalpel SVG. Update IconSurgery.tsx to render a scalpel shape instead of the current document/plus path.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-last"
+        ],
+        "quotes": [
+          "surgery report icon to a scalpel"
+        ]
+      },
+      "acceptanceCriteria": [
+        "IconSurgery.tsx renders a recognizable scalpel SVG icon.",
+        "The surgeryReport color token from workflowTokens.ts is still applied.",
+        "The completed-state overlay (X mark) still applies correctly via WorkflowIconBase."
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "text": "Replace the Culture workflow icon with a petri dish SVG. Update IconCulture.tsx to render a petri dish shape instead of the current database/cylinder path.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-last"
+        ],
+        "quotes": [
+          "culutre to a petri dish"
+        ]
+      },
+      "acceptanceCriteria": [
+        "IconCulture.tsx renders a recognizable petri dish SVG icon (circular dish with ellipse/colony details).",
+        "The culture color token from workflowTokens.ts is still applied.",
+        "The completed-state overlay (X mark) still applies correctly via WorkflowIconBase."
       ]
     }
   ],
   "constraints": [
-    "Do not modify files listed in frontend.immutablePaths (useInternetIdentity.ts, useActor.ts, main.tsx, frontend/src/components/ui)",
-    "Do not introduce new features; this is a targeted fix and revert only",
-    "Preserve all existing stable variable declarations in the backend to avoid data loss on upgrade"
+    "Do not change the visual design theme or color tokens beyond the icon SVG path changes specified.",
+    "Do not modify files listed in frontend.immutablePaths.",
+    "The Daily Summary task must be default unchecked — it must not be auto-selected when creating a new case.",
+    "Surgery Report task must still exist as a selectable task; only its default selection is removed."
   ],
   "nonGoals": [
-    "Adding new backend methods or data types",
-    "Redesigning any UI components",
-    "Changing authentication flow",
-    "Modifying CSV import/export or PDF generation logic"
+    "Removing the Surgery Report task type entirely — it should remain as an optional task.",
+    "Changing the color tokens for any existing workflow icon types.",
+    "Adding persistence (localStorage/sessionStorage/URL params) for the calendar/grid toggle state.",
+    "Redesigning the overall Dashboard or Cases page layout beyond adding the toggle button."
   ],
   "imageRequirements": {
     "required": [],

@@ -2,10 +2,34 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-revert-the-data-fetching-logic-in-frontend-src-hooks-usequeries-ts-and-any-related-hooks-or-utilities-modified-after-version-107-to-exactly-how-it-was-implemented-in-version-107-this-includes-restoring-the-original-react-query-hooks-for-fetching-surgery-cases-dashboard-data-and-user-profiles-including-query-keys-actor-invocation-patterns-enabled-conditions-and-error-handling-as-they-existed-in-version-107",
-      "featureTitle": "Revert the data-fetching logic in frontend/src/hooks/useQueries.ts (and any related hooks or utilities modified after Version 107) to exactly how it was implemented in Version 107. This includes restoring the original React Query hooks for fetching surgery cases, dashboard data, and user profiles — including query keys, actor invocation patterns, enabled conditions, and error handling — as they existed in Version 107.",
+      "featureId": "feature-remove-surgery-report-from-the-default-task-selections-when-creating-a-new-case-it-should-no-longer-be-pre-checked-in-caseformdialog",
+      "featureTitle": "Remove 'Surgery Report' from the default task selections when creating a new case. It should no longer be pre-checked in CaseFormDialog.",
       "files": [
-        "frontend/src/hooks/useQueries.ts"
+        "frontend/src/features/cases/checklist.ts"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "camera@1.0.0",
+        "http-outcalls@3.0.0"
+      ],
+      "testIds": [
+        "REQ-1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-a-new-daily-summary-task-type-to-the-checklist-system-it-must-appear-on-both-the-dashboard-page-and-the-cases-caseslistview-page-it-must-be-unchecked-by-default-when-creating-a-new-case-use-a-tear-off-calendar-page-svg-icon-create-a-new-icondailysummary-component-if-one-does-not-exist-or-confirm-the-existing-one-at-frontend-src-components-workflow-icons-icondailysummary-tsx-is-wired-up",
+      "featureTitle": "Add a new 'Daily Summary' task type to the checklist system. It must appear on both the Dashboard page and the Cases (CasesListView) page. It must be unchecked by default when creating a new case. Use a tear-off calendar page SVG icon (create a new IconDailySummary component if one does not exist, or confirm the existing one at frontend/src/components/workflow-icons/IconDailySummary.tsx is wired up).",
+      "files": [
+        "frontend/src/components/workflow-icons/IconDailySummary.tsx",
+        "frontend/src/features/cases/checklist.ts",
+        "frontend/src/features/cases/csv/caseCsv.ts",
+        "frontend/src/features/cases/csv/caseCsvSchema.ts"
       ],
       "components": [
         "authorization@4.0.0",
@@ -23,10 +47,10 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-audit-the-actor-wiring-between-the-frontend-and-backend-verify-that-the-actor-created-in-frontend-src-hooks-useactor-ts-is-correctly-passed-to-all-data-fetching-calls-in-usequeries-ts-and-that-the-actor-s-canister-id-and-idl-are-aligned-with-the-current-deployed-backend-fix-any-mismatch-introduced-after-version-107-e-g-wrong-actor-configuration-missing-method-bindings-or-incorrect-canister-id-references",
-      "featureTitle": "Audit the actor wiring between the frontend and backend: verify that the actor created in frontend/src/hooks/useActor.ts is correctly passed to all data-fetching calls in useQueries.ts, and that the actor's canister ID and IDL are aligned with the current deployed backend. Fix any mismatch introduced after Version 107 (e.g., wrong actor configuration, missing method bindings, or incorrect canister ID references).",
+      "featureId": "feature-replace-the-histology-histo-workflow-icon-with-a-microscope-svg-update-iconhisto-tsx-to-render-a-microscope-shape-instead-of-the-current-sun-radial-path",
+      "featureTitle": "Replace the Histology (histo) workflow icon with a microscope SVG. Update IconHisto.tsx to render a microscope shape instead of the current sun/radial path.",
       "files": [
-        "frontend/src/hooks/useQueries.ts"
+        "frontend/src/components/workflow-icons/IconHisto.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -39,7 +63,49 @@
         "http-outcalls@3.0.0"
       ],
       "testIds": [
-        "REQ-3"
+        "REQ-4"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-replace-the-surgery-report-workflow-icon-with-a-scalpel-svg-update-iconsurgery-tsx-to-render-a-scalpel-shape-instead-of-the-current-document-plus-path",
+      "featureTitle": "Replace the Surgery Report workflow icon with a scalpel SVG. Update IconSurgery.tsx to render a scalpel shape instead of the current document/plus path.",
+      "files": [
+        "frontend/src/components/workflow-icons/IconSurgery.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "camera@1.0.0",
+        "http-outcalls@3.0.0"
+      ],
+      "testIds": [
+        "REQ-5"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-replace-the-culture-workflow-icon-with-a-petri-dish-svg-update-iconculture-tsx-to-render-a-petri-dish-shape-instead-of-the-current-database-cylinder-path",
+      "featureTitle": "Replace the Culture workflow icon with a petri dish SVG. Update IconCulture.tsx to render a petri dish shape instead of the current database/cylinder path.",
+      "files": [
+        "frontend/src/components/workflow-icons/IconCulture.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "camera@1.0.0",
+        "http-outcalls@3.0.0"
+      ],
+      "testIds": [
+        "REQ-6"
       ],
       "confidence": "high"
     }

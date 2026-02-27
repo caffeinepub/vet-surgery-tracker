@@ -1,11 +1,15 @@
 # Specification
 
 ## Summary
-**Goal:** Fix the blank page issue in both Draft and Live app by diagnosing the data-fetching failure and reverting frontend data-fetching logic to the Version 107 implementation.
+**Goal:** Add a Daily Summary task, a dashboard view toggle, update three workflow icons, and remove Surgery Report as a default task selection in SurgiPaw.
 
 **Planned changes:**
-- Audit the backend `main.mo` actor to ensure all query and update methods (e.g., `getCases`, `getDashboardData`) are publicly exposed, correctly typed, and free of runtime traps or missing stable variable declarations.
-- Revert `frontend/src/hooks/useQueries.ts` (and any related hooks or utilities changed after Version 107) to exactly match the Version 107 data-fetching implementation, including query keys, actor invocation patterns, enabled conditions, and error handling.
-- Audit the actor wiring between `useActor.ts` and `useQueries.ts` to ensure the actor instance, canister ID, and IDL are correctly aligned with the deployed backend, fixing any mismatches introduced after Version 107.
+- Remove "Surgery Report" from default pre-checked tasks in CaseFormDialog (it remains selectable but unchecked by default)
+- Add a new "Daily Summary" task type to the checklist system (unchecked by default), visible on both the Dashboard and Cases list pages, with a tear-off calendar page SVG icon (IconDailySummary component)
+- Update backend Task type to include a `dailySummary` variant and update CSV import/export schema accordingly
+- Add a toggle button to the Dashboard page header to switch between the Weekly Calendar view and the Card Grid view (defaults to Weekly Calendar, state kept in component)
+- Replace the Histology (histo) workflow icon with a microscope SVG in IconHisto.tsx
+- Replace the Surgery Report workflow icon with a scalpel SVG in IconSurgery.tsx
+- Replace the Culture workflow icon with a petri dish SVG in IconCulture.tsx
 
-**User-visible outcome:** The Dashboard and Cases list views load and display surgery cases without a blank page; React Query fetches complete successfully after login.
+**User-visible outcome:** Users can now toggle between calendar and grid views on the Dashboard, see a new Daily Summary task on case cards in both views, find Surgery Report unchecked by default when creating a case, and see updated microscope, scalpel, and petri dish icons for Histology, Surgery Report, and Culture tasks respectively.

@@ -38,7 +38,7 @@ const DEFAULT_TASK_SELECTIONS: TaskSelections = {
   pdvmNotified: true,
   labs: false,
   histo: false,
-  surgeryReport: true,
+  surgeryReport: false,
   imaging: false,
   culture: false,
   followUp: false,
@@ -128,6 +128,7 @@ export default function CaseFormDialog({ open, onOpenChange }: CaseFormDialogPro
         imaging: taskSelections.imaging,
         culture: taskSelections.culture,
         followUp: taskSelections.followUp,
+        dailySummary: taskSelections.dailySummary,
       },
     });
 

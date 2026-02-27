@@ -1,55 +1,109 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-27T01:32:47.194Z",
+  "generatedAt": "2026-02-27T03:04:37.619Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 3,
-    "implemented": 2,
+    "total": 6,
+    "implemented": 5,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Diagnose why the database is not loading in both Draft and Live app (blank page). Inspect the current backend main.mo actor — verify that all query and update methods are correctly defined, publicly exposed, and return the expected types. Ensure there are no runtime traps, missing stable variables, or broken upgrade paths that would cause fetches to silently fail.",
-        "status": "unknown",
-        "plannedFiles": [],
-        "matchedFiles": []
+        "summary": "Remove 'Surgery Report' from the default task selections when creating a new case. It should no longer be pre-checked in CaseFormDialog.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/features/cases/checklist.ts"
+        ],
+        "matchedFiles": [
+          "frontend/src/features/cases/checklist.ts"
+        ]
       },
       {
         "id": "REQ-2",
-        "summary": "Revert the data-fetching logic in frontend/src/hooks/useQueries.ts (and any related hooks or utilities modified after Version 107) to exactly how it was implemented in Version 107. This includes restoring the original React Query hooks for fetching surgery cases, dashboard data, and user profiles — including query keys, actor invocation patterns, enabled conditions, and error handling — as they existed in Version 107.",
+        "summary": "Add a new 'Daily Summary' task type to the checklist system. It must appear on both the Dashboard page and the Cases (CasesListView) page. It must be unchecked by default when creating a new case. Use a tear-off calendar page SVG icon (create a new IconDailySummary component if one does not exist, or confirm the existing one at frontend/src/components/workflow-icons/IconDailySummary.tsx is wired up).",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/hooks/useQueries.ts",
-          "frontend/src/App.tsx"
+          "frontend/src/components/workflow-icons/IconDailySummary.tsx",
+          "frontend/src/components/workflow-icons/workflowTokens.ts",
+          "frontend/src/components/workflow-icons/WorkflowIcon.tsx",
+          "frontend/src/features/cases/checklist.ts",
+          "frontend/src/features/cases/csv/caseCsvSchema.ts",
+          "frontend/src/features/cases/csv/caseCsv.ts"
         ],
         "matchedFiles": [
-          "frontend/src/hooks/useQueries.ts"
+          "frontend/src/components/workflow-icons/IconDailySummary.tsx",
+          "frontend/src/features/cases/checklist.ts",
+          "frontend/src/features/cases/csv/caseCsvSchema.ts",
+          "frontend/src/features/cases/csv/caseCsv.ts"
         ]
       },
       {
         "id": "REQ-3",
-        "summary": "Audit the actor wiring between the frontend and backend: verify that the actor created in frontend/src/hooks/useActor.ts is correctly passed to all data-fetching calls in useQueries.ts, and that the actor's canister ID and IDL are aligned with the current deployed backend. Fix any mismatch introduced after Version 107 (e.g., wrong actor configuration, missing method bindings, or incorrect canister ID references).",
+        "summary": "Add a toggle button to the Dashboard page (DashboardView.tsx) that switches between the Weekly Calendar view and the Card Grid view. The toggle should be visible in the dashboard header/controls area. Persist the selected view mode in component state (no URL or sessionStorage required).",
+        "status": "missing",
+        "plannedFiles": [
+          "frontend/src/features/dashboard/components/DashboardView.tsx"
+        ],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-4",
+        "summary": "Replace the Histology (histo) workflow icon with a microscope SVG. Update IconHisto.tsx to render a microscope shape instead of the current sun/radial path.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/hooks/useQueries.ts",
-          "frontend/src/features/dashboard/components/DashboardView.tsx",
-          "frontend/src/features/cases/components/CasesListView.tsx"
+          "frontend/src/components/workflow-icons/IconHisto.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/hooks/useQueries.ts"
+          "frontend/src/components/workflow-icons/IconHisto.tsx"
+        ]
+      },
+      {
+        "id": "REQ-5",
+        "summary": "Replace the Surgery Report workflow icon with a scalpel SVG. Update IconSurgery.tsx to render a scalpel shape instead of the current document/plus path.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/workflow-icons/IconSurgery.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/workflow-icons/IconSurgery.tsx"
+        ]
+      },
+      {
+        "id": "REQ-6",
+        "summary": "Replace the Culture workflow icon with a petri dish SVG. Update IconCulture.tsx to render a petri dish shape instead of the current database/cylinder path.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/workflow-icons/IconCulture.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/workflow-icons/IconCulture.tsx"
         ]
       }
     ]
   },
   "changedFiles": [
+    "backend/main.mo",
+    "backend/migration.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/backend.d.ts",
+    "frontend/src/backend.ts",
+    "frontend/src/components/workflow-icons/IconCulture.tsx",
+    "frontend/src/components/workflow-icons/IconDailySummary.tsx",
+    "frontend/src/components/workflow-icons/IconHisto.tsx",
+    "frontend/src/components/workflow-icons/IconSurgery.tsx",
+    "frontend/src/declarations/backend.did.d.ts",
+    "frontend/src/declarations/backend.did.js",
+    "frontend/src/features/cases/checklist.ts",
+    "frontend/src/features/cases/components/CaseFormDialog.tsx",
+    "frontend/src/features/cases/components/CsvImportExportPanel.tsx",
+    "frontend/src/features/cases/csv/caseCsv.ts",
+    "frontend/src/features/cases/csv/caseCsvSchema.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

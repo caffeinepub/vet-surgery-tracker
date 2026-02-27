@@ -10,8 +10,18 @@ export default function IconHisto({ isCompleted = false }: IconHistoProps) {
   const color = workflowColors.histo;
   return (
     <WorkflowIconBase color={color} isCompleted={isCompleted}>
-      <circle cx="12" cy="12" r="4" />
-      <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+      {/* Eyepiece tube at top */}
+      <rect x="10" y="2" width="4" height="5" rx="0.5" />
+      {/* Arm connecting eyepiece to body */}
+      <path d="M12 7 L12 10" />
+      {/* Main body / nosepiece area */}
+      <path d="M8 10 L16 10 L15 16 L9 16 Z" />
+      {/* Stage platform */}
+      <rect x="6" y="16" width="12" height="2" rx="0.5" />
+      {/* Base */}
+      <path d="M7 18 L5 22 L19 22 L17 18 Z" />
+      {/* Objective lens */}
+      <line x1="12" y1="16" x2="12" y2="19" />
     </WorkflowIconBase>
   );
 }

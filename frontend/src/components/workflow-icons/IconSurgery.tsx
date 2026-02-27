@@ -10,10 +10,14 @@ export default function IconSurgery({ isCompleted = false }: IconSurgeryProps) {
   const color = workflowColors.surgeryReport;
   return (
     <WorkflowIconBase color={color} isCompleted={isCompleted}>
-      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-      <polyline points="14 2 14 8 20 8" />
-      <line x1="12" y1="12" x2="12" y2="18" />
-      <line x1="9" y1="15" x2="15" y2="15" />
+      {/* Scalpel handle - long thin rectangle at an angle */}
+      <line x1="4" y1="20" x2="16" y2="8" strokeWidth="2.5" />
+      {/* Blade - triangular tip */}
+      <path d="M16 8 L20 4 L19 9 Z" />
+      {/* Blade edge detail */}
+      <path d="M16 8 L20 4" />
+      {/* Guard / bolster between handle and blade */}
+      <line x1="14" y1="10" x2="17" y2="7" strokeWidth="1.5" />
     </WorkflowIconBase>
   );
 }

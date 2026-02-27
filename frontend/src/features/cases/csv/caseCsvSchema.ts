@@ -1,7 +1,7 @@
 /**
  * CSV Schema for Veterinary Surgery Case Import/Export
  * 
- * Expected Format: 17 columns in the following order
+ * Expected Format: 18 columns in the following order
  * 
  * Column Descriptions:
  * 1. Medical Record # - Unique identifier (required, text)
@@ -21,6 +21,7 @@
  * 15. Surgery Report - Checklist item (boolean: TRUE/FALSE, true/false, 1/0, yes/no, X for true)
  * 16. Imaging - Checklist item (boolean: TRUE/FALSE, true/false, 1/0, yes/no, X for true)
  * 17. Culture - Checklist item (boolean: TRUE/FALSE, true/false, 1/0, yes/no, X for true)
+ * 18. Daily Summary - Checklist item (boolean: TRUE/FALSE, true/false, 1/0, yes/no, X for true)
  * 
  * Date Format: M/D/YYYY (e.g., 2/4/2026, 10/15/2025)
  * Boolean Format: TRUE/FALSE (case-insensitive), 1/0, yes/no, X (for true), empty/NO/FALSE (for false)
@@ -34,6 +35,7 @@
  * - "Surgery Report" → surgeryReport
  * - "Imaging" → imaging
  * - "Culture" → culture
+ * - "Daily Summary" → dailySummary
  * - "Discharge Notes" (text field) → dischargeNotes (always false in checklist, text goes to notes)
  */
 
@@ -55,6 +57,7 @@ export const CSV_HEADERS = [
   'Surgery Report',
   'Imaging',
   'Culture',
+  'Daily Summary',
 ] as const;
 
 export type CsvRow = {
@@ -75,6 +78,7 @@ export type CsvRow = {
   'Surgery Report': string;
   'Imaging': string;
   'Culture': string;
+  'Daily Summary': string;
 };
 
 // Validation constants

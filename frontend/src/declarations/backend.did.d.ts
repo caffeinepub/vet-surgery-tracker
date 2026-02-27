@@ -38,8 +38,10 @@ export interface Task {
   'cultureSelected' : boolean,
   'pdvmNotifiedCompleted' : boolean,
   'followUpCompleted' : boolean,
+  'dailySummaryCompleted' : boolean,
   'histoSelected' : boolean,
   'labsSelected' : boolean,
+  'dailySummarySelected' : boolean,
   'followUpSelected' : boolean,
   'imagingCompleted' : boolean,
   'surgeryReportCompleted' : boolean,
@@ -57,6 +59,7 @@ export interface TaskOptions {
   'labs' : boolean,
   'culture' : boolean,
   'followUp' : boolean,
+  'dailySummary' : boolean,
   'surgeryReport' : boolean,
   'imaging' : boolean,
   'dischargeNotes' : boolean,
@@ -66,6 +69,7 @@ export type TaskType = { 'pdvmNotified' : null } |
   { 'labs' : null } |
   { 'culture' : null } |
   { 'followUp' : null } |
+  { 'dailySummary' : null } |
   { 'surgeryReport' : null } |
   { 'imaging' : null } |
   { 'dischargeNotes' : null };

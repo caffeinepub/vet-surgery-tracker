@@ -7,10 +7,13 @@ import Order "mo:core/Order";
 import Runtime "mo:core/Runtime";
 import Principal "mo:core/Principal";
 import Iter "mo:core/Iter";
+import Migration "migration";
 
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
 
+// Specify the data migration function in with-clause.
+(with migration = Migration.run)
 actor {
   public type Species = { #canine; #feline; #other };
   public type Sex = { #male; #maleNeutered; #female; #femaleSpayed };
@@ -39,6 +42,9 @@ actor {
 
     followUpSelected : Bool;
     followUpCompleted : Bool;
+
+    dailySummarySelected : Bool; // New field
+    dailySummaryCompleted : Bool; // New field
   };
 
   public type TaskType = {
@@ -50,6 +56,7 @@ actor {
     #imaging;
     #culture;
     #followUp;
+    #dailySummary; // New task type
   };
 
   public type TaskOptions = {
@@ -61,6 +68,7 @@ actor {
     imaging : Bool;
     culture : Bool;
     followUp : Bool;
+    dailySummary : Bool; // New option for selection dialog
   };
 
   public type SurgeryCase = {
@@ -135,7 +143,7 @@ actor {
     dateOfBirth : ?Time.Time,
     presentingComplaint : Text,
     notes : Text,
-    taskOptions : TaskOptions,
+    taskOptions : TaskOptions, // Now includes dailySummary
   ) : async SurgeryCase {
     checkUserPermission(caller);
 
@@ -163,6 +171,9 @@ actor {
 
       followUpSelected = taskOptions.followUp;
       followUpCompleted = false;
+
+      dailySummarySelected = taskOptions.dailySummary;
+      dailySummaryCompleted = false;
     };
 
     let newCase : SurgeryCase = {
@@ -332,6 +343,12 @@ actor {
           followUpCompleted = not task.followUpCompleted;
         };
       };
+      case (#dailySummary) {
+        {
+          task with
+          dailySummaryCompleted = not task.dailySummaryCompleted;
+        };
+      };
     };
   };
 
@@ -365,6 +382,9 @@ actor {
 
           followUpSelected = taskOptions.followUp;
           followUpCompleted = false;
+
+          dailySummarySelected = taskOptions.dailySummary;
+          dailySummaryCompleted = false;
         };
         let updatedCase : SurgeryCase = {
           existingCase with
@@ -484,6 +504,9 @@ actor {
         taskCount += 1;
       };
       if (caseMap.task.followUpSelected and not caseMap.task.followUpCompleted) {
+        taskCount += 1;
+      };
+      if (caseMap.task.dailySummarySelected and not caseMap.task.dailySummaryCompleted) {
         taskCount += 1;
       };
     };

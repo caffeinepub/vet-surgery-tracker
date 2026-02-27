@@ -47,7 +47,7 @@ export const CHECKLIST_ITEMS: ChecklistItem[] = [
     label: 'Surgery Report',
     selectedField: 'surgeryReportSelected',
     completedField: 'surgeryReportCompleted',
-    defaultSelected: true,
+    defaultSelected: false,
     color: '#EF4444',
   },
   {

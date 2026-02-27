@@ -21,10 +21,8 @@ export default function CsvImportExportPanel({ cases }: CsvImportExportPanelProp
 
   const handleExport = () => {
     try {
-      console.log('[CSV Export] Starting export', { caseCount: cases.length });
       exportCasesToCsv(cases);
       toast.success('Cases exported successfully');
-      console.log('[CSV Export] Export completed successfully');
     } catch (error) {
       toast.error('Failed to export cases');
       console.error('[CSV Export] Export error:', error);
@@ -35,47 +33,25 @@ export default function CsvImportExportPanel({ cases }: CsvImportExportPanelProp
     const file = e.target.files?.[0];
     if (!file) return;
 
-    console.log('[CSV Import UI] Import started', {
-      fileName: file.name,
-      fileSize: file.size,
-      timestamp: new Date().toISOString(),
-    });
-
     setIsImporting(true);
     setImportErrors([]);
     setImportProgress(null);
 
     try {
-      // Parse CSV file
-      console.log('[CSV Import UI] Parsing CSV file...');
       const result = await importCasesFromCsv(file, cases);
-
-      console.log('[CSV Import UI] CSV parsing complete', {
-        casesToImport: result.cases.length,
-        parseErrors: result.errors.length,
-        timestamp: new Date().toISOString(),
-      });
 
       // Display parsing errors
       if (result.errors.length > 0) {
         setImportErrors(result.errors);
         toast.error(`CSV parsing found ${result.errors.length} error(s). Check details below.`);
-        console.error('[CSV Import UI] Parsing errors:', result.errors);
       }
 
       // If no cases to import, stop here
       if (result.cases.length === 0) {
-        console.warn('[CSV Import UI] No valid cases to import');
         toast.warning('No valid cases found in CSV file');
         setIsImporting(false);
         return;
       }
-
-      // Import cases to backend
-      console.log('[CSV Import UI] Starting backend import', {
-        totalCases: result.cases.length,
-        timestamp: new Date().toISOString(),
-      });
 
       let successCount = 0;
       let errorCount = 0;
@@ -87,24 +63,15 @@ export default function CsvImportExportPanel({ cases }: CsvImportExportPanelProp
         const caseData = result.cases[i];
         const caseNumber = i + 1;
 
-        console.log(`[CSV Import UI] Processing case ${caseNumber}/${result.cases.length}`, {
-          medicalRecordNumber: caseData.data.medicalRecordNumber,
-          isUpdate: !!caseData.existingCase,
-          timestamp: new Date().toISOString(),
-        });
-
         setImportProgress({ current: caseNumber, total: result.cases.length });
 
         try {
           if (caseData.existingCase) {
-            console.log(`[CSV Import UI] Updating existing case ${caseData.existingCase.id}`);
             await updateCase.mutateAsync({
               id: caseData.existingCase.id,
               ...caseData.data,
             });
-            console.log(`[CSV Import UI] Case ${caseData.existingCase.id} updated successfully`);
           } else {
-            console.log('[CSV Import UI] Creating new case');
             // Convert Task to TaskOptions for new case creation
             const taskOptions: TaskOptions = {
               dischargeNotes: caseData.data.task.dischargeNotesSelected,
@@ -115,9 +82,10 @@ export default function CsvImportExportPanel({ cases }: CsvImportExportPanelProp
               imaging: caseData.data.task.imagingSelected,
               culture: caseData.data.task.cultureSelected,
               followUp: caseData.data.task.followUpSelected,
+              dailySummary: caseData.data.task.dailySummarySelected,
             };
 
-            const newCase = await createCase.mutateAsync({
+            await createCase.mutateAsync({
               medicalRecordNumber: caseData.data.medicalRecordNumber,
               arrivalDate: caseData.data.arrivalDate,
               petName: caseData.data.petName,
@@ -130,7 +98,6 @@ export default function CsvImportExportPanel({ cases }: CsvImportExportPanelProp
               notes: caseData.data.notes,
               taskOptions,
             });
-            console.log(`[CSV Import UI] New case created with ID ${newCase.id}`);
           }
           successCount++;
         } catch (error) {
@@ -141,21 +108,9 @@ export default function CsvImportExportPanel({ cases }: CsvImportExportPanelProp
             field: 'backend',
             message: `Failed to save case: ${errorMessage}`,
           });
-          console.error(`[CSV Import UI] Failed to save case ${caseNumber}:`, {
-            error,
-            errorMessage,
-            caseData: caseData.data,
-            timestamp: new Date().toISOString(),
-          });
+          console.error(`[CSV Import UI] Failed to save case ${caseNumber}:`, error);
         }
       }
-
-      console.log('[CSV Import UI] Import complete', {
-        successCount,
-        errorCount,
-        totalProcessed: result.cases.length,
-        timestamp: new Date().toISOString(),
-      });
 
       // Update error list with backend errors
       if (backendErrors.length > 0) {
@@ -172,12 +127,7 @@ export default function CsvImportExportPanel({ cases }: CsvImportExportPanelProp
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       toast.error(`Failed to parse CSV file: ${errorMessage}`);
-      console.error('[CSV Import UI] Critical import error:', {
-        error,
-        errorMessage,
-        stack: error instanceof Error ? error.stack : undefined,
-        timestamp: new Date().toISOString(),
-      });
+      console.error('[CSV Import UI] Critical import error:', error);
     } finally {
       setIsImporting(false);
       setImportProgress(null);

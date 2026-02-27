@@ -10,8 +10,15 @@ export default function IconCulture({ isCompleted = false }: IconCultureProps) {
   const color = workflowColors.culture;
   return (
     <WorkflowIconBase color={color} isCompleted={isCompleted}>
-      <ellipse cx="12" cy="10" rx="8" ry="4" />
-      <path d="M4 10v4c0 2.21 3.58 4 8 4s8-1.79 8-4v-4" />
+      {/* Petri dish outer circle */}
+      <circle cx="12" cy="13" r="9" />
+      {/* Petri dish lid rim (slightly smaller arc at top) */}
+      <path d="M5 10 Q12 7 19 10" />
+      {/* Bacterial colonies inside */}
+      <circle cx="9" cy="14" r="1.5" />
+      <circle cx="14" cy="12" r="1" />
+      <circle cx="13" cy="16" r="1.2" />
+      <circle cx="17" cy="15" r="0.8" />
     </WorkflowIconBase>
   );
 }
