@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -9,51 +9,18 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
-import { useCreateCase, useGetAllCases } from '../../../hooks/useQueries';
-import type { SurgeryCase } from '../../../backend';
-import { Species, Sex } from '../../../backend';
-import { SEX_OPTIONS } from '../types';
-import type { CaseFormData } from '../types';
+import { Loader2 } from 'lucide-react';
+import { useCreateCase } from '../../../hooks/useQueries';
 import { CHECKLIST_ITEMS } from '../checklist';
-import {
-  validateMedicalRecordNumber,
-  validatePetName,
-  validateOwnerLastName,
-  dateToNanoseconds,
-  nanosecondsToDate,
-} from '../validation';
-import { parseStructuredText } from '../parsing/parseStructuredText';
-import { toast } from 'sonner';
+import { Species, Sex } from '../../../backend';
 import DateField from './DateField';
-import { Mic, MicOff, Loader2, Wand2, ChevronDown } from 'lucide-react';
-import { useSpeechRecognition } from '../hooks/useSpeechRecognition';
-import { useDebouncedValue } from '../../../hooks/useDebouncedValue';
 
 interface CaseFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onCaseCreated?: (caseId: bigint) => void;
 }
 
-interface FormErrors {
-  medicalRecordNumber?: string;
-  arrivalDate?: string;
-  petName?: string;
-  ownerLastName?: string;
-  species?: string;
-  sex?: string;
-}
-
-// Task selections stored separately from CaseFormData
 interface TaskSelections {
   dischargeNotes: boolean;
   pdvmNotified: boolean;
@@ -63,34 +30,36 @@ interface TaskSelections {
   imaging: boolean;
   culture: boolean;
   followUp: boolean;
+  dailySummary: boolean;
 }
-
-const EMPTY_FORM: CaseFormData = {
-  medicalRecordNumber: '',
-  arrivalDate: new Date(),
-  petName: '',
-  ownerLastName: '',
-  species: Species.canine,
-  breed: '',
-  sex: Sex.male,
-  dateOfBirth: null,
-  presentingComplaint: '',
-  notes: '',
-};
 
 const DEFAULT_TASK_SELECTIONS: TaskSelections = {
   dischargeNotes: true,
   pdvmNotified: true,
   labs: false,
   histo: false,
-  surgeryReport: false,
+  surgeryReport: true,
   imaging: false,
   culture: false,
-  followUp: true,
+  followUp: false,
+  dailySummary: false,
 };
 
-// Map checklist item keys to TaskSelections keys
-const TASK_KEY_MAP: Record<string, keyof TaskSelections> = {
+const SPECIES_OPTIONS = [
+  { value: Species.canine, label: 'Canine' },
+  { value: Species.feline, label: 'Feline' },
+  { value: Species.other, label: 'Other' },
+];
+
+const SEX_OPTIONS = [
+  { value: Sex.male, label: 'Male' },
+  { value: Sex.maleNeutered, label: 'Male Neutered' },
+  { value: Sex.female, label: 'Female' },
+  { value: Sex.femaleSpayed, label: 'Female Spayed' },
+];
+
+// Map workflowType to TaskSelections key (only backend-supported tasks)
+const WORKFLOW_TO_TASK_KEY: Record<string, keyof TaskSelections> = {
   dischargeNotes: 'dischargeNotes',
   pdvmNotified: 'pdvmNotified',
   labs: 'labs',
@@ -99,506 +68,219 @@ const TASK_KEY_MAP: Record<string, keyof TaskSelections> = {
   imaging: 'imaging',
   culture: 'culture',
   followUp: 'followUp',
+  dailySummary: 'dailySummary',
 };
 
-export default function CaseFormDialog({ open, onOpenChange, onCaseCreated }: CaseFormDialogProps) {
-  const [form, setForm] = useState<CaseFormData>(EMPTY_FORM);
+export default function CaseFormDialog({ open, onOpenChange }: CaseFormDialogProps) {
+  const createCase = useCreateCase();
+
+  const [mrn, setMrn] = useState('');
+  const [arrivalDate, setArrivalDate] = useState<Date | null>(null);
+  const [petName, setPetName] = useState('');
+  const [ownerLastName, setOwnerLastName] = useState('');
+  const [species, setSpecies] = useState<Species>(Species.canine);
+  const [breed, setBreed] = useState('');
+  const [sex, setSex] = useState<Sex>(Sex.male);
+  const [dateOfBirth, setDateOfBirth] = useState<Date | null>(null);
+  const [presentingComplaint, setPresentingComplaint] = useState('');
+  const [notes, setNotes] = useState('');
   const [taskSelections, setTaskSelections] = useState<TaskSelections>(DEFAULT_TASK_SELECTIONS);
-  const [errors, setErrors] = useState<FormErrors>({});
-  const [quickFillText, setQuickFillText] = useState('');
-  const [isParsing, setIsParsing] = useState(false);
-  const [showPreviousCases, setShowPreviousCases] = useState(false);
 
-  const createCaseMutation = useCreateCase();
-  const { data: allCases = [] } = useGetAllCases();
-
-  // Speech recognition
-  const {
-    isRecording,
-    isSupported: speechSupported,
-    startRecording,
-    stopRecording,
-    transcript,
-    resetTranscript,
-  } = useSpeechRecognition();
-
-  // When recording stops and transcript is available, put it in the quick fill box
-  useEffect(() => {
-    if (!isRecording && transcript.trim()) {
-      setQuickFillText((prev) => (prev ? prev + ' ' + transcript : transcript));
-      resetTranscript();
-    }
-  }, [isRecording, transcript, resetTranscript]);
-
-  // Debounced values for searching previous cases
-  const debouncedMRN = useDebouncedValue(form.medicalRecordNumber, 300);
-  const debouncedPetName = useDebouncedValue(form.petName, 300);
-  const debouncedOwner = useDebouncedValue(form.ownerLastName, 300);
-
-  // Previous cases: search ALL cases (including completed) by MRN, pet name, owner
-  const getPreviousCases = (): SurgeryCase[] => {
-    const mrn = debouncedMRN.trim().toLowerCase();
-    const pet = debouncedPetName.trim().toLowerCase();
-    const owner = debouncedOwner.trim().toLowerCase();
-
-    if (!mrn && !pet && !owner) return [];
-
-    const seen = new Set<string>();
-    const results: SurgeryCase[] = [];
-
-    for (const c of allCases as SurgeryCase[]) {
-      if (seen.has(String(c.id))) continue;
-      const matchMRN = mrn && c.medicalRecordNumber.toLowerCase().includes(mrn);
-      const matchPet = pet && c.petName.toLowerCase().includes(pet);
-      const matchOwner = owner && c.ownerLastName.toLowerCase().includes(owner);
-      if (matchMRN || matchPet || matchOwner) {
-        seen.add(String(c.id));
-        results.push(c);
-      }
-    }
-
-    return results.slice(0, 8);
-  };
-
-  const prevCases = getPreviousCases();
-  const hasPrevCases = prevCases.length > 0;
-
-  const handleFieldChange = <K extends keyof CaseFormData>(field: K, value: CaseFormData[K]) => {
-    setForm((prev) => ({ ...prev, [field]: value }));
-    setErrors((prev) => ({ ...prev, [field]: undefined }));
-  };
-
-  const handleParseAndFill = () => {
-    if (!quickFillText.trim()) {
-      toast.error('Please enter text to parse');
-      return;
-    }
-    setIsParsing(true);
-    try {
-      const parsed = parseStructuredText(quickFillText);
-      setForm((prev) => ({
-        ...prev,
-        ...(parsed.medicalRecordNumber ? { medicalRecordNumber: parsed.medicalRecordNumber } : {}),
-        ...(parsed.petName ? { petName: parsed.petName } : {}),
-        ...(parsed.ownerLastName ? { ownerLastName: parsed.ownerLastName } : {}),
-        ...(parsed.species ? { species: parsed.species } : {}),
-        ...(parsed.breed ? { breed: parsed.breed } : {}),
-        ...(parsed.sex ? { sex: parsed.sex } : {}),
-        ...(parsed.arrivalDate ? { arrivalDate: parsed.arrivalDate } : {}),
-        ...(parsed.dateOfBirth ? { dateOfBirth: parsed.dateOfBirth } : {}),
-        ...(parsed.presentingComplaint ? { presentingComplaint: parsed.presentingComplaint } : {}),
-        ...(parsed.notes ? { notes: parsed.notes } : {}),
-      }));
-      toast.success('Fields filled from text');
-    } catch (err) {
-      toast.error('Failed to parse text');
-    } finally {
-      setIsParsing(false);
-    }
-  };
-
-  const handleSelectPreviousCase = (c: SurgeryCase) => {
-    setForm((prev) => ({
-      ...prev,
-      medicalRecordNumber: c.medicalRecordNumber,
-      petName: c.petName,
-      ownerLastName: c.ownerLastName,
-      species: c.species,
-      breed: c.breed,
-      sex: c.sex,
-      dateOfBirth: c.dateOfBirth ? nanosecondsToDate(c.dateOfBirth) : null,
-    }));
-    setShowPreviousCases(false);
-    toast.success('Fields prefilled from previous case');
-  };
-
-  const validateForm = (): boolean => {
-    const newErrors: FormErrors = {};
-
-    const mrnError = validateMedicalRecordNumber(form.medicalRecordNumber);
-    if (mrnError) newErrors.medicalRecordNumber = mrnError;
-
-    if (!form.arrivalDate) newErrors.arrivalDate = 'Arrival date is required';
-
-    const petNameError = validatePetName(form.petName);
-    if (petNameError) newErrors.petName = petNameError;
-
-    const ownerError = validateOwnerLastName(form.ownerLastName);
-    if (ownerError) newErrors.ownerLastName = ownerError;
-
-    if (!form.species) newErrors.species = 'Species is required';
-    if (!form.sex) newErrors.sex = 'Sex is required';
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = async () => {
-    if (!validateForm()) return;
-
-    try {
-      const arrivalDateNs = dateToNanoseconds(form.arrivalDate!);
-      const dateOfBirthNs = form.dateOfBirth ? dateToNanoseconds(form.dateOfBirth) : null;
-
-      const newCase = await createCaseMutation.mutateAsync({
-        medicalRecordNumber: form.medicalRecordNumber,
-        arrivalDate: arrivalDateNs,
-        petName: form.petName,
-        ownerLastName: form.ownerLastName,
-        species: form.species,
-        breed: form.breed,
-        sex: form.sex,
-        dateOfBirth: dateOfBirthNs,
-        presentingComplaint: form.presentingComplaint,
-        notes: form.notes,
-        taskOptions: {
-          dischargeNotes: taskSelections.dischargeNotes,
-          pdvmNotified: taskSelections.pdvmNotified,
-          labs: taskSelections.labs,
-          histo: taskSelections.histo,
-          surgeryReport: taskSelections.surgeryReport,
-          imaging: taskSelections.imaging,
-          culture: taskSelections.culture,
-          followUp: taskSelections.followUp,
-        },
-      });
-
-      toast.success('Case created successfully');
-      onCaseCreated?.(newCase.id);
-      handleClose();
-    } catch (err) {
-      console.error('Failed to create case:', err);
-      toast.error('Failed to create case. Please try again.');
-    }
-  };
-
-  const handleClose = () => {
-    onOpenChange(false);
-    setForm(EMPTY_FORM);
+  const resetForm = () => {
+    setMrn('');
+    setArrivalDate(null);
+    setPetName('');
+    setOwnerLastName('');
+    setSpecies(Species.canine);
+    setBreed('');
+    setSex(Sex.male);
+    setDateOfBirth(null);
+    setPresentingComplaint('');
+    setNotes('');
     setTaskSelections(DEFAULT_TASK_SELECTIONS);
-    setQuickFillText('');
-    setErrors({});
-    setShowPreviousCases(false);
   };
 
-  // Reset form when dialog closes
-  useEffect(() => {
-    if (!open) {
-      setForm(EMPTY_FORM);
-      setTaskSelections(DEFAULT_TASK_SELECTIONS);
-      setQuickFillText('');
-      setErrors({});
-      setShowPreviousCases(false);
-    }
-  }, [open]);
+  const dateToNanoseconds = (date: Date): bigint => {
+    return BigInt(date.getTime()) * BigInt(1_000_000);
+  };
 
-  const handleToggleRecording = () => {
-    if (isRecording) {
-      stopRecording();
-    } else {
-      startRecording();
-    }
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!arrivalDate) return;
+
+    await createCase.mutateAsync({
+      medicalRecordNumber: mrn,
+      arrivalDate: dateToNanoseconds(arrivalDate),
+      petName,
+      ownerLastName,
+      species,
+      breed,
+      sex,
+      dateOfBirth: dateOfBirth ? dateToNanoseconds(dateOfBirth) : null,
+      presentingComplaint,
+      notes,
+      taskOptions: {
+        dischargeNotes: taskSelections.dischargeNotes,
+        pdvmNotified: taskSelections.pdvmNotified,
+        labs: taskSelections.labs,
+        histo: taskSelections.histo,
+        surgeryReport: taskSelections.surgeryReport,
+        imaging: taskSelections.imaging,
+        culture: taskSelections.culture,
+        followUp: taskSelections.followUp,
+      },
+    });
+
+    resetForm();
+    onOpenChange(false);
   };
 
   const toggleTask = (key: keyof TaskSelections) => {
-    setTaskSelections(prev => ({ ...prev, [key]: !prev[key] }));
+    setTaskSelections((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
+    <Dialog open={open} onOpenChange={(o) => { if (!o) resetForm(); onOpenChange(o); }}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>New Case</DialogTitle>
+          <DialogTitle>New Surgery Case</DialogTitle>
         </DialogHeader>
-
-        <div className="space-y-4">
-          {/* Quick Fill */}
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">Quick Fill</Label>
-            <div className="flex gap-2">
-              <Textarea
-                placeholder="Paste or dictate patient info here, then click Parse & Fill…"
-                value={quickFillText}
-                onChange={(e) => setQuickFillText(e.target.value)}
-                className="min-h-[72px] text-sm resize-none"
-              />
-              {speechSupported && (
-                <Button
-                  type="button"
-                  variant={isRecording ? 'destructive' : 'outline'}
-                  size="icon"
-                  className="h-8 w-8 shrink-0 self-start"
-                  onClick={handleToggleRecording}
-                  title={isRecording ? 'Stop recording' : 'Start voice input'}
-                >
-                  {isRecording ? <MicOff className="w-3.5 h-3.5" /> : <Mic className="w-3.5 h-3.5" />}
-                </Button>
-              )}
-            </div>
-            <Button
-              type="button"
-              variant="secondary"
-              size="sm"
-              className="gap-1.5 h-8 text-xs"
-              onClick={handleParseAndFill}
-              disabled={!quickFillText.trim() || isParsing}
-            >
-              {isParsing ? (
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-              ) : (
-                <Wand2 className="w-3.5 h-3.5" />
-              )}
-              Parse & Fill
-            </Button>
-          </div>
-
-          {/* Previous Cases */}
-          {hasPrevCases && (
-            <div className="rounded-md border border-border bg-muted/40 p-2">
-              <button
-                type="button"
-                className="flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground w-full"
-                onClick={() => setShowPreviousCases((v) => !v)}
-              >
-                <ChevronDown
-                  className={`w-3.5 h-3.5 transition-transform ${showPreviousCases ? 'rotate-180' : ''}`}
-                />
-                {prevCases.length} previous case{prevCases.length !== 1 ? 's' : ''} found — click to prefill
-              </button>
-              {showPreviousCases && (
-                <div className="mt-2 space-y-1">
-                  {prevCases.map((c) => (
-                    <button
-                      key={String(c.id)}
-                      type="button"
-                      onClick={() => handleSelectPreviousCase(c)}
-                      className="w-full text-left text-xs px-2 py-1.5 rounded hover:bg-muted transition-colors"
-                    >
-                      <span className="font-mono font-semibold text-primary">{c.medicalRecordNumber}</span>
-                      {' — '}
-                      <span className="font-medium">{c.petName}</span>
-                      {' ('}
-                      <span className="text-muted-foreground">{c.ownerLastName}</span>
-                      {')'}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Form fields */}
-          <div className="grid grid-cols-2 gap-3">
-            {/* MRN */}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
-              <Label htmlFor="mrn" className="text-xs">MRN *</Label>
+              <Label htmlFor="mrn">Medical Record Number *</Label>
               <Input
                 id="mrn"
-                value={form.medicalRecordNumber}
-                onChange={(e) => handleFieldChange('medicalRecordNumber', e.target.value)}
-                placeholder="e.g. 123456"
-                className={`h-8 text-sm ${errors.medicalRecordNumber ? 'border-destructive' : ''}`}
+                value={mrn}
+                onChange={(e) => setMrn(e.target.value)}
+                required
+                placeholder="e.g. MRN-001"
               />
-              {errors.medicalRecordNumber && (
-                <p className="text-xs text-destructive">{errors.medicalRecordNumber}</p>
-              )}
             </div>
-
-            {/* Arrival Date */}
             <div className="space-y-1">
-              <Label htmlFor="arrivalDate" className="text-xs">Arrival Date *</Label>
+              <Label htmlFor="arrivalDate">Arrival Date *</Label>
               <DateField
                 id="arrivalDate"
-                value={form.arrivalDate}
-                onChange={(v) => handleFieldChange('arrivalDate', v)}
-                className="h-8 text-sm"
+                value={arrivalDate}
+                onChange={setArrivalDate}
               />
-              {errors.arrivalDate && (
-                <p className="text-xs text-destructive">{errors.arrivalDate}</p>
-              )}
             </div>
-
-            {/* Pet Name */}
             <div className="space-y-1">
-              <Label htmlFor="petName" className="text-xs">Pet Name *</Label>
+              <Label htmlFor="petName">Pet Name *</Label>
               <Input
                 id="petName"
-                value={form.petName}
-                onChange={(e) => handleFieldChange('petName', e.target.value)}
+                value={petName}
+                onChange={(e) => setPetName(e.target.value)}
+                required
                 placeholder="e.g. Buddy"
-                className={`h-8 text-sm ${errors.petName ? 'border-destructive' : ''}`}
               />
-              {errors.petName && (
-                <p className="text-xs text-destructive">{errors.petName}</p>
-              )}
             </div>
-
-            {/* Owner Last Name */}
             <div className="space-y-1">
-              <Label htmlFor="ownerLastName" className="text-xs">Owner Last Name *</Label>
+              <Label htmlFor="ownerLastName">Owner Last Name *</Label>
               <Input
                 id="ownerLastName"
-                value={form.ownerLastName}
-                onChange={(e) => handleFieldChange('ownerLastName', e.target.value)}
+                value={ownerLastName}
+                onChange={(e) => setOwnerLastName(e.target.value)}
+                required
                 placeholder="e.g. Smith"
-                className={`h-8 text-sm ${errors.ownerLastName ? 'border-destructive' : ''}`}
               />
-              {errors.ownerLastName && (
-                <p className="text-xs text-destructive">{errors.ownerLastName}</p>
-              )}
             </div>
-
-            {/* Species */}
             <div className="space-y-1">
-              <Label className="text-xs">Species *</Label>
-              <Select
-                value={form.species}
-                onValueChange={(v) => handleFieldChange('species', v as Species)}
+              <Label htmlFor="species">Species *</Label>
+              <select
+                id="species"
+                value={species}
+                onChange={(e) => setSpecies(e.target.value as Species)}
+                className="w-full border border-input rounded-md px-3 py-2 text-sm bg-background"
+                required
               >
-                <SelectTrigger className={`h-8 text-sm ${errors.species ? 'border-destructive' : ''}`}>
-                  <SelectValue placeholder="Select species" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={Species.canine}>
-                    <span className="flex items-center gap-2">
-                      <img src="/assets/Dog icon.ico" alt="Canine" className="w-4 h-4 object-contain" />
-                      Canine
-                    </span>
-                  </SelectItem>
-                  <SelectItem value={Species.feline}>
-                    <span className="flex items-center gap-2">
-                      <img src="/assets/Cat icon.ico" alt="Feline" className="w-4 h-4 object-contain" />
-                      Feline
-                    </span>
-                  </SelectItem>
-                  <SelectItem value={Species.other}>
-                    <span className="flex items-center gap-2">
-                      <img src="/assets/Other icon.ico" alt="Other" className="w-4 h-4 object-contain" />
-                      Other
-                    </span>
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-              {errors.species && (
-                <p className="text-xs text-destructive">{errors.species}</p>
-              )}
+                {SPECIES_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
             </div>
-
-            {/* Sex */}
             <div className="space-y-1">
-              <Label className="text-xs">Sex *</Label>
-              <Select
-                value={form.sex}
-                onValueChange={(v) => handleFieldChange('sex', v as Sex)}
-              >
-                <SelectTrigger className={`h-8 text-sm ${errors.sex ? 'border-destructive' : ''}`}>
-                  <SelectValue placeholder="Select sex" />
-                </SelectTrigger>
-                <SelectContent>
-                  {SEX_OPTIONS.map((opt) => (
-                    <SelectItem key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {errors.sex && (
-                <p className="text-xs text-destructive">{errors.sex}</p>
-              )}
-            </div>
-
-            {/* Breed */}
-            <div className="space-y-1">
-              <Label htmlFor="breed" className="text-xs">Breed</Label>
+              <Label htmlFor="breed">Breed</Label>
               <Input
                 id="breed"
-                value={form.breed}
-                onChange={(e) => handleFieldChange('breed', e.target.value)}
+                value={breed}
+                onChange={(e) => setBreed(e.target.value)}
                 placeholder="e.g. Labrador"
-                className="h-8 text-sm"
               />
             </div>
-
-            {/* Date of Birth */}
             <div className="space-y-1">
-              <Label htmlFor="dateOfBirth" className="text-xs">Date of Birth</Label>
+              <Label htmlFor="sex">Sex *</Label>
+              <select
+                id="sex"
+                value={sex}
+                onChange={(e) => setSex(e.target.value as Sex)}
+                className="w-full border border-input rounded-md px-3 py-2 text-sm bg-background"
+                required
+              >
+                {SEX_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="dateOfBirth">Date of Birth</Label>
               <DateField
                 id="dateOfBirth"
-                value={form.dateOfBirth}
-                onChange={(v) => handleFieldChange('dateOfBirth', v)}
-                className="h-8 text-sm"
-              />
-            </div>
-
-            {/* Presenting Complaint */}
-            <div className="col-span-2 space-y-1">
-              <Label htmlFor="presentingComplaint" className="text-xs">Presenting Complaint</Label>
-              <Input
-                id="presentingComplaint"
-                value={form.presentingComplaint}
-                onChange={(e) => handleFieldChange('presentingComplaint', e.target.value)}
-                placeholder="e.g. Limping on right front leg"
-                className="h-8 text-sm"
-              />
-            </div>
-
-            {/* Notes */}
-            <div className="col-span-2 space-y-1">
-              <Label htmlFor="notes" className="text-xs">Notes</Label>
-              <Textarea
-                id="notes"
-                value={form.notes}
-                onChange={(e) => handleFieldChange('notes', e.target.value)}
-                placeholder="Additional notes..."
-                className="text-sm resize-none"
-                rows={2}
+                value={dateOfBirth}
+                onChange={setDateOfBirth}
               />
             </div>
           </div>
-
-          {/* Tasks */}
+          <div className="space-y-1">
+            <Label htmlFor="presentingComplaint">Presenting Complaint</Label>
+            <Input
+              id="presentingComplaint"
+              value={presentingComplaint}
+              onChange={(e) => setPresentingComplaint(e.target.value)}
+              placeholder="e.g. Limping on right front leg"
+            />
+          </div>
+          <div className="space-y-1">
+            <Label htmlFor="notes">Notes</Label>
+            <textarea
+              id="notes"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="Additional notes..."
+              className="w-full border border-input rounded-md px-3 py-2 text-sm bg-background min-h-[80px] resize-y"
+            />
+          </div>
           <div className="space-y-2">
-            <Label className="text-sm font-medium">Tasks</Label>
+            <Label>Tasks</Label>
             <div className="grid grid-cols-2 gap-2">
               {CHECKLIST_ITEMS.map((item) => {
-                const taskKey = TASK_KEY_MAP[item.key];
-                if (!taskKey) return null;
+                const key = WORKFLOW_TO_TASK_KEY[item.workflowType];
+                if (!key) return null;
                 return (
-                  <div key={item.key} className="flex items-center gap-2">
+                  <div key={item.workflowType} className="flex items-center gap-2">
                     <Checkbox
-                      id={`task-${item.key}`}
-                      checked={taskSelections[taskKey]}
-                      onCheckedChange={() => toggleTask(taskKey)}
+                      id={`task-${item.workflowType}`}
+                      checked={taskSelections[key]}
+                      onCheckedChange={() => toggleTask(key)}
                     />
-                    <label
-                      htmlFor={`task-${item.key}`}
-                      className="text-sm cursor-pointer"
-                      style={{ color: item.color }}
-                    >
+                    <Label htmlFor={`task-${item.workflowType}`} className="cursor-pointer font-normal">
                       {item.label}
-                    </label>
+                    </Label>
                   </div>
                 );
               })}
             </div>
           </div>
-        </div>
-
-        <DialogFooter className="mt-4">
-          <Button variant="outline" onClick={handleClose}>
-            Cancel
-          </Button>
-          <Button onClick={handleSubmit} disabled={createCaseMutation.isPending}>
-            {createCaseMutation.isPending ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Creating...
-              </>
-            ) : (
-              'Create Case'
-            )}
-          </Button>
-        </DialogFooter>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => { resetForm(); onOpenChange(false); }}>
+              Cancel
+            </Button>
+            <Button type="submit" disabled={createCase.isPending || !arrivalDate}>
+              {createCase.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Create Case
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );

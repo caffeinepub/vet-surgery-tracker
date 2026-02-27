@@ -1,11 +1,17 @@
-import WorkflowIconBase from "./WorkflowIconBase";
-import { workflowColors } from "./workflowTokens";
+import React from 'react';
+import WorkflowIconBase from './WorkflowIconBase';
+import { workflowColors } from './workflowTokens';
 
-export default function IconLabs() {
+interface IconLabsProps {
+  isCompleted?: boolean;
+}
+
+export default function IconLabs({ isCompleted = false }: IconLabsProps) {
+  const color = workflowColors.labs;
   return (
-    <WorkflowIconBase color={workflowColors.labs}>
-      <path d="M10 3v10a4 4 0 108 0V3" />
-      <line x1="10" y1="8" x2="18" y2="8" />
+    <WorkflowIconBase color={color} isCompleted={isCompleted}>
+      <path d="M9 3h6v11l3.5 6H5.5L9 14V3z" />
+      <line x1="6" y1="14" x2="18" y2="14" />
     </WorkflowIconBase>
   );
 }

@@ -1,118 +1,98 @@
 {
   "kind": "build_request",
-  "title": "Add Weekly Calendar View to Dashboard with Toggle",
+  "title": "Add X overlay on completed task icons, uncheck Follow Up by default, keep shaded completed cases, add Daily Summary task",
   "projectName": "SurgiPaw",
   "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-1",
-      "text": "Add a weekly calendar view to the DashboardView component that displays surgery cases in a 7-column grid (Sunday through Saturday), where each case is placed into its day column based on its Arrival Date field.",
+      "id": "REQ-6",
+      "text": "Change the Follow Up task default state to unchecked in the checklist configuration so that new cases are created with Follow Up unselected by default.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-user-weekly-calendar",
-          "msg-user-answers"
+          "msg-recent"
         ],
         "quotes": [
-          "7-day columns (Sun-Sat) showing the current week",
-          "Each day column shows case cards for patients who arrived that day",
-          "Arrival Date for placement"
+          "Remove Follow up as a default checked task; default should be unchecked"
         ]
       },
       "acceptanceCriteria": [
-        "Dashboard displays a 7-column grid with columns labeled Sun through Sat",
-        "Each case appears in the column matching its Arrival Date",
-        "Cases with no arrival date or arrival dates outside the current week are not shown in the calendar view"
+        "When creating a new case, the Follow Up task checkbox is unchecked by default.",
+        "Existing cases are unaffected by this change.",
+        "The checklist.ts default selections no longer include Follow Up."
       ]
     },
     {
-      "id": "REQ-2",
-      "text": "The weekly calendar view defaults to the current week on load, with Previous and Next week navigation arrows that shift the displayed week backward or forward by 7 days.",
+      "id": "REQ-7",
+      "text": "Completed cases must remain visible on the Dashboard (both in calendar view and list/grid view) but rendered with a visually shaded-out appearance (e.g., reduced opacity or muted background). They must not be removed or hidden.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-user-answers"
+          "msg-recent"
         ],
         "quotes": [
-          "Default week to current week"
+          "When all tasks are completed, leave case on the Dashboard, just shaded out as noted in previous build"
         ]
       },
       "acceptanceCriteria": [
-        "On initial load the calendar shows the week containing today's date",
-        "Previous arrow shifts the displayed week back by 7 days",
-        "Next arrow shifts the displayed week forward by 7 days",
-        "The week header shows the date range for the currently displayed week"
+        "Cases where all tasks are completed remain visible on the Dashboard in both calendar and grid/list views.",
+        "Completed cases have a visually distinct shaded appearance (e.g., reduced opacity or muted background) compared to active cases.",
+        "Completed cases are never automatically removed or hidden from the Dashboard."
       ]
     },
     {
-      "id": "REQ-3",
-      "text": "Add a toggle button on the Dashboard that switches between the new weekly calendar view and the existing case card grid view. The calendar view should be the default view.",
+      "id": "REQ-8",
+      "text": "When a task is marked as completed, render an X overlay on top of the task's icon. The X should be visually overlaid on the icon itself (not on the text label). This applies to task icons in CaseCard, CalendarCaseCard, and ChecklistEditor components.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-user-weekly-calendar",
-          "msg-user-answers"
+          "msg-recent"
         ],
         "quotes": [
-          "A toggle button to switch between the current card grid and the weekly calendar",
-          "Toggle"
+          "When a task is complete put a line through the icon",
+          "1. A line over the icon like an X"
         ]
       },
       "acceptanceCriteria": [
-        "A toggle control is visible on the Dashboard",
-        "Clicking the toggle switches between the weekly calendar view and the existing card grid view",
-        "The weekly calendar view is displayed by default when the Dashboard loads",
-        "The existing card grid view remains fully functional when toggled to"
+        "Completed task icons display an X overlaid on top of the icon graphic.",
+        "The X overlay is visible in both the Dashboard calendar view (CalendarCaseCard) and the Cases list view (CaseCard/ChecklistEditor).",
+        "Incomplete task icons display no X overlay.",
+        "The X is rendered as two crossing lines over the icon, not as a strikethrough on adjacent text."
       ]
     },
     {
-      "id": "REQ-4",
-      "text": "In the weekly calendar view, each case card must display: Pet Name, MRN, Species badge, Presenting Complaint, and task status icons. Cases where all tasks are completed must be visually shaded out (e.g., reduced opacity or muted background) to distinguish them from active cases.",
+      "id": "REQ-9",
+      "text": "Add a new 'Daily Summary' task to the checklist configuration used on both the Dashboard and Cases pages. The task defaults to unchecked. Its icon should depict a tear-off calendar page (a page with two digits/numbers on it, like a daily calendar sheet). The task must appear in CaseFormDialog, CaseEditDialog, ChecklistEditor, CaseCard, and CalendarCaseCard wherever other workflow tasks appear.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-user-weekly-calendar"
+          "msg-recent"
         ],
         "quotes": [
-          "Cards show: Pet Name, MRN, Species badge, presenting complaint, and task status icons",
-          "When all tasks are completed the card will be shaded out to make it more noticeable"
+          "Add a task to both pages 'Daily Summary'; default unchecked; icon a piece of paper with two digits on it (like the page of a tear off calendar)"
         ]
       },
       "acceptanceCriteria": [
-        "Each calendar card shows Pet Name, MRN, Species badge, Presenting Complaint, and task status icons",
-        "Cards with all tasks completed are visually shaded out (e.g., reduced opacity or muted/greyed background)",
-        "Active cases (with incomplete tasks) appear at full opacity with normal styling"
-      ]
-    },
-    {
-      "id": "REQ-5",
-      "text": "Day columns in the weekly calendar view that have no cases assigned to them must display a subtle empty-state placeholder note (e.g., 'No cases') instead of being completely blank.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-user-weekly-calendar"
-        ],
-        "quotes": [
-          "Days with no cases show an empty column with a subtle note"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Day columns with no cases show a subtle placeholder text such as 'No cases'",
-        "The placeholder is visually understated and does not dominate the layout"
+        "A 'Daily Summary' task option appears in the checklist on both Dashboard case cards and Cases page case cards.",
+        "Daily Summary is unchecked by default when creating a new case.",
+        "The Daily Summary task icon visually resembles a tear-off calendar page with two digits.",
+        "The Daily Summary task can be toggled as complete/incomplete like other tasks.",
+        "The X overlay (REQ-8) applies to the Daily Summary icon when it is marked complete.",
+        "Daily Summary appears in CaseFormDialog and CaseEditDialog task selection.",
+        "The backend Task type is updated to include 'dailySummary' as a valid task key."
       ]
     }
   ],
   "constraints": [
-    "Do not modify the existing card grid view behavior — it must remain fully functional as a toggle option",
-    "Do not alter backend data models or API calls; read Arrival Date from the existing SurgeryCase type",
-    "Do not edit files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or frontend/src/components/ui"
+    "Do not remove or hide completed cases from the Dashboard; they must remain visible but shaded.",
+    "The X overlay must be on the icon graphic itself, not on the text label.",
+    "immutablePaths (frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, frontend/src/components/ui) must not be modified."
   ],
   "nonGoals": [
-    "Replacing the existing card grid view entirely",
-    "Adding drag-and-drop case rescheduling on the calendar",
-    "Adding new case creation directly from the calendar",
-    "Month or day view calendars — only weekly view is in scope",
-    "Any backend changes"
+    "Changing the visual style or layout of any other part of the Dashboard or Cases pages.",
+    "Adding any other new tasks beyond Daily Summary.",
+    "Modifying the weekly calendar navigation or column layout.",
+    "Removing completed cases from any view."
   ],
   "imageRequirements": {
     "required": [],

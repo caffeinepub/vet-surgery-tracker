@@ -3,7 +3,7 @@ import { ChevronLeft, ChevronRight, CalendarDays } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import type { SurgeryCase } from '../../../backend';
-import { CalendarCaseCard } from '../../cases/components/CalendarCaseCard';
+import CalendarCaseCard from '../../cases/components/CalendarCaseCard';
 import {
   getWeekDays,
   filterCasesByDay,

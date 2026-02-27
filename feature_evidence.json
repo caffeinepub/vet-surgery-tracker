@@ -2,11 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-add-a-weekly-calendar-view-to-the-dashboardview-component-that-displays-surgery-cases-in-a-7-column-grid-sunday-through-saturday-where-each-case-is-placed-into-its-day-column-based-on-its-arrival-date-field",
-      "featureTitle": "Add a weekly calendar view to the DashboardView component that displays surgery cases in a 7-column grid (Sunday through Saturday), where each case is placed into its day column based on its Arrival Date field.",
+      "featureId": "feature-change-the-follow-up-task-default-state-to-unchecked-in-the-checklist-configuration-so-that-new-cases-are-created-with-follow-up-unselected-by-default",
+      "featureTitle": "Change the Follow Up task default state to unchecked in the checklist configuration so that new cases are created with Follow Up unselected by default.",
       "files": [
-        "frontend/src/features/dashboard/components/WeeklyCalendarView.tsx",
-        "frontend/src/features/dashboard/utils/calendarUtils.ts"
+        "frontend/src/features/cases/checklist.ts"
       ],
       "components": [
         "authorization@4.0.0",
@@ -19,35 +18,16 @@
         "http-outcalls@3.0.0"
       ],
       "testIds": [
-        "REQ-1"
+        "REQ-6"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-the-weekly-calendar-view-defaults-to-the-current-week-on-load-with-previous-and-next-week-navigation-arrows-that-shift-the-displayed-week-backward-or-forward-by-7-days",
-      "featureTitle": "The weekly calendar view defaults to the current week on load, with Previous and Next week navigation arrows that shift the displayed week backward or forward by 7 days.",
+      "featureId": "feature-completed-cases-must-remain-visible-on-the-dashboard-both-in-calendar-view-and-list-grid-view-but-rendered-with-a-visually-shaded-out-appearance-e-g-reduced-opacity-or-muted-background-they-must-not-be-removed-or-hidden",
+      "featureTitle": "Completed cases must remain visible on the Dashboard (both in calendar view and list/grid view) but rendered with a visually shaded-out appearance (e.g., reduced opacity or muted background). They must not be removed or hidden.",
       "files": [
-        "frontend/src/features/dashboard/components/WeeklyCalendarView.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "camera@1.0.0",
-        "http-outcalls@3.0.0"
-      ],
-      "testIds": [
-        "REQ-2"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-add-a-toggle-button-on-the-dashboard-that-switches-between-the-new-weekly-calendar-view-and-the-existing-case-card-grid-view-the-calendar-view-should-be-the-default-view",
-      "featureTitle": "Add a toggle button on the Dashboard that switches between the new weekly calendar view and the existing case card grid view. The calendar view should be the default view.",
-      "files": [
+        "frontend/src/features/cases/components/CalendarCaseCard.tsx",
+        "frontend/src/features/cases/components/CaseCard.tsx",
         "frontend/src/features/dashboard/components/DashboardView.tsx"
       ],
       "components": [
@@ -61,16 +41,19 @@
         "http-outcalls@3.0.0"
       ],
       "testIds": [
-        "REQ-3"
+        "REQ-7"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-in-the-weekly-calendar-view-each-case-card-must-display-pet-name-mrn-species-badge-presenting-complaint-and-task-status-icons-cases-where-all-tasks-are-completed-must-be-visually-shaded-out-e-g-reduced-opacity-or-muted-background-to-distinguish-them-from-active-cases",
-      "featureTitle": "In the weekly calendar view, each case card must display: Pet Name, MRN, Species badge, Presenting Complaint, and task status icons. Cases where all tasks are completed must be visually shaded out (e.g., reduced opacity or muted background) to distinguish them from active cases.",
+      "featureId": "feature-when-a-task-is-marked-as-completed-render-an-x-overlay-on-top-of-the-task-s-icon-the-x-should-be-visually-overlaid-on-the-icon-itself-not-on-the-text-label-this-applies-to-task-icons-in-casecard-calendarcasecard-and-checklisteditor-components",
+      "featureTitle": "When a task is marked as completed, render an X overlay on top of the task's icon. The X should be visually overlaid on the icon itself (not on the text label). This applies to task icons in CaseCard, CalendarCaseCard, and ChecklistEditor components.",
       "files": [
+        "frontend/src/components/workflow-icons/WorkflowIcon.tsx",
+        "frontend/src/components/workflow-icons/WorkflowIconBase.tsx",
         "frontend/src/features/cases/components/CalendarCaseCard.tsx",
-        "frontend/src/features/dashboard/components/WeeklyCalendarView.tsx"
+        "frontend/src/features/cases/components/CaseCard.tsx",
+        "frontend/src/features/cases/components/ChecklistEditor.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -83,15 +66,21 @@
         "http-outcalls@3.0.0"
       ],
       "testIds": [
-        "REQ-4"
+        "REQ-8"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-day-columns-in-the-weekly-calendar-view-that-have-no-cases-assigned-to-them-must-display-a-subtle-empty-state-placeholder-note-e-g-no-cases-instead-of-being-completely-blank",
-      "featureTitle": "Day columns in the weekly calendar view that have no cases assigned to them must display a subtle empty-state placeholder note (e.g., 'No cases') instead of being completely blank.",
+      "featureId": "feature-add-a-new-daily-summary-task-to-the-checklist-configuration-used-on-both-the-dashboard-and-cases-pages-the-task-defaults-to-unchecked-its-icon-should-depict-a-tear-off-calendar-page-a-page-with-two-digits-numbers-on-it-like-a-daily-calendar-sheet-the-task-must-appear-in-caseformdialog-caseeditdialog-checklisteditor-casecard-and-calendarcasecard-wherever-other-workflow-tasks-appear",
+      "featureTitle": "Add a new 'Daily Summary' task to the checklist configuration used on both the Dashboard and Cases pages. The task defaults to unchecked. Its icon should depict a tear-off calendar page (a page with two digits/numbers on it, like a daily calendar sheet). The task must appear in CaseFormDialog, CaseEditDialog, ChecklistEditor, CaseCard, and CalendarCaseCard wherever other workflow tasks appear.",
       "files": [
-        "frontend/src/features/dashboard/components/WeeklyCalendarView.tsx"
+        "frontend/src/components/workflow-icons/IconDailySummary.tsx",
+        "frontend/src/components/workflow-icons/WorkflowIcon.tsx",
+        "frontend/src/components/workflow-icons/workflowTokens.ts",
+        "frontend/src/features/cases/checklist.ts",
+        "frontend/src/features/cases/components/CaseEditDialog.tsx",
+        "frontend/src/features/cases/components/CaseFormDialog.tsx",
+        "frontend/src/features/cases/components/ChecklistEditor.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -104,7 +93,7 @@
         "http-outcalls@3.0.0"
       ],
       "testIds": [
-        "REQ-5"
+        "REQ-9"
       ],
       "confidence": "high"
     }

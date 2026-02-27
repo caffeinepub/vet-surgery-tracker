@@ -18,7 +18,7 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { useGetAllCases, useGetDashboard } from '../../../hooks/useQueries';
 import { useActor } from '../../../hooks/useActor';
 import { useInternetIdentity } from '../../../hooks/useInternetIdentity';
-import { CaseCard } from '../../cases/components/CaseCard';
+import CaseCard from '../../cases/components/CaseCard';
 import CasesSearchBar from '../../cases/components/CasesSearchBar';
 import CasesSpeciesFilter from '../../cases/components/CasesSpeciesFilter';
 import CasesTasksFilter from '../../cases/components/CasesTasksFilter';
@@ -162,7 +162,6 @@ export default function DashboardView({ onNavigateToCase }: DashboardViewProps) 
   if (totalCases === 0) {
     return (
       <div className="flex flex-col h-full">
-        {/* Stats bar — zeroed out */}
         <div className="px-4 pt-4 pb-2 grid grid-cols-2 gap-3">
           <div className="bg-card border border-border rounded-xl p-3 flex items-center gap-3">
             <div className="bg-primary/10 rounded-lg p-2">
@@ -184,7 +183,6 @@ export default function DashboardView({ onNavigateToCase }: DashboardViewProps) 
           </div>
         </div>
 
-        {/* Empty state */}
         <div className="flex-1 flex flex-col items-center justify-center px-6 py-16 text-center">
           <div className="bg-primary/10 rounded-full p-6 mb-5">
             <Stethoscope className="h-12 w-12 text-primary" />
@@ -234,59 +232,13 @@ export default function DashboardView({ onNavigateToCase }: DashboardViewProps) 
         </div>
       </div>
 
-      {/* Sticky filter/search/sort toolbar — offset by header height (top-14) */}
+      {/* Sticky filter/search/sort toolbar */}
       <div className="sticky top-14 z-10 bg-background border-b border-border px-4 py-3 space-y-3">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 flex-1 min-w-0">
             <CasesSearchBar value={searchQuery} onChange={setSearchQuery} />
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            {/* View mode toggle */}
-            <ToggleGroup
-              type="single"
-              value={viewMode}
-              onValueChange={(val) => {
-                if (val) setViewMode(val as ViewMode);
-              }}
-              className="border border-border rounded-lg p-0.5 h-8"
-            >
-              <ToggleGroupItem
-                value="calendar"
-                aria-label="Calendar view"
-                className="h-7 w-7 p-0 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground rounded-md"
-                title="Weekly calendar view"
-              >
-                <CalendarDays className="h-3.5 w-3.5" />
-              </ToggleGroupItem>
-              <ToggleGroupItem
-                value="list"
-                aria-label="List view"
-                className="h-7 w-7 p-0 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground rounded-md"
-                title="List view"
-              >
-                <LayoutGrid className="h-3.5 w-3.5" />
-              </ToggleGroupItem>
-            </ToggleGroup>
-
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleExportPdf}
-              className="gap-1.5 hidden sm:flex"
-              title="Export to PDF"
-            >
-              <FileText className="h-4 w-4" />
-              Export PDF
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleExportPdf}
-              title="Export to PDF"
-              className="h-8 w-8 sm:hidden"
-            >
-              <FileText className="h-4 w-4" />
-            </Button>
             <Button
               variant="ghost"
               size="icon"
@@ -295,6 +247,15 @@ export default function DashboardView({ onNavigateToCase }: DashboardViewProps) 
               className="h-8 w-8"
             >
               <RefreshCw className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleExportPdf}
+              title="Export PDF"
+              className="h-8 w-8"
+            >
+              <FileText className="h-4 w-4" />
             </Button>
             <Button onClick={() => setNewCaseOpen(true)} size="sm">
               + New Case
@@ -312,57 +273,65 @@ export default function DashboardView({ onNavigateToCase }: DashboardViewProps) 
             showAllTasksCompleted={showAllTasksCompleted}
             onShowAllTasksCompletedChange={setShowAllTasksCompleted}
           />
-          {viewMode === 'list' && (
-            <div className="ml-auto">
+          <div className="ml-auto flex items-center gap-2">
+            <ToggleGroup
+              type="single"
+              value={viewMode}
+              onValueChange={(v) => v && setViewMode(v as ViewMode)}
+              className="h-8"
+            >
+              <ToggleGroupItem value="calendar" className="h-8 w-8 p-0" title="Calendar view">
+                <CalendarDays className="h-4 w-4" />
+              </ToggleGroupItem>
+              <ToggleGroupItem value="list" className="h-8 w-8 p-0" title="List view">
+                <LayoutGrid className="h-4 w-4" />
+              </ToggleGroupItem>
+            </ToggleGroup>
+            {viewMode === 'list' && (
               <CasesSortControl value={sortOption} onSortChange={setSortOption} />
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Main content area */}
-      {viewMode === 'calendar' ? (
-        <div className="flex-1 overflow-hidden">
-          <WeeklyCalendarView
-            cases={filteredAndSortedCases}
-            onNavigateToCase={onNavigateToCase}
-          />
-        </div>
-      ) : (
-        <div className="flex-1 overflow-y-auto p-4 space-y-3">
-          {filteredAndSortedCases.length === 0 ? (
-            <div className="text-center py-12 text-muted-foreground">
-              {hasActiveFilters ? (
-                <div>
-                  <p className="text-lg font-medium mb-1">No cases match your filters</p>
-                  <p className="text-sm">Try adjusting your search or filter criteria.</p>
-                </div>
-              ) : (
-                <div>
-                  <p className="text-lg font-medium mb-1">All tasks completed!</p>
-                  <p className="text-sm">Toggle the filter to view completed cases.</p>
-                </div>
-              )}
-            </div>
-          ) : (
-            filteredAndSortedCases.map((surgeryCase) => (
-              <CaseCard
-                key={surgeryCase.id.toString()}
-                surgeryCase={surgeryCase}
-                onNavigateToCase={onNavigateToCase}
-                showPresentingComplaintCollapsed={true}
-              />
-            ))
-          )}
-        </div>
-      )}
-
-      {casesFetching && !casesLoading && (
-        <div className="flex items-center justify-center gap-2 text-muted-foreground text-sm py-2">
-          <Loader2 className="w-4 h-4 animate-spin" />
-          Refreshing cases…
-        </div>
-      )}
+      {/* Main content */}
+      <div className="flex-1 overflow-hidden">
+        {viewMode === 'calendar' ? (
+          <WeeklyCalendarView cases={allCases} onNavigateToCase={onNavigateToCase} />
+        ) : (
+          <div className="p-4 space-y-3 overflow-y-auto h-full">
+            {casesFetching && !casesLoading && (
+              <div className="flex items-center gap-2 text-muted-foreground text-sm pb-1">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Refreshing cases…
+              </div>
+            )}
+            {filteredAndSortedCases.length === 0 ? (
+              <div className="text-center py-12 text-muted-foreground">
+                {hasActiveFilters ? (
+                  <div>
+                    <p className="text-lg font-medium mb-1">No cases match your filters</p>
+                    <p className="text-sm">Try adjusting your search or filter criteria.</p>
+                  </div>
+                ) : (
+                  <div>
+                    <p className="text-lg font-medium mb-1">All tasks completed!</p>
+                    <p className="text-sm">Toggle the filter to view completed cases.</p>
+                  </div>
+                )}
+              </div>
+            ) : (
+              filteredAndSortedCases.map((surgeryCase) => (
+                <CaseCard
+                  key={surgeryCase.id.toString()}
+                  surgeryCase={surgeryCase}
+                  showPresentingComplaintCollapsed
+                />
+              ))
+            )}
+          </div>
+        )}
+      </div>
 
       <CaseFormDialog open={newCaseOpen} onOpenChange={setNewCaseOpen} />
     </div>

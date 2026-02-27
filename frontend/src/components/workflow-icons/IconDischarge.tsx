@@ -1,11 +1,18 @@
-import WorkflowIconBase from "./WorkflowIconBase";
-import { workflowColors } from "./workflowTokens";
+import React from 'react';
+import WorkflowIconBase from './WorkflowIconBase';
+import { workflowColors } from './workflowTokens';
 
-export default function IconDischarge() {
+interface IconDischargeProps {
+  isCompleted?: boolean;
+}
+
+export default function IconDischarge({ isCompleted = false }: IconDischargeProps) {
+  const color = workflowColors.dischargeNotes;
   return (
-    <WorkflowIconBase color={workflowColors.discharge}>
-      <rect x="5" y="3" width="14" height="18" rx="2" />
-      <polyline points="8 13 11 16 16 10" />
+    <WorkflowIconBase color={color} isCompleted={isCompleted}>
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+      <polyline points="14 2 14 8 20 8" />
+      <polyline points="9 15 11 17 15 13" />
     </WorkflowIconBase>
   );
 }

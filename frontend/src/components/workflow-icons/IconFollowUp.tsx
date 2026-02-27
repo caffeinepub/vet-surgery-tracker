@@ -1,11 +1,17 @@
-import WorkflowIconBase from "./WorkflowIconBase";
-import { workflowColors } from "./workflowTokens";
+import React from 'react';
+import WorkflowIconBase from './WorkflowIconBase';
+import { workflowColors } from './workflowTokens';
 
-export default function IconFollowUp() {
+interface IconFollowUpProps {
+  isCompleted?: boolean;
+}
+
+export default function IconFollowUp({ isCompleted = false }: IconFollowUpProps) {
+  const color = workflowColors.followUp;
   return (
-    <WorkflowIconBase color={workflowColors.followup}>
-      <path d="M20 12a8 8 0 10-3 6" />
-      <polyline points="20 16 20 12 16 12" />
+    <WorkflowIconBase color={color} isCompleted={isCompleted}>
+      <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+      <path d="M3 3v5h5" />
     </WorkflowIconBase>
   );
 }

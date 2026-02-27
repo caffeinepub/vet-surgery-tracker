@@ -9,7 +9,7 @@ import { useActor } from '../../../hooks/useActor';
 import { useInternetIdentity } from '../../../hooks/useInternetIdentity';
 import type { SurgeryCase } from '../../../backend';
 import { Species } from '../../../backend';
-import { CaseCard } from './CaseCard';
+import CaseCard from './CaseCard';
 import CasesSearchBar from './CasesSearchBar';
 import CasesSpeciesFilter from './CasesSpeciesFilter';
 import CasesTasksFilter from './CasesTasksFilter';
@@ -131,7 +131,6 @@ export default function CasesListView({ highlightCaseId, onHighlightClear }: Cas
   if (totalCases === 0) {
     return (
       <div className="flex flex-col h-full">
-        {/* Empty state */}
         <div className="flex-1 flex flex-col items-center justify-center px-6 py-16 text-center">
           <div className="bg-primary/10 rounded-full p-6 mb-5">
             <Stethoscope className="h-12 w-12 text-primary" />
@@ -151,7 +150,6 @@ export default function CasesListView({ highlightCaseId, onHighlightClear }: Cas
           </div>
         </div>
 
-        {/* CSV import/export still available even when empty */}
         {showCsvPanel && (
           <div className="border-t border-border px-4 py-3">
             <CsvImportExportPanel cases={[]} />
@@ -165,7 +163,7 @@ export default function CasesListView({ highlightCaseId, onHighlightClear }: Cas
 
   return (
     <div className="flex flex-col h-full">
-      {/* Sticky top bar — offset by header height (top-14) so it sticks below the app header */}
+      {/* Sticky top bar */}
       <div className="sticky top-14 z-10 bg-background border-b border-border px-4 py-3 space-y-3">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 flex-1 min-w-0">

@@ -17,11 +17,11 @@ interface CasesTasksFilterProps {
 const STORAGE_KEY = 'casesTasksFilter';
 const COMPLETED_STORAGE_KEY = 'casesShowAllTasksCompleted';
 
-export default function CasesTasksFilter({ 
-  selectedTaskTypes, 
+export default function CasesTasksFilter({
+  selectedTaskTypes,
   onTaskTypesChange,
   showAllTasksCompleted = false,
-  onShowAllTasksCompletedChange
+  onShowAllTasksCompletedChange,
 }: CasesTasksFilterProps) {
   // Load from session storage on mount
   useEffect(() => {
@@ -31,7 +31,7 @@ export default function CasesTasksFilter({
         const parsed = JSON.parse(stored);
         onTaskTypesChange(new Set(parsed));
       } catch (e) {
-        console.error('Failed to parse stored task filter', e);
+        // ignore
       }
     }
 
@@ -40,112 +40,74 @@ export default function CasesTasksFilter({
       try {
         onShowAllTasksCompletedChange(JSON.parse(storedCompleted));
       } catch (e) {
-        console.error('Failed to parse stored completed filter', e);
+        // ignore
       }
     }
   }, []);
 
-  // Save to session storage when changed
-  useEffect(() => {
-    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(selectedTaskTypes)));
-  }, [selectedTaskTypes]);
-
-  useEffect(() => {
-    if (onShowAllTasksCompletedChange) {
-      sessionStorage.setItem(COMPLETED_STORAGE_KEY, JSON.stringify(showAllTasksCompleted));
-    }
-  }, [showAllTasksCompleted, onShowAllTasksCompletedChange]);
-
-  const handleToggle = (taskKey: string) => {
-    const newSet = new Set(selectedTaskTypes);
-    if (newSet.has(taskKey)) {
-      newSet.delete(taskKey);
+  const handleToggle = (workflowType: string) => {
+    const next = new Set(selectedTaskTypes);
+    if (next.has(workflowType)) {
+      next.delete(workflowType);
     } else {
-      newSet.add(taskKey);
+      next.add(workflowType);
     }
-    onTaskTypesChange(newSet);
+    onTaskTypesChange(next);
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify([...next]));
   };
 
-  const handleToggleCompleted = () => {
-    if (onShowAllTasksCompletedChange) {
-      onShowAllTasksCompletedChange(!showAllTasksCompleted);
-    }
+  const handleCompletedToggle = () => {
+    const next = !showAllTasksCompleted;
+    onShowAllTasksCompletedChange?.(next);
+    sessionStorage.setItem(COMPLETED_STORAGE_KEY, JSON.stringify(next));
   };
 
-  const handleClearAll = () => {
-    onTaskTypesChange(new Set());
-    if (onShowAllTasksCompletedChange) {
-      onShowAllTasksCompletedChange(false);
-    }
-  };
-
-  const activeFilterCount = selectedTaskTypes.size + (showAllTasksCompleted ? 1 : 0);
+  const activeCount = selectedTaskTypes.size + (showAllTasksCompleted ? 1 : 0);
 
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="outline" className="relative">
-          <ListTodo className="h-4 w-4 mr-2" />
+        <Button variant="outline" size="sm" className="gap-1.5 h-8 text-xs">
+          <ListTodo className="h-3.5 w-3.5" />
           Tasks
-          {activeFilterCount > 0 && (
-            <Badge variant="secondary" className="ml-2 h-5 min-w-5 flex items-center justify-center px-1">
-              {activeFilterCount}
+          {activeCount > 0 && (
+            <Badge variant="secondary" className="ml-1 h-4 px-1 text-[10px]">
+              {activeCount}
             </Badge>
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-64" align="end">
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h4 className="font-semibold text-sm">Filter by Tasks</h4>
-            {activeFilterCount > 0 && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleClearAll}
-                className="h-auto py-1 px-2 text-xs"
+      <PopoverContent className="w-56 p-3" align="start">
+        <div className="space-y-2">
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
+            Filter by Task
+          </p>
+          {CHECKLIST_ITEMS.map((item) => (
+            <div key={item.workflowType} className="flex items-center space-x-2">
+              <Checkbox
+                id={`task-${item.workflowType}`}
+                checked={selectedTaskTypes.has(item.workflowType)}
+                onCheckedChange={() => handleToggle(item.workflowType)}
+              />
+              <Label
+                htmlFor={`task-${item.workflowType}`}
+                className="text-sm cursor-pointer font-normal"
               >
-                Clear
-              </Button>
-            )}
-          </div>
-          
-          <div className="space-y-3">
-            {CHECKLIST_ITEMS.map((item) => (
-              <div key={item.key} className="flex items-center space-x-2">
-                <Checkbox
-                  id={`task-${item.key}`}
-                  checked={selectedTaskTypes.has(item.key)}
-                  onCheckedChange={() => handleToggle(item.key)}
-                />
-                <Label
-                  htmlFor={`task-${item.key}`}
-                  className="text-sm font-normal cursor-pointer flex-1"
-                >
-                  {item.label}
-                </Label>
-              </div>
-            ))}
-
-            {onShowAllTasksCompletedChange && (
-              <>
-                <div className="border-t pt-3 mt-3">
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id="task-all-completed"
-                      checked={showAllTasksCompleted}
-                      onCheckedChange={handleToggleCompleted}
-                    />
-                    <Label
-                      htmlFor="task-all-completed"
-                      className="text-sm font-normal cursor-pointer flex-1"
-                    >
-                      All Tasks Completed
-                    </Label>
-                  </div>
-                </div>
-              </>
-            )}
+                {item.label}
+              </Label>
+            </div>
+          ))}
+          <div className="border-t border-border pt-2 mt-2">
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="show-completed"
+                checked={showAllTasksCompleted}
+                onCheckedChange={handleCompletedToggle}
+              />
+              <Label htmlFor="show-completed" className="text-sm cursor-pointer font-normal">
+                All Tasks Completed
+              </Label>
+            </div>
           </div>
         </div>
       </PopoverContent>

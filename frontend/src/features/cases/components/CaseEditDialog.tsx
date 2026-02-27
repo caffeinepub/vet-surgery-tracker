@@ -1,7 +1,4 @@
-import { useState, useEffect } from 'react';
-import type { SurgeryCase, Task } from '../../../backend';
-import { Species, Sex } from '../../../backend';
-import { useUpdateCase } from '../../../hooks/useQueries';
+import React, { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -12,126 +9,101 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Loader2 } from 'lucide-react';
+import { useUpdateCase } from '../../../hooks/useQueries';
+import { SurgeryCase, Species, Sex, Task } from '../../../backend';
 import { CHECKLIST_ITEMS } from '../checklist';
+import DateField from './DateField';
 
 interface CaseEditDialogProps {
-  surgeryCase: SurgeryCase | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  surgeryCase: SurgeryCase;
 }
 
-function timeToDateString(time: bigint): string {
-  const date = new Date(Number(time) / 1_000_000);
-  const m = date.getMonth() + 1;
-  const d = date.getDate();
-  const y = date.getFullYear();
-  return `${m.toString().padStart(2, '0')}/${d.toString().padStart(2, '0')}/${y}`;
-}
+const SPECIES_OPTIONS = [
+  { value: Species.canine, label: 'Canine' },
+  { value: Species.feline, label: 'Feline' },
+  { value: Species.other, label: 'Other' },
+];
 
-function dateStringToTime(dateStr: string): bigint | null {
-  if (!dateStr) return null;
-  const parts = dateStr.split('/');
-  if (parts.length !== 3) return null;
-  const [m, d, y] = parts.map(Number);
-  if (isNaN(m) || isNaN(d) || isNaN(y)) return null;
-  const date = new Date(y, m - 1, d);
+const SEX_OPTIONS = [
+  { value: Sex.male, label: 'Male' },
+  { value: Sex.maleNeutered, label: 'Male Neutered' },
+  { value: Sex.female, label: 'Female' },
+  { value: Sex.femaleSpayed, label: 'Female Spayed' },
+];
+
+function bigintToDate(time: bigint | undefined | null): Date | null {
+  if (!time) return null;
+  const ms = Number(time) / 1_000_000;
+  const date = new Date(ms);
   if (isNaN(date.getTime())) return null;
-  return BigInt(date.getTime()) * 1_000_000n;
+  return date;
 }
 
-function getTaskBool(task: Task, field: keyof Task): boolean {
-  return (task as unknown as Record<string, boolean>)[field as string] ?? false;
+function dateToNanoseconds(date: Date): bigint {
+  return BigInt(date.getTime()) * BigInt(1_000_000);
 }
 
-const emptyTask: Task = {
-  dischargeNotesSelected: false,
-  dischargeNotesCompleted: false,
-  pdvmNotifiedSelected: false,
-  pdvmNotifiedCompleted: false,
-  labsSelected: false,
-  labsCompleted: false,
-  histoSelected: false,
-  histoCompleted: false,
-  surgeryReportSelected: false,
-  surgeryReportCompleted: false,
-  imagingSelected: false,
-  imagingCompleted: false,
-  cultureSelected: false,
-  cultureCompleted: false,
-  followUpSelected: false,
-  followUpCompleted: false,
-};
-
-export default function CaseEditDialog({ surgeryCase, open, onOpenChange }: CaseEditDialogProps) {
+export default function CaseEditDialog({ open, onOpenChange, surgeryCase }: CaseEditDialogProps) {
   const updateCase = useUpdateCase();
 
-  const [medicalRecordNumber, setMedicalRecordNumber] = useState('');
-  const [arrivalDate, setArrivalDate] = useState('');
+  const [mrn, setMrn] = useState('');
+  const [arrivalDate, setArrivalDate] = useState<Date | null>(null);
   const [petName, setPetName] = useState('');
   const [ownerLastName, setOwnerLastName] = useState('');
   const [species, setSpecies] = useState<Species>(Species.canine);
   const [breed, setBreed] = useState('');
   const [sex, setSex] = useState<Sex>(Sex.male);
-  const [dateOfBirth, setDateOfBirth] = useState('');
+  const [dateOfBirth, setDateOfBirth] = useState<Date | null>(null);
   const [presentingComplaint, setPresentingComplaint] = useState('');
   const [notes, setNotes] = useState('');
-  const [task, setTask] = useState<Task>(emptyTask);
+  const [taskState, setTaskState] = useState<Task>(surgeryCase.task);
 
   useEffect(() => {
-    if (surgeryCase) {
-      setMedicalRecordNumber(surgeryCase.medicalRecordNumber);
-      setArrivalDate(timeToDateString(surgeryCase.arrivalDate));
+    if (open && surgeryCase) {
+      setMrn(surgeryCase.medicalRecordNumber);
+      setArrivalDate(bigintToDate(surgeryCase.arrivalDate));
       setPetName(surgeryCase.petName);
       setOwnerLastName(surgeryCase.ownerLastName);
       setSpecies(surgeryCase.species);
       setBreed(surgeryCase.breed);
       setSex(surgeryCase.sex);
-      setDateOfBirth(surgeryCase.dateOfBirth ? timeToDateString(surgeryCase.dateOfBirth) : '');
+      setDateOfBirth(bigintToDate(surgeryCase.dateOfBirth));
       setPresentingComplaint(surgeryCase.presentingComplaint);
       setNotes(surgeryCase.notes);
-      setTask(surgeryCase.task);
+      setTaskState(surgeryCase.task);
     }
-  }, [surgeryCase]);
+  }, [open, surgeryCase]);
 
-  const handleSave = async () => {
-    if (!surgeryCase) return;
-
-    const arrivalTime = dateStringToTime(arrivalDate);
-    if (!arrivalTime) return;
-
-    const dobTime = dateOfBirth ? dateStringToTime(dateOfBirth) : null;
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!arrivalDate) return;
 
     await updateCase.mutateAsync({
       id: surgeryCase.id,
-      medicalRecordNumber,
-      arrivalDate: arrivalTime,
+      medicalRecordNumber: mrn,
+      arrivalDate: dateToNanoseconds(arrivalDate),
       petName,
       ownerLastName,
       species,
       breed,
       sex,
-      dateOfBirth: dobTime,
+      dateOfBirth: dateOfBirth ? dateToNanoseconds(dateOfBirth) : null,
       presentingComplaint,
       notes,
-      task,
+      task: taskState,
     });
 
     onOpenChange(false);
   };
 
-  const toggleTaskField = (field: keyof Task) => {
-    setTask(prev => ({
+  const toggleTaskSelected = (selectedField: keyof Task) => {
+    setTaskState((prev) => ({
       ...prev,
-      [field]: !getTaskBool(prev, field),
+      [selectedField]: !prev[selectedField],
     }));
   };
 
@@ -139,185 +111,139 @@ export default function CaseEditDialog({ surgeryCase, open, onOpenChange }: Case
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Edit Case</DialogTitle>
+          <DialogTitle>Edit Surgery Case</DialogTitle>
         </DialogHeader>
-
-        <div className="grid grid-cols-2 gap-4 py-2">
-          {/* MRN */}
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="edit-mrn">Medical Record #</Label>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <Label htmlFor="edit-mrn">Medical Record Number *</Label>
+              <Input
+                id="edit-mrn"
+                value={mrn}
+                onChange={(e) => setMrn(e.target.value)}
+                required
+              />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="edit-arrivalDate">Arrival Date *</Label>
+              <DateField
+                id="edit-arrivalDate"
+                value={arrivalDate}
+                onChange={setArrivalDate}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="edit-petName">Pet Name *</Label>
+              <Input
+                id="edit-petName"
+                value={petName}
+                onChange={(e) => setPetName(e.target.value)}
+                required
+              />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="edit-ownerLastName">Owner Last Name *</Label>
+              <Input
+                id="edit-ownerLastName"
+                value={ownerLastName}
+                onChange={(e) => setOwnerLastName(e.target.value)}
+                required
+              />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="edit-species">Species *</Label>
+              <select
+                id="edit-species"
+                value={species}
+                onChange={(e) => setSpecies(e.target.value as Species)}
+                className="w-full border border-input rounded-md px-3 py-2 text-sm bg-background"
+                required
+              >
+                {SPECIES_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="edit-breed">Breed</Label>
+              <Input
+                id="edit-breed"
+                value={breed}
+                onChange={(e) => setBreed(e.target.value)}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="edit-sex">Sex *</Label>
+              <select
+                id="edit-sex"
+                value={sex}
+                onChange={(e) => setSex(e.target.value as Sex)}
+                className="w-full border border-input rounded-md px-3 py-2 text-sm bg-background"
+                required
+              >
+                {SEX_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="edit-dateOfBirth">Date of Birth</Label>
+              <DateField
+                id="edit-dateOfBirth"
+                value={dateOfBirth}
+                onChange={setDateOfBirth}
+              />
+            </div>
+          </div>
+          <div className="space-y-1">
+            <Label htmlFor="edit-presentingComplaint">Presenting Complaint</Label>
             <Input
-              id="edit-mrn"
-              value={medicalRecordNumber}
-              onChange={e => setMedicalRecordNumber(e.target.value)}
-            />
-          </div>
-
-          {/* Arrival Date */}
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="edit-arrival">Arrival Date (MM/DD/YYYY)</Label>
-            <Input
-              id="edit-arrival"
-              value={arrivalDate}
-              onChange={e => setArrivalDate(e.target.value)}
-              placeholder="MM/DD/YYYY"
-            />
-          </div>
-
-          {/* Pet Name */}
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="edit-petname">Pet Name</Label>
-            <Input
-              id="edit-petname"
-              value={petName}
-              onChange={e => setPetName(e.target.value)}
-            />
-          </div>
-
-          {/* Owner Last Name */}
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="edit-owner">Owner Last Name</Label>
-            <Input
-              id="edit-owner"
-              value={ownerLastName}
-              onChange={e => setOwnerLastName(e.target.value)}
-            />
-          </div>
-
-          {/* Species */}
-          <div className="flex flex-col gap-1.5">
-            <Label>Species</Label>
-            <Select value={species} onValueChange={v => setSpecies(v as Species)}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={Species.canine}>
-                  <span className="flex items-center gap-2">
-                    <img src="/assets/Dog icon.ico" alt="Canine" className="w-4 h-4 object-contain" />
-                    Canine
-                  </span>
-                </SelectItem>
-                <SelectItem value={Species.feline}>
-                  <span className="flex items-center gap-2">
-                    <img src="/assets/Cat icon.ico" alt="Feline" className="w-4 h-4 object-contain" />
-                    Feline
-                  </span>
-                </SelectItem>
-                <SelectItem value={Species.other}>
-                  <span className="flex items-center gap-2">
-                    <img src="/assets/Other icon.ico" alt="Other" className="w-4 h-4 object-contain" />
-                    Other
-                  </span>
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Sex */}
-          <div className="flex flex-col gap-1.5">
-            <Label>Sex</Label>
-            <Select value={sex} onValueChange={v => setSex(v as Sex)}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={Sex.male}>Male</SelectItem>
-                <SelectItem value={Sex.maleNeutered}>Male Neutered</SelectItem>
-                <SelectItem value={Sex.female}>Female</SelectItem>
-                <SelectItem value={Sex.femaleSpayed}>Female Spayed</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Breed */}
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="edit-breed">Breed</Label>
-            <Input
-              id="edit-breed"
-              value={breed}
-              onChange={e => setBreed(e.target.value)}
-            />
-          </div>
-
-          {/* Date of Birth */}
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="edit-dob">Date of Birth (MM/DD/YYYY)</Label>
-            <Input
-              id="edit-dob"
-              value={dateOfBirth}
-              onChange={e => setDateOfBirth(e.target.value)}
-              placeholder="MM/DD/YYYY"
-            />
-          </div>
-
-          {/* Presenting Complaint */}
-          <div className="col-span-2 flex flex-col gap-1.5">
-            <Label htmlFor="edit-complaint">Presenting Complaint</Label>
-            <Input
-              id="edit-complaint"
+              id="edit-presentingComplaint"
               value={presentingComplaint}
-              onChange={e => setPresentingComplaint(e.target.value)}
+              onChange={(e) => setPresentingComplaint(e.target.value)}
             />
           </div>
-
-          {/* Notes */}
-          <div className="col-span-2 flex flex-col gap-1.5">
+          <div className="space-y-1">
             <Label htmlFor="edit-notes">Notes</Label>
-            <Textarea
+            <textarea
               id="edit-notes"
               value={notes}
-              onChange={e => setNotes(e.target.value)}
-              rows={3}
+              onChange={(e) => setNotes(e.target.value)}
+              className="w-full border border-input rounded-md px-3 py-2 text-sm bg-background min-h-[80px] resize-y"
             />
           </div>
-
-          {/* Tasks */}
-          <div className="col-span-2 flex flex-col gap-2">
+          <div className="space-y-2">
             <Label>Tasks</Label>
             <div className="grid grid-cols-2 gap-2">
-              {CHECKLIST_ITEMS.map(item => {
-                const isSelected = getTaskBool(task, item.selectedField);
-                const isCompleted = getTaskBool(task, item.completedField);
+              {CHECKLIST_ITEMS.map((item) => {
+                // Skip dailySummary since backend doesn't support it yet
+                if (item.workflowType === 'dailySummary') return null;
+                const isSelected = taskState[item.selectedField] === true;
                 return (
-                  <div key={item.key} className="flex items-center gap-3 p-2 rounded border border-border">
-                    <div className="flex items-center gap-2">
-                      <Checkbox
-                        id={`sel-${item.key}`}
-                        checked={isSelected}
-                        onCheckedChange={() => toggleTaskField(item.selectedField)}
-                      />
-                      <label htmlFor={`sel-${item.key}`} className="text-sm font-medium cursor-pointer">
-                        {item.label}
-                      </label>
-                    </div>
-                    {isSelected && (
-                      <div className="flex items-center gap-1 ml-auto">
-                        <Checkbox
-                          id={`comp-${item.key}`}
-                          checked={isCompleted}
-                          onCheckedChange={() => toggleTaskField(item.completedField)}
-                        />
-                        <label htmlFor={`comp-${item.key}`} className="text-xs text-muted-foreground cursor-pointer">
-                          Done
-                        </label>
-                      </div>
-                    )}
+                  <div key={item.workflowType} className="flex items-center gap-2">
+                    <Checkbox
+                      id={`edit-task-${item.workflowType}`}
+                      checked={isSelected}
+                      onCheckedChange={() => toggleTaskSelected(item.selectedField)}
+                    />
+                    <Label htmlFor={`edit-task-${item.workflowType}`} className="cursor-pointer font-normal">
+                      {item.label}
+                    </Label>
                   </div>
                 );
               })}
             </div>
           </div>
-        </div>
-
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
-          <Button onClick={handleSave} disabled={updateCase.isPending}>
-            {updateCase.isPending ? 'Saving...' : 'Save Changes'}
-          </Button>
-        </DialogFooter>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+              Cancel
+            </Button>
+            <Button type="submit" disabled={updateCase.isPending || !arrivalDate}>
+              {updateCase.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );

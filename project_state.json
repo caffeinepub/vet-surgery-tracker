@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 5,
-  "summary": "Veterinary case management app with Dashboard and Cases pages. Fixed database loading issue (blank page). Now adding a weekly calendar view to the Dashboard with toggle, arrival date placement, current week default, and completed case shading.",
+  "projectStateVersion": 7,
+  "summary": "Veterinary case management app with Dashboard and Cases pages. Weekly calendar view added to Dashboard with toggle, arrival date placement, current week default, and completed case shading. Now implementing: Follow Up task default unchecked, completed cases stay on Dashboard but shaded, X overlay on completed task icons, and new Daily Summary task on both pages.",
   "architectural_notes": [
     "Backend uses Motoko canisters on ICP; frontend uses React/TypeScript"
   ],
@@ -47,12 +47,68 @@
         "REQ-5"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-change-the-follow-up-task-default-state-to-unchecked-in-the-checklist-configuration-so-that-new-cases-are-created-with-follow-up-unselected-by-default",
+      "title": "Change the Follow Up task default state to unchecked in the checklist configuration so that new cases are created with Follow Up unselected by default.",
+      "reqIds": [
+        "REQ-6"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-completed-cases-must-remain-visible-on-the-dashboard-both-in-calendar-view-and-list-grid-view-but-rendered-with-a-visually-shaded-out-appearance-e-g-reduced-opacity-or-muted-background-they-must-not-be-removed-or-hidden",
+      "title": "Completed cases must remain visible on the Dashboard (both in calendar view and list/grid view) but rendered with a visually shaded-out appearance (e.g., reduced opacity or muted background). They must not be removed or hidden.",
+      "reqIds": [
+        "REQ-7"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-when-a-task-is-marked-as-completed-render-an-x-overlay-on-top-of-the-task-s-icon-the-x-should-be-visually-overlaid-on-the-icon-itself-not-on-the-text-label-this-applies-to-task-icons-in-casecard-calendarcasecard-and-checklisteditor-components",
+      "title": "When a task is marked as completed, render an X overlay on top of the task's icon. The X should be visually overlaid on the icon itself (not on the text label). This applies to task icons in CaseCard, CalendarCaseCard, and ChecklistEditor components.",
+      "reqIds": [
+        "REQ-8"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-new-daily-summary-task-to-the-checklist-configuration-used-on-both-the-dashboard-and-cases-pages-the-task-defaults-to-unchecked-its-icon-should-depict-a-tear-off-calendar-page-a-page-with-two-digits-numbers-on-it-like-a-daily-calendar-sheet-the-task-must-appear-in-caseformdialog-caseeditdialog-checklisteditor-casecard-and-calendarcasecard-wherever-other-workflow-tasks-appear",
+      "title": "Add a new 'Daily Summary' task to the checklist configuration used on both the Dashboard and Cases pages. The task defaults to unchecked. Its icon should depict a tear-off calendar page (a page with two digits/numbers on it, like a daily calendar sheet). The task must appear in CaseFormDialog, CaseEditDialog, ChecklistEditor, CaseCard, and CalendarCaseCard wherever other workflow tasks appear.",
+      "reqIds": [
+        "REQ-9"
+      ],
+      "version": 1
     }
   ],
   "new_feature_requests": [
     {
       "id": "AR-5",
       "summary": "Add a weekly calendar view to the Dashboard. 7-day columns (Sun-Sat) showing the current week by default, with Previous/Next week navigation. Cases placed by Arrival Date. Cards show Pet Name, MRN, Species badge, Presenting Complaint, and task status icons. Completed cases are shaded out. Empty days show a subtle placeholder note. Toggle button to switch between the new calendar view and the existing card grid.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-6",
+      "summary": "Change Follow Up task default to unchecked",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-7",
+      "summary": "Keep completed cases on Dashboard but shaded out (not removed)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-8",
+      "summary": "Show an X overlay on task icons when a task is completed",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-9",
+      "summary": "Add 'Daily Summary' task to both Dashboard and Cases pages; default unchecked; icon is a tear-off calendar page",
       "reqIds": [],
       "status": "pending"
     }

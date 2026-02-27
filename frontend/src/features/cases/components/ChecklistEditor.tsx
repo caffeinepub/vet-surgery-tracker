@@ -1,54 +1,46 @@
 import React from 'react';
-import { cn } from '@/lib/utils';
-import { Checkbox } from '@/components/ui/checkbox';
-import { WorkflowIcon } from '../../../components/workflow-icons/WorkflowIcon';
+import { Task } from '../../../backend';
 import { CHECKLIST_ITEMS } from '../checklist';
-import type { Task } from '../../../backend';
+import WorkflowIcon from '../../../components/workflow-icons/WorkflowIcon';
 
 interface ChecklistEditorProps {
   task: Task;
-  onToggleTask: (taskType: string) => void;
+  onToggleTask: (workflowType: string) => void;
   isLoading?: boolean;
 }
 
-export function ChecklistEditor({ task, onToggleTask, isLoading }: ChecklistEditorProps) {
-  // Only show items that are selected on this task
-  const visibleItems = CHECKLIST_ITEMS.filter((item) => task[item.selectedField] === true);
+export default function ChecklistEditor({ task, onToggleTask, isLoading = false }: ChecklistEditorProps) {
+  const selectedItems = CHECKLIST_ITEMS.filter((item) => task[item.selectedField] === true);
 
-  if (visibleItems.length === 0) return null;
+  if (selectedItems.length === 0) {
+    return <p className="text-xs text-muted-foreground italic">No tasks selected.</p>;
+  }
 
   return (
-    <div className="space-y-2">
-      {visibleItems.map((item) => {
+    <div className="flex flex-wrap gap-3">
+      {selectedItems.map((item) => {
         const isCompleted = task[item.completedField] === true;
         return (
-          <div
-            key={item.key}
-            className={cn(
-              'flex items-center gap-2 rounded-lg px-3 py-2 transition-colors',
-              isCompleted ? 'bg-muted/50' : 'bg-muted'
-            )}
+          <button
+            key={item.workflowType}
+            onClick={() => onToggleTask(item.workflowType)}
+            disabled={isLoading}
+            title={`${item.label}${isCompleted ? ' (completed)' : ''}`}
+            className={`flex flex-col items-center gap-1 p-1.5 rounded transition-opacity ${
+              isCompleted ? 'opacity-50' : 'opacity-100'
+            } hover:opacity-80 disabled:cursor-not-allowed`}
           >
-            <Checkbox
-              id={`task-${item.key}`}
-              checked={isCompleted}
-              onCheckedChange={() => onToggleTask(item.workflowType)}
-              disabled={isLoading}
-              className="shrink-0"
-            />
-            <div className="shrink-0">
-              <WorkflowIcon type={item.workflowType} />
-            </div>
-            <label
-              htmlFor={`task-${item.key}`}
-              className={cn(
-                'text-sm cursor-pointer select-none flex-1',
-                isCompleted ? 'line-through text-muted-foreground' : 'text-foreground'
-              )}
+            <WorkflowIcon workflowType={item.workflowType} isCompleted={isCompleted} />
+            <span
+              className="text-xs"
+              style={{
+                color: item.color,
+                textDecoration: isCompleted ? 'line-through' : 'none',
+              }}
             >
               {item.label}
-            </label>
-          </div>
+            </span>
+          </button>
         );
       })}
     </div>

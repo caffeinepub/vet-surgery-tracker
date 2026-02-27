@@ -1,96 +1,139 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Add Weekly Calendar View to Dashboard with Toggle",
+  "title": "Add X overlay on completed task icons, uncheck Follow Up by default, keep shaded completed cases, add Daily Summary task",
   "requirements": [
     {
-      "id": "REQ-1",
-      "summary": "Add a weekly calendar view component that displays surgery cases in a 7-column grid (Sunday through Saturday) based on Arrival Date",
+      "id": "REQ-6",
+      "summary": "Change Follow Up task default state to unchecked in checklist configuration",
       "acceptanceCriteria": [
-        "Dashboard displays a 7-column grid with columns labeled Sun through Sat",
-        "Each case appears in the column matching its Arrival Date",
-        "Cases with no arrival date or arrival dates outside the current week are not shown in the calendar view"
+        "When creating a new case, the Follow Up task checkbox is unchecked by default.",
+        "Existing cases are unaffected by this change.",
+        "The checklist.ts default selections no longer include Follow Up."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/features/dashboard/components/WeeklyCalendarView.tsx",
-          "operation": "create",
-          "description": "Create the WeeklyCalendarView component that renders a 7-column grid (Sun-Sat). For each day column, filter cases where the Arrival Date (Time bigint) falls on that day. Use the existing CaseCard component to render each case within its day column. Apply responsive grid layout using Tailwind CSS classes."
-        },
-        {
-          "path": "frontend/src/features/dashboard/utils/calendarUtils.ts",
-          "operation": "create",
-          "description": "Create utility functions: getWeekDays(weekOffset: number) to return an array of 7 Date objects for the current week plus offset; isSameDay(date1: Date, date2: Date) to compare dates; filterCasesByDay(cases: SurgeryCase[], targetDate: Date) to filter cases matching a specific day based on arrivalDate (Time bigint converted to Date); formatWeekRange(startDate: Date, endDate: Date) to format the week header date range."
-        }
-      ]
-    },
-    {
-      "id": "REQ-2",
-      "summary": "The weekly calendar view defaults to the current week with Previous and Next navigation arrows",
-      "acceptanceCriteria": [
-        "On initial load the calendar shows the week containing today's date",
-        "Previous arrow shifts the displayed week back by 7 days",
-        "Next arrow shifts the displayed week forward by 7 days",
-        "The week header shows the date range for the currently displayed week"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/features/dashboard/components/WeeklyCalendarView.tsx",
+          "path": "frontend/src/features/cases/checklist.ts",
           "operation": "modify",
-          "description": "Add state management for weekOffset (number, default 0). Add a header section above the calendar grid with: a week range display (formatted using formatWeekRange from calendarUtils.ts), a Previous arrow button that decrements weekOffset, and a Next arrow button that increments weekOffset. Use the weekOffset to calculate the displayed week via getWeekDays(weekOffset). Use shadcn/ui Button components for the navigation arrows."
+          "description": "Update getDefaultTaskSelections function to remove 'followUp' from the default selected task array, ensuring Follow Up defaults to unchecked when creating new cases"
         }
       ]
     },
     {
-      "id": "REQ-3",
-      "summary": "Add a toggle button on the Dashboard that switches between weekly calendar view and existing card grid view, defaulting to calendar view",
+      "id": "REQ-7",
+      "summary": "Keep completed cases visible on Dashboard with shaded appearance",
       "acceptanceCriteria": [
-        "A toggle control is visible on the Dashboard",
-        "Clicking the toggle switches between the weekly calendar view and the existing card grid view",
-        "The weekly calendar view is displayed by default when the Dashboard loads",
-        "The existing card grid view remains fully functional when toggled to"
+        "Cases where all tasks are completed remain visible on the Dashboard in both calendar and grid/list views.",
+        "Completed cases have a visually distinct shaded appearance (e.g., reduced opacity or muted background) compared to active cases.",
+        "Completed cases are never automatically removed or hidden from the Dashboard."
       ],
       "file_operations": [
         {
           "path": "frontend/src/features/dashboard/components/DashboardView.tsx",
           "operation": "modify",
-          "description": "Add state for view mode (useState) with initial value 'calendar'. Add a toggle control (using shadcn/ui Toggle or Tabs component) above the dashboard content area with options for 'Calendar' and 'List'. Conditionally render either the new WeeklyCalendarView component (when mode is 'calendar') or the existing case card grid (when mode is 'list'). Import WeeklyCalendarView and pass the filtered/sorted cases array to it. Ensure all existing filtering, sorting, and search controls remain active and affect both views."
-        }
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "summary": "In the weekly calendar view, each case card displays Pet Name, MRN, Species badge, Presenting Complaint, and task status icons, with completed cases visually shaded out",
-      "acceptanceCriteria": [
-        "Each calendar card shows Pet Name, MRN, Species badge, Presenting Complaint, and task status icons",
-        "Cards with all tasks completed are visually shaded out (e.g., reduced opacity or muted/greyed background)",
-        "Active cases (with incomplete tasks) appear at full opacity with normal styling"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/features/cases/components/CalendarCaseCard.tsx",
-          "operation": "create",
-          "description": "Create a compact CalendarCaseCard component specifically for the calendar view. Display: Pet Name (bold), MRN (small text), Species badge (using existing species badge styling), Presenting Complaint (truncated if long), and task status icons (using WorkflowIcon components from workflow-icons). Calculate if all selected tasks are completed using checklist utilities from frontend/src/features/cases/checklist.ts. If all tasks are complete, apply reduced opacity (e.g., opacity-50) and a muted background class. Make the card clickable to expand details (similar to existing CaseCard behavior). Use Tailwind CSS for compact layout suitable for calendar cells."
+          "description": "Remove or disable any filtering logic that hides completed cases from the dashboard view, ensuring all cases remain visible regardless of completion status"
         },
         {
-          "path": "frontend/src/features/dashboard/components/WeeklyCalendarView.tsx",
+          "path": "frontend/src/features/cases/components/CalendarCaseCard.tsx",
           "operation": "modify",
-          "description": "Replace the usage of CaseCard with the new CalendarCaseCard component for rendering cases within day columns. Pass each SurgeryCase to CalendarCaseCard along with any required props for expand/collapse behavior."
+          "description": "Add conditional styling (e.g., opacity-60 or muted background) to the card container when all tasks are completed, providing visual distinction while keeping the case visible"
+        },
+        {
+          "path": "frontend/src/features/cases/components/CaseCard.tsx",
+          "operation": "modify",
+          "description": "Add conditional styling (e.g., opacity-60 or muted background) to the card container when all tasks are completed, ensuring completed cases appear shaded in the list view"
         }
       ]
     },
     {
-      "id": "REQ-5",
-      "summary": "Day columns with no cases display a subtle empty-state placeholder note",
+      "id": "REQ-8",
+      "summary": "Render X overlay on completed task icons",
       "acceptanceCriteria": [
-        "Day columns with no cases show a subtle placeholder text such as 'No cases'",
-        "The placeholder is visually understated and does not dominate the layout"
+        "Completed task icons display an X overlaid on top of the icon graphic.",
+        "The X overlay is visible in both the Dashboard calendar view (CalendarCaseCard) and the Cases list view (CaseCard/ChecklistEditor).",
+        "Incomplete task icons display no X overlay.",
+        "The X is rendered as two crossing lines over the icon, not as a strikethrough on adjacent text."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/features/dashboard/components/WeeklyCalendarView.tsx",
+          "path": "frontend/src/components/workflow-icons/WorkflowIconBase.tsx",
           "operation": "modify",
-          "description": "For each day column in the calendar grid, check if the filtered cases array for that day is empty. If empty, render a subtle placeholder div with text 'No cases' styled with muted text color (text-muted-foreground) and small font size. Position it vertically centered in the column with appropriate padding. Ensure the placeholder does not break the grid layout."
+          "description": "Add an optional 'isCompleted' boolean prop and render an X overlay (two crossing diagonal lines using SVG path or line elements) when isCompleted is true, positioned absolutely over the icon graphic"
+        },
+        {
+          "path": "frontend/src/components/workflow-icons/WorkflowIcon.tsx",
+          "operation": "modify",
+          "description": "Accept an optional 'isCompleted' boolean prop and pass it through to the underlying icon component (WorkflowIconBase or direct icon components), ensuring the X overlay is conditionally rendered"
+        },
+        {
+          "path": "frontend/src/features/cases/components/ChecklistEditor.tsx",
+          "operation": "modify",
+          "description": "Pass the completion state (isCompleted) of each task to the WorkflowIcon component so completed tasks display the X overlay on their icons"
+        },
+        {
+          "path": "frontend/src/features/cases/components/CaseCard.tsx",
+          "operation": "modify",
+          "description": "Pass the completion state of each task to WorkflowIcon components in the task display section, ensuring the X overlay appears on completed task icons"
+        },
+        {
+          "path": "frontend/src/features/cases/components/CalendarCaseCard.tsx",
+          "operation": "modify",
+          "description": "Pass the completion state of each task to WorkflowIcon components in the calendar card view, ensuring the X overlay appears on completed task icons"
+        }
+      ]
+    },
+    {
+      "id": "REQ-9",
+      "summary": "Add Daily Summary task with tear-off calendar icon",
+      "acceptanceCriteria": [
+        "A 'Daily Summary' task option appears in the checklist on both Dashboard case cards and Cases page case cards.",
+        "Daily Summary is unchecked by default when creating a new case.",
+        "The Daily Summary task icon visually resembles a tear-off calendar page with two digits.",
+        "The Daily Summary task can be toggled as complete/incomplete like other tasks.",
+        "The X overlay (REQ-8) applies to the Daily Summary icon when it is marked complete.",
+        "Daily Summary appears in CaseFormDialog and CaseEditDialog task selection.",
+        "The backend Task type is updated to include 'dailySummary' as a valid task key."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/workflow-icons/IconDailySummary.tsx",
+          "operation": "create",
+          "description": "Create a new SVG icon component for Daily Summary using WorkflowIconBase, rendering a rectangle with two large digits inside to represent a tear-off calendar page, using an appropriate color from workflowTokens"
+        },
+        {
+          "path": "frontend/src/components/workflow-icons/workflowTokens.ts",
+          "operation": "modify",
+          "description": "Add a color token for the Daily Summary task (e.g., 'dailySummary: '#...'') to the COLOR object, maintaining visual distinction from existing task colors"
+        },
+        {
+          "path": "frontend/src/components/workflow-icons/WorkflowIcon.tsx",
+          "operation": "modify",
+          "description": "Import IconDailySummary and add a case for 'dailySummary' type in the switch/conditional logic that maps task types to icon components"
+        },
+        {
+          "path": "frontend/src/features/cases/checklist.ts",
+          "operation": "modify",
+          "description": "Add a new checklist item for 'dailySummary' to the CHECKLIST_ITEMS array with label 'Daily Summary', defaultSelected: false, and ensure it appears in getTaskColor mapping. Update getRemainingItems and related functions to handle dailySummary task key."
+        },
+        {
+          "path": "frontend/src/features/cases/types.ts",
+          "operation": "modify",
+          "description": "Add dailySummary: boolean field to the CaseFormData interface to support Daily Summary task selection in case creation and editing forms"
+        },
+        {
+          "path": "frontend/src/features/cases/components/CaseFormDialog.tsx",
+          "operation": "modify",
+          "description": "Include Daily Summary in the task selection checklist rendered in the form, ensuring it appears with other tasks and defaults to unchecked"
+        },
+        {
+          "path": "frontend/src/features/cases/components/CaseEditDialog.tsx",
+          "operation": "modify",
+          "description": "Include Daily Summary in the task selection checklist for case editing, allowing users to add or remove the task from existing cases"
+        },
+        {
+          "path": "frontend/src/features/cases/components/ChecklistEditor.tsx",
+          "operation": "modify",
+          "description": "Ensure ChecklistEditor renders Daily Summary tasks when selected, with toggle functionality and icon display identical to other workflow tasks"
         }
       ]
     }

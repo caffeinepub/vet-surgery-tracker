@@ -1,12 +1,13 @@
 export const workflowColors = {
-  discharge: "#22C55E",
-  notified: "#EAB308",
-  labs: "#F97316",
-  histo: "#8B5CF6",
-  imaging: "#3B82F6",
-  surgery: "#EF4444",
-  culture: "#EC4899",
-  followup: "#06B6D4",
+  dischargeNotes: '#22C55E',
+  pdvmNotified: '#EAB308',
+  labs: '#F97316',
+  histo: '#A855F7',
+  surgeryReport: '#EF4444',
+  imaging: '#6B7280',
+  culture: '#EC4899',
+  followUp: '#06B6D4',
+  dailySummary: '#3B82F6',
 };
 
 export const iconSize = 24;

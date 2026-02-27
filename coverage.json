@@ -1,72 +1,82 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-26T23:46:21.400Z",
+  "generatedAt": "2026-02-27T00:56:47.490Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 5,
-    "implemented": 5,
+    "total": 4,
+    "implemented": 4,
     "items": [
       {
-        "id": "REQ-1",
-        "summary": "Add a weekly calendar view to the DashboardView component that displays surgery cases in a 7-column grid (Sunday through Saturday), where each case is placed into its day column based on its Arrival Date field.",
+        "id": "REQ-6",
+        "summary": "Change the Follow Up task default state to unchecked in the checklist configuration so that new cases are created with Follow Up unselected by default.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/features/dashboard/components/WeeklyCalendarView.tsx",
-          "frontend/src/features/dashboard/utils/calendarUtils.ts"
+          "frontend/src/features/cases/checklist.ts"
         ],
         "matchedFiles": [
-          "frontend/src/features/dashboard/components/WeeklyCalendarView.tsx",
-          "frontend/src/features/dashboard/utils/calendarUtils.ts"
+          "frontend/src/features/cases/checklist.ts"
         ]
       },
       {
-        "id": "REQ-2",
-        "summary": "The weekly calendar view defaults to the current week on load, with Previous and Next week navigation arrows that shift the displayed week backward or forward by 7 days.",
+        "id": "REQ-7",
+        "summary": "Completed cases must remain visible on the Dashboard (both in calendar view and list/grid view) but rendered with a visually shaded-out appearance (e.g., reduced opacity or muted background). They must not be removed or hidden.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/features/dashboard/components/WeeklyCalendarView.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/features/dashboard/components/WeeklyCalendarView.tsx"
-        ]
-      },
-      {
-        "id": "REQ-3",
-        "summary": "Add a toggle button on the Dashboard that switches between the new weekly calendar view and the existing case card grid view. The calendar view should be the default view.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/features/dashboard/components/DashboardView.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/features/dashboard/components/DashboardView.tsx"
-        ]
-      },
-      {
-        "id": "REQ-4",
-        "summary": "In the weekly calendar view, each case card must display: Pet Name, MRN, Species badge, Presenting Complaint, and task status icons. Cases where all tasks are completed must be visually shaded out (e.g., reduced opacity or muted background) to distinguish them from active cases.",
-        "status": "implemented",
-        "plannedFiles": [
+          "frontend/src/features/dashboard/components/DashboardView.tsx",
           "frontend/src/features/cases/components/CalendarCaseCard.tsx",
-          "frontend/src/features/dashboard/components/WeeklyCalendarView.tsx"
+          "frontend/src/features/cases/components/CaseCard.tsx"
         ],
         "matchedFiles": [
+          "frontend/src/features/dashboard/components/DashboardView.tsx",
           "frontend/src/features/cases/components/CalendarCaseCard.tsx",
-          "frontend/src/features/dashboard/components/WeeklyCalendarView.tsx"
+          "frontend/src/features/cases/components/CaseCard.tsx"
         ]
       },
       {
-        "id": "REQ-5",
-        "summary": "Day columns in the weekly calendar view that have no cases assigned to them must display a subtle empty-state placeholder note (e.g., 'No cases') instead of being completely blank.",
+        "id": "REQ-8",
+        "summary": "When a task is marked as completed, render an X overlay on top of the task's icon. The X should be visually overlaid on the icon itself (not on the text label). This applies to task icons in CaseCard, CalendarCaseCard, and ChecklistEditor components.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/features/dashboard/components/WeeklyCalendarView.tsx"
+          "frontend/src/components/workflow-icons/WorkflowIconBase.tsx",
+          "frontend/src/components/workflow-icons/WorkflowIcon.tsx",
+          "frontend/src/features/cases/components/ChecklistEditor.tsx",
+          "frontend/src/features/cases/components/CaseCard.tsx",
+          "frontend/src/features/cases/components/CalendarCaseCard.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/features/dashboard/components/WeeklyCalendarView.tsx"
+          "frontend/src/components/workflow-icons/WorkflowIconBase.tsx",
+          "frontend/src/components/workflow-icons/WorkflowIcon.tsx",
+          "frontend/src/features/cases/components/ChecklistEditor.tsx",
+          "frontend/src/features/cases/components/CaseCard.tsx",
+          "frontend/src/features/cases/components/CalendarCaseCard.tsx"
+        ]
+      },
+      {
+        "id": "REQ-9",
+        "summary": "Add a new 'Daily Summary' task to the checklist configuration used on both the Dashboard and Cases pages. The task defaults to unchecked. Its icon should depict a tear-off calendar page (a page with two digits/numbers on it, like a daily calendar sheet). The task must appear in CaseFormDialog, CaseEditDialog, ChecklistEditor, CaseCard, and CalendarCaseCard wherever other workflow tasks appear.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/workflow-icons/IconDailySummary.tsx",
+          "frontend/src/components/workflow-icons/workflowTokens.ts",
+          "frontend/src/components/workflow-icons/WorkflowIcon.tsx",
+          "frontend/src/features/cases/checklist.ts",
+          "frontend/src/features/cases/types.ts",
+          "frontend/src/features/cases/components/CaseFormDialog.tsx",
+          "frontend/src/features/cases/components/CaseEditDialog.tsx",
+          "frontend/src/features/cases/components/ChecklistEditor.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/workflow-icons/IconDailySummary.tsx",
+          "frontend/src/components/workflow-icons/workflowTokens.ts",
+          "frontend/src/components/workflow-icons/WorkflowIcon.tsx",
+          "frontend/src/features/cases/checklist.ts",
+          "frontend/src/features/cases/components/CaseFormDialog.tsx",
+          "frontend/src/features/cases/components/CaseEditDialog.tsx",
+          "frontend/src/features/cases/components/ChecklistEditor.tsx"
         ]
       }
     ]
@@ -76,10 +86,30 @@
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
+    "frontend/src/components/workflow-icons/IconCulture.tsx",
+    "frontend/src/components/workflow-icons/IconDailySummary.tsx",
+    "frontend/src/components/workflow-icons/IconDischarge.tsx",
+    "frontend/src/components/workflow-icons/IconFollowUp.tsx",
+    "frontend/src/components/workflow-icons/IconHisto.tsx",
+    "frontend/src/components/workflow-icons/IconImaging.tsx",
+    "frontend/src/components/workflow-icons/IconLabs.tsx",
+    "frontend/src/components/workflow-icons/IconNotified.tsx",
+    "frontend/src/components/workflow-icons/IconSurgery.tsx",
+    "frontend/src/components/workflow-icons/WorkflowIcon.tsx",
+    "frontend/src/components/workflow-icons/WorkflowIconBase.tsx",
+    "frontend/src/components/workflow-icons/workflowTokens.ts",
+    "frontend/src/features/cases/checklist.ts",
     "frontend/src/features/cases/components/CalendarCaseCard.tsx",
+    "frontend/src/features/cases/components/CaseCard.tsx",
+    "frontend/src/features/cases/components/CaseEditDialog.tsx",
+    "frontend/src/features/cases/components/CaseFormDialog.tsx",
+    "frontend/src/features/cases/components/CasesListView.tsx",
+    "frontend/src/features/cases/components/CasesTasksFilter.tsx",
+    "frontend/src/features/cases/components/ChecklistEditor.tsx",
+    "frontend/src/features/cases/pdf/generateCasePdf.ts",
     "frontend/src/features/dashboard/components/DashboardView.tsx",
     "frontend/src/features/dashboard/components/WeeklyCalendarView.tsx",
-    "frontend/src/features/dashboard/utils/calendarUtils.ts",
+    "frontend/src/features/dashboard/utils/openTasksCalculation.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

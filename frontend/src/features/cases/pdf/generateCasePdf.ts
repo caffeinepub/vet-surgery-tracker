@@ -49,7 +49,7 @@ export function generateCasePdf(cases: SurgeryCase[]): void {
 }
 
 /**
- * Task color map for PDF badge styling
+ * Task color map for PDF badge styling — keyed by workflowType
  */
 const TASK_COLORS: Record<string, { bg: string; text: string; border: string }> = {
   dischargeNotes:  { bg: '#dcfce7', text: '#166534', border: '#86efac' },
@@ -59,6 +59,8 @@ const TASK_COLORS: Record<string, { bg: string; text: string; border: string }> 
   surgeryReport:   { bg: '#fee2e2', text: '#991b1b', border: '#fca5a5' },
   imaging:         { bg: '#dbeafe', text: '#1e40af', border: '#93c5fd' },
   culture:         { bg: '#fce7f3', text: '#9d174d', border: '#f9a8d4' },
+  followUp:        { bg: '#cffafe', text: '#155e75', border: '#67e8f9' },
+  dailySummary:    { bg: '#dbeafe', text: '#1e40af', border: '#93c5fd' },
 };
 
 /**
@@ -70,7 +72,7 @@ function generateReportHtml(cases: SurgeryCase[]): string {
   const tableRows = cases.map((caseItem, index) => {
     const remainingTasks = getRemainingChecklistItems(caseItem.task);
     const taskBadges = remainingTasks.map(t => {
-      const colors = TASK_COLORS[t.key] ?? { bg: '#f3f4f6', text: '#374151', border: '#d1d5db' };
+      const colors = TASK_COLORS[t.workflowType] ?? { bg: '#f3f4f6', text: '#374151', border: '#d1d5db' };
       return `<span style="display:inline-block;margin:1px 2px;padding:2px 6px;border-radius:9999px;font-size:8pt;font-weight:600;background:${colors.bg};color:${colors.text};border:1px solid ${colors.border}">${escapeHtml(t.label)}</span>`;
     }).join('');
 

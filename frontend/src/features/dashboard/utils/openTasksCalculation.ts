@@ -22,7 +22,7 @@ export function getOpenTasksFromCase(surgeryCase: SurgeryCase): OpenTaskItem[] {
     ownerLastName: surgeryCase.ownerLastName,
     species: surgeryCase.species,
     presentingComplaint: surgeryCase.presentingComplaint,
-    taskType: task.key,
+    taskType: task.workflowType,
     taskLabel: task.label,
   }));
 }

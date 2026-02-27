@@ -1,46 +1,63 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-26T23:46:21.396Z",
-  "summary": "The diff implements all five requirements. A WeeklyCalendarView component with 7-column grid, week navigation, date-range header, and empty-state placeholders was added. A CalendarCaseCard showing Pet Name, MRN, species icon, presenting complaint, task status icons, and completed-case shading was added. DashboardView was modified to include a toggle (defaulting to calendar view) and to wire up the new components. Supporting utility functions (calendarUtils.ts) handle week computation, day filtering, and formatting. All REQ-1 through REQ-5 acceptance criteria appear to be satisfied.",
-  "missing_requirements": [],
-  "hallucinated_features": [
+  "generatedAt": "2026-02-27T00:56:47.486Z",
+  "summary": "The diff implements most of the requested requirements: REQ-6 (Follow Up default unchecked), REQ-7 (completed cases shaded with opacity), REQ-8 (X overlay on task icons via WorkflowIconBase and IconImaging), and REQ-9 (Daily Summary task added with calendar icon, appearing in checklist, WorkflowIcon, CaseFormDialog, CaseEditDialog, CalendarCaseCard, CaseCard, ChecklistEditor). However, there are notable gaps: the WORKFLOW_TO_TASK_TYPE map in CaseCard.tsx and CalendarCaseCard.tsx does not include 'dailySummary', meaning toggling the Daily Summary task completion will silently fail. CaseFormDialog does not pass dailySummary in the taskOptions submitted to the backend. The backend Task type update for 'dailySummary' is referenced via 'as keyof Task' casts, suggesting it may not be formally added to the backend type definition.",
+  "missing_requirements": [
     {
-      "description": "CalendarCaseCard includes expand/collapse functionality (ChevronDown/ChevronUp toggle with isExpanded state), a full ChecklistEditor, edit dialog (CaseEditDialog), and a delete button (Trash2 icon with confirmation prompt).",
-      "reason": "The requirements only specify displaying Pet Name, MRN, Species badge, Presenting Complaint, and task status icons with completed-case shading. Interactive expand/collapse, inline checklist editing, case edit dialog, and delete functionality from calendar cards were not requested.",
+      "id": "REQ-9",
+      "requirement": "The backend Task type is updated to include 'dailySummary' as a valid task key.",
+      "reason": "The diff uses 'dailySummarySelected' and 'dailySummaryCompleted' with 'as keyof Task' type assertions rather than proper additions to the Task type, indicating the backend type was not formally updated. No backend file changes are visible in the diff.",
       "evidence": [
+        "frontend/src/features/cases/checklist.ts"
+      ]
+    },
+    {
+      "id": "REQ-9",
+      "requirement": "The Daily Summary task can be toggled as complete/incomplete like other tasks.",
+      "reason": "The WORKFLOW_TO_TASK_TYPE maps in CaseCard.tsx and CalendarCaseCard.tsx do not include a 'dailySummary' entry, so handleToggleTask returns early without mutating when Daily Summary is clicked.",
+      "evidence": [
+        "frontend/src/features/cases/components/CaseCard.tsx",
         "frontend/src/features/cases/components/CalendarCaseCard.tsx"
       ]
     },
     {
-      "description": "A 'Today' button appears in the week navigation header when the user is not viewing the current week, allowing a one-click jump back to the current week.",
-      "reason": "The requirements describe only Previous and Next week navigation arrows. A dedicated 'Today' shortcut button was not requested.",
+      "id": "REQ-9",
+      "requirement": "Daily Summary appears in CaseFormDialog and CaseEditDialog task selection with value submitted to backend.",
+      "reason": "In CaseFormDialog, the taskOptions object passed to createCase.mutateAsync does not include dailySummary, so even though the checkbox appears in the UI, the value is not submitted to the backend.",
       "evidence": [
-        "frontend/src/features/dashboard/components/WeeklyCalendarView.tsx"
-      ]
-    },
-    {
-      "description": "Day column headers display a case-count badge showing the number of cases when dayCases.length is greater than 0.",
-      "reason": "The requirements do not mention a case count badge on day column headers.",
-      "evidence": [
-        "frontend/src/features/dashboard/components/WeeklyCalendarView.tsx"
-      ]
-    },
-    {
-      "description": "Today's date column is visually highlighted with primary color styling on the day label and a circular background on the date number.",
-      "reason": "No requirement specifies a visual highlight for the current day's column.",
-      "evidence": [
-        "frontend/src/features/dashboard/components/WeeklyCalendarView.tsx"
+        "frontend/src/features/cases/components/CaseFormDialog.tsx"
       ]
     }
   ],
-  "confidence": 0.82,
+  "hallucinated_features": [],
+  "confidence": 0.78,
   "changed_files": [
     "frontend-file-summaries.txt",
+    "frontend/src/components/workflow-icons/IconCulture.tsx",
+    "frontend/src/components/workflow-icons/IconDailySummary.tsx",
+    "frontend/src/components/workflow-icons/IconDischarge.tsx",
+    "frontend/src/components/workflow-icons/IconFollowUp.tsx",
+    "frontend/src/components/workflow-icons/IconHisto.tsx",
+    "frontend/src/components/workflow-icons/IconImaging.tsx",
+    "frontend/src/components/workflow-icons/IconLabs.tsx",
+    "frontend/src/components/workflow-icons/IconNotified.tsx",
+    "frontend/src/components/workflow-icons/IconSurgery.tsx",
+    "frontend/src/components/workflow-icons/WorkflowIcon.tsx",
+    "frontend/src/components/workflow-icons/WorkflowIconBase.tsx",
+    "frontend/src/components/workflow-icons/workflowTokens.ts",
+    "frontend/src/features/cases/checklist.ts",
     "frontend/src/features/cases/components/CalendarCaseCard.tsx",
+    "frontend/src/features/cases/components/CaseCard.tsx",
+    "frontend/src/features/cases/components/CaseEditDialog.tsx",
+    "frontend/src/features/cases/components/CaseFormDialog.tsx",
+    "frontend/src/features/cases/components/CasesListView.tsx",
+    "frontend/src/features/cases/components/CasesTasksFilter.tsx",
+    "frontend/src/features/cases/components/ChecklistEditor.tsx",
+    "frontend/src/features/cases/pdf/generateCasePdf.ts",
     "frontend/src/features/dashboard/components/DashboardView.tsx",
     "frontend/src/features/dashboard/components/WeeklyCalendarView.tsx",
-    "frontend/src/features/dashboard/utils/calendarUtils.ts",
+    "frontend/src/features/dashboard/utils/openTasksCalculation.ts",
     "project_state.json"
   ]
 }
