@@ -10,18 +10,22 @@ export default function IconHisto({ isCompleted = false }: IconHistoProps) {
   const color = workflowColors.histo;
   return (
     <WorkflowIconBase color={color} isCompleted={isCompleted}>
-      {/* Eyepiece tube at top */}
-      <rect x="10" y="2" width="4" height="5" rx="0.5" />
-      {/* Arm connecting eyepiece to body */}
-      <path d="M12 7 L12 10" />
-      {/* Main body / nosepiece area */}
-      <path d="M8 10 L16 10 L15 16 L9 16 Z" />
+      {/* Side-view microscope */}
+      {/* Eyepiece (angled tube at top-left) */}
+      <rect x="4" y="2" width="3" height="6" rx="0.5" transform="rotate(-15 5.5 5)" />
+      {/* Arm (vertical column on right side) */}
+      <rect x="13" y="4" width="3" height="12" rx="0.5" />
+      {/* Body connecting arm to stage */}
+      <path d="M8 10 Q10 10 13 12" strokeWidth="2" fill="none" />
+      {/* Objective lens (pointing down-left from arm) */}
+      <line x1="13" y1="14" x2="9" y2="17" strokeWidth="2" />
+      <circle cx="8.5" cy="17.5" r="1" fill={color} stroke="none" />
       {/* Stage platform */}
-      <rect x="6" y="16" width="12" height="2" rx="0.5" />
+      <rect x="6" y="15" width="8" height="2" rx="0.5" />
       {/* Base */}
-      <path d="M7 18 L5 22 L19 22 L17 18 Z" />
-      {/* Objective lens */}
-      <line x1="12" y1="16" x2="12" y2="19" />
+      <rect x="5" y="20" width="12" height="2.5" rx="1" />
+      {/* Pillar connecting stage to base */}
+      <rect x="13" y="17" width="2.5" height="3" rx="0.5" />
     </WorkflowIconBase>
   );
 }

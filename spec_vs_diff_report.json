@@ -1,37 +1,25 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-27T03:04:37.616Z",
-  "summary": "The diff implements most requirements: REQ-1 (surgeryReport default removed), REQ-2 (Daily Summary task added to checklist, backend, CSV, IconDailySummary component), REQ-4 (IconHisto microscope SVG), REQ-5 (IconSurgery scalpel SVG), REQ-6 (IconCulture petri dish SVG). However, REQ-3 (Dashboard toggle button) shows no evidence of implementation in DashboardView.tsx, and WorkflowIcon.tsx wiring for dailySummary is not evidenced.",
+  "generatedAt": "2026-02-27T04:03:06.129Z",
+  "summary": "All three requirements are substantially implemented. REQ-1 (IconHisto side-view microscope), REQ-2 (IconLabs test tube), and REQ-3 (CalendarCaseCard clickable navigation) are all present in the diff. One minor gap exists for REQ-3: the card accepts an onNavigateToCase callback prop but there is no evidence in the diff that the parent calendar/weekly view component passes this prop or wires it to actual navigation to CasesListView with the case identifier highlighted.",
   "missing_requirements": [
     {
       "id": "REQ-3",
-      "requirement": "Add a toggle button to the Dashboard page (DashboardView.tsx) that switches between the Weekly Calendar view and the Card Grid view. The toggle should be visible in the dashboard header/controls area. Persist the selected view mode in component state.",
-      "reason": "No changes to DashboardView.tsx appear in the diff. No toggle button component or view-mode state management is evidenced anywhere in the modified files.",
-      "evidence": []
-    },
-    {
-      "id": "REQ-2",
-      "requirement": "The WorkflowIcon dispatcher (WorkflowIcon.tsx) maps the dailySummary type to an IconDailySummary component.",
-      "reason": "WorkflowIcon.tsx is not listed among the modified files in the diff. There is no evidence that the dispatcher was updated to map dailySummary to IconDailySummary.",
-      "evidence": []
+      "requirement": "Navigation passes the case identifier so the Cases view can scroll to or highlight the relevant case, and clicking the card actually navigates to the Cases (CasesListView) page.",
+      "reason": "CalendarCaseCard accepts an onNavigateToCase prop and calls it on click, but the diff shows no changes to the parent calendar or weekly view component that would wire up this callback to actual navigation logic toward CasesListView with a highlighted or focused case. Without the parent passing this prop, clicking the card does nothing.",
+      "evidence": [
+        "frontend/src/features/cases/components/CalendarCaseCard.tsx"
+      ]
     }
   ],
   "hallucinated_features": [],
-  "confidence": 0.85,
+  "confidence": 0.78,
   "changed_files": [
-    "backend/main.mo",
-    "backend/migration.mo",
     "frontend-file-summaries.txt",
-    "frontend/src/components/workflow-icons/IconCulture.tsx",
-    "frontend/src/components/workflow-icons/IconDailySummary.tsx",
     "frontend/src/components/workflow-icons/IconHisto.tsx",
-    "frontend/src/components/workflow-icons/IconSurgery.tsx",
-    "frontend/src/features/cases/checklist.ts",
-    "frontend/src/features/cases/components/CaseFormDialog.tsx",
-    "frontend/src/features/cases/components/CsvImportExportPanel.tsx",
-    "frontend/src/features/cases/csv/caseCsv.ts",
-    "frontend/src/features/cases/csv/caseCsvSchema.ts",
+    "frontend/src/components/workflow-icons/IconLabs.tsx",
+    "frontend/src/features/cases/components/CalendarCaseCard.tsx",
     "project_state.json"
   ]
 }

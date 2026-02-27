@@ -7,13 +7,13 @@ import Order "mo:core/Order";
 import Runtime "mo:core/Runtime";
 import Principal "mo:core/Principal";
 import Iter "mo:core/Iter";
-import Migration "migration";
+
 
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
 
 // Specify the data migration function in with-clause.
-(with migration = Migration.run)
+
 actor {
   public type Species = { #canine; #feline; #other };
   public type Sex = { #male; #maleNeutered; #female; #femaleSpayed };

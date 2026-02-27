@@ -1,132 +1,64 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Add Daily Summary task, toggle view button, update icons, and remove surgery report default",
+  "title": "Icon changes (histo → side-view microscope, labs → test tube) and calendar card navigation to Cases page",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Remove 'Surgery Report' from default task selections in CaseFormDialog",
+      "summary": "Replace IconHisto SVG with a side-profile (lateral view) microscope illustration retaining the existing histo color token",
       "acceptanceCriteria": [
-        "When opening the new case creation dialog (CaseFormDialog), the Surgery Report task is unchecked by default.",
-        "All other previously defaulted tasks remain unchanged.",
-        "The checklist.ts CHECKLIST_ITEMS configuration no longer marks surgeryReport as a default."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/features/cases/checklist.ts",
-          "operation": "modify",
-          "description": "Update the CHECKLIST_ITEMS array to set the 'surgeryReport' item's 'default' property to false instead of true. This ensures Surgery Report is not pre-checked when creating a new case."
-        }
-      ]
-    },
-    {
-      "id": "REQ-2",
-      "summary": "Add 'Daily Summary' task type to the checklist system with tear-off calendar icon",
-      "acceptanceCriteria": [
-        "A 'Daily Summary' task type is defined in CHECKLIST_ITEMS in checklist.ts with default unchecked.",
-        "The Daily Summary task appears in the checklist editor on case cards in both the Dashboard and Cases list views.",
-        "The Daily Summary task is not pre-selected when creating a new case.",
-        "The WorkflowIcon dispatcher (WorkflowIcon.tsx) maps the dailySummary type to an IconDailySummary component.",
-        "IconDailySummary renders a tear-off calendar page SVG icon.",
-        "The backend Task type in main.mo is updated to include a dailySummary variant.",
-        "The CSV schema (caseCsvSchema.ts) and any related CSV import/export logic is updated to include the dailySummary field."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/workflow-icons/IconDailySummary.tsx",
-          "operation": "modify",
-          "description": "Verify that IconDailySummary.tsx exists and renders a tear-off calendar page SVG icon with binding holes and date styling. Ensure it uses WorkflowIconBase and applies the dailySummary color token from workflowTokens.ts. If the icon does not exist or does not match the requirement, create or update the component accordingly. The component must accept isCompleted prop for completed-state overlay."
-        },
-        {
-          "path": "frontend/src/components/workflow-icons/workflowTokens.ts",
-          "operation": "modify",
-          "description": "Add a 'dailySummary' color token to the workflowColors object if it does not already exist. Choose a distinct color that does not conflict with existing workflow types (e.g., a purple or teal shade in OKLCH format)."
-        },
-        {
-          "path": "frontend/src/components/workflow-icons/WorkflowIcon.tsx",
-          "operation": "modify",
-          "description": "Add a case for 'dailySummary' in the workflowType dispatcher that renders the IconDailySummary component. Ensure the case passes through the isCompleted prop correctly."
-        },
-        {
-          "path": "frontend/src/features/cases/checklist.ts",
-          "operation": "modify",
-          "description": "Add a new checklist item for 'dailySummary' in the CHECKLIST_ITEMS array with type 'dailySummary', label 'Daily Summary', color from workflowTokens, default set to false, and keys selectedKey: 'dailySummarySelected', completedKey: 'dailySummaryCompleted'. Update helper functions (getTaskOptions, getRemainingItems, getRemainingTasksByColor) to include dailySummary fields."
-        },
-        {
-          "path": "frontend/src/features/cases/csv/caseCsvSchema.ts",
-          "operation": "modify",
-          "description": "Add a 'dailySummary' column to the CSV_COLUMNS array and to the CaseCsvRow TypeScript type. Position it logically among the other task columns. Update the column header to 'Daily Summary' and ensure it accepts boolean string values ('true'/'false'/'yes'/'no')."
-        },
-        {
-          "path": "frontend/src/features/cases/csv/caseCsv.ts",
-          "operation": "modify",
-          "description": "Update the exportCasesToCsv and parseCsvRow functions to include the dailySummary task field when serializing and deserializing SurgeryCase objects. Ensure the dailySummarySelected field is written to the CSV and read back correctly."
-        }
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "summary": "Add toggle button to Dashboard to switch between Weekly Calendar and Card Grid views",
-      "acceptanceCriteria": [
-        "A toggle button (or segmented control) is visible on the Dashboard page.",
-        "Clicking the toggle switches between the Weekly Calendar view (WeeklyCalendarView) and the Card Grid (case cards) view.",
-        "The currently active view is visually indicated in the toggle button.",
-        "The toggle defaults to the Weekly Calendar view on initial load.",
-        "Both views render the same set of filtered/sorted cases."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/features/dashboard/components/DashboardView.tsx",
-          "operation": "modify",
-          "description": "Add a React state hook to track the current view mode ('calendar' or 'grid'), defaulting to 'calendar'. Add a toggle button or segmented control in the dashboard header (alongside existing filter controls) that displays both view options and highlights the active one. When the toggle is clicked, update the view mode state. Conditionally render either the WeeklyCalendarView component or the case card grid (similar to CasesListView) based on the current view mode. Ensure both views use the same filtered and sorted cases array."
-        }
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "summary": "Replace Histology icon with microscope SVG",
-      "acceptanceCriteria": [
-        "IconHisto.tsx renders a recognizable microscope SVG icon.",
-        "The histo color token from workflowTokens.ts is still applied.",
-        "The completed-state overlay (X mark) still applies correctly via WorkflowIconBase."
+        "IconHisto.tsx renders a side-view microscope silhouette instead of the previous microscope shape.",
+        "The icon uses the existing `histo` color token for stroke/fill.",
+        "The icon renders correctly in both the CaseCard checklist and CalendarCaseCard workflow icon rows."
       ],
       "file_operations": [
         {
           "path": "frontend/src/components/workflow-icons/IconHisto.tsx",
           "operation": "modify",
-          "description": "Replace the current sun/radial SVG path with a microscope SVG shape. The microscope should include recognizable elements: eyepiece at top, objective lens in the middle, and a base/stage at the bottom. Keep the WorkflowIconBase wrapper and the histo color token. Ensure the icon is recognizable at the standard workflow icon size."
+          "description": "Replace the current microscope SVG path with a new side-profile microscope illustration. The new SVG should clearly depict a microscope viewed from the side, with a visible eyepiece, arm, stage, and base. Keep the existing WorkflowIconBase wrapper and histo color token unchanged. Ensure the viewBox and path coordinates create a recognizable lateral microscope silhouette that fits within the standard icon dimensions."
         }
       ]
     },
     {
-      "id": "REQ-5",
-      "summary": "Replace Surgery Report icon with scalpel SVG",
+      "id": "REQ-2",
+      "summary": "Replace IconLabs SVG with a test tube illustration retaining the existing labs color token",
       "acceptanceCriteria": [
-        "IconSurgery.tsx renders a recognizable scalpel SVG icon.",
-        "The surgeryReport color token from workflowTokens.ts is still applied.",
-        "The completed-state overlay (X mark) still applies correctly via WorkflowIconBase."
+        "IconLabs.tsx renders a test tube shape instead of the previous flask/beaker shape.",
+        "The icon uses the existing `labs` color token for stroke/fill.",
+        "The icon renders correctly in both the CaseCard checklist and CalendarCaseCard workflow icon rows."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/workflow-icons/IconSurgery.tsx",
+          "path": "frontend/src/components/workflow-icons/IconLabs.tsx",
           "operation": "modify",
-          "description": "Replace the current document/plus SVG path with a scalpel SVG shape. The scalpel should include a blade (triangular or angled) and a handle. Keep the WorkflowIconBase wrapper and the surgeryReport color token. Ensure the icon is recognizable at the standard workflow icon size."
+          "description": "Replace the current flask/beaker SVG path with a new test tube illustration. The new SVG should clearly depict a single test tube (elongated cylinder closed at the bottom, open or capped at the top). Keep the existing WorkflowIconBase wrapper and labs color token unchanged. Ensure the viewBox and path coordinates create a recognizable test tube shape that fits within the standard icon dimensions."
         }
       ]
     },
     {
-      "id": "REQ-6",
-      "summary": "Replace Culture icon with petri dish SVG",
+      "id": "REQ-3",
+      "summary": "Make each CalendarCaseCard clickable to navigate to the Cases page and highlight the corresponding case, while preserving workflow icon toggle functionality",
       "acceptanceCriteria": [
-        "IconCulture.tsx renders a recognizable petri dish SVG icon (circular dish with ellipse/colony details).",
-        "The culture color token from workflowTokens.ts is still applied.",
-        "The completed-state overlay (X mark) still applies correctly via WorkflowIconBase."
+        "Clicking a CalendarCaseCard navigates the user to the Cases (CasesListView) page.",
+        "Individual workflow icon toggle buttons within the card still function as task toggles and do not trigger navigation.",
+        "The card has a visible pointer cursor and/or hover state indicating it is clickable.",
+        "Navigation passes the case identifier so the Cases view can scroll to or highlight the relevant case."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/workflow-icons/IconCulture.tsx",
+          "path": "frontend/src/features/cases/components/CalendarCaseCard.tsx",
           "operation": "modify",
-          "description": "Replace the current database/cylinder SVG path with a petri dish SVG shape. The petri dish should be a circular outline with one or more small ellipses or circles inside representing bacterial colonies. Keep the WorkflowIconBase wrapper and the culture color token. Ensure the icon is recognizable at the standard workflow icon size."
+          "description": "Wrap the card content in a clickable container that navigates to the Cases view when clicked. Use the existing URL parameter utilities from frontend/src/utils/urlParams.ts to persist a caseId parameter. Prevent event propagation from workflow icon buttons to the card container so individual task toggles still work without triggering navigation. Add a pointer cursor and subtle hover state (e.g., slight scale or shadow) to indicate the card is clickable. Ensure the click handler extracts the case ID and navigates using window.location or React state management."
+        },
+        {
+          "path": "frontend/src/features/cases/components/CasesListView.tsx",
+          "operation": "modify",
+          "description": "Add logic to read the caseId URL parameter on mount using the utilities from frontend/src/utils/urlParams.ts. When a caseId is present, scroll to or highlight the corresponding case card in the list. Implement smooth scrolling behavior and apply a temporary highlight effect (e.g., border pulse or background color change) to draw attention to the target case. Clear the URL parameter after highlighting to prevent repeat highlights on subsequent renders."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Ensure the Cases view navigation from the calendar preserves the caseId parameter in the URL. Verify that switching between Dashboard and Cases views does not inadvertently clear session storage or URL parameters before the CasesListView has a chance to read them. If navigation is handled via state props, pass the caseId through the navigation flow."
         }
       ]
     }

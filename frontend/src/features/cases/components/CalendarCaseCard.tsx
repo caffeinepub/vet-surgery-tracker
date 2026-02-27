@@ -2,7 +2,6 @@ import React from 'react';
 import { SurgeryCase, Species, TaskType } from '../../../backend';
 import { CHECKLIST_ITEMS } from '../checklist';
 import WorkflowIcon from '../../../components/workflow-icons/WorkflowIcon';
-import ChecklistEditor from './ChecklistEditor';
 import { useUpdateTaskCompletion } from '../../../hooks/useQueries';
 
 interface CalendarCaseCardProps {
@@ -28,6 +27,7 @@ const WORKFLOW_TO_TASK_TYPE: Record<string, TaskType> = {
   imaging: TaskType.imaging,
   culture: TaskType.culture,
   followUp: TaskType.followUp,
+  dailySummary: TaskType.dailySummary,
 };
 
 export function CalendarCaseCard({ surgeryCase, onNavigateToCase }: CalendarCaseCardProps) {
@@ -41,15 +41,24 @@ export function CalendarCaseCard({ surgeryCase, onNavigateToCase }: CalendarCase
     selectedItems.length > 0 &&
     selectedItems.every((item) => surgeryCase.task[item.completedField] === true);
 
-  const handleToggleTask = (workflowType: string) => {
+  const handleToggleTask = (workflowType: string, e: React.MouseEvent) => {
+    e.stopPropagation();
     const taskType = WORKFLOW_TO_TASK_TYPE[workflowType];
     if (!taskType) return;
     updateTaskCompletion.mutate({ id: surgeryCase.id, taskType });
   };
 
+  const handleCardClick = () => {
+    onNavigateToCase?.(Number(surgeryCase.id));
+  };
+
   return (
     <div
-      className={`rounded border bg-card p-2 text-xs shadow-sm transition-all ${
+      role="button"
+      tabIndex={0}
+      onClick={handleCardClick}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleCardClick(); }}
+      className={`rounded border bg-card p-2 text-xs shadow-sm transition-all cursor-pointer hover:shadow-md hover:border-primary/40 hover:bg-accent/30 ${
         allCompleted ? 'opacity-50' : ''
       }`}
     >
@@ -61,10 +70,7 @@ export function CalendarCaseCard({ surgeryCase, onNavigateToCase }: CalendarCase
           height={16}
           className="flex-shrink-0"
         />
-        <span
-          className="font-semibold truncate cursor-pointer hover:underline"
-          onClick={() => onNavigateToCase?.(Number(surgeryCase.id))}
-        >
+        <span className="font-semibold truncate">
           {surgeryCase.petName}
         </span>
         <span className="text-muted-foreground ml-auto flex-shrink-0">{surgeryCase.medicalRecordNumber}</span>
@@ -79,10 +85,7 @@ export function CalendarCaseCard({ surgeryCase, onNavigateToCase }: CalendarCase
             <button
               key={item.workflowType}
               title={`${item.label}${isCompleted ? ' (completed)' : ''}`}
-              onClick={(e) => {
-                e.stopPropagation();
-                handleToggleTask(item.workflowType);
-              }}
+              onClick={(e) => handleToggleTask(item.workflowType, e)}
               disabled={updateTaskCompletion.isPending}
               className={`transition-opacity ${isCompleted ? 'opacity-50' : 'opacity-100'} hover:opacity-70`}
             >

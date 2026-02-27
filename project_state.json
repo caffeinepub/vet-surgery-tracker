@@ -1,50 +1,32 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "A case management app (likely medical/clinical) built on the Internet Computer platform. The app has a Dashboard and Cases page with case loading functionality. Features include task lists, calendar views, and card grid views.",
-  "architectural_notes": [
-    "Backend canister ID: kl7xn-6aaaa-aaaam-qgynq-cai on Internet Computer (ICP); canister stopped errors require redeployment or Caffeine support"
-  ],
+  "summary": "Medical/case management app with calendar views and case management features. User is iteratively adding features including icon updates and calendar improvements.",
+  "architectural_notes": [],
   "known_issues": [],
   "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-remove-surgery-report-from-the-default-task-selections-when-creating-a-new-case-it-should-no-longer-be-pre-checked-in-caseformdialog",
-      "title": "Remove 'Surgery Report' from the default task selections when creating a new case. It should no longer be pre-checked in CaseFormDialog.",
+      "id": "feature-replace-the-iconhisto-svg-with-a-side-profile-lateral-view-microscope-illustration-the-new-svg-should-clearly-depict-a-microscope-viewed-from-the-side-with-a-visible-eyepiece-arm-stage-and-base-retaining-the-existing-histo-color-token",
+      "title": "Replace the IconHisto SVG with a side-profile (lateral view) microscope illustration. The new SVG should clearly depict a microscope viewed from the side, with a visible eyepiece, arm, stage, and base, retaining the existing `histo` color token.",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-add-a-new-daily-summary-task-type-to-the-checklist-system-it-must-appear-on-both-the-dashboard-page-and-the-cases-caseslistview-page-it-must-be-unchecked-by-default-when-creating-a-new-case-use-a-tear-off-calendar-page-svg-icon-create-a-new-icondailysummary-component-if-one-does-not-exist-or-confirm-the-existing-one-at-frontend-src-components-workflow-icons-icondailysummary-tsx-is-wired-up",
-      "title": "Add a new 'Daily Summary' task type to the checklist system. It must appear on both the Dashboard page and the Cases (CasesListView) page. It must be unchecked by default when creating a new case. Use a tear-off calendar page SVG icon (create a new IconDailySummary component if one does not exist, or confirm the existing one at frontend/src/components/workflow-icons/IconDailySummary.tsx is wired up).",
+      "id": "feature-replace-the-iconlabs-svg-with-a-test-tube-illustration-the-new-svg-should-clearly-depict-a-single-test-tube-elongated-cylinder-closed-at-the-bottom-open-or-capped-at-the-top-retaining-the-existing-labs-color-token",
+      "title": "Replace the IconLabs SVG with a test tube illustration. The new SVG should clearly depict a single test tube (elongated cylinder closed at the bottom, open or capped at the top), retaining the existing `labs` color token.",
       "reqIds": [
         "REQ-2"
       ],
       "version": 1
     },
     {
-      "id": "feature-replace-the-histology-histo-workflow-icon-with-a-microscope-svg-update-iconhisto-tsx-to-render-a-microscope-shape-instead-of-the-current-sun-radial-path",
-      "title": "Replace the Histology (histo) workflow icon with a microscope SVG. Update IconHisto.tsx to render a microscope shape instead of the current sun/radial path.",
+      "id": "feature-make-each-case-card-in-the-weekly-calendar-view-calendarcasecard-a-clickable-link-that-navigates-the-user-to-the-cases-page-and-highlights-or-focuses-the-corresponding-case-clicking-anywhere-on-the-card-body-excluding-individual-workflow-icon-toggles-should-trigger-navigation-to-the-cases-view",
+      "title": "Make each case card in the weekly calendar view (CalendarCaseCard) a clickable link that navigates the user to the Cases page and highlights or focuses the corresponding case. Clicking anywhere on the card body (excluding individual workflow icon toggles) should trigger navigation to the Cases view.",
       "reqIds": [
-        "REQ-4"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-replace-the-surgery-report-workflow-icon-with-a-scalpel-svg-update-iconsurgery-tsx-to-render-a-scalpel-shape-instead-of-the-current-document-plus-path",
-      "title": "Replace the Surgery Report workflow icon with a scalpel SVG. Update IconSurgery.tsx to render a scalpel shape instead of the current document/plus path.",
-      "reqIds": [
-        "REQ-5"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-replace-the-culture-workflow-icon-with-a-petri-dish-svg-update-iconculture-tsx-to-render-a-petri-dish-shape-instead-of-the-current-database-cylinder-path",
-      "title": "Replace the Culture workflow icon with a petri dish SVG. Update IconCulture.tsx to render a petri dish shape instead of the current database/cylinder path.",
-      "reqIds": [
-        "REQ-6"
+        "REQ-3"
       ],
       "version": 1
     }
@@ -52,46 +34,32 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Remove 'surgery report' as a default task",
+      "summary": "Add 'Daily Summary' task to all +New Case buttons and pages: default unchecked, tear-off calendar page icon, navy blue color",
       "reqIds": [],
       "status": "pending"
     },
     {
       "id": "AR-2",
-      "summary": "Add 'Daily Summary' task to both pages, default unchecked, with tear-off calendar page icon",
+      "summary": "Add last name to Calendar view",
       "reqIds": [],
       "status": "pending"
     },
     {
       "id": "AR-3",
-      "summary": "Add toggle button to switch between weekly calendar view and card grid view",
+      "summary": "Increase text size and decrease icon size on Calendar view",
       "reqIds": [],
       "status": "pending"
     },
     {
       "id": "AR-4",
-      "summary": "Change histo icon to a microscope icon",
+      "summary": "Change histo icon to side-view microscope and labs icon to test tube",
       "reqIds": [],
       "status": "pending"
     },
     {
       "id": "AR-5",
-      "summary": "Change surgery report icon to a scalpel icon",
+      "summary": "Link calendar cards to Case info page when clicked",
       "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-6",
-      "summary": "Change culture icon to a petri dish icon",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-9",
-      "summary": "Add a toggle button to the Dashboard page (DashboardView.tsx) that switches between the Weekly Calendar view and the Card Grid view. The toggle should be visible in the dashboard header/controls area. Persist the selected view mode in component state (no URL or sessionStorage required).",
-      "reqIds": [
-        "REQ-3"
-      ],
       "status": "pending"
     }
   ],
