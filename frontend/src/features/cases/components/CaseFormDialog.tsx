@@ -15,6 +15,7 @@ import { useCreateCase } from '../../../hooks/useQueries';
 import { CHECKLIST_ITEMS } from '../checklist';
 import { Species, Sex } from '../../../backend';
 import DateField from './DateField';
+import WorkflowIcon from '../../../components/workflow-icons/WorkflowIcon';
 
 interface CaseFormDialogProps {
   open: boolean;
@@ -264,7 +265,13 @@ export default function CaseFormDialog({ open, onOpenChange }: CaseFormDialogPro
                       checked={taskSelections[key]}
                       onCheckedChange={() => toggleTask(key)}
                     />
-                    <Label htmlFor={`task-${item.workflowType}`} className="cursor-pointer font-normal">
+                    <Label
+                      htmlFor={`task-${item.workflowType}`}
+                      className="cursor-pointer font-normal flex items-center gap-1.5"
+                    >
+                      <span className="flex-shrink-0" style={{ lineHeight: 0 }}>
+                        <WorkflowIcon workflowType={item.workflowType} />
+                      </span>
                       {item.label}
                     </Label>
                   </div>

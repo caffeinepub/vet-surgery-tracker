@@ -1,13 +1,14 @@
 # Specification
 
 ## Summary
-**Goal:** Update two workflow icons (histo and labs) with new SVG illustrations and make calendar case cards navigate to the Cases page.
+**Goal:** Add a "Daily Summary" task to the New Case form and improve the Calendar view's readability and information density in SurgiPaw.
 
 **Planned changes:**
-- Replace the `IconHisto` SVG with a side-profile (lateral view) microscope illustration showing eyepiece, arm, stage, and base, using the existing `histo` color token.
-- Replace the `IconLabs` SVG with a test tube illustration (elongated cylinder, closed bottom), using the existing `labs` color token.
-- Make each `CalendarCaseCard` clickable so that clicking the card body navigates to the Cases page with the corresponding case highlighted/focused.
-- Individual workflow icon toggles within `CalendarCaseCard` continue to function as task toggles without triggering navigation.
-- Add a pointer cursor and hover state to `CalendarCaseCard` to indicate it is clickable.
+- Add "Daily Summary" as a selectable task in the New Case form (CaseFormDialog), using the existing `IconDailySummary` icon, navy blue color, and defaulting to unchecked
+- Register `dailySummary` in `CHECKLIST_ITEMS` (checklist.ts) with navy blue color token so it appears in CaseCard and CalendarCaseCard
+- Set the navy blue color token for `dailySummary` in `workflowTokens.ts` to an appropriate navy blue value (e.g. `#1a3a6b`)
+- Display the patient's last name on each CalendarCaseCard
+- Increase the font size of all text in CalendarCaseCard for better readability
+- Decrease the size of workflow task icons in CalendarCaseCard to reduce visual clutter
 
-**User-visible outcome:** The histo and labs icons in case cards now display a side-view microscope and a test tube respectively. Clicking a case card in the weekly calendar view navigates the user to the Cases page and highlights the relevant case.
+**User-visible outcome:** Users can log a Daily Summary task when creating a new case, see it on both the Cases list and Calendar views, and the Calendar cards now show the patient's last name with larger text and smaller icons.

@@ -58,27 +58,33 @@ export function CalendarCaseCard({ surgeryCase, onNavigateToCase }: CalendarCase
       tabIndex={0}
       onClick={handleCardClick}
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleCardClick(); }}
-      className={`rounded border bg-card p-2 text-xs shadow-sm transition-all cursor-pointer hover:shadow-md hover:border-primary/40 hover:bg-accent/30 ${
+      className={`rounded border bg-card p-2 shadow-sm transition-all cursor-pointer hover:shadow-md hover:border-primary/40 hover:bg-accent/30 ${
         allCompleted ? 'opacity-50' : ''
       }`}
     >
+      {/* Header row: species icon + pet name + last name + MRN */}
       <div className="flex items-center gap-1.5 mb-1">
         <img
           src={getSpeciesIcon(surgeryCase.species)}
           alt=""
-          width={16}
-          height={16}
+          width={13}
+          height={13}
           className="flex-shrink-0"
         />
-        <span className="font-semibold truncate">
+        <span className="font-semibold text-sm truncate">
           {surgeryCase.petName}
+          {surgeryCase.ownerLastName && (
+            <span className="font-normal text-muted-foreground"> ({surgeryCase.ownerLastName})</span>
+          )}
         </span>
-        <span className="text-muted-foreground ml-auto flex-shrink-0">{surgeryCase.medicalRecordNumber}</span>
+        <span className="text-xs text-muted-foreground ml-auto flex-shrink-0">{surgeryCase.medicalRecordNumber}</span>
       </div>
+      {/* Presenting complaint */}
       {surgeryCase.presentingComplaint && (
-        <p className="text-muted-foreground truncate mb-1.5">{surgeryCase.presentingComplaint}</p>
+        <p className="text-sm text-muted-foreground truncate mb-1.5">{surgeryCase.presentingComplaint}</p>
       )}
-      <div className="flex flex-wrap gap-1">
+      {/* Task icons — smaller size via scale */}
+      <div className="flex flex-wrap gap-0.5">
         {selectedItems.map((item) => {
           const isCompleted = surgeryCase.task[item.completedField] === true;
           return (
@@ -87,7 +93,8 @@ export function CalendarCaseCard({ surgeryCase, onNavigateToCase }: CalendarCase
               title={`${item.label}${isCompleted ? ' (completed)' : ''}`}
               onClick={(e) => handleToggleTask(item.workflowType, e)}
               disabled={updateTaskCompletion.isPending}
-              className={`transition-opacity ${isCompleted ? 'opacity-50' : 'opacity-100'} hover:opacity-70`}
+              className={`transition-opacity flex items-center justify-center ${isCompleted ? 'opacity-50' : 'opacity-100'} hover:opacity-70`}
+              style={{ transform: 'scale(0.72)', transformOrigin: 'center' }}
             >
               <WorkflowIcon workflowType={item.workflowType} isCompleted={isCompleted} />
             </button>

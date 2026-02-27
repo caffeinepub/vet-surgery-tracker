@@ -80,7 +80,7 @@ export const CHECKLIST_ITEMS: ChecklistItem[] = [
     selectedField: 'dailySummarySelected' as keyof Task,
     completedField: 'dailySummaryCompleted' as keyof Task,
     defaultSelected: false,
-    color: '#3B82F6',
+    color: '#1B3A6B',
   },
 ];
 

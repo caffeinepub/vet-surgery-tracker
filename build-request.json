@@ -1,74 +1,126 @@
 {
   "kind": "build_request",
-  "title": "Icon changes (histo → side-view microscope, labs → test tube) and calendar card navigation to Cases page",
+  "title": "Add Daily Summary task to New Case form + calendar view improvements",
   "projectName": "SurgiPaw",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Replace the IconHisto SVG with a side-profile (lateral view) microscope illustration. The new SVG should clearly depict a microscope viewed from the side, with a visible eyepiece, arm, stage, and base, retaining the existing `histo` color token.",
+      "text": "Add 'Daily Summary' as a selectable task option in the New Case form (CaseFormDialog). It must use navy blue color, display the existing IconDailySummary calendar icon, and default to unchecked when the form is opened.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-recent"
+          "msg-latest"
         ],
         "quotes": [
-          "histo to side-view microscope"
+          "Add Daily Summary task (navy blue, calendar icon, default unchecked) to New Case form"
         ]
       },
       "acceptanceCriteria": [
-        "IconHisto.tsx renders a side-view microscope silhouette instead of the previous microscope shape.",
-        "The icon uses the existing `histo` color token for stroke/fill.",
-        "The icon renders correctly in both the CaseCard checklist and CalendarCaseCard workflow icon rows."
+        "Daily Summary task appears in the checklist section of CaseFormDialog",
+        "The task checkbox is unchecked by default when the form opens",
+        "The task renders with the IconDailySummary icon and navy blue color",
+        "Selecting the task and submitting the form correctly persists the dailySummary task on the case"
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Replace the IconLabs SVG with a test tube illustration. The new SVG should clearly depict a single test tube (elongated cylinder closed at the bottom, open or capped at the top), retaining the existing `labs` color token.",
+      "text": "Ensure the Daily Summary task is registered in checklist.ts CHECKLIST_ITEMS with the navy blue color token and the 'dailySummary' workflow type so it appears on both the Cases list view (CaseCard/ChecklistEditor) and the Dashboard/Calendar view (CalendarCaseCard).",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-recent"
+          "msg-latest"
         ],
         "quotes": [
-          "labs to test tube"
+          "Add Daily Summary task (navy blue, calendar icon, default unchecked) to New Case form and both pages"
         ]
       },
       "acceptanceCriteria": [
-        "IconLabs.tsx renders a test tube shape instead of the previous flask/beaker shape.",
-        "The icon uses the existing `labs` color token for stroke/fill.",
-        "The icon renders correctly in both the CaseCard checklist and CalendarCaseCard workflow icon rows."
+        "CHECKLIST_ITEMS includes a 'dailySummary' entry with navy blue color",
+        "Daily Summary icon renders correctly in CaseCard checklist on the Cases list page",
+        "Daily Summary icon renders correctly in CalendarCaseCard on the Calendar/Dashboard page",
+        "Clicking the Daily Summary icon in both views toggles task completion"
       ]
     },
     {
       "id": "REQ-3",
-      "text": "Make each case card in the weekly calendar view (CalendarCaseCard) a clickable link that navigates the user to the Cases page and highlights or focuses the corresponding case. Clicking anywhere on the card body (excluding individual workflow icon toggles) should trigger navigation to the Cases view.",
+      "text": "Update the navy blue color token for 'dailySummary' in workflowTokens.ts to use an appropriate navy blue hex/OKLCH value (e.g., #1a3a6b or equivalent navy blue).",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-recent"
+          "msg-latest"
         ],
         "quotes": [
-          "Calendar card links to Cases page"
+          "navy blue, calendar icon"
         ]
       },
       "acceptanceCriteria": [
-        "Clicking a CalendarCaseCard navigates the user to the Cases (CasesListView) page.",
-        "Individual workflow icon toggle buttons within the card still function as task toggles and do not trigger navigation.",
-        "The card has a visible pointer cursor and/or hover state indicating it is clickable.",
-        "Navigation passes the case identifier so the Cases view can scroll to or highlight the relevant case."
+        "The dailySummary color token in workflowTokens.ts is set to navy blue",
+        "The IconDailySummary icon renders in navy blue across all views"
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "In CalendarCaseCard, display the patient's last name alongside the existing pet/patient information shown on each card.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-latest"
+        ],
+        "quotes": [
+          "Calendar view improvements — add last name"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Each CalendarCaseCard displays the patient's last name",
+        "Last name is visible without expanding or hovering the card"
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "text": "In CalendarCaseCard, increase the font size of all text (pet name, last name, complaint, and any other displayed text) to improve readability on the calendar view.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-latest"
+        ],
+        "quotes": [
+          "increase text size"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Text in CalendarCaseCard is visibly larger than the previous version",
+        "All text content (name, complaint, labels) uses the increased font size"
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "text": "In CalendarCaseCard, decrease the size of the workflow task icons to reduce visual clutter and allow more information to fit on each card.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-latest"
+        ],
+        "quotes": [
+          "decrease icon size"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Workflow task icons in CalendarCaseCard are visibly smaller than the previous version",
+        "Icons remain clickable and functional for toggling task completion",
+        "Icons do not overflow or overlap card boundaries"
       ]
     }
   ],
   "constraints": [
-    "Do not change any color tokens or the WorkflowIconBase wrapper.",
-    "Do not alter task toggle behavior on CalendarCaseCard workflow icons."
+    "Do not modify files under frontend/src/hooks/ or frontend/src/components/ui/",
+    "The IconDailySummary component already exists — do not recreate it, only reference it",
+    "Backend Task type must support the dailySummary field if not already present"
   ],
   "nonGoals": [
-    "Adding last name to the calendar view (separate request).",
-    "Increasing text size or decreasing icon size on the calendar view (separate request).",
-    "Adding the Daily Summary task (separate request).",
-    "Any backend changes."
+    "Redesigning the full CalendarCaseCard layout beyond the specified changes",
+    "Adding Daily Summary to the CaseEditDialog (not requested)",
+    "Changing icon sizes on the Cases list view (CaseCard) — only CalendarCaseCard"
   ],
   "imageRequirements": {
     "required": [],
