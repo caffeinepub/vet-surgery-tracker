@@ -2,10 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-change-the-follow-up-task-default-state-to-unchecked-in-the-checklist-configuration-so-that-new-cases-are-created-with-follow-up-unselected-by-default",
-      "featureTitle": "Change the Follow Up task default state to unchecked in the checklist configuration so that new cases are created with Follow Up unselected by default.",
+      "featureId": "feature-add-meta-name-mobile-web-app-capable-content-yes-to-frontend-index-html-alongside-or-replacing-the-deprecated-meta-name-apple-mobile-web-app-capable-content-yes-tag-to-resolve-the-browser-deprecation-warning",
+      "featureTitle": "Add <meta name=\"mobile-web-app-capable\" content=\"yes\"> to frontend/index.html alongside or replacing the deprecated <meta name=\"apple-mobile-web-app-capable\" content=\"yes\"> tag to resolve the browser deprecation warning.",
       "files": [
-        "frontend/src/features/cases/checklist.ts"
+        "frontend/index.html"
       ],
       "components": [
         "authorization@4.0.0",
@@ -18,17 +18,15 @@
         "http-outcalls@3.0.0"
       ],
       "testIds": [
-        "REQ-6"
+        "REQ-10"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-completed-cases-must-remain-visible-on-the-dashboard-both-in-calendar-view-and-list-grid-view-but-rendered-with-a-visually-shaded-out-appearance-e-g-reduced-opacity-or-muted-background-they-must-not-be-removed-or-hidden",
-      "featureTitle": "Completed cases must remain visible on the Dashboard (both in calendar view and list/grid view) but rendered with a visually shaded-out appearance (e.g., reduced opacity or muted background). They must not be removed or hidden.",
+      "featureId": "feature-fix-the-pwa-manifest-icon-entry-in-frontend-public-manifest-json-so-that-the-icon-referenced-img-4505-ico-or-equivalent-uses-a-valid-image-file-with-correct-dimensions-and-format-replace-the-ico-reference-with-a-properly-sized-png-icon-e-g-192x192-and-512x512-so-the-browser-can-load-the-manifest-icon-without-a-resource-size-is-not-correct-error",
+      "featureTitle": "Fix the PWA manifest icon entry in frontend/public/manifest.json so that the icon referenced (IMG_4505.ico or equivalent) uses a valid image file with correct dimensions and format. Replace the .ico reference with a properly sized PNG icon (e.g., 192x192 and 512x512) so the browser can load the manifest icon without a 'Resource size is not correct' error.",
       "files": [
-        "frontend/src/features/cases/components/CalendarCaseCard.tsx",
-        "frontend/src/features/cases/components/CaseCard.tsx",
-        "frontend/src/features/dashboard/components/DashboardView.tsx"
+        "frontend/public/manifest.json"
       ],
       "components": [
         "authorization@4.0.0",
@@ -41,59 +39,7 @@
         "http-outcalls@3.0.0"
       ],
       "testIds": [
-        "REQ-7"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-when-a-task-is-marked-as-completed-render-an-x-overlay-on-top-of-the-task-s-icon-the-x-should-be-visually-overlaid-on-the-icon-itself-not-on-the-text-label-this-applies-to-task-icons-in-casecard-calendarcasecard-and-checklisteditor-components",
-      "featureTitle": "When a task is marked as completed, render an X overlay on top of the task's icon. The X should be visually overlaid on the icon itself (not on the text label). This applies to task icons in CaseCard, CalendarCaseCard, and ChecklistEditor components.",
-      "files": [
-        "frontend/src/components/workflow-icons/WorkflowIcon.tsx",
-        "frontend/src/components/workflow-icons/WorkflowIconBase.tsx",
-        "frontend/src/features/cases/components/CalendarCaseCard.tsx",
-        "frontend/src/features/cases/components/CaseCard.tsx",
-        "frontend/src/features/cases/components/ChecklistEditor.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "camera@1.0.0",
-        "http-outcalls@3.0.0"
-      ],
-      "testIds": [
-        "REQ-8"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-add-a-new-daily-summary-task-to-the-checklist-configuration-used-on-both-the-dashboard-and-cases-pages-the-task-defaults-to-unchecked-its-icon-should-depict-a-tear-off-calendar-page-a-page-with-two-digits-numbers-on-it-like-a-daily-calendar-sheet-the-task-must-appear-in-caseformdialog-caseeditdialog-checklisteditor-casecard-and-calendarcasecard-wherever-other-workflow-tasks-appear",
-      "featureTitle": "Add a new 'Daily Summary' task to the checklist configuration used on both the Dashboard and Cases pages. The task defaults to unchecked. Its icon should depict a tear-off calendar page (a page with two digits/numbers on it, like a daily calendar sheet). The task must appear in CaseFormDialog, CaseEditDialog, ChecklistEditor, CaseCard, and CalendarCaseCard wherever other workflow tasks appear.",
-      "files": [
-        "frontend/src/components/workflow-icons/IconDailySummary.tsx",
-        "frontend/src/components/workflow-icons/WorkflowIcon.tsx",
-        "frontend/src/components/workflow-icons/workflowTokens.ts",
-        "frontend/src/features/cases/checklist.ts",
-        "frontend/src/features/cases/components/CaseEditDialog.tsx",
-        "frontend/src/features/cases/components/CaseFormDialog.tsx",
-        "frontend/src/features/cases/components/ChecklistEditor.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "camera@1.0.0",
-        "http-outcalls@3.0.0"
-      ],
-      "testIds": [
-        "REQ-9"
+        "REQ-11"
       ],
       "confidence": "high"
     }

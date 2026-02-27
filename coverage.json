@@ -1,82 +1,35 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-27T00:56:47.490Z",
+  "generatedAt": "2026-02-27T01:19:35.391Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 4,
-    "implemented": 4,
+    "total": 2,
+    "implemented": 2,
     "items": [
       {
-        "id": "REQ-6",
-        "summary": "Change the Follow Up task default state to unchecked in the checklist configuration so that new cases are created with Follow Up unselected by default.",
+        "id": "REQ-10",
+        "summary": "Add <meta name=\"mobile-web-app-capable\" content=\"yes\"> to frontend/index.html alongside or replacing the deprecated <meta name=\"apple-mobile-web-app-capable\" content=\"yes\"> tag to resolve the browser deprecation warning.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/features/cases/checklist.ts"
+          "frontend/index.html"
         ],
         "matchedFiles": [
-          "frontend/src/features/cases/checklist.ts"
+          "frontend/index.html"
         ]
       },
       {
-        "id": "REQ-7",
-        "summary": "Completed cases must remain visible on the Dashboard (both in calendar view and list/grid view) but rendered with a visually shaded-out appearance (e.g., reduced opacity or muted background). They must not be removed or hidden.",
+        "id": "REQ-11",
+        "summary": "Fix the PWA manifest icon entry in frontend/public/manifest.json so that the icon referenced (IMG_4505.ico or equivalent) uses a valid image file with correct dimensions and format. Replace the .ico reference with a properly sized PNG icon (e.g., 192x192 and 512x512) so the browser can load the manifest icon without a 'Resource size is not correct' error.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/features/dashboard/components/DashboardView.tsx",
-          "frontend/src/features/cases/components/CalendarCaseCard.tsx",
-          "frontend/src/features/cases/components/CaseCard.tsx"
+          "frontend/public/manifest.json"
         ],
         "matchedFiles": [
-          "frontend/src/features/dashboard/components/DashboardView.tsx",
-          "frontend/src/features/cases/components/CalendarCaseCard.tsx",
-          "frontend/src/features/cases/components/CaseCard.tsx"
-        ]
-      },
-      {
-        "id": "REQ-8",
-        "summary": "When a task is marked as completed, render an X overlay on top of the task's icon. The X should be visually overlaid on the icon itself (not on the text label). This applies to task icons in CaseCard, CalendarCaseCard, and ChecklistEditor components.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/components/workflow-icons/WorkflowIconBase.tsx",
-          "frontend/src/components/workflow-icons/WorkflowIcon.tsx",
-          "frontend/src/features/cases/components/ChecklistEditor.tsx",
-          "frontend/src/features/cases/components/CaseCard.tsx",
-          "frontend/src/features/cases/components/CalendarCaseCard.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/components/workflow-icons/WorkflowIconBase.tsx",
-          "frontend/src/components/workflow-icons/WorkflowIcon.tsx",
-          "frontend/src/features/cases/components/ChecklistEditor.tsx",
-          "frontend/src/features/cases/components/CaseCard.tsx",
-          "frontend/src/features/cases/components/CalendarCaseCard.tsx"
-        ]
-      },
-      {
-        "id": "REQ-9",
-        "summary": "Add a new 'Daily Summary' task to the checklist configuration used on both the Dashboard and Cases pages. The task defaults to unchecked. Its icon should depict a tear-off calendar page (a page with two digits/numbers on it, like a daily calendar sheet). The task must appear in CaseFormDialog, CaseEditDialog, ChecklistEditor, CaseCard, and CalendarCaseCard wherever other workflow tasks appear.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/components/workflow-icons/IconDailySummary.tsx",
-          "frontend/src/components/workflow-icons/workflowTokens.ts",
-          "frontend/src/components/workflow-icons/WorkflowIcon.tsx",
-          "frontend/src/features/cases/checklist.ts",
-          "frontend/src/features/cases/types.ts",
-          "frontend/src/features/cases/components/CaseFormDialog.tsx",
-          "frontend/src/features/cases/components/CaseEditDialog.tsx",
-          "frontend/src/features/cases/components/ChecklistEditor.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/components/workflow-icons/IconDailySummary.tsx",
-          "frontend/src/components/workflow-icons/workflowTokens.ts",
-          "frontend/src/components/workflow-icons/WorkflowIcon.tsx",
-          "frontend/src/features/cases/checklist.ts",
-          "frontend/src/features/cases/components/CaseFormDialog.tsx",
-          "frontend/src/features/cases/components/CaseEditDialog.tsx",
-          "frontend/src/features/cases/components/ChecklistEditor.tsx"
+          "frontend/public/manifest.json"
         ]
       }
     ]
@@ -86,30 +39,10 @@
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/components/workflow-icons/IconCulture.tsx",
-    "frontend/src/components/workflow-icons/IconDailySummary.tsx",
-    "frontend/src/components/workflow-icons/IconDischarge.tsx",
-    "frontend/src/components/workflow-icons/IconFollowUp.tsx",
-    "frontend/src/components/workflow-icons/IconHisto.tsx",
-    "frontend/src/components/workflow-icons/IconImaging.tsx",
-    "frontend/src/components/workflow-icons/IconLabs.tsx",
-    "frontend/src/components/workflow-icons/IconNotified.tsx",
-    "frontend/src/components/workflow-icons/IconSurgery.tsx",
-    "frontend/src/components/workflow-icons/WorkflowIcon.tsx",
-    "frontend/src/components/workflow-icons/WorkflowIconBase.tsx",
-    "frontend/src/components/workflow-icons/workflowTokens.ts",
-    "frontend/src/features/cases/checklist.ts",
-    "frontend/src/features/cases/components/CalendarCaseCard.tsx",
-    "frontend/src/features/cases/components/CaseCard.tsx",
-    "frontend/src/features/cases/components/CaseEditDialog.tsx",
-    "frontend/src/features/cases/components/CaseFormDialog.tsx",
-    "frontend/src/features/cases/components/CasesListView.tsx",
-    "frontend/src/features/cases/components/CasesTasksFilter.tsx",
-    "frontend/src/features/cases/components/ChecklistEditor.tsx",
-    "frontend/src/features/cases/pdf/generateCasePdf.ts",
-    "frontend/src/features/dashboard/components/DashboardView.tsx",
-    "frontend/src/features/dashboard/components/WeeklyCalendarView.tsx",
-    "frontend/src/features/dashboard/utils/openTasksCalculation.ts",
+    "frontend/index.html",
+    "frontend/public/assets/generated/app-icon-192.dim_192x192.png",
+    "frontend/public/assets/generated/app-icon.dim_512x512.png",
+    "frontend/public/manifest.json",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

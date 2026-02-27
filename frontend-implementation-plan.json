@@ -1,139 +1,36 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Add X overlay on completed task icons, uncheck Follow Up by default, keep shaded completed cases, add Daily Summary task",
+  "title": "Fix browser console warnings: PWA manifest meta tag and icon resource",
   "requirements": [
     {
-      "id": "REQ-6",
-      "summary": "Change Follow Up task default state to unchecked in checklist configuration",
+      "id": "REQ-10",
+      "summary": "Add mobile-web-app-capable meta tag to resolve browser deprecation warning",
       "acceptanceCriteria": [
-        "When creating a new case, the Follow Up task checkbox is unchecked by default.",
-        "Existing cases are unaffected by this change.",
-        "The checklist.ts default selections no longer include Follow Up."
+        "<meta name=\"mobile-web-app-capable\" content=\"yes\"> is present in frontend/index.html",
+        "No deprecation warning about apple-mobile-web-app-capable appears in the browser console"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/features/cases/checklist.ts",
+          "path": "frontend/index.html",
           "operation": "modify",
-          "description": "Update getDefaultTaskSelections function to remove 'followUp' from the default selected task array, ensuring Follow Up defaults to unchecked when creating new cases"
+          "description": "Add <meta name=\"mobile-web-app-capable\" content=\"yes\"> tag to the <head> section alongside the existing apple-mobile-web-app-capable meta tag. Place it immediately after the apple-mobile-web-app-capable tag to maintain grouping of PWA-related meta tags."
         }
       ]
     },
     {
-      "id": "REQ-7",
-      "summary": "Keep completed cases visible on Dashboard with shaded appearance",
+      "id": "REQ-11",
+      "summary": "Fix PWA manifest icon entries to use valid PNG icons at correct dimensions",
       "acceptanceCriteria": [
-        "Cases where all tasks are completed remain visible on the Dashboard in both calendar and grid/list views.",
-        "Completed cases have a visually distinct shaded appearance (e.g., reduced opacity or muted background) compared to active cases.",
-        "Completed cases are never automatically removed or hidden from the Dashboard."
+        "frontend/public/manifest.json references valid PNG icon files at standard PWA sizes (192x192 and 512x512)",
+        "No manifest icon error appears in the browser console",
+        "The .ico file reference is removed or replaced with a correctly formatted PNG entry"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/features/dashboard/components/DashboardView.tsx",
+          "path": "frontend/public/manifest.json",
           "operation": "modify",
-          "description": "Remove or disable any filtering logic that hides completed cases from the dashboard view, ensuring all cases remain visible regardless of completion status"
-        },
-        {
-          "path": "frontend/src/features/cases/components/CalendarCaseCard.tsx",
-          "operation": "modify",
-          "description": "Add conditional styling (e.g., opacity-60 or muted background) to the card container when all tasks are completed, providing visual distinction while keeping the case visible"
-        },
-        {
-          "path": "frontend/src/features/cases/components/CaseCard.tsx",
-          "operation": "modify",
-          "description": "Add conditional styling (e.g., opacity-60 or muted background) to the card container when all tasks are completed, ensuring completed cases appear shaded in the list view"
-        }
-      ]
-    },
-    {
-      "id": "REQ-8",
-      "summary": "Render X overlay on completed task icons",
-      "acceptanceCriteria": [
-        "Completed task icons display an X overlaid on top of the icon graphic.",
-        "The X overlay is visible in both the Dashboard calendar view (CalendarCaseCard) and the Cases list view (CaseCard/ChecklistEditor).",
-        "Incomplete task icons display no X overlay.",
-        "The X is rendered as two crossing lines over the icon, not as a strikethrough on adjacent text."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/workflow-icons/WorkflowIconBase.tsx",
-          "operation": "modify",
-          "description": "Add an optional 'isCompleted' boolean prop and render an X overlay (two crossing diagonal lines using SVG path or line elements) when isCompleted is true, positioned absolutely over the icon graphic"
-        },
-        {
-          "path": "frontend/src/components/workflow-icons/WorkflowIcon.tsx",
-          "operation": "modify",
-          "description": "Accept an optional 'isCompleted' boolean prop and pass it through to the underlying icon component (WorkflowIconBase or direct icon components), ensuring the X overlay is conditionally rendered"
-        },
-        {
-          "path": "frontend/src/features/cases/components/ChecklistEditor.tsx",
-          "operation": "modify",
-          "description": "Pass the completion state (isCompleted) of each task to the WorkflowIcon component so completed tasks display the X overlay on their icons"
-        },
-        {
-          "path": "frontend/src/features/cases/components/CaseCard.tsx",
-          "operation": "modify",
-          "description": "Pass the completion state of each task to WorkflowIcon components in the task display section, ensuring the X overlay appears on completed task icons"
-        },
-        {
-          "path": "frontend/src/features/cases/components/CalendarCaseCard.tsx",
-          "operation": "modify",
-          "description": "Pass the completion state of each task to WorkflowIcon components in the calendar card view, ensuring the X overlay appears on completed task icons"
-        }
-      ]
-    },
-    {
-      "id": "REQ-9",
-      "summary": "Add Daily Summary task with tear-off calendar icon",
-      "acceptanceCriteria": [
-        "A 'Daily Summary' task option appears in the checklist on both Dashboard case cards and Cases page case cards.",
-        "Daily Summary is unchecked by default when creating a new case.",
-        "The Daily Summary task icon visually resembles a tear-off calendar page with two digits.",
-        "The Daily Summary task can be toggled as complete/incomplete like other tasks.",
-        "The X overlay (REQ-8) applies to the Daily Summary icon when it is marked complete.",
-        "Daily Summary appears in CaseFormDialog and CaseEditDialog task selection.",
-        "The backend Task type is updated to include 'dailySummary' as a valid task key."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/workflow-icons/IconDailySummary.tsx",
-          "operation": "create",
-          "description": "Create a new SVG icon component for Daily Summary using WorkflowIconBase, rendering a rectangle with two large digits inside to represent a tear-off calendar page, using an appropriate color from workflowTokens"
-        },
-        {
-          "path": "frontend/src/components/workflow-icons/workflowTokens.ts",
-          "operation": "modify",
-          "description": "Add a color token for the Daily Summary task (e.g., 'dailySummary: '#...'') to the COLOR object, maintaining visual distinction from existing task colors"
-        },
-        {
-          "path": "frontend/src/components/workflow-icons/WorkflowIcon.tsx",
-          "operation": "modify",
-          "description": "Import IconDailySummary and add a case for 'dailySummary' type in the switch/conditional logic that maps task types to icon components"
-        },
-        {
-          "path": "frontend/src/features/cases/checklist.ts",
-          "operation": "modify",
-          "description": "Add a new checklist item for 'dailySummary' to the CHECKLIST_ITEMS array with label 'Daily Summary', defaultSelected: false, and ensure it appears in getTaskColor mapping. Update getRemainingItems and related functions to handle dailySummary task key."
-        },
-        {
-          "path": "frontend/src/features/cases/types.ts",
-          "operation": "modify",
-          "description": "Add dailySummary: boolean field to the CaseFormData interface to support Daily Summary task selection in case creation and editing forms"
-        },
-        {
-          "path": "frontend/src/features/cases/components/CaseFormDialog.tsx",
-          "operation": "modify",
-          "description": "Include Daily Summary in the task selection checklist rendered in the form, ensuring it appears with other tasks and defaults to unchecked"
-        },
-        {
-          "path": "frontend/src/features/cases/components/CaseEditDialog.tsx",
-          "operation": "modify",
-          "description": "Include Daily Summary in the task selection checklist for case editing, allowing users to add or remove the task from existing cases"
-        },
-        {
-          "path": "frontend/src/features/cases/components/ChecklistEditor.tsx",
-          "operation": "modify",
-          "description": "Ensure ChecklistEditor renders Daily Summary tasks when selected, with toggle functionality and icon display identical to other workflow tasks"
+          "description": "Update the icons array to reference the generated PNG icon files at frontend/public/assets/generated/app-icon.dim_512x512.png and frontend/public/assets/generated/app-icon-192.dim_192x192.png. Remove or replace any .ico file references (IMG_4505.ico) with these PNG entries. Ensure each icon entry includes src, sizes, type (image/png), and purpose fields following PWA manifest specification."
         }
       ]
     }

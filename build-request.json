@@ -1,101 +1,58 @@
 {
   "kind": "build_request",
-  "title": "Add X overlay on completed task icons, uncheck Follow Up by default, keep shaded completed cases, add Daily Summary task",
+  "title": "Fix browser console warnings: PWA manifest meta tag and icon resource",
   "projectName": "SurgiPaw",
   "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-6",
-      "text": "Change the Follow Up task default state to unchecked in the checklist configuration so that new cases are created with Follow Up unselected by default.",
+      "id": "REQ-10",
+      "text": "Add <meta name=\"mobile-web-app-capable\" content=\"yes\"> to frontend/index.html alongside or replacing the deprecated <meta name=\"apple-mobile-web-app-capable\" content=\"yes\"> tag to resolve the browser deprecation warning.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-recent"
+          "msg-1"
         ],
         "quotes": [
-          "Remove Follow up as a default checked task; default should be unchecked"
+          "<meta name=\"apple-mobile-web-app-capable\" content=\"yes\"> is deprecated. Please include <meta name=\"mobile-web-app-capable\" content=\"yes\">"
         ]
       },
       "acceptanceCriteria": [
-        "When creating a new case, the Follow Up task checkbox is unchecked by default.",
-        "Existing cases are unaffected by this change.",
-        "The checklist.ts default selections no longer include Follow Up."
+        "<meta name=\"mobile-web-app-capable\" content=\"yes\"> is present in frontend/index.html",
+        "No deprecation warning about apple-mobile-web-app-capable appears in the browser console"
       ]
     },
     {
-      "id": "REQ-7",
-      "text": "Completed cases must remain visible on the Dashboard (both in calendar view and list/grid view) but rendered with a visually shaded-out appearance (e.g., reduced opacity or muted background). They must not be removed or hidden.",
+      "id": "REQ-11",
+      "text": "Fix the PWA manifest icon entry in frontend/public/manifest.json so that the icon referenced (IMG_4505.ico or equivalent) uses a valid image file with correct dimensions and format. Replace the .ico reference with a properly sized PNG icon (e.g., 192x192 and 512x512) so the browser can load the manifest icon without a 'Resource size is not correct' error.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-recent"
+          "msg-1"
         ],
         "quotes": [
-          "When all tasks are completed, leave case on the Dashboard, just shaded out as noted in previous build"
+          "Error while trying to use the following icon from the Manifest: https://vet-surgery-caselog-97o.caffeine.xyz/assets/IMG_4505.ico (Resource size is not correct - typo in the Manifest?)"
         ]
       },
       "acceptanceCriteria": [
-        "Cases where all tasks are completed remain visible on the Dashboard in both calendar and grid/list views.",
-        "Completed cases have a visually distinct shaded appearance (e.g., reduced opacity or muted background) compared to active cases.",
-        "Completed cases are never automatically removed or hidden from the Dashboard."
-      ]
-    },
-    {
-      "id": "REQ-8",
-      "text": "When a task is marked as completed, render an X overlay on top of the task's icon. The X should be visually overlaid on the icon itself (not on the text label). This applies to task icons in CaseCard, CalendarCaseCard, and ChecklistEditor components.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-recent"
-        ],
-        "quotes": [
-          "When a task is complete put a line through the icon",
-          "1. A line over the icon like an X"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Completed task icons display an X overlaid on top of the icon graphic.",
-        "The X overlay is visible in both the Dashboard calendar view (CalendarCaseCard) and the Cases list view (CaseCard/ChecklistEditor).",
-        "Incomplete task icons display no X overlay.",
-        "The X is rendered as two crossing lines over the icon, not as a strikethrough on adjacent text."
-      ]
-    },
-    {
-      "id": "REQ-9",
-      "text": "Add a new 'Daily Summary' task to the checklist configuration used on both the Dashboard and Cases pages. The task defaults to unchecked. Its icon should depict a tear-off calendar page (a page with two digits/numbers on it, like a daily calendar sheet). The task must appear in CaseFormDialog, CaseEditDialog, ChecklistEditor, CaseCard, and CalendarCaseCard wherever other workflow tasks appear.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-recent"
-        ],
-        "quotes": [
-          "Add a task to both pages 'Daily Summary'; default unchecked; icon a piece of paper with two digits on it (like the page of a tear off calendar)"
-        ]
-      },
-      "acceptanceCriteria": [
-        "A 'Daily Summary' task option appears in the checklist on both Dashboard case cards and Cases page case cards.",
-        "Daily Summary is unchecked by default when creating a new case.",
-        "The Daily Summary task icon visually resembles a tear-off calendar page with two digits.",
-        "The Daily Summary task can be toggled as complete/incomplete like other tasks.",
-        "The X overlay (REQ-8) applies to the Daily Summary icon when it is marked complete.",
-        "Daily Summary appears in CaseFormDialog and CaseEditDialog task selection.",
-        "The backend Task type is updated to include 'dailySummary' as a valid task key."
+        "frontend/public/manifest.json references valid PNG icon files at standard PWA sizes (192x192 and 512x512)",
+        "No manifest icon error appears in the browser console",
+        "The .ico file reference is removed or replaced with a correctly formatted PNG entry"
       ]
     }
   ],
   "constraints": [
-    "Do not remove or hide completed cases from the Dashboard; they must remain visible but shaded.",
-    "The X overlay must be on the icon graphic itself, not on the text label.",
-    "immutablePaths (frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, frontend/src/components/ui) must not be modified."
+    "Do not modify any files listed under frontend.immutablePaths",
+    "Do not change any existing app functionality or visual design"
   ],
   "nonGoals": [
-    "Changing the visual style or layout of any other part of the Dashboard or Cases pages.",
-    "Adding any other new tasks beyond Daily Summary.",
-    "Modifying the weekly calendar navigation or column layout.",
-    "Removing completed cases from any view."
+    "Fixing the 'Detected both agent and agentOptions passed to createActor' warning — this is a known ICP/DFINITY SDK warning and does not affect functionality",
+    "Adding new features or changing backend logic"
   ],
   "imageRequirements": {
-    "required": [],
+    "required": [
+      "App icon for PWA manifest — clean paw print or veterinary cross symbol on a solid background (app-icon.dim_512x512.png)",
+      "App icon small size variant (app-icon-192.dim_192x192.png)"
+    ],
     "edits": []
   }
 }

@@ -1,32 +1,15 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-27T00:56:47.486Z",
-  "summary": "The diff implements most of the requested requirements: REQ-6 (Follow Up default unchecked), REQ-7 (completed cases shaded with opacity), REQ-8 (X overlay on task icons via WorkflowIconBase and IconImaging), and REQ-9 (Daily Summary task added with calendar icon, appearing in checklist, WorkflowIcon, CaseFormDialog, CaseEditDialog, CalendarCaseCard, CaseCard, ChecklistEditor). However, there are notable gaps: the WORKFLOW_TO_TASK_TYPE map in CaseCard.tsx and CalendarCaseCard.tsx does not include 'dailySummary', meaning toggling the Daily Summary task completion will silently fail. CaseFormDialog does not pass dailySummary in the taskOptions submitted to the backend. The backend Task type update for 'dailySummary' is referenced via 'as keyof Task' casts, suggesting it may not be formally added to the backend type definition.",
+  "generatedAt": "2026-02-27T01:19:35.387Z",
+  "summary": "Both REQ-10 and REQ-11 appear to be implemented in the diff. REQ-10 is addressed by adding <meta name='mobile-web-app-capable' content='yes'> to frontend/index.html alongside the existing apple-mobile-web-app-capable tag. REQ-11 is addressed by updating frontend/public/manifest.json to reference two PNG icons at 192x192 and 512x512 sizes, removing the .ico reference. However, the actual PNG image files are not present in the diff (no added files listed), which may mean the images were not included in the changeset.",
   "missing_requirements": [
     {
-      "id": "REQ-9",
-      "requirement": "The backend Task type is updated to include 'dailySummary' as a valid task key.",
-      "reason": "The diff uses 'dailySummarySelected' and 'dailySummaryCompleted' with 'as keyof Task' type assertions rather than proper additions to the Task type, indicating the backend type was not formally updated. No backend file changes are visible in the diff.",
+      "requirement": "PNG icon image files (app-icon-192.dim_192x192.png and app-icon.dim_512x512.png) must actually exist in the assets/generated directory for the manifest and HTML references to resolve without errors",
+      "reason": "The diff shows no added files, yet both manifest.json and index.html reference /assets/generated/app-icon-192.dim_192x192.png and /assets/generated/app-icon.dim_512x512.png. Without these image files being present, the manifest icon error would persist at runtime.",
       "evidence": [
-        "frontend/src/features/cases/checklist.ts"
-      ]
-    },
-    {
-      "id": "REQ-9",
-      "requirement": "The Daily Summary task can be toggled as complete/incomplete like other tasks.",
-      "reason": "The WORKFLOW_TO_TASK_TYPE maps in CaseCard.tsx and CalendarCaseCard.tsx do not include a 'dailySummary' entry, so handleToggleTask returns early without mutating when Daily Summary is clicked.",
-      "evidence": [
-        "frontend/src/features/cases/components/CaseCard.tsx",
-        "frontend/src/features/cases/components/CalendarCaseCard.tsx"
-      ]
-    },
-    {
-      "id": "REQ-9",
-      "requirement": "Daily Summary appears in CaseFormDialog and CaseEditDialog task selection with value submitted to backend.",
-      "reason": "In CaseFormDialog, the taskOptions object passed to createCase.mutateAsync does not include dailySummary, so even though the checkbox appears in the UI, the value is not submitted to the backend.",
-      "evidence": [
-        "frontend/src/features/cases/components/CaseFormDialog.tsx"
+        "frontend/public/manifest.json",
+        "frontend/index.html"
       ]
     }
   ],
@@ -34,30 +17,8 @@
   "confidence": 0.78,
   "changed_files": [
     "frontend-file-summaries.txt",
-    "frontend/src/components/workflow-icons/IconCulture.tsx",
-    "frontend/src/components/workflow-icons/IconDailySummary.tsx",
-    "frontend/src/components/workflow-icons/IconDischarge.tsx",
-    "frontend/src/components/workflow-icons/IconFollowUp.tsx",
-    "frontend/src/components/workflow-icons/IconHisto.tsx",
-    "frontend/src/components/workflow-icons/IconImaging.tsx",
-    "frontend/src/components/workflow-icons/IconLabs.tsx",
-    "frontend/src/components/workflow-icons/IconNotified.tsx",
-    "frontend/src/components/workflow-icons/IconSurgery.tsx",
-    "frontend/src/components/workflow-icons/WorkflowIcon.tsx",
-    "frontend/src/components/workflow-icons/WorkflowIconBase.tsx",
-    "frontend/src/components/workflow-icons/workflowTokens.ts",
-    "frontend/src/features/cases/checklist.ts",
-    "frontend/src/features/cases/components/CalendarCaseCard.tsx",
-    "frontend/src/features/cases/components/CaseCard.tsx",
-    "frontend/src/features/cases/components/CaseEditDialog.tsx",
-    "frontend/src/features/cases/components/CaseFormDialog.tsx",
-    "frontend/src/features/cases/components/CasesListView.tsx",
-    "frontend/src/features/cases/components/CasesTasksFilter.tsx",
-    "frontend/src/features/cases/components/ChecklistEditor.tsx",
-    "frontend/src/features/cases/pdf/generateCasePdf.ts",
-    "frontend/src/features/dashboard/components/DashboardView.tsx",
-    "frontend/src/features/dashboard/components/WeeklyCalendarView.tsx",
-    "frontend/src/features/dashboard/utils/openTasksCalculation.ts",
+    "frontend/index.html",
+    "frontend/public/manifest.json",
     "project_state.json"
   ]
 }
