@@ -2,10 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-add-daily-summary-as-a-selectable-task-option-in-the-new-case-form-caseformdialog-it-must-use-navy-blue-color-display-the-existing-icondailysummary-calendar-icon-and-default-to-unchecked-when-the-form-is-opened",
-      "featureTitle": "Add 'Daily Summary' as a selectable task option in the New Case form (CaseFormDialog). It must use navy blue color, display the existing IconDailySummary calendar icon, and default to unchecked when the form is opened.",
+      "featureId": "feature-publish-the-current-deployed-draft-version-of-the-surgipaw-app-to-production",
+      "featureTitle": "Publish the current deployed draft version of the SurgiPaw app to production.",
       "files": [
-        "frontend/src/features/cases/components/CaseFormDialog.tsx"
+        "frontend/public/sw.js"
       ],
       "components": [
         "authorization@4.0.0",
@@ -19,111 +19,6 @@
       ],
       "testIds": [
         "REQ-1"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-ensure-the-daily-summary-task-is-registered-in-checklist-ts-checklist-items-with-the-navy-blue-color-token-and-the-dailysummary-workflow-type-so-it-appears-on-both-the-cases-list-view-casecard-checklisteditor-and-the-dashboard-calendar-view-calendarcasecard",
-      "featureTitle": "Ensure the Daily Summary task is registered in checklist.ts CHECKLIST_ITEMS with the navy blue color token and the 'dailySummary' workflow type so it appears on both the Cases list view (CaseCard/ChecklistEditor) and the Dashboard/Calendar view (CalendarCaseCard).",
-      "files": [
-        "frontend/src/features/cases/checklist.ts"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "camera@1.0.0",
-        "http-outcalls@3.0.0"
-      ],
-      "testIds": [
-        "REQ-2"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-update-the-navy-blue-color-token-for-dailysummary-in-workflowtokens-ts-to-use-an-appropriate-navy-blue-hex-oklch-value-e-g-1a3a6b-or-equivalent-navy-blue",
-      "featureTitle": "Update the navy blue color token for 'dailySummary' in workflowTokens.ts to use an appropriate navy blue hex/OKLCH value (e.g., #1a3a6b or equivalent navy blue).",
-      "files": [
-        "frontend/src/components/workflow-icons/workflowTokens.ts"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "camera@1.0.0",
-        "http-outcalls@3.0.0"
-      ],
-      "testIds": [
-        "REQ-3"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-in-calendarcasecard-display-the-patient-s-last-name-alongside-the-existing-pet-patient-information-shown-on-each-card",
-      "featureTitle": "In CalendarCaseCard, display the patient's last name alongside the existing pet/patient information shown on each card.",
-      "files": [
-        "frontend/src/features/cases/components/CalendarCaseCard.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "camera@1.0.0",
-        "http-outcalls@3.0.0"
-      ],
-      "testIds": [
-        "REQ-4"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-in-calendarcasecard-increase-the-font-size-of-all-text-pet-name-last-name-complaint-and-any-other-displayed-text-to-improve-readability-on-the-calendar-view",
-      "featureTitle": "In CalendarCaseCard, increase the font size of all text (pet name, last name, complaint, and any other displayed text) to improve readability on the calendar view.",
-      "files": [
-        "frontend/src/features/cases/components/CalendarCaseCard.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "camera@1.0.0",
-        "http-outcalls@3.0.0"
-      ],
-      "testIds": [
-        "REQ-5"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-in-calendarcasecard-decrease-the-size-of-the-workflow-task-icons-to-reduce-visual-clutter-and-allow-more-information-to-fit-on-each-card",
-      "featureTitle": "In CalendarCaseCard, decrease the size of the workflow task icons to reduce visual clutter and allow more information to fit on each card.",
-      "files": [
-        "frontend/src/features/cases/components/CalendarCaseCard.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "camera@1.0.0",
-        "http-outcalls@3.0.0"
-      ],
-      "testIds": [
-        "REQ-6"
       ],
       "confidence": "high"
     }

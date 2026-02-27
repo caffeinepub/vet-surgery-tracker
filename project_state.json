@@ -1,76 +1,22 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Case management app with form and calendar view features. Adding Daily Summary task to New Case form and both pages, plus calendar view improvements (last name, text size, icon size).",
+  "summary": "New project",
   "architectural_notes": [],
   "known_issues": [],
   "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-add-daily-summary-as-a-selectable-task-option-in-the-new-case-form-caseformdialog-it-must-use-navy-blue-color-display-the-existing-icondailysummary-calendar-icon-and-default-to-unchecked-when-the-form-is-opened",
-      "title": "Add 'Daily Summary' as a selectable task option in the New Case form (CaseFormDialog). It must use navy blue color, display the existing IconDailySummary calendar icon, and default to unchecked when the form is opened.",
+      "id": "feature-publish-the-current-deployed-draft-version-of-the-surgipaw-app-to-production",
+      "title": "Publish the current deployed draft version of the SurgiPaw app to production.",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
-    },
-    {
-      "id": "feature-ensure-the-daily-summary-task-is-registered-in-checklist-ts-checklist-items-with-the-navy-blue-color-token-and-the-dailysummary-workflow-type-so-it-appears-on-both-the-cases-list-view-casecard-checklisteditor-and-the-dashboard-calendar-view-calendarcasecard",
-      "title": "Ensure the Daily Summary task is registered in checklist.ts CHECKLIST_ITEMS with the navy blue color token and the 'dailySummary' workflow type so it appears on both the Cases list view (CaseCard/ChecklistEditor) and the Dashboard/Calendar view (CalendarCaseCard).",
-      "reqIds": [
-        "REQ-2"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-update-the-navy-blue-color-token-for-dailysummary-in-workflowtokens-ts-to-use-an-appropriate-navy-blue-hex-oklch-value-e-g-1a3a6b-or-equivalent-navy-blue",
-      "title": "Update the navy blue color token for 'dailySummary' in workflowTokens.ts to use an appropriate navy blue hex/OKLCH value (e.g., #1a3a6b or equivalent navy blue).",
-      "reqIds": [
-        "REQ-3"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-in-calendarcasecard-display-the-patient-s-last-name-alongside-the-existing-pet-patient-information-shown-on-each-card",
-      "title": "In CalendarCaseCard, display the patient's last name alongside the existing pet/patient information shown on each card.",
-      "reqIds": [
-        "REQ-4"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-in-calendarcasecard-increase-the-font-size-of-all-text-pet-name-last-name-complaint-and-any-other-displayed-text-to-improve-readability-on-the-calendar-view",
-      "title": "In CalendarCaseCard, increase the font size of all text (pet name, last name, complaint, and any other displayed text) to improve readability on the calendar view.",
-      "reqIds": [
-        "REQ-5"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-in-calendarcasecard-decrease-the-size-of-the-workflow-task-icons-to-reduce-visual-clutter-and-allow-more-information-to-fit-on-each-card",
-      "title": "In CalendarCaseCard, decrease the size of the workflow task icons to reduce visual clutter and allow more information to fit on each card.",
-      "reqIds": [
-        "REQ-6"
-      ],
-      "version": 1
     }
   ],
-  "new_feature_requests": [
-    {
-      "id": "AR-1",
-      "summary": "Add Daily Summary task (navy blue, calendar icon, default unchecked) to New Case form and both pages",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-2",
-      "summary": "Calendar view improvements: add last name, increase text size, decrease icon size",
-      "reqIds": [],
-      "status": "pending"
-    }
-  ],
-  "gameProjectType": "none",
-  "projectName": "SurgiPaw",
+  "new_feature_requests": [],
+  "projectName": "Publish app to production",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

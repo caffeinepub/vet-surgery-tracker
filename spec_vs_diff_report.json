@@ -1,26 +1,42 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-27T04:14:30.358Z",
-  "summary": "The diff implements most of the requested requirements. REQ-1 through REQ-4 and REQ-6 are clearly addressed. REQ-5 (increase font size in CalendarCaseCard) is questionable — the card uses 'text-sm' classes which may not represent an increase over the previous version. No larger font size classes are evident for the main content text.",
+  "generatedAt": "2026-02-27T23:51:26.375Z",
+  "summary": "The diff shows modifications to backend/main.mo, frontend files, sw.js, and project_state.json. The project_state.json records AR-1 (mapped to REQ-1) as 'pending', indicating the publish action has not been completed. The file changes appear to be code/feature changes rather than a production publish action. No evidence of the draft version being promoted to a live/published production environment is present in the diff.",
   "missing_requirements": [
     {
-      "id": "REQ-5",
-      "requirement": "In CalendarCaseCard, increase the font size of all text (pet name, last name, complaint, and any other displayed text) to improve readability on the calendar view.",
-      "reason": "The CalendarCaseCard uses 'text-sm' for pet name and complaint text. There is no evidence that font sizes were increased relative to a previous version — 'text-sm' is a small Tailwind class and does not indicate a deliberate upsize. No larger classes such as text-base or text-lg are used for the main content text.",
+      "id": "REQ-1",
+      "requirement": "Publish the current deployed draft version of the SurgiPaw app to production.",
+      "reason": "The project_state.json explicitly marks AR-1 (REQ-1) as 'status: pending', meaning the publish has not been completed. There is no evidence in the diff of a production deployment or promotion action. Instead, the diff contains code changes to backend/main.mo and frontend files, which contradicts the non-goal of introducing no new features or code changes during this publish step.",
       "evidence": [
-        "frontend/src/features/cases/components/CalendarCaseCard.tsx"
+        "project_state.json",
+        "backend/main.mo",
+        "frontend-file-summaries.txt"
       ]
     }
   ],
-  "hallucinated_features": [],
-  "confidence": 0.78,
+  "hallucinated_features": [
+    {
+      "description": "New 'dailySummary' task type and associated fields added to the backend and frontend",
+      "reason": "The build request explicitly states no new features or code changes should be introduced during this publish step. The diff introduces a new dailySummary task type in backend/main.mo, frontend checklist, form dialog, CSV schema, and related components, which is a new feature not requested.",
+      "evidence": [
+        "backend/main.mo",
+        "frontend-file-summaries.txt"
+      ]
+    },
+    {
+      "description": "Service worker cache version bumped to 'surgipaw-v2' and 'surgipaw-runtime-v2'",
+      "reason": "The build request prohibits new code changes during the publish step. Modifying sw.js to update cache names represents a code change not requested.",
+      "evidence": [
+        "frontend/public/sw.js"
+      ]
+    }
+  ],
+  "confidence": 0.82,
   "changed_files": [
+    "backend/main.mo",
     "frontend-file-summaries.txt",
-    "frontend/src/components/workflow-icons/workflowTokens.ts",
-    "frontend/src/features/cases/checklist.ts",
-    "frontend/src/features/cases/components/CalendarCaseCard.tsx",
-    "frontend/src/features/cases/components/CaseFormDialog.tsx",
+    "frontend/public/sw.js",
     "project_state.json"
   ]
 }

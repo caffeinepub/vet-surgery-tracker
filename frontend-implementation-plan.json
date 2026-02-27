@@ -1,100 +1,35 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Add Daily Summary task to New Case form + calendar view improvements",
+  "title": "Publish SurgiPaw app to production",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Add 'Daily Summary' as a selectable task option in the New Case form with navy blue color, IconDailySummary calendar icon, and default unchecked state",
+      "summary": "Publish the current deployed draft version of the SurgiPaw app to production",
       "acceptanceCriteria": [
-        "Daily Summary task appears in the checklist section of CaseFormDialog",
-        "The task checkbox is unchecked by default when the form opens",
-        "The task renders with the IconDailySummary icon and navy blue color",
-        "Selecting the task and submitting the form correctly persists the dailySummary task on the case"
+        "The current draft version is promoted to the live/published production environment.",
+        "The published version reflects all previously deployed changes."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/features/cases/components/CaseFormDialog.tsx",
+          "path": "frontend/public/manifest.json",
           "operation": "modify",
-          "description": "Add 'Daily Summary' as a selectable task checkbox in the CaseFormDialog checklist section. Ensure the dailySummary field is initialized to false in the form state, wire it to the checkbox input, and include it in the TaskOptions object submitted to createCase. Reference the IconDailySummary component for the task label icon."
-        }
-      ]
-    },
-    {
-      "id": "REQ-2",
-      "summary": "Register the Daily Summary task in checklist.ts with navy blue color and dailySummary workflow type for display in CaseCard and CalendarCaseCard",
-      "acceptanceCriteria": [
-        "CHECKLIST_ITEMS includes a 'dailySummary' entry with navy blue color",
-        "Daily Summary icon renders correctly in CaseCard checklist on the Cases list page",
-        "Daily Summary icon renders correctly in CalendarCaseCard on the Calendar/Dashboard page",
-        "Clicking the Daily Summary icon in both views toggles task completion"
-      ],
-      "file_operations": [
+          "description": "Update the PWA manifest to reflect production settings, ensuring the app name, description, and URLs are finalized for the published version."
+        },
         {
-          "path": "frontend/src/features/cases/checklist.ts",
+          "path": "frontend/public/sw.js",
           "operation": "modify",
-          "description": "Add a new checklist item entry for 'dailySummary' workflow type in the CHECKLIST_ITEMS array. Set label to 'Daily Summary', workflowType to 'dailySummary', selectedKey to 'dailySummarySelected', and completedKey to 'dailySummaryCompleted'. The color will be applied via the workflowTokens, which will be updated in REQ-3."
-        }
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "summary": "Update the navy blue color token for dailySummary in workflowTokens.ts",
-      "acceptanceCriteria": [
-        "The dailySummary color token in workflowTokens.ts is set to navy blue",
-        "The IconDailySummary icon renders in navy blue across all views"
-      ],
-      "file_operations": [
+          "description": "Update the service worker cache version identifier to ensure users receive the latest production build and old draft caches are invalidated."
+        },
         {
-          "path": "frontend/src/components/workflow-icons/workflowTokens.ts",
+          "path": "frontend/index.html",
           "operation": "modify",
-          "description": "Update the dailySummary color entry in WORKFLOW_COLORS to navy blue (e.g., '#1a3a6b' or an equivalent OKLCH navy blue value consistent with the project's color system). Ensure the color is visually distinct from other workflow colors and properly renders the IconDailySummary icon."
-        }
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "summary": "Display the patient's last name in CalendarCaseCard alongside existing pet/patient information",
-      "acceptanceCriteria": [
-        "Each CalendarCaseCard displays the patient's last name",
-        "Last name is visible without expanding or hovering the card"
-      ],
-      "file_operations": [
+          "description": "Verify and update meta tags (title, description, theme-color) to reflect the production environment and ensure PWA manifest link is correct."
+        },
         {
-          "path": "frontend/src/features/cases/components/CalendarCaseCard.tsx",
+          "path": "frontend/src/main.tsx",
           "operation": "modify",
-          "description": "Add the ownerLastName field to the displayed patient information in CalendarCaseCard. Position it near the petName display (e.g., 'PetName (LastName)' or on a separate line) to ensure it is visible by default. Adjust layout if needed to accommodate the additional text without overflow."
-        }
-      ]
-    },
-    {
-      "id": "REQ-5",
-      "summary": "Increase the font size of all text in CalendarCaseCard to improve readability",
-      "acceptanceCriteria": [
-        "Text in CalendarCaseCard is visibly larger than the previous version",
-        "All text content (name, complaint, labels) uses the increased font size"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/features/cases/components/CalendarCaseCard.tsx",
-          "operation": "modify",
-          "description": "Increase the font size for all text elements in CalendarCaseCard, including pet name, last name, complaint, and any other displayed labels. Use Tailwind text-size utilities (e.g., text-sm to text-base, or text-base to text-lg) to achieve a noticeable size increase across all text content while maintaining layout integrity."
-        }
-      ]
-    },
-    {
-      "id": "REQ-6",
-      "summary": "Decrease the size of workflow task icons in CalendarCaseCard to reduce visual clutter",
-      "acceptanceCriteria": [
-        "Workflow task icons in CalendarCaseCard are visibly smaller than the previous version",
-        "Icons remain clickable and functional for toggling task completion",
-        "Icons do not overflow or overlap card boundaries"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/features/cases/components/CalendarCaseCard.tsx",
-          "operation": "modify",
-          "description": "Reduce the size of the workflow task icons displayed in CalendarCaseCard by adjusting the icon container size and/or scale. Use Tailwind size utilities (e.g., reduce w- and h- classes) or apply a scale transform to make icons smaller while ensuring they remain clickable and do not overflow the card boundaries. Verify that icon click targets remain accessible."
+          "description": "Review and ensure production-ready configuration for QueryClientProvider and InternetIdentityProvider, confirming no development-only settings remain."
         }
       ]
     }
