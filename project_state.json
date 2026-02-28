@@ -1,22 +1,60 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "New project",
+  "summary": "Healthcare/patient management app with case tracking features. Working on patient cards, arrival date defaults, and task options.",
   "architectural_notes": [],
-  "known_issues": [],
-  "isFixRequest": false,
+  "known_issues": [
+    "Previous deployment (v115) did not apply expected changes for arrival date default, Daily Summary task option, and patient card layout"
+  ],
+  "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-publish-the-current-deployed-draft-version-of-the-surgipaw-app-to-production",
-      "title": "Publish the current deployed draft version of the SurgiPaw app to production.",
+      "id": "feature-in-the-new-case-form-caseformdialog-pre-populate-the-arrival-date-field-with-today-s-date-as-the-default-value-the-field-must-remain-fully-editable-so-the-user-can-change-it-manually",
+      "title": "In the new case form (CaseFormDialog), pre-populate the Arrival Date field with today's date as the default value. The field must remain fully editable so the user can change it manually.",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-add-daily-summary-as-a-selectable-task-option-in-the-edit-case-dialog-caseeditdialog-and-the-new-case-form-caseformdialog-the-daily-summary-task-must-be-assignable-to-a-case-and-renderable-as-a-workflow-icon-in-the-checklist",
+      "title": "Add 'Daily Summary' as a selectable task option in the Edit Case dialog (CaseEditDialog) and the new case form (CaseFormDialog). The Daily Summary task must be assignable to a case and renderable as a workflow icon in the checklist.",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-patient-cards-casecard-must-be-expanded-by-default-to-show-all-patient-information-without-any-collapse-toggle-remove-or-disable-the-ability-to-collapse-the-card-render-the-card-content-in-a-rounded-rectangle-layout",
+      "title": "Patient cards (CaseCard) must be expanded by default to show all patient information without any collapse toggle. Remove or disable the ability to collapse the card. Render the card content in a rounded rectangle layout.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
     }
   ],
-  "new_feature_requests": [],
-  "projectName": "Publish app to production",
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Arrival Date defaults to today's date but remains manually editable",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Edit Cases — adds Daily Summary as an assignable task option",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Patient cards expand to show all information by default in a rounded rectangle layout with no collapse",
+      "reqIds": [],
+      "status": "pending"
+    }
+  ],
+  "gameProjectType": "none",
+  "projectName": "SurgiPaw",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

@@ -15,6 +15,7 @@ import { useUpdateCase } from '../../../hooks/useQueries';
 import { SurgeryCase, Species, Sex, Task } from '../../../backend';
 import { CHECKLIST_ITEMS } from '../checklist';
 import DateField from './DateField';
+import WorkflowIcon from '../../../components/workflow-icons/WorkflowIcon';
 
 interface CaseEditDialogProps {
   open: boolean;
@@ -216,8 +217,6 @@ export default function CaseEditDialog({ open, onOpenChange, surgeryCase }: Case
             <Label>Tasks</Label>
             <div className="grid grid-cols-2 gap-2">
               {CHECKLIST_ITEMS.map((item) => {
-                // Skip dailySummary since backend doesn't support it yet
-                if (item.workflowType === 'dailySummary') return null;
                 const isSelected = taskState[item.selectedField] === true;
                 return (
                   <div key={item.workflowType} className="flex items-center gap-2">
@@ -226,7 +225,13 @@ export default function CaseEditDialog({ open, onOpenChange, surgeryCase }: Case
                       checked={isSelected}
                       onCheckedChange={() => toggleTaskSelected(item.selectedField)}
                     />
-                    <Label htmlFor={`edit-task-${item.workflowType}`} className="cursor-pointer font-normal">
+                    <Label
+                      htmlFor={`edit-task-${item.workflowType}`}
+                      className="cursor-pointer font-normal flex items-center gap-1.5"
+                    >
+                      <span className="flex-shrink-0" style={{ lineHeight: 0 }}>
+                        <WorkflowIcon workflowType={item.workflowType} />
+                      </span>
                       {item.label}
                     </Label>
                   </div>

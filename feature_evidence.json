@@ -2,10 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-publish-the-current-deployed-draft-version-of-the-surgipaw-app-to-production",
-      "featureTitle": "Publish the current deployed draft version of the SurgiPaw app to production.",
+      "featureId": "feature-in-the-new-case-form-caseformdialog-pre-populate-the-arrival-date-field-with-today-s-date-as-the-default-value-the-field-must-remain-fully-editable-so-the-user-can-change-it-manually",
+      "featureTitle": "In the new case form (CaseFormDialog), pre-populate the Arrival Date field with today's date as the default value. The field must remain fully editable so the user can change it manually.",
       "files": [
-        "frontend/public/sw.js"
+        "frontend/src/features/cases/components/CaseFormDialog.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -19,6 +19,49 @@
       ],
       "testIds": [
         "REQ-1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-daily-summary-as-a-selectable-task-option-in-the-edit-case-dialog-caseeditdialog-and-the-new-case-form-caseformdialog-the-daily-summary-task-must-be-assignable-to-a-case-and-renderable-as-a-workflow-icon-in-the-checklist",
+      "featureTitle": "Add 'Daily Summary' as a selectable task option in the Edit Case dialog (CaseEditDialog) and the new case form (CaseFormDialog). The Daily Summary task must be assignable to a case and renderable as a workflow icon in the checklist.",
+      "files": [
+        "frontend/src/features/cases/components/CaseEditDialog.tsx",
+        "frontend/src/features/cases/components/CaseFormDialog.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "camera@1.0.0",
+        "http-outcalls@3.0.0"
+      ],
+      "testIds": [
+        "REQ-2"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-patient-cards-casecard-must-be-expanded-by-default-to-show-all-patient-information-without-any-collapse-toggle-remove-or-disable-the-ability-to-collapse-the-card-render-the-card-content-in-a-rounded-rectangle-layout",
+      "featureTitle": "Patient cards (CaseCard) must be expanded by default to show all patient information without any collapse toggle. Remove or disable the ability to collapse the card. Render the card content in a rounded rectangle layout.",
+      "files": [
+        "frontend/src/features/cases/components/CaseCard.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "camera@1.0.0",
+        "http-outcalls@3.0.0"
+      ],
+      "testIds": [
+        "REQ-3"
       ],
       "confidence": "high"
     }

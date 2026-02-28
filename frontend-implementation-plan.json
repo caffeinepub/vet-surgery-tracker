@@ -1,35 +1,73 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Publish SurgiPaw app to production",
+  "title": "Fix arrival date default, add Daily Summary task option, and expand patient cards by default",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Publish the current deployed draft version of the SurgiPaw app to production",
+      "summary": "Pre-populate the Arrival Date field in CaseFormDialog with today's date as the default value while keeping it fully editable",
       "acceptanceCriteria": [
-        "The current draft version is promoted to the live/published production environment.",
-        "The published version reflects all previously deployed changes."
+        "When CaseFormDialog opens, the Arrival Date field displays today's date in MM/DD/YYYY format",
+        "The user can manually clear and type a different date",
+        "The user can use the calendar popover to select a different date",
+        "Submitting without changing the date correctly uses today's date"
       ],
       "file_operations": [
         {
-          "path": "frontend/public/manifest.json",
+          "path": "frontend/src/features/cases/components/CaseFormDialog.tsx",
           "operation": "modify",
-          "description": "Update the PWA manifest to reflect production settings, ensuring the app name, description, and URLs are finalized for the published version."
+          "description": "Modify the form initialization to set the arrivalDate state to today's date (formatted as MM/DD/YYYY) when the dialog opens. Ensure the DateField component receives this default value and remains fully editable. Use the existing dateToNanoseconds utility from validation.ts to convert the date when submitting the form."
+        }
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "summary": "Add 'Daily Summary' as a selectable task option in both CaseFormDialog and CaseEditDialog, and ensure it renders as a workflow icon in the checklist",
+      "acceptanceCriteria": [
+        "The checklist in CaseFormDialog includes a 'Daily Summary' checkbox option",
+        "The checklist in CaseEditDialog includes a 'Daily Summary' checkbox option",
+        "Selecting Daily Summary saves it as part of the case's task list",
+        "The Daily Summary workflow icon (IconDailySummary) appears on the patient card when the task is assigned",
+        "The CHECKLIST_ITEMS configuration in checklist.ts includes an entry for 'dailySummary'"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/features/cases/checklist.ts",
+          "operation": "modify",
+          "description": "Add a 'dailySummary' entry to the CHECKLIST_ITEMS array with label 'Daily Summary' and type 'dailySummary'. Ensure the helper functions (getSelectedChecklistItems, getRemainingChecklistItems, getCompletedChecklistItems) correctly process the dailySummary task using the existing Task interface properties (dailySummarySelected and dailySummaryCompleted)."
         },
         {
-          "path": "frontend/public/sw.js",
+          "path": "frontend/src/features/cases/components/CaseFormDialog.tsx",
           "operation": "modify",
-          "description": "Update the service worker cache version identifier to ensure users receive the latest production build and old draft caches are invalidated."
+          "description": "Ensure the checklist rendering in the new case form includes the 'Daily Summary' checkbox from the updated CHECKLIST_ITEMS configuration. Verify that the taskOptions state correctly initializes dailySummary to false and updates when the checkbox is toggled."
         },
         {
-          "path": "frontend/index.html",
+          "path": "frontend/src/features/cases/components/CaseEditDialog.tsx",
           "operation": "modify",
-          "description": "Verify and update meta tags (title, description, theme-color) to reflect the production environment and ensure PWA manifest link is correct."
+          "description": "Ensure the checklist rendering in the edit case dialog includes the 'Daily Summary' checkbox from the updated CHECKLIST_ITEMS configuration. Verify that the task state correctly reflects dailySummarySelected and dailySummaryCompleted from the existing case data, and updates these properties when the checkbox is toggled."
         },
         {
-          "path": "frontend/src/main.tsx",
+          "path": "frontend/src/components/workflow-icons/WorkflowIcon.tsx",
           "operation": "modify",
-          "description": "Review and ensure production-ready configuration for QueryClientProvider and InternetIdentityProvider, confirming no development-only settings remain."
+          "description": "Add a case mapping for 'dailySummary' workflowType that renders the IconDailySummary component. Ensure the isCompleted prop is correctly passed through to the icon component."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Render patient cards (CaseCard) fully expanded by default with all information visible, remove collapse toggle, and apply rounded rectangle styling",
+      "acceptanceCriteria": [
+        "CaseCard renders fully expanded on initial load without user interaction",
+        "There is no collapse/expand toggle button visible on the card",
+        "All patient information (species, patient details, complaint, notes, arrival date, workflow tasks) is visible by default",
+        "The card uses a rounded rectangle visual style (rounded corners, clear border or shadow)",
+        "Cards in the list view and dashboard view are consistently expanded"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/features/cases/components/CaseCard.tsx",
+          "operation": "modify",
+          "description": "Remove the expand/collapse toggle state and button from the CaseCard component. Render all patient information fields (species, patient details, complaint, notes, arrival date, workflow tasks) unconditionally without any collapse logic. Apply rounded rectangle styling using Tailwind classes (e.g., rounded-lg, border, shadow) to ensure the card has rounded corners and a clear visual boundary."
         }
       ]
     }

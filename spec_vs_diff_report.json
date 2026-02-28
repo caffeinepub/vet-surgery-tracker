@@ -1,42 +1,16 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-27T23:51:26.375Z",
-  "summary": "The diff shows modifications to backend/main.mo, frontend files, sw.js, and project_state.json. The project_state.json records AR-1 (mapped to REQ-1) as 'pending', indicating the publish action has not been completed. The file changes appear to be code/feature changes rather than a production publish action. No evidence of the draft version being promoted to a live/published production environment is present in the diff.",
-  "missing_requirements": [
-    {
-      "id": "REQ-1",
-      "requirement": "Publish the current deployed draft version of the SurgiPaw app to production.",
-      "reason": "The project_state.json explicitly marks AR-1 (REQ-1) as 'status: pending', meaning the publish has not been completed. There is no evidence in the diff of a production deployment or promotion action. Instead, the diff contains code changes to backend/main.mo and frontend files, which contradicts the non-goal of introducing no new features or code changes during this publish step.",
-      "evidence": [
-        "project_state.json",
-        "backend/main.mo",
-        "frontend-file-summaries.txt"
-      ]
-    }
-  ],
-  "hallucinated_features": [
-    {
-      "description": "New 'dailySummary' task type and associated fields added to the backend and frontend",
-      "reason": "The build request explicitly states no new features or code changes should be introduced during this publish step. The diff introduces a new dailySummary task type in backend/main.mo, frontend checklist, form dialog, CSV schema, and related components, which is a new feature not requested.",
-      "evidence": [
-        "backend/main.mo",
-        "frontend-file-summaries.txt"
-      ]
-    },
-    {
-      "description": "Service worker cache version bumped to 'surgipaw-v2' and 'surgipaw-runtime-v2'",
-      "reason": "The build request prohibits new code changes during the publish step. Modifying sw.js to update cache names represents a code change not requested.",
-      "evidence": [
-        "frontend/public/sw.js"
-      ]
-    }
-  ],
-  "confidence": 0.82,
+  "generatedAt": "2026-02-28T00:04:32.744Z",
+  "summary": "The diff implements all three requirements: REQ-1 (arrival date default to today in CaseFormDialog), REQ-2 (Daily Summary task option in both CaseFormDialog and CaseEditDialog with workflow icon support), and REQ-3 (CaseCard always fully expanded with rounded rectangle layout, no collapse toggle). Evidence is present across CaseFormDialog.tsx, CaseEditDialog.tsx, CaseCard.tsx, and checklist.ts (referenced in file summaries).",
+  "missing_requirements": [],
+  "hallucinated_features": [],
+  "confidence": 0.88,
   "changed_files": [
-    "backend/main.mo",
     "frontend-file-summaries.txt",
-    "frontend/public/sw.js",
+    "frontend/src/features/cases/components/CaseCard.tsx",
+    "frontend/src/features/cases/components/CaseEditDialog.tsx",
+    "frontend/src/features/cases/components/CaseFormDialog.tsx",
     "project_state.json"
   ]
 }

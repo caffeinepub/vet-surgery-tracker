@@ -72,11 +72,17 @@ const WORKFLOW_TO_TASK_KEY: Record<string, keyof TaskSelections> = {
   dailySummary: 'dailySummary',
 };
 
+function getTodayDate(): Date {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return today;
+}
+
 export default function CaseFormDialog({ open, onOpenChange }: CaseFormDialogProps) {
   const createCase = useCreateCase();
 
   const [mrn, setMrn] = useState('');
-  const [arrivalDate, setArrivalDate] = useState<Date | null>(null);
+  const [arrivalDate, setArrivalDate] = useState<Date | null>(getTodayDate());
   const [petName, setPetName] = useState('');
   const [ownerLastName, setOwnerLastName] = useState('');
   const [species, setSpecies] = useState<Species>(Species.canine);
@@ -89,7 +95,7 @@ export default function CaseFormDialog({ open, onOpenChange }: CaseFormDialogPro
 
   const resetForm = () => {
     setMrn('');
-    setArrivalDate(null);
+    setArrivalDate(getTodayDate());
     setPetName('');
     setOwnerLastName('');
     setSpecies(Species.canine);

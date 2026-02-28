@@ -1,30 +1,77 @@
 {
   "kind": "build_request",
-  "title": "Publish app to production",
-  "priority": "normal",
+  "title": "Fix arrival date default, add Daily Summary task option, and expand patient cards by default",
+  "projectName": "SurgiPaw",
+  "priority": "high",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Publish the current deployed draft version of the SurgiPaw app to production.",
-      "target": "both",
+      "text": "In the new case form (CaseFormDialog), pre-populate the Arrival Date field with today's date as the default value. The field must remain fully editable so the user can change it manually.",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-latest"
+          "msg-6"
         ],
         "quotes": [
-          "Publish changes"
+          "Arrival Date — defaults to today's date, still manually editable"
         ]
       },
       "acceptanceCriteria": [
-        "The current draft version is promoted to the live/published production environment.",
-        "The published version reflects all previously deployed changes."
+        "When CaseFormDialog opens, the Arrival Date field displays today's date in MM/DD/YYYY format",
+        "The user can manually clear and type a different date",
+        "The user can use the calendar popover to select a different date",
+        "Submitting without changing the date correctly uses today's date"
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "text": "Add 'Daily Summary' as a selectable task option in the Edit Case dialog (CaseEditDialog) and the new case form (CaseFormDialog). The Daily Summary task must be assignable to a case and renderable as a workflow icon in the checklist.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-6"
+        ],
+        "quotes": [
+          "Edit Cases — adds Daily Summary as a task option that can be assigned to a case"
+        ]
+      },
+      "acceptanceCriteria": [
+        "The checklist in CaseFormDialog includes a 'Daily Summary' checkbox option",
+        "The checklist in CaseEditDialog includes a 'Daily Summary' checkbox option",
+        "Selecting Daily Summary saves it as part of the case's task list",
+        "The Daily Summary workflow icon (IconDailySummary) appears on the patient card when the task is assigned",
+        "The CHECKLIST_ITEMS configuration in checklist.ts includes an entry for 'dailySummary'"
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Patient cards (CaseCard) must be expanded by default to show all patient information without any collapse toggle. Remove or disable the ability to collapse the card. Render the card content in a rounded rectangle layout.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-6"
+        ],
+        "quotes": [
+          "Patient cards — expand to show all information by default in a rounded rectangle layout (no collapse)"
+        ]
+      },
+      "acceptanceCriteria": [
+        "CaseCard renders fully expanded on initial load without user interaction",
+        "There is no collapse/expand toggle button visible on the card",
+        "All patient information (species, patient details, complaint, notes, arrival date, workflow tasks) is visible by default",
+        "The card uses a rounded rectangle visual style (rounded corners, clear border or shadow)",
+        "Cards in the list view and dashboard view are consistently expanded"
       ]
     }
   ],
-  "constraints": [],
+  "constraints": [
+    "Do not modify files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or frontend/src/components/ui",
+    "Do not change the backend schema or Motoko actor — the dailySummary task type must already be supported or mapped to an existing type in the backend"
+  ],
   "nonGoals": [
-    "No new features or code changes should be introduced during this publish step.",
-    "No backend schema migrations required."
+    "Adding any new backend endpoints or data model changes",
+    "Changing the calendar view card layout (CalendarCaseCard)",
+    "Modifying authentication or profile setup flows"
   ],
   "imageRequirements": {
     "required": [],

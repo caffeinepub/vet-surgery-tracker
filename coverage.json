@@ -1,38 +1,62 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-27T23:51:26.379Z",
+  "generatedAt": "2026-02-28T00:04:32.748Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 1,
-    "implemented": 1,
+    "total": 3,
+    "implemented": 3,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Publish the current deployed draft version of the SurgiPaw app to production.",
+        "summary": "In the new case form (CaseFormDialog), pre-populate the Arrival Date field with today's date as the default value. The field must remain fully editable so the user can change it manually.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/public/manifest.json",
-          "frontend/public/sw.js",
-          "frontend/index.html",
-          "frontend/src/main.tsx"
+          "frontend/src/features/cases/components/CaseFormDialog.tsx"
         ],
         "matchedFiles": [
-          "frontend/public/sw.js"
+          "frontend/src/features/cases/components/CaseFormDialog.tsx"
+        ]
+      },
+      {
+        "id": "REQ-2",
+        "summary": "Add 'Daily Summary' as a selectable task option in the Edit Case dialog (CaseEditDialog) and the new case form (CaseFormDialog). The Daily Summary task must be assignable to a case and renderable as a workflow icon in the checklist.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/features/cases/checklist.ts",
+          "frontend/src/features/cases/components/CaseFormDialog.tsx",
+          "frontend/src/features/cases/components/CaseEditDialog.tsx",
+          "frontend/src/components/workflow-icons/WorkflowIcon.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/features/cases/components/CaseFormDialog.tsx",
+          "frontend/src/features/cases/components/CaseEditDialog.tsx"
+        ]
+      },
+      {
+        "id": "REQ-3",
+        "summary": "Patient cards (CaseCard) must be expanded by default to show all patient information without any collapse toggle. Remove or disable the ability to collapse the card. Render the card content in a rounded rectangle layout.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/features/cases/components/CaseCard.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/features/cases/components/CaseCard.tsx"
         ]
       }
     ]
   },
   "changedFiles": [
-    "backend/main.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/public/sw.js",
+    "frontend/src/features/cases/components/CaseCard.tsx",
+    "frontend/src/features/cases/components/CaseEditDialog.tsx",
+    "frontend/src/features/cases/components/CaseFormDialog.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",
