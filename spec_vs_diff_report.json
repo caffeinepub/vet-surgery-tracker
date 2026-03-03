@@ -1,16 +1,26 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-28T00:04:32.744Z",
-  "summary": "The diff implements all three requirements: REQ-1 (arrival date default to today in CaseFormDialog), REQ-2 (Daily Summary task option in both CaseFormDialog and CaseEditDialog with workflow icon support), and REQ-3 (CaseCard always fully expanded with rounded rectangle layout, no collapse toggle). Evidence is present across CaseFormDialog.tsx, CaseEditDialog.tsx, CaseCard.tsx, and checklist.ts (referenced in file summaries).",
-  "missing_requirements": [],
+  "generatedAt": "2026-03-01T16:16:48.501Z",
+  "summary": "The diff implements REQ-2 (user-friendly error message with Retry button) fully in the frontend. REQ-1 (redeploying the backend canister to a running state) shows backend/main.mo was modified, but there is no evidence of actual canister deployment commands, dfx.json changes, or deployment scripts that would restart the stopped canister.",
+  "missing_requirements": [
+    {
+      "id": "REQ-1",
+      "requirement": "Redeploy the backend canister (3m4vr-hiaaa-aaaac-ba7sa-cai) so it is running and can handle query calls, restoring it to a started state without data loss.",
+      "reason": "The diff only shows modifications to backend/main.mo (source code changes) but contains no deployment scripts, dfx.json updates, CI/CD pipeline changes, or any other artifact that would actually deploy/start the canister on the IC network. Modifying main.mo alone does not redeploy or restart a stopped canister.",
+      "evidence": [
+        "backend/main.mo",
+        "project_state.json"
+      ]
+    }
+  ],
   "hallucinated_features": [],
-  "confidence": 0.88,
+  "confidence": 0.8,
   "changed_files": [
+    "backend/main.mo",
     "frontend-file-summaries.txt",
-    "frontend/src/features/cases/components/CaseCard.tsx",
-    "frontend/src/features/cases/components/CaseEditDialog.tsx",
-    "frontend/src/features/cases/components/CaseFormDialog.tsx",
+    "frontend/src/features/cases/components/CasesListView.tsx",
+    "frontend/src/hooks/useQueries.ts",
     "project_state.json"
   ]
 }

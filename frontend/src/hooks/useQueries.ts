@@ -16,15 +16,6 @@ import type {
 
 // ---------------------------------------------------------------------------
 // Actor factory
-//
-// Root cause of the blank page: useActor.ts calls
-//   actor._initializeAccessControlWithSecret(adminToken)
-// after creating the actor. That method does NOT exist on the backend, so the
-// useActor query always throws, actor is always null, and every downstream
-// query has `enabled: false` forever.
-//
-// Fix: create the actor directly via createActorWithConfig (same helper that
-// useActor.ts uses) but skip the broken initialization call entirely.
 // ---------------------------------------------------------------------------
 function useCreateActor() {
   const { identity } = useInternetIdentity();
@@ -37,6 +28,65 @@ function useCreateActor() {
   };
 
   return { getActor, identity };
+}
+
+// ---------------------------------------------------------------------------
+// Error classification helpers
+// ---------------------------------------------------------------------------
+
+/**
+ * Returns true if the error looks like a canister-stopped / IC infrastructure
+ * error (Reject code 4 or 5, IC0508, "is stopped", etc.).
+ */
+export function isCanisterUnavailableError(error: unknown): boolean {
+  if (!error) return false;
+  const msg = error instanceof Error ? error.message : String(error);
+  return (
+    msg.includes('Reject code: 5') ||
+    msg.includes('Reject code: 4') ||
+    msg.includes('IC0508') ||
+    msg.includes('is stopped') ||
+    msg.includes('CallContextManager') ||
+    msg.includes('canister is stopped') ||
+    msg.includes('canister is not running') ||
+    msg.includes('Canister is stopped')
+  );
+}
+
+/**
+ * Maps any backend/network error to a user-friendly message string.
+ * Raw IC rejection details are never returned.
+ */
+export function getFriendlyErrorMessage(error: unknown): string {
+  if (!error) return 'An unknown error occurred.';
+
+  if (isCanisterUnavailableError(error)) {
+    return 'Unable to connect to the server. Please try again later.';
+  }
+
+  const msg = error instanceof Error ? error.message : String(error);
+
+  // Network / fetch failures
+  if (
+    msg.includes('Failed to fetch') ||
+    msg.includes('NetworkError') ||
+    msg.includes('network error') ||
+    msg.includes('ERR_NETWORK')
+  ) {
+    return 'Unable to connect to the server. Please check your connection and try again.';
+  }
+
+  // Generic IC rejection — hide raw details
+  if (
+    msg.includes('Reject code') ||
+    msg.includes('Reject text') ||
+    msg.includes('canister_id') ||
+    msg.includes('requestDetails')
+  ) {
+    return 'Unable to connect to the server. Please try again later.';
+  }
+
+  return 'Unable to connect to the server. Please try again later.';
 }
 
 // ---------------------------------------------------------------------------
@@ -91,6 +141,11 @@ export function useGetAllCases() {
     },
     enabled: !!identity,
     staleTime: 1000 * 30,
+    retry: (failureCount, error) => {
+      // Don't retry canister-stopped errors immediately — they need a redeploy
+      if (isCanisterUnavailableError(error)) return false;
+      return failureCount < 2;
+    },
   });
 }
 

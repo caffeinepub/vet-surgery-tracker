@@ -1,73 +1,26 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Fix arrival date default, add Daily Summary task option, and expand patient cards by default",
+  "title": "Fix stopped canister — redeploy backend to restore getAllCases",
   "requirements": [
     {
-      "id": "REQ-1",
-      "summary": "Pre-populate the Arrival Date field in CaseFormDialog with today's date as the default value while keeping it fully editable",
-      "acceptanceCriteria": [
-        "When CaseFormDialog opens, the Arrival Date field displays today's date in MM/DD/YYYY format",
-        "The user can manually clear and type a different date",
-        "The user can use the calendar popover to select a different date",
-        "Submitting without changing the date correctly uses today's date"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/features/cases/components/CaseFormDialog.tsx",
-          "operation": "modify",
-          "description": "Modify the form initialization to set the arrivalDate state to today's date (formatted as MM/DD/YYYY) when the dialog opens. Ensure the DateField component receives this default value and remains fully editable. Use the existing dateToNanoseconds utility from validation.ts to convert the date when submitting the form."
-        }
-      ]
-    },
-    {
       "id": "REQ-2",
-      "summary": "Add 'Daily Summary' as a selectable task option in both CaseFormDialog and CaseEditDialog, and ensure it renders as a workflow icon in the checklist",
+      "summary": "Display a user-friendly error message on the Cases page when the backend is unreachable or returns a canister-stopped error, instead of showing raw rejection details",
       "acceptanceCriteria": [
-        "The checklist in CaseFormDialog includes a 'Daily Summary' checkbox option",
-        "The checklist in CaseEditDialog includes a 'Daily Summary' checkbox option",
-        "Selecting Daily Summary saves it as part of the case's task list",
-        "The Daily Summary workflow icon (IconDailySummary) appears on the patient card when the task is assigned",
-        "The CHECKLIST_ITEMS configuration in checklist.ts includes an entry for 'dailySummary'"
+        "When getAllCases fails with a canister error, the Cases page shows 'Unable to connect to the server. Please try again later.' instead of raw error details.",
+        "A Retry button is visible in the error state and triggers a re-fetch of cases when clicked.",
+        "The raw rejection/IC error text is not exposed to the user."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/features/cases/checklist.ts",
+          "path": "frontend/src/hooks/useQueries.ts",
           "operation": "modify",
-          "description": "Add a 'dailySummary' entry to the CHECKLIST_ITEMS array with label 'Daily Summary' and type 'dailySummary'. Ensure the helper functions (getSelectedChecklistItems, getRemainingChecklistItems, getCompletedChecklistItems) correctly process the dailySummary task using the existing Task interface properties (dailySummarySelected and dailySummaryCompleted)."
+          "description": "Enhance the useGetAllCases hook to detect canister-stopped errors (Reject code 5, IC0508) and map them to a user-friendly error type. Add error type classification logic that distinguishes between canister-stopped, network errors, and other failures, storing the error type in query metadata for the UI to consume."
         },
         {
-          "path": "frontend/src/features/cases/components/CaseFormDialog.tsx",
+          "path": "frontend/src/features/cases/components/CasesListView.tsx",
           "operation": "modify",
-          "description": "Ensure the checklist rendering in the new case form includes the 'Daily Summary' checkbox from the updated CHECKLIST_ITEMS configuration. Verify that the taskOptions state correctly initializes dailySummary to false and updates when the checkbox is toggled."
-        },
-        {
-          "path": "frontend/src/features/cases/components/CaseEditDialog.tsx",
-          "operation": "modify",
-          "description": "Ensure the checklist rendering in the edit case dialog includes the 'Daily Summary' checkbox from the updated CHECKLIST_ITEMS configuration. Verify that the task state correctly reflects dailySummarySelected and dailySummaryCompleted from the existing case data, and updates these properties when the checkbox is toggled."
-        },
-        {
-          "path": "frontend/src/components/workflow-icons/WorkflowIcon.tsx",
-          "operation": "modify",
-          "description": "Add a case mapping for 'dailySummary' workflowType that renders the IconDailySummary component. Ensure the isCompleted prop is correctly passed through to the icon component."
-        }
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "summary": "Render patient cards (CaseCard) fully expanded by default with all information visible, remove collapse toggle, and apply rounded rectangle styling",
-      "acceptanceCriteria": [
-        "CaseCard renders fully expanded on initial load without user interaction",
-        "There is no collapse/expand toggle button visible on the card",
-        "All patient information (species, patient details, complaint, notes, arrival date, workflow tasks) is visible by default",
-        "The card uses a rounded rectangle visual style (rounded corners, clear border or shadow)",
-        "Cards in the list view and dashboard view are consistently expanded"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/features/cases/components/CaseCard.tsx",
-          "operation": "modify",
-          "description": "Remove the expand/collapse toggle state and button from the CaseCard component. Render all patient information fields (species, patient details, complaint, notes, arrival date, workflow tasks) unconditionally without any collapse logic. Apply rounded rectangle styling using Tailwind classes (e.g., rounded-lg, border, shadow) to ensure the card has rounded corners and a clear visual boundary."
+          "description": "Update the error handling UI in CasesListView to display 'Unable to connect to the server. Please try again later.' when a canister-stopped or network error is detected. Replace the current raw error display with the friendly message and add a Retry button that calls refetch() from the useGetAllCases hook. Ensure raw IC error messages (Reject code, IC0508, canister ID) are never shown to the user."
         }
       ]
     }

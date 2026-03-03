@@ -1,62 +1,45 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-28T00:04:32.748Z",
+  "generatedAt": "2026-03-01T16:16:48.504Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 3,
-    "implemented": 3,
+    "total": 2,
+    "implemented": 1,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "In the new case form (CaseFormDialog), pre-populate the Arrival Date field with today's date as the default value. The field must remain fully editable so the user can change it manually.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/features/cases/components/CaseFormDialog.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/features/cases/components/CaseFormDialog.tsx"
-        ]
+        "summary": "Redeploy the backend canister (3m4vr-hiaaa-aaaac-ba7sa-cai) so it is running and can handle query calls. The canister is currently stopped (IC0508), which causes getAllCases and all other backend methods to return Reject code 5. The redeployment must restore the canister to a started state without data loss.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
       },
       {
         "id": "REQ-2",
-        "summary": "Add 'Daily Summary' as a selectable task option in the Edit Case dialog (CaseEditDialog) and the new case form (CaseFormDialog). The Daily Summary task must be assignable to a case and renderable as a workflow icon in the checklist.",
+        "summary": "Display a user-friendly error message on the Cases page when the backend is unreachable or returns a canister-stopped error, instead of showing raw rejection details. The message should read 'Unable to connect to the server. Please try again later.' and include a Retry button that re-fetches the cases.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/features/cases/checklist.ts",
-          "frontend/src/features/cases/components/CaseFormDialog.tsx",
-          "frontend/src/features/cases/components/CaseEditDialog.tsx",
-          "frontend/src/components/workflow-icons/WorkflowIcon.tsx"
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/features/cases/components/CasesListView.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/features/cases/components/CaseFormDialog.tsx",
-          "frontend/src/features/cases/components/CaseEditDialog.tsx"
-        ]
-      },
-      {
-        "id": "REQ-3",
-        "summary": "Patient cards (CaseCard) must be expanded by default to show all patient information without any collapse toggle. Remove or disable the ability to collapse the card. Render the card content in a rounded rectangle layout.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/features/cases/components/CaseCard.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/features/cases/components/CaseCard.tsx"
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/features/cases/components/CasesListView.tsx"
         ]
       }
     ]
   },
   "changedFiles": [
+    "backend/main.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/features/cases/components/CaseCard.tsx",
-    "frontend/src/features/cases/components/CaseEditDialog.tsx",
-    "frontend/src/features/cases/components/CaseFormDialog.tsx",
+    "frontend/src/features/cases/components/CasesListView.tsx",
+    "frontend/src/hooks/useQueries.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

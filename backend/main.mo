@@ -8,11 +8,8 @@ import Runtime "mo:core/Runtime";
 import Principal "mo:core/Principal";
 import Iter "mo:core/Iter";
 
-
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
-
-// Specify the data migration function in with-clause.
 
 actor {
   public type Species = { #canine; #feline; #other };
@@ -514,4 +511,3 @@ actor {
     { openTasks = taskCount };
   };
 };
-

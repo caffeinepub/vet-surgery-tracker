@@ -1,10 +1,11 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { AlertCircle, RefreshCw, PlusCircle, Stethoscope, Loader2 } from 'lucide-react';
+import { AlertCircle, RefreshCw, PlusCircle, Stethoscope, WifiOff } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useGetAllCases } from '../../../hooks/useQueries';
+import { getFriendlyErrorMessage, isCanisterUnavailableError } from '../../../hooks/useQueries';
 import { useActor } from '../../../hooks/useActor';
 import { useInternetIdentity } from '../../../hooks/useInternetIdentity';
 import type { SurgeryCase } from '../../../backend';
@@ -51,13 +52,23 @@ export default function CasesListView({ highlightCaseId, onHighlightClear }: Cas
   const [sortOption, setSortOption] = useState<SortOption>(SORT_OPTIONS[0].value as SortOption);
   const [newCaseOpen, setNewCaseOpen] = useState(false);
   const [showCsvPanel, setShowCsvPanel] = useState(false);
+  const [isRetrying, setIsRetrying] = useState(false);
+
+  // Refs for scrolling to highlighted card
+  const cardRefs = useRef<Map<string, HTMLDivElement | null>>(new Map());
+  const scrolledRef = useRef<number | null>(null);
 
   const isLoading = actorFetching || casesLoading;
   const isAuthenticated = !!identity;
 
   const handleRefresh = useCallback(async () => {
-    await queryClient.invalidateQueries({ queryKey: ['cases'] });
-    refetch();
+    setIsRetrying(true);
+    try {
+      await queryClient.invalidateQueries({ queryKey: ['cases'] });
+      await refetch();
+    } finally {
+      setIsRetrying(false);
+    }
   }, [queryClient, refetch]);
 
   const allCases: SurgeryCase[] = cases ?? [];
@@ -74,8 +85,56 @@ export default function CasesListView({ highlightCaseId, onHighlightClear }: Cas
     if (searchQuery.trim()) {
       filtered = searchCases(filtered, searchQuery.trim());
     }
-    return sortCases(filtered, sortOption);
-  }, [allCases, selectedSpecies, selectedTaskTypes, showAllTasksCompleted, searchQuery, sortOption]);
+    const sorted = sortCases(filtered, sortOption);
+
+    // If a highlighted case is not in the filtered list, inject it at the top
+    if (
+      highlightCaseId !== null &&
+      highlightCaseId !== undefined &&
+      !sorted.some((c) => Number(c.id) === highlightCaseId)
+    ) {
+      const targetCase = allCases.find((c) => Number(c.id) === highlightCaseId);
+      if (targetCase) {
+        return [targetCase, ...sorted];
+      }
+    }
+
+    return sorted;
+  }, [allCases, selectedSpecies, selectedTaskTypes, showAllTasksCompleted, searchQuery, sortOption, highlightCaseId]);
+
+  // Scroll to highlighted card when it becomes available
+  useEffect(() => {
+    if (
+      highlightCaseId === null ||
+      highlightCaseId === undefined ||
+      scrolledRef.current === highlightCaseId
+    ) {
+      return;
+    }
+
+    const key = String(highlightCaseId);
+    const el = cardRefs.current.get(key);
+    if (el) {
+      // Small delay to ensure layout is complete
+      const timer = setTimeout(() => {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        scrolledRef.current = highlightCaseId;
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [highlightCaseId, filteredAndSortedCases]);
+
+  // Auto-clear highlight after 3 seconds
+  useEffect(() => {
+    if (highlightCaseId === null || highlightCaseId === undefined) {
+      scrolledRef.current = null;
+      return;
+    }
+    const timer = setTimeout(() => {
+      onHighlightClear?.();
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, [highlightCaseId, onHighlightClear]);
 
   // Not authenticated
   if (!isAuthenticated) {
@@ -98,23 +157,30 @@ export default function CasesListView({ highlightCaseId, onHighlightClear }: Cas
     );
   }
 
-  // Error state
+  // Error state — always show a friendly message, never raw IC error details
   if (error) {
-    const errorMessage =
-      error instanceof Error
-        ? error.message
-        : 'An unknown error occurred while loading cases.';
+    const friendlyMessage = getFriendlyErrorMessage(error);
+    const isUnavailable = isCanisterUnavailableError(error);
 
     return (
-      <div className="p-6 space-y-4">
+      <div className="p-6 space-y-4 max-w-lg">
         <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Failed to load cases</AlertTitle>
-          <AlertDescription className="mt-1">{errorMessage}</AlertDescription>
+          {isUnavailable ? (
+            <WifiOff className="h-4 w-4" />
+          ) : (
+            <AlertCircle className="h-4 w-4" />
+          )}
+          <AlertTitle>Unable to load cases</AlertTitle>
+          <AlertDescription className="mt-1">{friendlyMessage}</AlertDescription>
         </Alert>
-        <Button variant="outline" onClick={handleRefresh} className="gap-2">
-          <RefreshCw className="w-4 h-4" />
-          Retry
+        <Button
+          variant="outline"
+          onClick={handleRefresh}
+          disabled={isRetrying}
+          className="gap-2"
+        >
+          <RefreshCw className={`w-4 h-4 ${isRetrying ? 'animate-spin' : ''}`} />
+          {isRetrying ? 'Retrying…' : 'Retry'}
         </Button>
       </div>
     );
@@ -151,39 +217,37 @@ export default function CasesListView({ highlightCaseId, onHighlightClear }: Cas
         </div>
 
         {showCsvPanel && (
-          <div className="border-t border-border px-4 py-3">
-            <CsvImportExportPanel cases={[]} />
+          <div className="px-4 pb-6">
+            <CsvImportExportPanel cases={allCases} />
           </div>
         )}
 
-        <CaseFormDialog open={newCaseOpen} onOpenChange={setNewCaseOpen} />
+        <CaseFormDialog
+          open={newCaseOpen}
+          onOpenChange={setNewCaseOpen}
+        />
       </div>
     );
   }
 
   return (
     <div className="flex flex-col h-full">
-      {/* Sticky top bar */}
-      <div className="sticky top-14 z-10 bg-background border-b border-border px-4 py-3 space-y-3">
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2 flex-1 min-w-0">
+      {/* Toolbar */}
+      <div className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border px-4 py-3 space-y-2">
+        <div className="flex items-center gap-2">
+          <div className="flex-1">
             <CasesSearchBar value={searchQuery} onChange={setSearchQuery} />
           </div>
-          <div className="flex items-center gap-2 shrink-0">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleRefresh}
-              title="Refresh cases"
-              className="h-8 w-8"
-            >
-              <RefreshCw className="h-4 w-4" />
-            </Button>
-            <Button onClick={() => setNewCaseOpen(true)} size="sm">
-              + New Case
-            </Button>
-          </div>
+          <Button
+            size="sm"
+            onClick={() => setNewCaseOpen(true)}
+            className="gap-1.5 shrink-0"
+          >
+            <PlusCircle className="h-4 w-4" />
+            <span className="hidden sm:inline">New Case</span>
+          </Button>
         </div>
+
         <div className="flex items-center gap-2 flex-wrap">
           <CasesSpeciesFilter
             selectedSpecies={selectedSpecies}
@@ -192,70 +256,92 @@ export default function CasesListView({ highlightCaseId, onHighlightClear }: Cas
           <CasesTasksFilter
             selectedTaskTypes={selectedTaskTypes}
             onTaskTypesChange={setSelectedTaskTypes}
-            showAllTasksCompleted={showAllTasksCompleted}
-            onShowAllTasksCompletedChange={setShowAllTasksCompleted}
           />
-          <div className="ml-auto flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowCsvPanel((v) => !v)}
-              className="text-xs"
-            >
-              {showCsvPanel ? 'Hide CSV' : 'CSV Import/Export'}
-            </Button>
-            <CasesSortControl value={sortOption} onSortChange={setSortOption} />
-          </div>
+          <CasesSortControl value={sortOption} onSortChange={setSortOption} />
+
+          <button
+            onClick={() => setShowAllTasksCompleted((v) => !v)}
+            className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
+              showAllTasksCompleted
+                ? 'bg-primary text-primary-foreground border-primary'
+                : 'bg-background text-muted-foreground border-border hover:border-primary/50'
+            }`}
+          >
+            {showAllTasksCompleted ? 'Showing completed' : 'Show completed'}
+          </button>
+
+          <button
+            onClick={() => setShowCsvPanel((v) => !v)}
+            className="text-xs px-3 py-1.5 rounded-full border border-border text-muted-foreground hover:border-primary/50 transition-colors"
+          >
+            CSV
+          </button>
+
+          {casesFetching && !casesLoading && (
+            <span className="text-xs text-muted-foreground ml-auto">Refreshing…</span>
+          )}
         </div>
+
+        {showCsvPanel && (
+          <div className="pt-1">
+            <CsvImportExportPanel cases={allCases} />
+          </div>
+        )}
       </div>
 
-      {/* CSV panel */}
-      {showCsvPanel && (
-        <div className="border-b border-border px-4 py-3 bg-muted/30">
-          <CsvImportExportPanel cases={allCases} />
-        </div>
-      )}
+      {/* Case count summary */}
+      <div className="px-4 py-2 text-xs text-muted-foreground">
+        {hasActiveFilters
+          ? `${filteredAndSortedCases.length} of ${totalCases} cases`
+          : `${totalCases} case${totalCases !== 1 ? 's' : ''}`}
+      </div>
 
       {/* Cases list */}
-      <div className="flex-1 p-4 space-y-3">
-        {casesFetching && !casesLoading && (
-          <div className="flex items-center gap-2 text-muted-foreground text-sm pb-1">
-            <Loader2 className="w-4 h-4 animate-spin" />
-            Refreshing cases…
-          </div>
-        )}
-
+      <div className="flex-1 overflow-y-auto px-4 pb-6 space-y-3">
         {filteredAndSortedCases.length === 0 ? (
-          <div className="text-center py-12 text-muted-foreground">
-            {hasActiveFilters ? (
-              <div>
-                <p className="text-lg font-medium mb-1">No cases match your filters</p>
-                <p className="text-sm">Try adjusting your search or filter criteria.</p>
-              </div>
-            ) : (
-              <div>
-                <p className="text-lg font-medium mb-1">All tasks completed!</p>
-                <p className="text-sm">Toggle the filter to view completed cases.</p>
-              </div>
-            )}
+          <div className="flex flex-col items-center justify-center py-16 text-center">
+            <Stethoscope className="h-10 w-10 text-muted-foreground mb-3" />
+            <p className="text-muted-foreground">No cases match your current filters.</p>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="mt-3"
+              onClick={() => {
+                setSearchQuery('');
+                setSelectedSpecies(new Set());
+                setSelectedTaskTypes(new Set());
+                setShowAllTasksCompleted(false);
+              }}
+            >
+              Clear filters
+            </Button>
           </div>
         ) : (
-          filteredAndSortedCases.map((surgeryCase) => (
-            <CaseCard
-              key={surgeryCase.id.toString()}
-              surgeryCase={surgeryCase}
-              isHighlighted={
-                highlightCaseId !== null &&
-                highlightCaseId !== undefined &&
-                Number(surgeryCase.id) === highlightCaseId
-              }
-              onHighlightClear={onHighlightClear}
-            />
-          ))
+          filteredAndSortedCases.map((surgeryCase) => {
+            const key = String(surgeryCase.id);
+            const isHighlighted =
+              highlightCaseId !== null &&
+              highlightCaseId !== undefined &&
+              Number(surgeryCase.id) === highlightCaseId;
+
+            return (
+              <CaseCard
+                key={key}
+                ref={(el) => {
+                  cardRefs.current.set(key, el);
+                }}
+                surgeryCase={surgeryCase}
+                isHighlighted={isHighlighted}
+              />
+            );
+          })
         )}
       </div>
 
-      <CaseFormDialog open={newCaseOpen} onOpenChange={setNewCaseOpen} />
+      <CaseFormDialog
+        open={newCaseOpen}
+        onOpenChange={setNewCaseOpen}
+      />
     </div>
   );
 }
