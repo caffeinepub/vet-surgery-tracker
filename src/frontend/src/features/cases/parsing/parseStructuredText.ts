@@ -1,110 +1,277 @@
-import type { CaseFormData } from '../types';
-import { parseSpecies, parseSex } from '../validation';
-import { Species, Sex } from '@/backend';
+import { Sex, Species } from "@/backend";
+import type { CaseFormData } from "../types";
+import { parseSex, parseSpecies } from "../validation";
 
 /**
- * Parses structured text containing case information in label:value format
- * and returns a partial CaseFormData object with successfully extracted fields.
- * Enhanced to handle voice dictation variations and natural language patterns.
+ * Parses structured text containing case information in various formats:
+ * - "Label: Value" line-by-line format
+ * - Comma-separated inline format: "Patient: Max, MRN: 12345, Species: Canine"
+ * - Mixed prose with embedded labeled data
+ *
+ * Returns a partial CaseFormData object with successfully extracted fields.
  */
 export function parseStructuredText(text: string): Partial<CaseFormData> {
-  console.log('[parseStructuredText] Starting parse operation', {
-    textLength: text.length,
-    timestamp: new Date().toISOString(),
-  });
-
   const result: Partial<CaseFormData> = {};
-  
-  // Normalize text for better parsing
-  const normalizedText = text.toLowerCase();
 
-  console.log('[parseStructuredText] Processing text', {
-    originalLength: text.length,
-    normalizedLength: normalizedText.length,
-  });
+  // Normalize the text: replace common separators to produce a unified token stream
+  // Strategy: first try line-by-line, then try comma-separated within each line
+  const segments = extractSegments(text);
 
-  // Enhanced field patterns with voice dictation variations
-  // These patterns match "field name" followed by the value
-  const patterns = {
-    medicalRecordNumber: /(?:medical\s*record\s*(?:number|#|no\.?)?|mrn|record\s*(?:number|#|no\.?)?)\s*:?\s*([a-z0-9\-]+)/i,
-    ownerLastName: /(?:owner\s*(?:last\s*)?name|owner|last\s*name|surname)\s*:?\s*([a-z]+(?:\s+[a-z]+)?)/i,
-    petName: /(?:pet\s*name|patient\s*name|animal\s*name)\s*:?\s*([a-z]+(?:\s+[a-z]+)?)/i,
-    arrivalDate: /(?:arrival\s*date|admission\s*date|admit\s*date|date\s*of\s*arrival|arrived\s*on)\s*:?\s*(.+?)(?=\s*(?:pet\s*name|owner|species|breed|sex|date\s*of\s*birth|presenting|$))/i,
-    dateOfBirth: /(?:date\s*of\s*birth|dob|birth\s*date|birthday|born\s*on)\s*:?\s*(.+?)(?=\s*(?:presenting|complaint|$))/i,
-    species: /(?:species)\s*:?\s*([a-z]+)/i,
-    sex: /(?:sex|gender)\s*:?\s*([a-z\s]+?)(?=\s*(?:date\s*of\s*birth|dob|presenting|complaint|$))/i,
-    breed: /(?:breed)\s*:?\s*([a-z\s]+?)(?=\s*(?:sex|gender|date\s*of\s*birth|dob|presenting|complaint|$))/i,
-    presentingComplaint: /(?:presenting\s*complaint|chief\s*complaint|complaint|reason\s*for\s*visit)\s*:?\s*(.+?)$/i,
-  };
+  let _matchCount = 0;
 
-  let matchCount = 0;
+  for (const { label: labelRaw, value: valueRaw } of segments) {
+    if (!labelRaw || !valueRaw) continue;
 
-  // Try to match each field pattern against the entire text
-  for (const [field, pattern] of Object.entries(patterns)) {
-    const match = normalizedText.match(pattern);
-    if (match && match[1]) {
-      const value = match[1].trim();
-      console.log('[parseStructuredText] Field matched', {
-        field,
-        value,
-        pattern: pattern.source,
-      });
+    const field = resolveFieldLabel(labelRaw.trim().toLowerCase());
+    if (!field) continue;
 
-      // Parse based on field type
-      try {
-        if (field === 'species') {
-          const parsed = parseSpeciesWithVoiceVariations(value);
-          if (parsed) {
-            result.species = parsed;
-            matchCount++;
-            console.log('[parseStructuredText] Species parsed', { value, parsed });
-          }
-        } else if (field === 'sex') {
-          const parsed = parseSexWithVoiceVariations(value);
-          if (parsed) {
-            result.sex = parsed;
-            matchCount++;
-            console.log('[parseStructuredText] Sex parsed', { value, parsed });
-          }
-        } else if (field === 'arrivalDate' || field === 'dateOfBirth') {
-          const parsed = parseDate(value);
-          if (parsed) {
-            result[field] = parsed;
-            matchCount++;
-            console.log('[parseStructuredText] Date parsed', {
-              field,
-              value,
-              parsed: parsed.toISOString(),
-            });
-          } else {
-            console.warn('[parseStructuredText] Date parsing failed', {
-              field,
-              value,
-            });
-          }
-        } else {
-          // String fields - capitalize properly
-          const capitalizedValue = capitalizeWords(value);
-          result[field as keyof CaseFormData] = capitalizedValue as any;
-          matchCount++;
+    try {
+      if (field === "species") {
+        const parsed = parseSpeciesWithVoiceVariations(valueRaw);
+        if (parsed) {
+          result.species = parsed;
+          _matchCount++;
         }
-      } catch (error) {
-        console.error('[parseStructuredText] Error parsing field', {
-          field,
-          value,
-          error,
-        });
+      } else if (field === "sex") {
+        const parsed = parseSexWithVoiceVariations(valueRaw);
+        if (parsed) {
+          result.sex = parsed;
+          _matchCount++;
+        }
+      } else if (field === "arrivalDate" || field === "dateOfBirth") {
+        const parsed = parseDate(valueRaw);
+        if (parsed) {
+          result[field] = parsed;
+          _matchCount++;
+        }
+      } else {
+        // String fields — preserve original casing for names/breeds, capitalize for others
+        const processedValue = shouldPreserveCase(field)
+          ? valueRaw.trim()
+          : capitalizeWords(valueRaw);
+        result[field as keyof CaseFormData] = processedValue as any;
+        _matchCount++;
+      }
+    } catch (_error) {
+      // Silently skip fields that fail to parse
+    }
+  }
+
+  return result;
+}
+
+/**
+ * Extracts label-value pairs from text supporting multiple formats:
+ * 1. Line-by-line "Label: Value"
+ * 2. Comma-separated "Label: Value, Label: Value"
+ * 3. Mixed formats
+ */
+function extractSegments(
+  text: string,
+): Array<{ label: string; value: string }> {
+  const segments: Array<{ label: string; value: string }> = [];
+
+  // Split into lines first
+  const lines = text.split(/\r?\n/);
+
+  for (const rawLine of lines) {
+    const line = rawLine.trim();
+    if (!line) continue;
+
+    // Check if this line contains multiple comma-separated label:value pairs
+    // by looking for patterns like "Word(s): Value, Word(s): Value"
+    const hasMultiplePairs = /[^:]+:[^,]+,\s*[^:]+:/.test(line);
+
+    if (hasMultiplePairs) {
+      // Split on commas that are followed by a label pattern (word(s) then colon)
+      // Use a lookahead to split only at comma+space+label+colon boundaries
+      const parts = splitOnLabelBoundaries(line);
+      for (const part of parts) {
+        const colonIdx = part.indexOf(":");
+        if (colonIdx === -1) continue;
+        const label = part.substring(0, colonIdx).trim();
+        const value = part.substring(colonIdx + 1).trim();
+        if (label && value) {
+          segments.push({ label, value });
+        }
+      }
+    } else {
+      // Standard single "Label: Value" line
+      const colonIdx = line.indexOf(":");
+      if (colonIdx === -1) continue;
+      const label = line.substring(0, colonIdx).trim();
+      const value = line.substring(colonIdx + 1).trim();
+      if (label && value) {
+        segments.push({ label, value });
       }
     }
   }
 
-  console.log('[parseStructuredText] Parse complete', {
-    matchCount,
-    fields: Object.keys(result),
-    timestamp: new Date().toISOString(),
-  });
+  return segments;
+}
 
-  return result;
+/**
+ * Splits a comma-separated string at boundaries where a new label starts.
+ * A label boundary is: comma followed by optional whitespace followed by
+ * one or more words followed by a colon.
+ */
+function splitOnLabelBoundaries(line: string): string[] {
+  // Find all positions where a new "Label:" pattern starts after a comma
+  const parts: string[] = [];
+  // Match pattern: optional leading comma+space, then capture label:value
+  const regex = /(?:^|,\s*)([^,]+?:[^,]+)/g;
+  let match: RegExpExecArray | null;
+
+  // biome-ignore lint/suspicious/noAssignInExpressions: standard regex exec loop pattern
+  while ((match = regex.exec(line)) !== null) {
+    const part = match[1].trim();
+    if (part) parts.push(part);
+  }
+
+  return parts.length > 0 ? parts : [line];
+}
+
+/**
+ * Whether a field's value should preserve original casing (e.g., names)
+ */
+function shouldPreserveCase(field: keyof CaseFormData): boolean {
+  return field === "medicalRecordNumber" || field === "notes";
+}
+
+/**
+ * Maps a normalized label string to a CaseFormData field key.
+ * Returns null if the label is not recognized.
+ */
+function resolveFieldLabel(label: string): keyof CaseFormData | null {
+  const normalized = label.toLowerCase().replace(/\s+/g, " ").trim();
+
+  // Medical Record Number
+  if (
+    normalized === "mrn" ||
+    normalized === "medical record number" ||
+    normalized === "medical record" ||
+    normalized === "record number" ||
+    normalized === "record no" ||
+    normalized === "record #" ||
+    normalized === "patient id" ||
+    normalized === "patient number" ||
+    normalized === "chart number" ||
+    normalized === "chart #" ||
+    normalized === "chart no"
+  ) {
+    return "medicalRecordNumber";
+  }
+
+  // Arrival Date
+  if (
+    normalized === "arrival date" ||
+    normalized === "admission date" ||
+    normalized === "admit date" ||
+    normalized === "date of arrival" ||
+    normalized === "arrived on" ||
+    normalized === "date" ||
+    normalized === "visit date" ||
+    normalized === "appointment date"
+  ) {
+    return "arrivalDate";
+  }
+
+  // Pet Name
+  if (
+    normalized === "pet name" ||
+    normalized === "patient name" ||
+    normalized === "animal name" ||
+    normalized === "pet" ||
+    normalized === "patient" ||
+    normalized === "name" ||
+    normalized === "animal"
+  ) {
+    return "petName";
+  }
+
+  // Owner Last Name
+  if (
+    normalized === "owner name" ||
+    normalized === "owner last name" ||
+    normalized === "owner" ||
+    normalized === "last name" ||
+    normalized === "surname" ||
+    normalized === "client name" ||
+    normalized === "client last name" ||
+    normalized === "client"
+  ) {
+    return "ownerLastName";
+  }
+
+  // Species
+  if (
+    normalized === "species" ||
+    normalized === "type" ||
+    normalized === "animal type"
+  ) {
+    return "species";
+  }
+
+  // Breed
+  if (
+    normalized === "breed" ||
+    normalized === "breed/mix" ||
+    normalized === "breed / mix"
+  ) {
+    return "breed";
+  }
+
+  // Sex / Gender
+  if (
+    normalized === "sex" ||
+    normalized === "gender" ||
+    normalized === "reproductive status" ||
+    normalized === "sex/reproductive status"
+  ) {
+    return "sex";
+  }
+
+  // Date of Birth
+  if (
+    normalized === "date of birth" ||
+    normalized === "dob" ||
+    normalized === "birth date" ||
+    normalized === "birthday" ||
+    normalized === "born on" ||
+    normalized === "date of birth " ||
+    normalized === "age/dob" ||
+    normalized === "birthdate"
+  ) {
+    return "dateOfBirth";
+  }
+
+  // Presenting Complaint
+  if (
+    normalized === "presenting complaint" ||
+    normalized === "chief complaint" ||
+    normalized === "complaint" ||
+    normalized === "reason for visit" ||
+    normalized === "presenting" ||
+    normalized === "reason" ||
+    normalized === "problem" ||
+    normalized === "chief problem" ||
+    normalized === "presenting problem"
+  ) {
+    return "presentingComplaint";
+  }
+
+  // Notes
+  if (
+    normalized === "notes" ||
+    normalized === "note" ||
+    normalized === "additional notes" ||
+    normalized === "comments" ||
+    normalized === "remarks"
+  ) {
+    return "notes";
+  }
+
+  return null;
 }
 
 /**
@@ -112,9 +279,9 @@ export function parseStructuredText(text: string): Partial<CaseFormData> {
  */
 function capitalizeWords(str: string): string {
   return str
-    .split(' ')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(' ');
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
 }
 
 /**
@@ -122,42 +289,65 @@ function capitalizeWords(str: string): string {
  */
 function parseSpeciesWithVoiceVariations(value: string): Species | null {
   const normalized = value.toLowerCase().trim();
-  
-  // Handle common voice dictation variations
+
   if (normalized.match(/\b(canine|dog|dogs)\b/)) {
     return Species.canine;
   }
-  if (normalized.match(/\b(feline|cat|cats)\b/)) {
+  if (normalized.match(/\b(feline|cat|cats|kitty|kitten)\b/)) {
     return Species.feline;
   }
-  if (normalized.match(/\b(other|exotic|bird|reptile|rabbit|ferret|avian)\b/)) {
+  if (
+    normalized.match(
+      /\b(other|exotic|bird|reptile|rabbit|ferret|avian|rodent|hamster|guinea pig)\b/,
+    )
+  ) {
     return Species.other;
   }
-  
+
   // Fallback to existing parser
   return parseSpecies(value);
 }
 
 /**
- * Enhanced sex parser with voice dictation variations
+ * Enhanced sex parser with voice dictation variations.
+ * Handles multi-word values like "Neutered Male", "Spayed Female",
+ * "Intact Male", "Intact Female".
  */
 function parseSexWithVoiceVariations(value: string): Sex | null {
   const normalized = value.toLowerCase().trim();
-  
-  // Handle common voice dictation variations
-  if (normalized.match(/\b(male\s*neutered|neutered\s*male|neutered|castrated|mn)\b/)) {
+
+  // Check for neutered/castrated male first (most specific)
+  if (
+    normalized.match(
+      /\b(male\s*neutered|neutered\s*male|neutered|castrated|mn)\b/,
+    )
+  ) {
     return Sex.maleNeutered;
   }
+
+  // Check for spayed female (most specific)
   if (normalized.match(/\b(female\s*spayed|spayed\s*female|spayed|fs)\b/)) {
     return Sex.femaleSpayed;
   }
-  if (normalized.match(/\b(male|m|intact\s*male)\b/) && !normalized.match(/\b(neutered|castrated)\b/)) {
+
+  // Intact male or just male
+  if (
+    normalized.match(/\b(intact\s*male)\b/) ||
+    normalized === "male" ||
+    normalized === "m"
+  ) {
     return Sex.male;
   }
-  if (normalized.match(/\b(female|f|intact\s*female)\b/) && !normalized.match(/\b(spayed)\b/)) {
+
+  // Intact female or just female
+  if (
+    normalized.match(/\b(intact\s*female)\b/) ||
+    normalized === "female" ||
+    normalized === "f"
+  ) {
     return Sex.female;
   }
-  
+
   // Fallback to existing parser
   return parseSex(value);
 }
@@ -166,68 +356,55 @@ function parseSexWithVoiceVariations(value: string): Sex | null {
  * Parses a date string in various formats including spoken number sequences
  */
 function parseDate(dateStr: string): Date | null {
-  console.log('[parseStructuredText] Attempting to parse date', { dateStr });
-
   try {
     const trimmed = dateStr.trim();
-    
+
     // Try to parse spoken number sequences first
     const spokenDate = parseSpokenDate(trimmed);
-    if (spokenDate) {
-      console.log('[parseStructuredText] Spoken date parsed', {
-        input: dateStr,
-        output: spokenDate.toISOString(),
-      });
-      return spokenDate;
-    }
+    if (spokenDate) return spokenDate;
 
-    // Try MM/DD/YYYY format
-    const usMatch = trimmed.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+    // Try MM/DD/YYYY or M/D/YYYY format
+    const usMatch = trimmed.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
     if (usMatch) {
       const [, month, day, year] = usMatch;
-      const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
-      if (!isNaN(date.getTime())) {
-        console.log('[parseStructuredText] US date format parsed', {
-          input: dateStr,
-          output: date.toISOString(),
-        });
-        return date;
-      }
+      const date = new Date(
+        Number.parseInt(year),
+        Number.parseInt(month) - 1,
+        Number.parseInt(day),
+      );
+      if (!Number.isNaN(date.getTime())) return date;
+    }
+
+    // Also try without anchors (in case there's trailing whitespace or extra chars)
+    const usMatchLoose = trimmed.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+    if (usMatchLoose) {
+      const [, month, day, year] = usMatchLoose;
+      const date = new Date(
+        Number.parseInt(year),
+        Number.parseInt(month) - 1,
+        Number.parseInt(day),
+      );
+      if (!Number.isNaN(date.getTime())) return date;
     }
 
     // Try ISO format (YYYY-MM-DD)
     const isoMatch = trimmed.match(/(\d{4})[\/\-](\d{2})[\/\-](\d{2})/);
     if (isoMatch) {
       const [, year, month, day] = isoMatch;
-      const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
-      if (!isNaN(date.getTime())) {
-        console.log('[parseStructuredText] ISO date parsed', {
-          input: dateStr,
-          output: date.toISOString(),
-        });
-        return date;
-      }
+      const date = new Date(
+        Number.parseInt(year),
+        Number.parseInt(month) - 1,
+        Number.parseInt(day),
+      );
+      if (!Number.isNaN(date.getTime())) return date;
     }
 
     // Fallback to Date constructor
     const parsed = new Date(trimmed);
-    if (!isNaN(parsed.getTime())) {
-      console.log('[parseStructuredText] Date constructor parsed', {
-        input: dateStr,
-        output: parsed.toISOString(),
-      });
-      return parsed;
-    }
+    if (!Number.isNaN(parsed.getTime())) return parsed;
 
-    console.warn('[parseStructuredText] All date parsing attempts failed', {
-      dateStr,
-    });
     return null;
-  } catch (error) {
-    console.error('[parseStructuredText] Date parsing error', {
-      dateStr,
-      error,
-    });
+  } catch {
     return null;
   }
 }
@@ -235,66 +412,88 @@ function parseDate(dateStr: string): Date | null {
 /**
  * Parses spoken date formats like:
  * - "twelve fifteen twenty twenty four" -> 12/15/2024
- * - "one two one five two zero two four" -> 12/15/2024
  * - "december fifteen twenty twenty four" -> 12/15/2024
  */
 function parseSpokenDate(dateStr: string): Date | null {
   const normalized = dateStr.toLowerCase().trim();
-  
-  // Month name mapping
+
   const monthNames: { [key: string]: number } = {
-    january: 1, jan: 1,
-    february: 2, feb: 2,
-    march: 3, mar: 3,
-    april: 4, apr: 4,
+    january: 1,
+    jan: 1,
+    february: 2,
+    feb: 2,
+    march: 3,
+    mar: 3,
+    april: 4,
+    apr: 4,
     may: 5,
-    june: 6, jun: 6,
-    july: 7, jul: 7,
-    august: 8, aug: 8,
-    september: 9, sep: 9, sept: 9,
-    october: 10, oct: 10,
-    november: 11, nov: 11,
-    december: 12, dec: 12,
+    june: 6,
+    jun: 6,
+    july: 7,
+    jul: 7,
+    august: 8,
+    aug: 8,
+    september: 9,
+    sep: 9,
+    sept: 9,
+    october: 10,
+    oct: 10,
+    november: 11,
+    nov: 11,
+    december: 12,
+    dec: 12,
   };
 
-  // Number word mapping
   const numberWords: { [key: string]: string } = {
-    zero: '0', one: '1', two: '2', three: '3', four: '4',
-    five: '5', six: '6', seven: '7', eight: '8', nine: '9',
-    ten: '10', eleven: '11', twelve: '12', thirteen: '13', fourteen: '14',
-    fifteen: '15', sixteen: '16', seventeen: '17', eighteen: '18', nineteen: '19',
-    twenty: '20', thirty: '30', forty: '40', fifty: '50',
+    zero: "0",
+    one: "1",
+    two: "2",
+    three: "3",
+    four: "4",
+    five: "5",
+    six: "6",
+    seven: "7",
+    eight: "8",
+    nine: "9",
+    ten: "10",
+    eleven: "11",
+    twelve: "12",
+    thirteen: "13",
+    fourteen: "14",
+    fifteen: "15",
+    sixteen: "16",
+    seventeen: "17",
+    eighteen: "18",
+    nineteen: "19",
+    twenty: "20",
+    thirty: "30",
+    forty: "40",
+    fifty: "50",
   };
 
   // Try month name format: "december fifteen twenty twenty four"
   for (const [monthName, monthNum] of Object.entries(monthNames)) {
     if (normalized.includes(monthName)) {
-      const parts = normalized.split(monthName).map(p => p.trim());
+      const parts = normalized.split(monthName).map((p) => p.trim());
       if (parts.length === 2) {
         const dayPart = parts[1].split(/\s+/);
-        
-        // Try to extract day and year
         let day: number | null = null;
         let year: number | null = null;
-        
-        // Parse day (first number after month name)
+
         if (dayPart[0] && numberWords[dayPart[0]]) {
-          day = parseInt(numberWords[dayPart[0]]);
+          day = Number.parseInt(numberWords[dayPart[0]]);
         } else if (dayPart[0] && /^\d+$/.test(dayPart[0])) {
-          day = parseInt(dayPart[0]);
+          day = Number.parseInt(dayPart[0]);
         }
-        
-        // Parse year (remaining parts)
+
         const yearParts = dayPart.slice(1);
         if (yearParts.length > 0) {
-          year = parseSpokenYear(yearParts.join(' '));
+          year = parseSpokenYear(yearParts.join(" "));
         }
-        
+
         if (day && year) {
           const date = new Date(year, monthNum - 1, day);
-          if (!isNaN(date.getTime())) {
-            return date;
-          }
+          if (!Number.isNaN(date.getTime())) return date;
         }
       }
     }
@@ -305,56 +504,65 @@ function parseSpokenDate(dateStr: string): Date | null {
   if (words.length >= 8) {
     const digits: string[] = [];
     for (const word of words) {
-      if (numberWords[word]) {
-        digits.push(numberWords[word]);
-      }
+      if (numberWords[word]) digits.push(numberWords[word]);
     }
-    
+
     if (digits.length >= 8) {
-      // Try to parse as MMDDYYYY
-      const month = parseInt(digits[0] + digits[1]);
-      const day = parseInt(digits[2] + digits[3]);
-      const year = parseInt(digits[4] + digits[5] + digits[6] + digits[7]);
-      
-      if (month >= 1 && month <= 12 && day >= 1 && day <= 31 && year >= 1900 && year <= 2100) {
+      const month = Number.parseInt(digits[0] + digits[1]);
+      const day = Number.parseInt(digits[2] + digits[3]);
+      const year = Number.parseInt(
+        digits[4] + digits[5] + digits[6] + digits[7],
+      );
+
+      if (
+        month >= 1 &&
+        month <= 12 &&
+        day >= 1 &&
+        day <= 31 &&
+        year >= 1900 &&
+        year <= 2100
+      ) {
         const date = new Date(year, month - 1, day);
-        if (!isNaN(date.getTime())) {
-          return date;
-        }
+        if (!Number.isNaN(date.getTime())) return date;
       }
     }
   }
 
   // Try word-form format: "twelve fifteen twenty twenty four"
-  const spokenNumbers = normalized.split(/\s+/).filter(w => numberWords[w] || /^\d+$/.test(w));
+  const spokenNumbers = normalized
+    .split(/\s+/)
+    .filter((w) => numberWords[w] || /^\d+$/.test(w));
   if (spokenNumbers.length >= 3) {
     let month: number | null = null;
     let day: number | null = null;
     let year: number | null = null;
-    
-    // First number is month
+
     if (numberWords[spokenNumbers[0]]) {
-      month = parseInt(numberWords[spokenNumbers[0]]);
+      month = Number.parseInt(numberWords[spokenNumbers[0]]);
     } else if (/^\d+$/.test(spokenNumbers[0])) {
-      month = parseInt(spokenNumbers[0]);
+      month = Number.parseInt(spokenNumbers[0]);
     }
-    
-    // Second number is day
+
     if (numberWords[spokenNumbers[1]]) {
-      day = parseInt(numberWords[spokenNumbers[1]]);
+      day = Number.parseInt(numberWords[spokenNumbers[1]]);
     } else if (/^\d+$/.test(spokenNumbers[1])) {
-      day = parseInt(spokenNumbers[1]);
+      day = Number.parseInt(spokenNumbers[1]);
     }
-    
-    // Remaining numbers form the year
+
     const yearParts = spokenNumbers.slice(2);
-    year = parseSpokenYear(yearParts.join(' '));
-    
-    if (month && day && year && month >= 1 && month <= 12 && day >= 1 && day <= 31) {
+    year = parseSpokenYear(yearParts.join(" "));
+
+    if (
+      month &&
+      day &&
+      year &&
+      month >= 1 &&
+      month <= 12 &&
+      day >= 1 &&
+      day <= 31
+    ) {
       const date = new Date(year, month - 1, day);
-      if (!isNaN(date.getTime())) {
-        return date;
-      }
+      if (!Number.isNaN(date.getTime())) return date;
     }
   }
 
@@ -366,52 +574,65 @@ function parseSpokenDate(dateStr: string): Date | null {
  */
 function parseSpokenYear(yearStr: string): number | null {
   const numberWords: { [key: string]: string } = {
-    zero: '0', one: '1', two: '2', three: '3', four: '4',
-    five: '5', six: '6', seven: '7', eight: '8', nine: '9',
-    ten: '10', eleven: '11', twelve: '12', thirteen: '13', fourteen: '14',
-    fifteen: '15', sixteen: '16', seventeen: '17', eighteen: '18', nineteen: '19',
-    twenty: '20', thirty: '30', forty: '40', fifty: '50',
+    zero: "0",
+    one: "1",
+    two: "2",
+    three: "3",
+    four: "4",
+    five: "5",
+    six: "6",
+    seven: "7",
+    eight: "8",
+    nine: "9",
+    ten: "10",
+    eleven: "11",
+    twelve: "12",
+    thirteen: "13",
+    fourteen: "14",
+    fifteen: "15",
+    sixteen: "16",
+    seventeen: "17",
+    eighteen: "18",
+    nineteen: "19",
+    twenty: "20",
+    thirty: "30",
+    forty: "40",
+    fifty: "50",
   };
 
   const words = yearStr.toLowerCase().trim().split(/\s+/);
-  
-  // Try to parse as compound numbers like "twenty twenty four"
+
   if (words.length === 3) {
     const first = numberWords[words[0]] || words[0];
     const second = numberWords[words[1]] || words[1];
     const third = numberWords[words[2]] || words[2];
-    
+
     if (/^\d+$/.test(first) && /^\d+$/.test(second) && /^\d+$/.test(third)) {
-      const year = parseInt(first) * 100 + parseInt(second) + parseInt(third);
-      if (year >= 1900 && year <= 2100) {
-        return year;
-      }
+      const year =
+        Number.parseInt(first) * 100 +
+        Number.parseInt(second) +
+        Number.parseInt(third);
+      if (year >= 1900 && year <= 2100) return year;
     }
   }
-  
-  // Try to parse as two parts like "twenty twenty-four"
+
   if (words.length === 2) {
     const first = numberWords[words[0]] || words[0];
     const second = numberWords[words[1]] || words[1];
-    
+
     if (/^\d+$/.test(first) && /^\d+$/.test(second)) {
-      const year = parseInt(first) * 100 + parseInt(second);
-      if (year >= 1900 && year <= 2100) {
-        return year;
-      }
+      const year = Number.parseInt(first) * 100 + Number.parseInt(second);
+      if (year >= 1900 && year <= 2100) return year;
     }
   }
-  
-  // Try digit-by-digit: "two zero two four"
+
   if (words.length === 4) {
-    const digits = words.map(w => numberWords[w] || w);
-    if (digits.every(d => /^\d$/.test(d))) {
-      const year = parseInt(digits.join(''));
-      if (year >= 1900 && year <= 2100) {
-        return year;
-      }
+    const digits = words.map((w) => numberWords[w] || w);
+    if (digits.every((d) => /^\d$/.test(d))) {
+      const year = Number.parseInt(digits.join(""));
+      if (year >= 1900 && year <= 2100) return year;
     }
   }
-  
+
   return null;
 }

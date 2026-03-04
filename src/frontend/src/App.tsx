@@ -1,222 +1,145 @@
-import { useEffect, useState } from 'react';
-import { useInternetIdentity } from './hooks/useInternetIdentity';
-import { useActor } from './hooks/useActor';
-import { useGetCallerUserProfile, useIsCallerAdmin } from './hooks/useQueries';
-import LoginButton from './features/auth/components/LoginButton';
-import ProfileSetupModal from './features/auth/components/ProfileSetupModal';
-import CasesListView from './features/cases/components/CasesListView';
-import SettingsView from './features/settings/components/SettingsView';
-import DashboardView from './features/dashboard/components/DashboardView';
-import { Toaster } from '@/components/ui/sonner';
-import { ThemeProvider } from 'next-themes';
-import { Button } from '@/components/ui/button';
-import { Settings, LayoutDashboard, FolderOpen } from 'lucide-react';
-
-type View = 'dashboard' | 'cases' | 'settings';
+import { FolderOpen, LayoutDashboard } from "lucide-react";
+import { useState } from "react";
+import LoginButton from "./features/auth/components/LoginButton";
+import ProfileSetupModal from "./features/auth/components/ProfileSetupModal";
+import CasesListView from "./features/cases/components/CasesListView";
+import DashboardView from "./features/dashboard/components/DashboardView";
+import { useInternetIdentity } from "./hooks/useInternetIdentity";
+import { useGetCallerUserProfile } from "./hooks/useQueries";
 
 export default function App() {
   const { identity, isInitializing } = useInternetIdentity();
-  const { actor, isFetching: actorFetching } = useActor();
-  const { data: userProfile, isLoading: profileLoading, isFetched } = useGetCallerUserProfile();
-  const { data: isAdmin, isLoading: adminLoading } = useIsCallerAdmin();
-  const [currentView, setCurrentView] = useState<View>('dashboard');
-  const [selectedCaseId, setSelectedCaseId] = useState<bigint | null>(null);
-  const [isNewCaseDialogOpen, setIsNewCaseDialogOpen] = useState(false);
-
   const isAuthenticated = !!identity;
-  const showProfileSetup = isAuthenticated && !profileLoading && isFetched && userProfile === null;
+  const [currentView, setCurrentView] = useState<"dashboard" | "cases">(
+    "dashboard",
+  );
+  const [highlightCaseId, setHighlightCaseId] = useState<number | null>(null);
 
-  // Defensive guard: ensure no dark class is ever applied
-  useEffect(() => {
-    const removeAnyDarkClass = () => {
-      const html = document.documentElement;
-      if (html.classList.contains('dark')) {
-        html.classList.remove('dark');
-      }
-    };
+  const {
+    data: userProfile,
+    isLoading: profileLoading,
+    isFetched,
+  } = useGetCallerUserProfile();
 
-    // Remove immediately
-    removeAnyDarkClass();
+  const showProfileSetup =
+    isAuthenticated && !profileLoading && isFetched && userProfile === null;
 
-    // Watch for any changes
-    const observer = new MutationObserver(removeAnyDarkClass);
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['class'],
-    });
-
-    return () => observer.disconnect();
-  }, []);
-
-  const handleNavigateToCase = (caseId: bigint) => {
-    setSelectedCaseId(caseId);
-    setCurrentView('cases');
-  };
-
-  const handleClearSelectedCase = () => {
-    setSelectedCaseId(null);
-  };
-
-  const handleNewCaseFromDashboard = () => {
-    setCurrentView('cases');
-    // Small delay to ensure the view switches before opening dialog
-    setTimeout(() => {
-      setIsNewCaseDialogOpen(true);
-    }, 100);
+  const handleNavigateToCase = (caseId: number) => {
+    setHighlightCaseId(caseId);
+    setCurrentView("cases");
   };
 
   if (isInitializing) {
     return (
-      <ThemeProvider attribute="class" defaultTheme="light" forcedTheme="light" enableSystem={false}>
-        <div className="flex min-h-screen items-center justify-center bg-background">
-          <div className="text-center">
-            <div className="mb-4 h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto"></div>
-            <p className="text-foreground font-medium">Loading...</p>
-          </div>
-        </div>
-      </ThemeProvider>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-muted-foreground">Loading...</div>
+      </div>
     );
   }
 
   if (!isAuthenticated) {
     return (
-      <ThemeProvider attribute="class" defaultTheme="light" forcedTheme="light" enableSystem={false}>
-        <div className="flex min-h-screen flex-col bg-background">
-          <header className="border-b bg-card backdrop-blur-sm">
-            <div className="container mx-auto flex h-16 items-center justify-between px-4">
-              <div className="flex items-center gap-3">
-                <img 
-                  src="/assets/image-1.png" 
-                  alt="SurgiPaw" 
-                  className="h-10 w-10 rounded-lg"
-                />
-                <h1 className="text-2xl font-bold text-foreground">SurgiPaw</h1>
-              </div>
-            </div>
-          </header>
-          
-          <main className="flex flex-1 items-center justify-center px-4 py-8">
-            <div className="text-center space-y-6">
-              <div>
-                <h2 className="text-3xl font-bold text-foreground mb-2">Welcome to SurgiPaw</h2>
-                <p className="text-muted-foreground">Please sign in to continue</p>
-              </div>
-              <LoginButton />
-            </div>
-          </main>
-          
-          <footer className="border-t bg-card backdrop-blur-sm py-6">
-            <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
-              © {new Date().getFullYear()} · Built with ❤️ using{' '}
-              <a
-                href={`https://caffeine.ai/?utm_source=Caffeine-footer&utm_medium=referral&utm_content=${encodeURIComponent(window.location.hostname)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-medium text-primary hover:underline"
-              >
-                caffeine.ai
-              </a>
-            </div>
-          </footer>
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-6">
+        <div className="flex flex-col items-center gap-4">
+          <img
+            src="/assets/IMG_4505.ico"
+            alt="SurgiPaw"
+            className="w-20 h-20 object-contain"
+          />
+          <h1 className="text-3xl font-bold text-foreground">SurgiPaw</h1>
+          <p className="text-muted-foreground text-center max-w-sm">
+            Veterinary surgery case management. Please log in to continue.
+          </p>
         </div>
-        <Toaster />
-      </ThemeProvider>
-    );
-  }
-
-  if (!actor || actorFetching) {
-    return (
-      <ThemeProvider attribute="class" defaultTheme="light" forcedTheme="light" enableSystem={false}>
-        <div className="flex min-h-screen items-center justify-center bg-background">
-          <div className="text-center">
-            <div className="mb-4 h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto"></div>
-            <p className="text-foreground font-medium">Connecting to backend...</p>
-          </div>
-        </div>
-      </ThemeProvider>
+        <LoginButton />
+      </div>
     );
   }
 
   return (
-    <ThemeProvider attribute="class" defaultTheme="light" forcedTheme="light" enableSystem={false}>
-      <div className="flex min-h-screen flex-col bg-background">
-        <header className="border-b bg-card backdrop-blur-sm sticky top-0 z-10">
-          <div className="container mx-auto flex h-16 items-center justify-between px-4">
-            <div className="flex items-center gap-3">
-              <img 
-                src="/assets/image-1.png" 
-                alt="SurgiPaw" 
-                className="h-10 w-10 rounded-lg"
-              />
-              <h1 className="text-2xl font-bold text-foreground">SurgiPaw</h1>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button
-                variant={currentView === 'dashboard' ? 'default' : 'ghost'}
-                onClick={() => setCurrentView('dashboard')}
-                className="gap-2"
-              >
-                <LayoutDashboard className="h-4 w-4" />
-                Dashboard
-              </Button>
-              <Button
-                variant={currentView === 'cases' ? 'default' : 'ghost'}
-                onClick={() => setCurrentView('cases')}
-                className="gap-2"
-              >
-                <FolderOpen className="h-4 w-4" />
-                Cases
-              </Button>
-              {!adminLoading && isAdmin && (
-                <Button
-                  variant={currentView === 'settings' ? 'default' : 'ghost'}
-                  onClick={() => setCurrentView('settings')}
-                  className="gap-2"
-                >
-                  <Settings className="h-4 w-4" />
-                  Settings
-                </Button>
-              )}
-              <LoginButton />
-            </div>
+    <div className="min-h-screen bg-background flex flex-col">
+      {/* Header */}
+      <header className="sticky top-0 z-50 bg-card border-b border-border shadow-sm">
+        <div className="max-w-screen-2xl mx-auto px-4 h-14 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <img
+              src="/assets/IMG_4505.ico"
+              alt="SurgiPaw"
+              className="w-9 h-9 object-contain"
+            />
+            <span className="font-bold text-lg text-foreground">SurgiPaw</span>
           </div>
-        </header>
 
-        <main className="flex-1 container mx-auto px-4 py-8">
-          {currentView === 'dashboard' && (
-            <DashboardView 
-              onNavigateToCase={handleNavigateToCase}
-              onNewCase={handleNewCaseFromDashboard}
-            />
-          )}
-          {currentView === 'cases' && (
-            <CasesListView 
-              selectedCaseId={selectedCaseId}
-              onClearSelectedCase={handleClearSelectedCase}
-              isNewCaseDialogOpen={isNewCaseDialogOpen}
-              onNewCaseDialogChange={setIsNewCaseDialogOpen}
-            />
-          )}
-          {currentView === 'settings' && isAdmin && <SettingsView />}
-        </main>
-
-        <footer className="border-t bg-card backdrop-blur-sm py-6 mt-auto">
-          <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
-            © {new Date().getFullYear()} · Built with ❤️ using{' '}
-            <a
-              href={`https://caffeine.ai/?utm_source=Caffeine-footer&utm_medium=referral&utm_content=${encodeURIComponent(window.location.hostname)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-medium text-primary hover:underline"
+          <nav className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={() => setCurrentView("dashboard")}
+              className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                currentView === "dashboard"
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
+              }`}
             >
-              caffeine.ai
-            </a>
-          </div>
-        </footer>
+              <LayoutDashboard className="w-4 h-4" />
+              <span className="hidden sm:inline">Dashboard</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setCurrentView("cases");
+                setHighlightCaseId(null);
+              }}
+              className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                currentView === "cases"
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
+              }`}
+            >
+              <FolderOpen className="w-4 h-4" />
+              <span className="hidden sm:inline">Cases</span>
+            </button>
+          </nav>
 
-        <ProfileSetupModal open={showProfileSetup} />
-        <Toaster />
-      </div>
-    </ThemeProvider>
+          <div className="flex items-center gap-2">
+            {userProfile && (
+              <span className="text-sm text-muted-foreground hidden md:block">
+                {userProfile.name}
+              </span>
+            )}
+            <LoginButton />
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="flex-1 max-w-screen-2xl mx-auto w-full px-4 py-6">
+        {currentView === "dashboard" && (
+          <DashboardView onNavigateToCase={handleNavigateToCase} />
+        )}
+        {currentView === "cases" && (
+          <CasesListView
+            highlightCaseId={highlightCaseId}
+            onHighlightClear={() => setHighlightCaseId(null)}
+          />
+        )}
+      </main>
+
+      {/* Footer */}
+      <footer className="border-t border-border py-4 px-4 text-center text-xs text-muted-foreground">
+        <span>
+          © {new Date().getFullYear()} SurgiPaw. Built with ❤️ using{" "}
+          <a
+            href={`https://caffeine.ai/?utm_source=Caffeine-footer&utm_medium=referral&utm_content=${encodeURIComponent(window.location.hostname || "surgipaw")}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline hover:text-foreground"
+          >
+            caffeine.ai
+          </a>
+        </span>
+      </footer>
+
+      {showProfileSetup && <ProfileSetupModal open={showProfileSetup} />}
+    </div>
   );
 }

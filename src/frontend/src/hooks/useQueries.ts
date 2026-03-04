@@ -1,348 +1,431 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useActor } from './useActor';
-import type { SurgeryCase, UserProfile, Task, TaskOptions, OpenAIConfig } from '../backend';
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import type {
+  Dashboard,
+  OpenAIConfig,
+  Sex,
+  Species,
+  SurgeryCase,
+  Task,
+  TaskOptions,
+  TaskType,
+  Time,
+  UserProfile,
+} from "../backend";
+import { createActorWithConfig } from "../config";
+import { useInternetIdentity } from "./useInternetIdentity";
 
-export function useGetAllCases() {
-  const { actor, isFetching } = useActor();
+// ---------------------------------------------------------------------------
+// Actor factory
+// ---------------------------------------------------------------------------
+function useCreateActor() {
+  const { identity } = useInternetIdentity();
 
-  return useQuery<SurgeryCase[]>({
-    queryKey: ['cases'],
-    queryFn: async () => {
-      if (!actor) return [];
-      console.log('[useGetAllCases] Fetching all cases');
-      const cases = await actor.getAllCases();
-      console.log('[useGetAllCases] Fetched cases:', cases.length);
-      return cases;
-    },
-    enabled: !!actor && !isFetching,
-  });
+  const getActor = async () => {
+    if (!identity) {
+      return createActorWithConfig();
+    }
+    return createActorWithConfig({ agentOptions: { identity } });
+  };
+
+  return { getActor, identity };
 }
 
-export function useGetCaseByMedicalRecordNumber(mrn: string, enabled: boolean = true) {
-  const { actor, isFetching } = useActor();
+// ---------------------------------------------------------------------------
+// Error classification helpers
+// ---------------------------------------------------------------------------
 
-  return useQuery<SurgeryCase | null>({
-    queryKey: ['case', 'mrn', mrn],
-    queryFn: async () => {
-      if (!actor || !mrn) return null;
-      console.log('[useGetCaseByMedicalRecordNumber] Fetching case by MRN:', mrn);
-      const result = await actor.getCaseByMedicalRecordNumber(mrn);
-      console.log('[useGetCaseByMedicalRecordNumber] Result:', result);
-      return result;
-    },
-    enabled: !!actor && !isFetching && enabled && mrn.trim().length > 0,
-    retry: false,
-  });
+/**
+ * Returns true if the error looks like a canister-stopped / IC infrastructure
+ * error (Reject code 4 or 5, IC0508, "is stopped", etc.).
+ */
+export function isCanisterUnavailableError(error: unknown): boolean {
+  if (!error) return false;
+  const msg = error instanceof Error ? error.message : String(error);
+  return (
+    msg.includes("Reject code: 5") ||
+    msg.includes("Reject code: 4") ||
+    msg.includes("IC0508") ||
+    msg.includes("is stopped") ||
+    msg.includes("CallContextManager") ||
+    msg.includes("canister is stopped") ||
+    msg.includes("canister is not running") ||
+    msg.includes("Canister is stopped")
+  );
 }
 
-export function useCreateCase() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
+/**
+ * Maps any backend/network error to a user-friendly message string.
+ * Raw IC rejection details are never returned.
+ */
+export function getFriendlyErrorMessage(error: unknown): string {
+  if (!error) return "An unknown error occurred.";
 
-  return useMutation({
-    mutationFn: async (data: {
-      medicalRecordNumber: string;
-      arrivalDate: bigint;
-      petName: string;
-      ownerLastName: string;
-      species: any;
-      breed: string;
-      sex: any;
-      dateOfBirth: bigint | null;
-      presentingComplaint: string;
-      notes: string;
-      taskOptions: TaskOptions;
-    }) => {
-      if (!actor) throw new Error('Actor not available');
-      console.log('[useCreateCase] Creating case with data:', {
-        ...data,
-        arrivalDate: data.arrivalDate.toString(),
-        dateOfBirth: data.dateOfBirth?.toString(),
-      });
+  if (isCanisterUnavailableError(error)) {
+    return "Unable to connect to the server. Please try again later.";
+  }
 
-      try {
-        const result = await actor.createCase(
-          data.medicalRecordNumber,
-          data.arrivalDate,
-          data.petName,
-          data.ownerLastName,
-          data.species,
-          data.breed,
-          data.sex,
-          data.dateOfBirth,
-          data.presentingComplaint,
-          data.notes,
-          data.taskOptions
-        );
-        console.log('[useCreateCase] Case created successfully:', result);
-        return result;
-      } catch (error: any) {
-        console.error('[useCreateCase] Error creating case:', {
-          error,
-          message: error?.message,
-          stack: error?.stack,
-        });
-        throw error;
-      }
-    },
-    onSuccess: () => {
-      console.log('[useCreateCase] Invalidating cases query');
-      queryClient.invalidateQueries({ queryKey: ['cases'] });
-    },
-    retry: 2,
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
-  });
+  const msg = error instanceof Error ? error.message : String(error);
+
+  // Network / fetch failures
+  if (
+    msg.includes("Failed to fetch") ||
+    msg.includes("NetworkError") ||
+    msg.includes("network error") ||
+    msg.includes("ERR_NETWORK")
+  ) {
+    return "Unable to connect to the server. Please check your connection and try again.";
+  }
+
+  // Generic IC rejection — hide raw details
+  if (
+    msg.includes("Reject code") ||
+    msg.includes("Reject text") ||
+    msg.includes("canister_id") ||
+    msg.includes("requestDetails")
+  ) {
+    return "Unable to connect to the server. Please try again later.";
+  }
+
+  return "Unable to connect to the server. Please try again later.";
 }
 
-export function useUpdateCase() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (data: {
-      id: bigint;
-      medicalRecordNumber: string;
-      arrivalDate: bigint;
-      petName: string;
-      ownerLastName: string;
-      species: any;
-      breed: string;
-      sex: any;
-      dateOfBirth: bigint | null;
-      presentingComplaint: string;
-      notes: string;
-      task: Task;
-    }) => {
-      if (!actor) throw new Error('Actor not available');
-      console.log('[useUpdateCase] Updating case with data:', {
-        ...data,
-        id: data.id.toString(),
-        arrivalDate: data.arrivalDate.toString(),
-        dateOfBirth: data.dateOfBirth?.toString(),
-      });
-
-      try {
-        await actor.updateCase(
-          data.id,
-          data.medicalRecordNumber,
-          data.arrivalDate,
-          data.petName,
-          data.ownerLastName,
-          data.species,
-          data.breed,
-          data.sex,
-          data.dateOfBirth,
-          data.presentingComplaint,
-          data.notes,
-          data.task
-        );
-        console.log('[useUpdateCase] Case updated successfully');
-      } catch (error: any) {
-        console.error('[useUpdateCase] Error updating case:', {
-          error,
-          message: error?.message,
-          stack: error?.stack,
-        });
-        throw error;
-      }
-    },
-    onSuccess: () => {
-      console.log('[useUpdateCase] Invalidating cases query');
-      queryClient.invalidateQueries({ queryKey: ['cases'] });
-    },
-    retry: 2,
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
-  });
-}
-
-export function useDeleteCase() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (id: bigint) => {
-      if (!actor) throw new Error('Actor not available');
-      console.log('[useDeleteCase] Deleting case:', id.toString());
-      await actor.deleteCase(id);
-      console.log('[useDeleteCase] Case deleted successfully');
-    },
-    onSuccess: () => {
-      console.log('[useDeleteCase] Invalidating cases query');
-      queryClient.invalidateQueries({ queryKey: ['cases'] });
-    },
-  });
-}
-
-export function useUpdateTask() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (data: { id: bigint; task: Task }) => {
-      if (!actor) throw new Error('Actor not available');
-      console.log('[useUpdateTask] Updating task for case:', {
-        id: data.id.toString(),
-        task: data.task,
-      });
-
-      try {
-        await actor.updateTask(data.id, data.task);
-        console.log('[useUpdateTask] Task updated successfully');
-      } catch (error: any) {
-        console.error('[useUpdateTask] Error updating task:', {
-          error,
-          message: error?.message,
-          stack: error?.stack,
-        });
-        throw error;
-      }
-    },
-    onSuccess: () => {
-      console.log('[useUpdateTask] Invalidating cases query');
-      queryClient.invalidateQueries({ queryKey: ['cases'] });
-    },
-    retry: 2,
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
-  });
-}
-
-export function useUpdateRemainingTasks() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (data: { id: bigint; taskOptions: TaskOptions }) => {
-      if (!actor) throw new Error('Actor not available');
-      console.log('[useUpdateRemainingTasks] Updating remaining tasks for case:', {
-        id: data.id.toString(),
-        taskOptions: data.taskOptions,
-      });
-
-      try {
-        await actor.updateRemainingTasks(data.id, data.taskOptions);
-        console.log('[useUpdateRemainingTasks] Remaining tasks updated successfully');
-      } catch (error: any) {
-        console.error('[useUpdateRemainingTasks] Error updating remaining tasks:', {
-          error,
-          message: error?.message,
-          stack: error?.stack,
-        });
-        throw error;
-      }
-    },
-    onSuccess: () => {
-      console.log('[useUpdateRemainingTasks] Invalidating cases query');
-      queryClient.invalidateQueries({ queryKey: ['cases'] });
-    },
-    retry: 2,
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
-  });
-}
-
-export function useUpdateCaseNotes() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (data: { id: bigint; notes: string }) => {
-      if (!actor) throw new Error('Actor not available');
-      console.log('[useUpdateCaseNotes] Updating notes for case:', data.id.toString());
-      await actor.updateCaseNotes(data.id, data.notes);
-      console.log('[useUpdateCaseNotes] Notes updated successfully');
-    },
-    onSuccess: () => {
-      console.log('[useUpdateCaseNotes] Invalidating cases query');
-      queryClient.invalidateQueries({ queryKey: ['cases'] });
-    },
-  });
-}
-
+// ---------------------------------------------------------------------------
+// User profile
+// ---------------------------------------------------------------------------
 export function useGetCallerUserProfile() {
-  const { actor, isFetching: actorFetching } = useActor();
+  const { getActor, identity } = useCreateActor();
 
   const query = useQuery<UserProfile | null>({
-    queryKey: ['currentUserProfile'],
+    queryKey: ["currentUserProfile", identity?.getPrincipal().toString()],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
+      const actor = await getActor();
       return actor.getCallerUserProfile();
     },
-    enabled: !!actor && !actorFetching,
+    enabled: !!identity,
     retry: false,
   });
 
   return {
     ...query,
-    isLoading: actorFetching || query.isLoading,
-    isFetched: !!actor && query.isFetched,
+    isLoading: query.isLoading,
+    isFetched: query.isFetched,
   };
 }
 
 export function useSaveCallerUserProfile() {
-  const { actor } = useActor();
   const queryClient = useQueryClient();
+  const { getActor } = useCreateActor();
 
   return useMutation({
     mutationFn: async (profile: UserProfile) => {
-      if (!actor) throw new Error('Actor not available');
-      await actor.saveCallerUserProfile(profile);
+      const actor = await getActor();
+      return actor.saveCallerUserProfile(profile);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['currentUserProfile'] });
+      queryClient.invalidateQueries({ queryKey: ["currentUserProfile"] });
     },
   });
 }
 
-export function useIsCallerAdmin() {
-  const { actor, isFetching } = useActor();
+// ---------------------------------------------------------------------------
+// Cases
+// ---------------------------------------------------------------------------
+export function useGetAllCases() {
+  const { getActor, identity } = useCreateActor();
+
+  return useQuery<SurgeryCase[]>({
+    queryKey: ["cases"],
+    queryFn: async () => {
+      const actor = await getActor();
+      return actor.getAllCases();
+    },
+    enabled: !!identity,
+    staleTime: 1000 * 30,
+    retry: (failureCount, error) => {
+      // Don't retry canister-stopped errors immediately — they need a redeploy
+      if (isCanisterUnavailableError(error)) return false;
+      return failureCount < 2;
+    },
+  });
+}
+
+export function useGetCase(id: bigint) {
+  const { getActor, identity } = useCreateActor();
+
+  return useQuery<SurgeryCase>({
+    queryKey: ["case", id.toString()],
+    queryFn: async () => {
+      const actor = await getActor();
+      return actor.getCase(id);
+    },
+    enabled: !!identity,
+  });
+}
+
+export function useCreateCase() {
+  const queryClient = useQueryClient();
+  const { getActor } = useCreateActor();
+
+  return useMutation({
+    mutationFn: async (params: {
+      medicalRecordNumber: string;
+      arrivalDate: Time;
+      petName: string;
+      ownerLastName: string;
+      species: Species;
+      breed: string;
+      sex: Sex;
+      dateOfBirth: Time | null;
+      presentingComplaint: string;
+      notes: string;
+      taskOptions: TaskOptions;
+    }) => {
+      const actor = await getActor();
+      return actor.createCase(
+        params.medicalRecordNumber,
+        params.arrivalDate,
+        params.petName,
+        params.ownerLastName,
+        params.species,
+        params.breed,
+        params.sex,
+        params.dateOfBirth,
+        params.presentingComplaint,
+        params.notes,
+        params.taskOptions,
+      );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["cases"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+    },
+  });
+}
+
+export function useUpdateCase() {
+  const queryClient = useQueryClient();
+  const { getActor } = useCreateActor();
+
+  return useMutation({
+    mutationFn: async (params: {
+      id: bigint;
+      medicalRecordNumber: string;
+      arrivalDate: Time;
+      petName: string;
+      ownerLastName: string;
+      species: Species;
+      breed: string;
+      sex: Sex;
+      dateOfBirth: Time | null;
+      presentingComplaint: string;
+      notes: string;
+      task: Task;
+    }) => {
+      const actor = await getActor();
+      return actor.updateCase(
+        params.id,
+        params.medicalRecordNumber,
+        params.arrivalDate,
+        params.petName,
+        params.ownerLastName,
+        params.species,
+        params.breed,
+        params.sex,
+        params.dateOfBirth,
+        params.presentingComplaint,
+        params.notes,
+        params.task,
+      );
+    },
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["cases"] });
+      queryClient.invalidateQueries({
+        queryKey: ["case", variables.id.toString()],
+      });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+    },
+  });
+}
+
+export function useDeleteCase() {
+  const queryClient = useQueryClient();
+  const { getActor } = useCreateActor();
+
+  return useMutation({
+    mutationFn: async (id: bigint) => {
+      const actor = await getActor();
+      return actor.deleteCase(id);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["cases"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+    },
+  });
+}
+
+export function useUpdateTaskCompletion() {
+  const queryClient = useQueryClient();
+  const { getActor } = useCreateActor();
+
+  return useMutation({
+    mutationFn: async (params: { id: bigint; taskType: TaskType }) => {
+      const actor = await getActor();
+      return actor.updateTaskCompletion(params.id, params.taskType);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["cases"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+    },
+  });
+}
+
+export function useUpdateTask() {
+  const queryClient = useQueryClient();
+  const { getActor } = useCreateActor();
+
+  return useMutation({
+    mutationFn: async (params: { id: bigint; task: Task }) => {
+      const actor = await getActor();
+      return actor.updateTask(params.id, params.task);
+    },
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["cases"] });
+      queryClient.invalidateQueries({
+        queryKey: ["case", variables.id.toString()],
+      });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+    },
+  });
+}
+
+export function useUpdateRemainingTasks() {
+  const queryClient = useQueryClient();
+  const { getActor } = useCreateActor();
+
+  return useMutation({
+    mutationFn: async (params: { id: bigint; taskOptions: TaskOptions }) => {
+      const actor = await getActor();
+      return actor.updateRemainingTasks(params.id, params.taskOptions);
+    },
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["cases"] });
+      queryClient.invalidateQueries({
+        queryKey: ["case", variables.id.toString()],
+      });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+    },
+  });
+}
+
+export function useUpdateCaseNotes() {
+  const queryClient = useQueryClient();
+  const { getActor } = useCreateActor();
+
+  return useMutation({
+    mutationFn: async (params: { id: bigint; notes: string }) => {
+      const actor = await getActor();
+      return actor.updateCaseNotes(params.id, params.notes);
+    },
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["cases"] });
+      queryClient.invalidateQueries({
+        queryKey: ["case", variables.id.toString()],
+      });
+    },
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Dashboard
+// ---------------------------------------------------------------------------
+export function useGetDashboard() {
+  const { getActor, identity } = useCreateActor();
+
+  return useQuery<Dashboard>({
+    queryKey: ["dashboard"],
+    queryFn: async () => {
+      const actor = await getActor();
+      return actor.getDashboard();
+    },
+    enabled: !!identity,
+    staleTime: 1000 * 30,
+  });
+}
+
+// ---------------------------------------------------------------------------
+// OpenAI / Settings
+// ---------------------------------------------------------------------------
+export function useValidateOpenAIConfig() {
+  const { getActor, identity } = useCreateActor();
 
   return useQuery<boolean>({
-    queryKey: ['isCallerAdmin'],
+    queryKey: ["validateOpenAIConfig"],
     queryFn: async () => {
-      if (!actor) return false;
-      return actor.isCallerAdmin();
+      const actor = await getActor();
+      return actor.validateOpenAIConfig();
     },
-    enabled: !!actor && !isFetching,
+    enabled: !!identity,
+    staleTime: 1000 * 60 * 5,
   });
 }
 
 export function useGetOpenAIConfig() {
-  const { actor, isFetching } = useActor();
+  const { getActor, identity } = useCreateActor();
 
   return useQuery<OpenAIConfig | null>({
-    queryKey: ['openAIConfig'],
+    queryKey: ["openAIConfig"],
     queryFn: async () => {
-      if (!actor) return null;
+      const actor = await getActor();
       return actor.getOpenAIConfig();
     },
-    enabled: !!actor && !isFetching,
-  });
-}
-
-export function useValidateOpenAIConfig() {
-  const { actor, isFetching } = useActor();
-
-  return useQuery<boolean>({
-    queryKey: ['validateOpenAIConfig'],
-    queryFn: async () => {
-      if (!actor) return false;
-      return actor.validateOpenAIConfig();
-    },
-    enabled: !!actor && !isFetching,
+    enabled: !!identity,
+    staleTime: 1000 * 60 * 5,
   });
 }
 
 export function useSaveOpenAIConfig() {
-  const { actor } = useActor();
   const queryClient = useQueryClient();
+  const { getActor } = useCreateActor();
 
   return useMutation({
     mutationFn: async (apiKey: string) => {
-      if (!actor) throw new Error('Actor not available');
-      await actor.setOpenAIConfig(apiKey);
+      const actor = await getActor();
+      return actor.setOpenAIConfig(apiKey);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['validateOpenAIConfig'] });
-      queryClient.invalidateQueries({ queryKey: ['openAIConfig'] });
+      queryClient.invalidateQueries({ queryKey: ["openAIConfig"] });
+      queryClient.invalidateQueries({ queryKey: ["validateOpenAIConfig"] });
     },
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Role / Access control
+// ---------------------------------------------------------------------------
+export function useGetCallerUserRole() {
+  const { getActor, identity } = useCreateActor();
+
+  return useQuery<string>({
+    queryKey: ["callerUserRole", identity?.getPrincipal().toString()],
+    queryFn: async () => {
+      const actor = await getActor();
+      return actor.getCallerUserRole();
+    },
+    enabled: !!identity,
+    staleTime: 1000 * 60 * 5,
+  });
+}
+
+export function useIsCallerAdmin() {
+  const { getActor, identity } = useCreateActor();
+
+  return useQuery<boolean>({
+    queryKey: ["isCallerAdmin", identity?.getPrincipal().toString()],
+    queryFn: async () => {
+      const actor = await getActor();
+      return actor.isCallerAdmin();
+    },
+    enabled: !!identity,
+    staleTime: 1000 * 60 * 5,
   });
 }

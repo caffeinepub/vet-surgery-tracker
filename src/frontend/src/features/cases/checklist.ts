@@ -1,148 +1,112 @@
-import type { Task } from '../../backend';
+import type { Task } from "../../backend";
 
 export interface ChecklistItem {
-  key: string;
+  workflowType: string;
   label: string;
-  defaultSelected: boolean;
   selectedField: keyof Task;
   completedField: keyof Task;
+  defaultSelected: boolean;
   color: string;
 }
 
 export const CHECKLIST_ITEMS: ChecklistItem[] = [
-  { 
-    key: 'dischargeNotes', 
-    label: 'Discharge Notes', 
+  {
+    workflowType: "dischargeNotes",
+    label: "Discharge Notes",
+    selectedField: "dischargeNotesSelected",
+    completedField: "dischargeNotesCompleted",
     defaultSelected: true,
-    selectedField: 'dischargeNotesSelected',
-    completedField: 'dischargeNotesCompleted',
-    color: 'green'
+    color: "#22C55E",
   },
-  { 
-    key: 'pdvmNotified', 
-    label: 'pDVM Notified', 
+  {
+    workflowType: "pdvmNotified",
+    label: "PDVM Notified",
+    selectedField: "pdvmNotifiedSelected",
+    completedField: "pdvmNotifiedCompleted",
     defaultSelected: true,
-    selectedField: 'pdvmNotifiedSelected',
-    completedField: 'pdvmNotifiedCompleted',
-    color: 'yellow'
+    color: "#EAB308",
   },
-  { 
-    key: 'labs', 
-    label: 'Labs', 
+  {
+    workflowType: "labs",
+    label: "Labs",
+    selectedField: "labsSelected",
+    completedField: "labsCompleted",
     defaultSelected: false,
-    selectedField: 'labsSelected',
-    completedField: 'labsCompleted',
-    color: 'orange'
+    color: "#F97316",
   },
-  { 
-    key: 'histo', 
-    label: 'Histo', 
+  {
+    workflowType: "histo",
+    label: "Histo",
+    selectedField: "histoSelected",
+    completedField: "histoCompleted",
     defaultSelected: false,
-    selectedField: 'histoSelected',
-    completedField: 'histoCompleted',
-    color: 'purple'
+    color: "#A855F7",
   },
-  { 
-    key: 'surgeryReport', 
-    label: 'Surgery Report', 
+  {
+    workflowType: "surgeryReport",
+    label: "Surgery Report",
+    selectedField: "surgeryReportSelected",
+    completedField: "surgeryReportCompleted",
     defaultSelected: false,
-    selectedField: 'surgeryReportSelected',
-    completedField: 'surgeryReportCompleted',
-    color: 'red'
+    color: "#EF4444",
   },
-  { 
-    key: 'imaging', 
-    label: 'Imaging', 
+  {
+    workflowType: "imaging",
+    label: "Imaging",
+    selectedField: "imagingSelected",
+    completedField: "imagingCompleted",
     defaultSelected: false,
-    selectedField: 'imagingSelected',
-    completedField: 'imagingCompleted',
-    color: 'blue'
+    color: "#6B7280",
   },
-  { 
-    key: 'culture', 
-    label: 'Culture', 
+  {
+    workflowType: "culture",
+    label: "Culture",
+    selectedField: "cultureSelected",
+    completedField: "cultureCompleted",
     defaultSelected: false,
-    selectedField: 'cultureSelected',
-    completedField: 'cultureCompleted',
-    color: 'pink'
+    color: "#EC4899",
+  },
+  {
+    workflowType: "followUp",
+    label: "Follow Up",
+    selectedField: "followUpSelected",
+    completedField: "followUpCompleted",
+    defaultSelected: false,
+    color: "#06B6D4",
+  },
+  {
+    workflowType: "dailySummary",
+    label: "Daily Summary",
+    selectedField: "dailySummarySelected" as keyof Task,
+    completedField: "dailySummaryCompleted" as keyof Task,
+    defaultSelected: false,
+    color: "#1B3A6B",
   },
 ];
 
-export function getDefaultTaskSelections(): Task {
-  return {
-    dischargeNotesSelected: true,
-    dischargeNotesCompleted: false,
-    pdvmNotifiedSelected: true,
-    pdvmNotifiedCompleted: false,
-    labsSelected: false,
-    labsCompleted: false,
-    histoSelected: false,
-    histoCompleted: false,
-    surgeryReportSelected: false,
-    surgeryReportCompleted: false,
-    imagingSelected: false,
-    imagingCompleted: false,
-    cultureSelected: false,
-    cultureCompleted: false,
-  };
+export function getDefaultTaskSelections(): Record<string, boolean> {
+  const selections: Record<string, boolean> = {};
+  for (const item of CHECKLIST_ITEMS) {
+    selections[item.workflowType] = item.defaultSelected;
+  }
+  return selections;
 }
 
-export interface RemainingItem {
-  key: string;
-  label: string;
-  selectedField: keyof Task;
-  completedField: keyof Task;
-  color: string;
-}
-
-export function getRemainingChecklistItems(task: Task): RemainingItem[] {
+export function getRemainingChecklistItems(task: Task): ChecklistItem[] {
   return CHECKLIST_ITEMS.filter((item) => {
-    const isSelected = task[item.selectedField];
-    const isCompleted = task[item.completedField];
-    return isSelected === true && isCompleted === false;
-  }).map((item) => ({
-    key: item.key,
-    label: item.label,
-    selectedField: item.selectedField,
-    completedField: item.completedField,
-    color: item.color,
-  }));
+    const selected = task[item.selectedField];
+    const completed = task[item.completedField];
+    return selected === true && completed !== true;
+  });
 }
 
-export function getCompletedTaskCount(task: Task): number {
+export function getAllSelectedChecklistItems(task: Task): ChecklistItem[] {
   return CHECKLIST_ITEMS.filter((item) => {
-    const isSelected = task[item.selectedField];
-    const isCompleted = task[item.completedField];
-    return isSelected === true && isCompleted === true;
-  }).length;
+    return task[item.selectedField] === true;
+  });
 }
 
-export function getTotalSelectedTaskCount(task: Task): number {
-  return CHECKLIST_ITEMS.filter((item) => task[item.selectedField] === true).length;
-}
-
-export function getTaskBorderColor(color: string): string {
-  const colorMap: Record<string, string> = {
-    green: 'border-green-500',
-    yellow: 'border-yellow-500',
-    orange: 'border-orange-500',
-    purple: 'border-purple-500',
-    blue: 'border-blue-500',
-    red: 'border-red-500',
-    pink: 'border-pink-500',
-  };
-  return colorMap[color] || 'border-border';
-}
-
-export function getTaskBackgroundColor(color: string): string {
-  const colorMap: Record<string, string> = {
-    green: 'bg-green-50 dark:bg-green-950/20',
-    yellow: 'bg-yellow-50 dark:bg-yellow-950/20',
-    orange: 'bg-orange-50 dark:bg-orange-950/20',
-    purple: 'bg-purple-50 dark:bg-purple-950/20',
-    blue: 'bg-blue-50 dark:bg-blue-950/20',
-    red: 'bg-red-50 dark:bg-red-950/20',
-    pink: 'bg-pink-50 dark:bg-pink-950/20',
-  };
-  return colorMap[color] || 'bg-background';
+export function getTaskColor(workflowType: string): string {
+  const item = CHECKLIST_ITEMS.find((i) => i.workflowType === workflowType);
+  return item?.color ?? "#6B7280";
 }

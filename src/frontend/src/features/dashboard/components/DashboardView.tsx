@@ -1,362 +1,393 @@
-import { useMemo, useState } from 'react';
-import { useGetAllCases } from '../../../hooks/useQueries';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { 
-  ClipboardList, 
-  CheckCircle2, 
-  ChevronRight, 
-  FileText, 
-  Phone, 
-  Beaker, 
-  Microscope, 
-  ClipboardCheck, 
-  ScanLine, 
-  FlaskConical,
-  Search,
-  Plus,
-  X,
-  FileDown
-} from 'lucide-react';
-import { getOpenTasksFromCase, getTotalOpenTasksCount } from '../utils/openTasksCalculation';
-import { CHECKLIST_ITEMS, getTaskBorderColor, getTaskBackgroundColor } from '../../cases/checklist';
-import { searchCases } from '../../cases/search';
-import { filterCasesByTaskTypes, filterOutCompletedCases, filterCasesByAllTasksCompleted } from '../../cases/filtering';
-import { useDebouncedValue } from '../../../hooks/useDebouncedValue';
-import CasesTasksFilter from '../../cases/components/CasesTasksFilter';
-import { sortCases } from '../../cases/sorting';
-import { generateCasePdf } from '../../cases/pdf/generateCasePdf';
-import type { Species, SurgeryCase } from '../../../backend';
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import {
+  AlertCircle,
+  CalendarDays,
+  CheckCircle2,
+  ClipboardList,
+  FileText,
+  LayoutGrid,
+  Loader2,
+  PlusCircle,
+  RefreshCw,
+  Stethoscope,
+} from "lucide-react";
+import React, { useState, useMemo } from "react";
+import type { Species } from "../../../backend";
+import type { SurgeryCase } from "../../../backend";
+import { useActor } from "../../../hooks/useActor";
+import { useInternetIdentity } from "../../../hooks/useInternetIdentity";
+import { useGetAllCases, useGetDashboard } from "../../../hooks/useQueries";
+import { getRemainingChecklistItems } from "../../cases/checklist";
+import CaseCard from "../../cases/components/CaseCard";
+import CaseFormDialog from "../../cases/components/CaseFormDialog";
+import CasesSearchBar from "../../cases/components/CasesSearchBar";
+import CasesSortControl from "../../cases/components/CasesSortControl";
+import CasesSpeciesFilter from "../../cases/components/CasesSpeciesFilter";
+import CasesTasksFilter from "../../cases/components/CasesTasksFilter";
+import {
+  filterAllTasksCompleted,
+  filterBySpecies,
+  filterByTaskTypes,
+  filterOutCompletedCases,
+} from "../../cases/filtering";
+import { generateCasePdf } from "../../cases/pdf/generateCasePdf";
+import { searchCases } from "../../cases/search";
+import { SORT_OPTIONS, sortCases } from "../../cases/sorting";
+import type { SortOption } from "../../cases/sorting";
+import { getTotalOpenTasksCount } from "../utils/openTasksCalculation";
+import { WeeklyCalendarView } from "./WeeklyCalendarView";
+
+type ViewMode = "calendar" | "list";
 
 interface DashboardViewProps {
-  onNavigateToCase: (caseId: bigint) => void;
-  onNewCase: () => void;
+  onNavigateToCase?: (caseId: number) => void;
 }
 
-// Map task types to icons
-const TASK_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
-  'Discharge Notes': FileText,
-  'pDVM Notified': Phone,
-  'Labs': Beaker,
-  'Histo': Microscope,
-  'Surgery Report': ClipboardCheck,
-  'Imaging': ScanLine,
-  'Culture': FlaskConical,
-};
+export default function DashboardView({
+  onNavigateToCase,
+}: DashboardViewProps) {
+  const { identity } = useInternetIdentity();
+  const { isFetching: actorFetching } = useActor();
 
-// Map species to badge colors
-function getSpeciesBadgeClass(species: Species): string {
-  switch (species) {
-    case 'canine':
-      return 'bg-blue-100 text-blue-800 border-blue-300';
-    case 'feline':
-      return 'bg-purple-100 text-purple-800 border-purple-300';
-    case 'other':
-      return 'bg-gray-100 text-gray-800 border-gray-300';
-    default:
-      return 'bg-gray-100 text-gray-800 border-gray-300';
-  }
-}
+  const {
+    data: cases,
+    isLoading: casesLoading,
+    isFetching: casesFetching,
+    error: casesError,
+    refetch: refetchCases,
+  } = useGetAllCases();
 
-function getSpeciesLabel(species: Species): string {
-  switch (species) {
-    case 'canine':
-      return 'Canine';
-    case 'feline':
-      return 'Feline';
-    case 'other':
-      return 'Other';
-    default:
-      return 'Unknown';
-  }
-}
+  const {
+    data: dashboard,
+    isLoading: dashboardLoading,
+    error: dashboardError,
+    refetch: refetchDashboard,
+  } = useGetDashboard();
 
-/**
- * Formats a Time (bigint nanoseconds) to MM/DD/YYYY string
- */
-function formatArrivalDate(arrivalDate: bigint): string {
-  // Convert nanoseconds to milliseconds
-  const milliseconds = Number(arrivalDate / 1_000_000n);
-  const date = new Date(milliseconds);
-  
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  const year = date.getFullYear();
-  
-  return `${month}/${day}/${year}`;
-}
-
-export default function DashboardView({ onNavigateToCase, onNewCase }: DashboardViewProps) {
-  const { data: cases = [], isLoading } = useGetAllCases();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedTaskTypes, setSelectedTaskTypes] = useState<Set<string>>(new Set());
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedSpecies, setSelectedSpecies] = useState<Set<Species>>(
+    new Set(),
+  );
+  const [selectedTaskTypes, setSelectedTaskTypes] = useState<Set<string>>(
+    new Set(),
+  );
   const [showAllTasksCompleted, setShowAllTasksCompleted] = useState(false);
-  const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('oldest');
-  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
-  const debouncedSearch = useDebouncedValue(searchQuery, 300);
+  const [sortOption, setSortOption] = useState<SortOption>(
+    SORT_OPTIONS[0].value as SortOption,
+  );
+  const [newCaseOpen, setNewCaseOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<ViewMode>("calendar");
 
-  // Filter and sort cases
-  const filteredCases = useMemo(() => {
-    let result = cases;
+  const isLoading = actorFetching || casesLoading || dashboardLoading;
+  const hasError = !!casesError || !!dashboardError;
+  const isAuthenticated = !!identity;
 
-    // Apply search
-    if (debouncedSearch.trim()) {
-      result = searchCases(result, debouncedSearch);
-    }
+  const allCases: SurgeryCase[] = cases ?? [];
 
-    // Apply "all tasks completed" filter logic
+  const filteredAndSortedCases = useMemo(() => {
+    let filtered = [...allCases];
+    filtered = filterBySpecies(filtered, selectedSpecies);
+    filtered = filterByTaskTypes(filtered, selectedTaskTypes);
     if (showAllTasksCompleted) {
-      // Show only cases where all tasks are completed
-      result = filterCasesByAllTasksCompleted(result);
+      filtered = filterAllTasksCompleted(filtered);
     } else {
-      // Default: hide cases where all tasks are completed
-      result = filterOutCompletedCases(result);
+      filtered = filterOutCompletedCases(filtered);
     }
-
-    // Apply tasks filter (show cases with selected incomplete tasks)
-    result = filterCasesByTaskTypes(result, selectedTaskTypes);
-
-    // Sort by arrival date based on selected order
-    if (sortOrder === 'newest') {
-      result = sortCases(result, 'arrival-date-newest');
-    } else {
-      result = sortCases(result, 'arrival-date-oldest');
+    if (searchQuery.trim()) {
+      filtered = searchCases(filtered, searchQuery.trim());
     }
+    return sortCases(filtered, sortOption);
+  }, [
+    allCases,
+    selectedSpecies,
+    selectedTaskTypes,
+    showAllTasksCompleted,
+    searchQuery,
+    sortOption,
+  ]);
 
-    return result;
-  }, [cases, debouncedSearch, selectedTaskTypes, showAllTasksCompleted, sortOrder]);
+  const openTasksCount =
+    dashboard?.openTasks ?? BigInt(getTotalOpenTasksCount(allCases));
+  const totalCases = allCases.length;
+  const activeCasesCount = allCases.filter(
+    (c) => getRemainingChecklistItems(c.task).length > 0,
+  ).length;
 
-  const totalOpenTasks = getTotalOpenTasksCount(filteredCases);
-  const allOpenTasks = filteredCases.flatMap(getOpenTasksFromCase);
-
-  // Group tasks by case for better display
-  const tasksByCase = new Map<string, typeof allOpenTasks>();
-  for (const task of allOpenTasks) {
-    const key = task.caseId.toString();
-    if (!tasksByCase.has(key)) {
-      tasksByCase.set(key, []);
-    }
-    tasksByCase.get(key)!.push(task);
-  }
-
-  const handleClearSearch = () => {
-    setSearchQuery('');
+  const handleRefetch = () => {
+    refetchCases();
+    refetchDashboard();
   };
 
   const handleExportPdf = () => {
-    setIsGeneratingPdf(true);
-    try {
-      // Export all cases (not just filtered ones) to include complete data
-      generateCasePdf(cases);
-    } catch (error) {
-      console.error('Error generating PDF report:', error);
-      alert('Failed to generate PDF report. Please try again.');
-    } finally {
-      setIsGeneratingPdf(false);
-    }
+    generateCasePdf(allCases);
   };
 
+  // Not authenticated
+  if (!isAuthenticated) {
+    return (
+      <div className="flex flex-col items-center justify-center py-24 gap-4">
+        <Stethoscope className="w-12 h-12 text-muted-foreground" />
+        <p className="text-muted-foreground text-lg">
+          Please log in to view your cases.
+        </p>
+      </div>
+    );
+  }
+
+  // Loading state
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-center">
-          <div className="mb-4 h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto"></div>
-          <p className="text-foreground font-medium">Loading dashboard...</p>
+      <div className="p-4 space-y-4">
+        <div className="grid grid-cols-2 gap-3">
+          <Skeleton className="h-20 rounded-xl" />
+          <Skeleton className="h-20 rounded-xl" />
+        </div>
+        <div className="space-y-3">
+          {[...Array(3)].map((_, i) => (
+            // biome-ignore lint/suspicious/noArrayIndexKey: static skeleton items with no data
+            <Skeleton key={i} className="h-24 w-full rounded-xl" />
+          ))}
         </div>
       </div>
     );
   }
 
-  return (
-    <div className="space-y-6">
-      {/* Header with tally and actions */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-3xl font-bold text-foreground">Dashboard</h2>
-          <p className="text-muted-foreground mt-1">Overview of all open tasks</p>
-        </div>
-        <div className="flex gap-2">
-          <Button 
-            onClick={handleExportPdf} 
-            variant="outline"
-            disabled={isGeneratingPdf || cases.length === 0}
-          >
-            <FileDown className="h-4 w-4 mr-2" />
-            {isGeneratingPdf ? 'Generating...' : 'Export Report'}
-          </Button>
-          <Button onClick={onNewCase}>
-            <Plus className="h-4 w-4 mr-2" />
-            New Case
-          </Button>
-        </div>
+  // Error state
+  if (hasError) {
+    const errorMessage =
+      casesError instanceof Error
+        ? casesError.message
+        : dashboardError instanceof Error
+          ? dashboardError.message
+          : "An unknown error occurred while loading cases.";
+
+    return (
+      <div className="p-6 space-y-4">
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Failed to load cases</AlertTitle>
+          <AlertDescription className="mt-1">{errorMessage}</AlertDescription>
+        </Alert>
+        <Button variant="outline" onClick={handleRefetch} className="gap-2">
+          <RefreshCw className="w-4 h-4" />
+          Retry
+        </Button>
       </div>
+    );
+  }
 
-      {/* Search Bar, Sort, and Filters */}
-      <div className="flex flex-col sm:flex-row gap-3">
-        <div className="flex-1 relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            type="text"
-            placeholder="Search by MRN, name, or presenting complaint..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 pr-10"
-          />
-          {searchQuery && (
-            <button
-              onClick={handleClearSearch}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-              aria-label="Clear search"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          )}
-        </div>
-        <Select value={sortOrder} onValueChange={(value) => setSortOrder(value as 'newest' | 'oldest')}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Sort by..." />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="newest">Newest First</SelectItem>
-            <SelectItem value="oldest">Oldest First</SelectItem>
-          </SelectContent>
-        </Select>
-        <CasesTasksFilter
-          selectedTaskTypes={selectedTaskTypes}
-          onTaskTypesChange={setSelectedTaskTypes}
-          showAllTasksCompleted={showAllTasksCompleted}
-          onShowAllTasksCompletedChange={setShowAllTasksCompleted}
-        />
-      </div>
-
-      {/* Open Tasks Tally Card */}
-      <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-2xl">
-            <ClipboardList className="h-6 w-6 text-primary" />
-            Open Tasks
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-5xl font-bold text-primary">{totalOpenTasks}</div>
-          <p className="text-muted-foreground mt-2">
-            {totalOpenTasks === 0 ? 'All tasks completed!' : `${totalOpenTasks === 1 ? 'task' : 'tasks'} pending across ${tasksByCase.size} ${tasksByCase.size === 1 ? 'case' : 'cases'}`}
-          </p>
-        </CardContent>
-      </Card>
-
-      {/* Open Tasks List - Responsive Grid */}
-      {totalOpenTasks > 0 ? (
-        <div className="space-y-4">
-          <h3 className="text-xl font-semibold text-foreground">Task Details</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {Array.from(tasksByCase.entries()).map(([caseId, tasks]) => {
-              const firstTask = tasks[0];
-              // Find the full case to get arrival date
-              const fullCase = filteredCases.find(c => c.id.toString() === caseId);
-              
-              return (
-                <Card 
-                  key={caseId} 
-                  className="bg-white dark:bg-card cursor-pointer transition-all hover:shadow-md hover:bg-blue-50 group"
-                  onClick={() => onNavigateToCase(firstTask.caseId)}
-                >
-                  <CardHeader className="pb-3">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1 space-y-2">
-                        <div className="flex items-center gap-2">
-                          <CardTitle className="text-lg text-primary group-hover:text-primary/80 transition-colors">
-                            {firstTask.petName}
-                          </CardTitle>
-                          <Badge 
-                            variant="outline" 
-                            className={cn('rounded-full px-2 py-0.5 text-xs font-medium', getSpeciesBadgeClass(firstTask.species))}
-                          >
-                            {getSpeciesLabel(firstTask.species)}
-                          </Badge>
-                        </div>
-                        <div className="text-sm text-muted-foreground space-y-1">
-                          <div className="flex items-center justify-between">
-                            <span className="text-lg font-semibold">MRN: {firstTask.medicalRecordNumber}</span>
-                            {fullCase && fullCase.arrivalDate && fullCase.arrivalDate > 0n && (
-                              <span className="text-xs font-medium text-foreground/70">
-                                {formatArrivalDate(fullCase.arrivalDate)}
-                              </span>
-                            )}
-                          </div>
-                          <div>Owner: {firstTask.ownerLastName}</div>
-                          {firstTask.presentingComplaint && (
-                            <div className="text-foreground/80 font-medium">
-                              {firstTask.presentingComplaint}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Badge variant="secondary" className="ml-2">
-                          {tasks.length}
-                        </Badge>
-                        <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex flex-wrap gap-2">
-                      {tasks.map((task) => {
-                        // Find the checklist item to get the color
-                        const checklistItem = CHECKLIST_ITEMS.find(item => item.label === task.taskLabel);
-                        const color = checklistItem?.color || 'gray';
-                        const borderColor = getTaskBorderColor(color);
-                        const backgroundColor = getTaskBackgroundColor(color);
-                        const IconComponent = TASK_ICONS[task.taskLabel] || CheckCircle2;
-                        
-                        return (
-                          <div
-                            key={`${task.caseId}-${task.taskType}`}
-                            className={cn(
-                              'flex items-center justify-center p-2 rounded-md border-2',
-                              borderColor,
-                              backgroundColor
-                            )}
-                            title={task.taskLabel}
-                          >
-                            <IconComponent className="h-4 w-4" />
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
+  // Empty database state
+  if (totalCases === 0) {
+    return (
+      <div className="flex flex-col h-full">
+        <div className="px-4 pt-4 pb-2 grid grid-cols-2 gap-3">
+          <div className="bg-card border border-border rounded-xl p-3 flex items-center gap-3">
+            <div className="bg-primary/10 rounded-lg p-2">
+              <ClipboardList className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Open Tasks</p>
+              <p className="text-xl font-bold text-foreground">0</p>
+            </div>
+          </div>
+          <div className="bg-card border border-border rounded-xl p-3 flex items-center gap-3">
+            <div className="bg-primary/10 rounded-lg p-2">
+              <CheckCircle2 className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Active Cases</p>
+              <p className="text-xl font-bold text-foreground">0</p>
+            </div>
           </div>
         </div>
-      ) : (
-        <Card className="bg-white dark:bg-card">
-          <CardContent className="py-12 text-center">
-            <CheckCircle2 className="h-16 w-16 text-green-500 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-foreground mb-2">All Caught Up!</h3>
-            <p className="text-muted-foreground">
-              {debouncedSearch.trim() || selectedTaskTypes.size > 0 || showAllTasksCompleted
-                ? 'No open tasks match your search or filters.'
-                : 'There are no open tasks at the moment. Great work! 🎉'}
+
+        <div className="flex-1 flex flex-col items-center justify-center px-6 py-16 text-center">
+          <div className="bg-primary/10 rounded-full p-6 mb-5">
+            <Stethoscope className="h-12 w-12 text-primary" />
+          </div>
+          <h2 className="text-2xl font-bold text-foreground mb-2">
+            No cases yet
+          </h2>
+          <p className="text-muted-foreground mb-8 max-w-sm">
+            Add your first veterinary surgery case to get started tracking
+            patient workflows and tasks.
+          </p>
+          <Button
+            size="lg"
+            onClick={() => setNewCaseOpen(true)}
+            className="gap-2"
+          >
+            <PlusCircle className="h-5 w-5" />
+            Add First Case
+          </Button>
+        </div>
+
+        <CaseFormDialog open={newCaseOpen} onOpenChange={setNewCaseOpen} />
+      </div>
+    );
+  }
+
+  const hasActiveFilters =
+    selectedSpecies.size > 0 ||
+    selectedTaskTypes.size > 0 ||
+    showAllTasksCompleted ||
+    searchQuery.trim().length > 0;
+
+  return (
+    <div className="flex flex-col h-full">
+      {/* Stats bar */}
+      <div className="px-4 pt-4 pb-2 grid grid-cols-2 gap-3">
+        <div className="bg-card border border-border rounded-xl p-3 flex items-center gap-3">
+          <div className="bg-primary/10 rounded-lg p-2">
+            <ClipboardList className="h-5 w-5 text-primary" />
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground">Open Tasks</p>
+            <p className="text-xl font-bold text-foreground">
+              {openTasksCount.toString()}
             </p>
-          </CardContent>
-        </Card>
-      )}
+          </div>
+        </div>
+        <div className="bg-card border border-border rounded-xl p-3 flex items-center gap-3">
+          <div className="bg-primary/10 rounded-lg p-2">
+            <CheckCircle2 className="h-5 w-5 text-primary" />
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground">Active Cases</p>
+            <p className="text-xl font-bold text-foreground">
+              {activeCasesCount}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Sticky filter/search/sort toolbar */}
+      <div className="sticky top-14 z-10 bg-background border-b border-border px-4 py-3 space-y-3">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            <CasesSearchBar value={searchQuery} onChange={setSearchQuery} />
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleRefetch}
+              title="Refresh"
+              className="h-8 w-8"
+            >
+              <RefreshCw className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleExportPdf}
+              title="Export PDF"
+              className="h-8 w-8"
+            >
+              <FileText className="h-4 w-4" />
+            </Button>
+            <Button onClick={() => setNewCaseOpen(true)} size="sm">
+              + New Case
+            </Button>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 flex-wrap">
+          <CasesSpeciesFilter
+            selectedSpecies={selectedSpecies}
+            onSpeciesChange={setSelectedSpecies}
+          />
+          <CasesTasksFilter
+            selectedTaskTypes={selectedTaskTypes}
+            onTaskTypesChange={setSelectedTaskTypes}
+            showAllTasksCompleted={showAllTasksCompleted}
+            onShowAllTasksCompletedChange={setShowAllTasksCompleted}
+          />
+          <div className="ml-auto flex items-center gap-2">
+            <ToggleGroup
+              type="single"
+              value={viewMode}
+              onValueChange={(v) => v && setViewMode(v as ViewMode)}
+              className="h-8"
+            >
+              <ToggleGroupItem
+                value="calendar"
+                className="h-8 w-8 p-0"
+                title="Calendar view"
+              >
+                <CalendarDays className="h-4 w-4" />
+              </ToggleGroupItem>
+              <ToggleGroupItem
+                value="list"
+                className="h-8 w-8 p-0"
+                title="List view"
+              >
+                <LayoutGrid className="h-4 w-4" />
+              </ToggleGroupItem>
+            </ToggleGroup>
+            {viewMode === "list" && (
+              <CasesSortControl
+                value={sortOption}
+                onSortChange={setSortOption}
+              />
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Main content */}
+      <div className="flex-1 overflow-hidden">
+        {viewMode === "calendar" ? (
+          <WeeklyCalendarView
+            cases={allCases}
+            onNavigateToCase={onNavigateToCase}
+          />
+        ) : (
+          <div className="p-4 space-y-3 overflow-y-auto h-full">
+            {casesFetching && !casesLoading && (
+              <div className="flex items-center gap-2 text-muted-foreground text-sm pb-1">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Refreshing cases…
+              </div>
+            )}
+            {filteredAndSortedCases.length === 0 ? (
+              <div className="text-center py-12 text-muted-foreground">
+                {hasActiveFilters ? (
+                  <div>
+                    <p className="text-lg font-medium mb-1">
+                      No cases match your filters
+                    </p>
+                    <p className="text-sm">
+                      Try adjusting your search or filter criteria.
+                    </p>
+                  </div>
+                ) : (
+                  <div>
+                    <p className="text-lg font-medium mb-1">
+                      All tasks completed!
+                    </p>
+                    <p className="text-sm">
+                      Toggle the filter to view completed cases.
+                    </p>
+                  </div>
+                )}
+              </div>
+            ) : (
+              filteredAndSortedCases.map((surgeryCase) => (
+                <CaseCard
+                  key={surgeryCase.id.toString()}
+                  surgeryCase={surgeryCase}
+                  showPresentingComplaintCollapsed
+                />
+              ))
+            )}
+          </div>
+        )}
+      </div>
+
+      <CaseFormDialog open={newCaseOpen} onOpenChange={setNewCaseOpen} />
     </div>
   );
-}
-
-function cn(...classes: (string | boolean | undefined)[]) {
-  return classes.filter(Boolean).join(' ');
 }

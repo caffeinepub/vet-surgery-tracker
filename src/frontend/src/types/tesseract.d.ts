@@ -1,4 +1,4 @@
-declare module 'tesseract.js' {
+declare module "tesseract.js" {
   export interface Logger {
     status: string;
     progress: number;
@@ -123,8 +123,15 @@ declare module 'tesseract.js' {
     initialize(lang: string | string[]): Promise<void>;
     setParameters(params: Record<string, any>): Promise<void>;
     recognize(
-      image: string | File | Blob | ImageData | HTMLImageElement | HTMLCanvasElement | HTMLVideoElement,
-      options?: RecognizeOptions
+      image:
+        | string
+        | File
+        | Blob
+        | ImageData
+        | HTMLImageElement
+        | HTMLCanvasElement
+        | HTMLVideoElement,
+      options?: RecognizeOptions,
     ): Promise<RecognizeResult>;
     detect(image: string | File | Blob): Promise<any>;
     terminate(): Promise<void>;
@@ -134,7 +141,7 @@ declare module 'tesseract.js' {
   export function createWorker(
     lang?: string | string[],
     oem?: number,
-    options?: WorkerOptions
+    options?: WorkerOptions,
   ): Promise<Worker>;
 
   export function createScheduler(): any;

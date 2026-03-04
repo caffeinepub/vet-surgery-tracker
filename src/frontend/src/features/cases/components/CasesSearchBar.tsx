@@ -1,14 +1,17 @@
-import { Input } from '@/components/ui/input';
-import { Search, X } from 'lucide-react';
+import { Input } from "@/components/ui/input";
+import { Search, X } from "lucide-react";
 
 interface CasesSearchBarProps {
   value: string;
   onChange: (value: string) => void;
 }
 
-export default function CasesSearchBar({ value, onChange }: CasesSearchBarProps) {
+export default function CasesSearchBar({
+  value,
+  onChange,
+}: CasesSearchBarProps) {
   const handleClear = () => {
-    onChange('');
+    onChange("");
   };
 
   return (
@@ -23,6 +26,7 @@ export default function CasesSearchBar({ value, onChange }: CasesSearchBarProps)
       />
       {value && (
         <button
+          type="button"
           onClick={handleClear}
           className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
           aria-label="Clear search"

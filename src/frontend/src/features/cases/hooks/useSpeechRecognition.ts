@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useCallback, useEffect, useRef, useState } from "react";
 
 // Define custom types for SpeechRecognition
 interface SpeechRecognitionEvent extends Event {
@@ -44,37 +44,38 @@ export interface UseSpeechRecognitionReturn {
 
 export function useSpeechRecognition(): UseSpeechRecognitionReturn {
   const [isRecording, setIsRecording] = useState(false);
-  const [transcript, setTranscript] = useState('');
+  const [transcript, setTranscript] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isSupported, setIsSupported] = useState(false);
-  
+
   const recognitionRef = useRef<ISpeechRecognition | null>(null);
 
   // Check browser support on mount
   useEffect(() => {
-    const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
-    
+    const SpeechRecognitionAPI =
+      window.SpeechRecognition || window.webkitSpeechRecognition;
+
     if (SpeechRecognitionAPI) {
       setIsSupported(true);
       recognitionRef.current = new SpeechRecognitionAPI();
-      
+
       const recognition = recognitionRef.current;
-      recognition.lang = 'en-US';
+      recognition.lang = "en-US";
       recognition.continuous = true;
       recognition.interimResults = false;
       recognition.maxAlternatives = 1;
 
       // Handle results
       recognition.onresult = (event: SpeechRecognitionEvent) => {
-        let finalTranscript = '';
-        
+        let finalTranscript = "";
+
         for (let i = event.resultIndex; i < event.results.length; i++) {
           const result = event.results[i];
           if (result.isFinal) {
-            finalTranscript += result[0].transcript + ' ';
+            finalTranscript += `${result[0].transcript} `;
           }
         }
-        
+
         if (finalTranscript) {
           setTranscript((prev) => prev + finalTranscript);
         }
@@ -82,30 +83,31 @@ export function useSpeechRecognition(): UseSpeechRecognitionReturn {
 
       // Handle errors
       recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
-        console.error('[useSpeechRecognition] Error:', event.error);
-        
-        let errorMessage = 'Speech recognition error';
-        
+        console.error("[useSpeechRecognition] Error:", event.error);
+
+        let errorMessage = "Speech recognition error";
+
         switch (event.error) {
-          case 'no-speech':
-            errorMessage = 'No speech detected. Please try again.';
+          case "no-speech":
+            errorMessage = "No speech detected. Please try again.";
             break;
-          case 'audio-capture':
-            errorMessage = 'No microphone found. Please check your device.';
+          case "audio-capture":
+            errorMessage = "No microphone found. Please check your device.";
             break;
-          case 'not-allowed':
-            errorMessage = 'Microphone access denied. Please allow microphone access.';
+          case "not-allowed":
+            errorMessage =
+              "Microphone access denied. Please allow microphone access.";
             break;
-          case 'network':
-            errorMessage = 'Network error. Please check your connection.';
+          case "network":
+            errorMessage = "Network error. Please check your connection.";
             break;
-          case 'aborted':
+          case "aborted":
             // User stopped recording, not an error
             return;
           default:
             errorMessage = `Speech recognition error: ${event.error}`;
         }
-        
+
         setError(errorMessage);
         setIsRecording(false);
       };
@@ -122,7 +124,9 @@ export function useSpeechRecognition(): UseSpeechRecognitionReturn {
       };
     } else {
       setIsSupported(false);
-      setError('Speech recognition is not supported in this browser. Please use Chrome, Edge, or Safari.');
+      setError(
+        "Speech recognition is not supported in this browser. Please use Chrome, Edge, or Safari.",
+      );
     }
 
     // Cleanup
@@ -130,7 +134,7 @@ export function useSpeechRecognition(): UseSpeechRecognitionReturn {
       if (recognitionRef.current) {
         try {
           recognitionRef.current.stop();
-        } catch (e) {
+        } catch (_e) {
           // Ignore errors during cleanup
         }
       }
@@ -139,7 +143,7 @@ export function useSpeechRecognition(): UseSpeechRecognitionReturn {
 
   const startRecording = useCallback(() => {
     if (!recognitionRef.current || !isSupported) {
-      setError('Speech recognition is not available');
+      setError("Speech recognition is not available");
       return;
     }
 
@@ -149,11 +153,11 @@ export function useSpeechRecognition(): UseSpeechRecognitionReturn {
 
     try {
       setError(null);
-      setTranscript('');
+      setTranscript("");
       recognitionRef.current.start();
     } catch (err) {
-      console.error('[useSpeechRecognition] Start error:', err);
-      setError('Failed to start recording. Please try again.');
+      console.error("[useSpeechRecognition] Start error:", err);
+      setError("Failed to start recording. Please try again.");
     }
   }, [isSupported, isRecording]);
 
@@ -165,13 +169,13 @@ export function useSpeechRecognition(): UseSpeechRecognitionReturn {
     try {
       recognitionRef.current.stop();
     } catch (err) {
-      console.error('[useSpeechRecognition] Stop error:', err);
-      setError('Failed to stop recording');
+      console.error("[useSpeechRecognition] Stop error:", err);
+      setError("Failed to stop recording");
     }
   }, [isRecording]);
 
   const resetTranscript = useCallback(() => {
-    setTranscript('');
+    setTranscript("");
     setError(null);
   }, []);
 

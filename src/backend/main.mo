@@ -1,14 +1,18 @@
-import Array "mo:core/Array";
-import Map "mo:core/Map";
-import Iter "mo:core/Iter";
 import Nat "mo:core/Nat";
-import Order "mo:core/Order";
-import Principal "mo:core/Principal";
-import Runtime "mo:core/Runtime";
+import Map "mo:core/Map";
 import Text "mo:core/Text";
 import Time "mo:core/Time";
+import Array "mo:core/Array";
+import Order "mo:core/Order";
+import Runtime "mo:core/Runtime";
+import Principal "mo:core/Principal";
+import Iter "mo:core/Iter";
+
+
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
+
+// Migration applied. New actor state is initialized after redeployment!
 
 actor {
   public type Species = { #canine; #feline; #other };
@@ -35,6 +39,24 @@ actor {
 
     cultureSelected : Bool;
     cultureCompleted : Bool;
+
+    followUpSelected : Bool;
+    followUpCompleted : Bool;
+
+    dailySummarySelected : Bool; // New field
+    dailySummaryCompleted : Bool; // New field
+  };
+
+  public type TaskType = {
+    #dischargeNotes;
+    #pdvmNotified;
+    #labs;
+    #histo;
+    #surgeryReport;
+    #imaging;
+    #culture;
+    #followUp;
+    #dailySummary; // New task type
   };
 
   public type TaskOptions = {
@@ -45,6 +67,8 @@ actor {
     surgeryReport : Bool;
     imaging : Bool;
     culture : Bool;
+    followUp : Bool;
+    dailySummary : Bool; // New option for selection dialog
   };
 
   public type SurgeryCase = {
@@ -119,7 +143,7 @@ actor {
     dateOfBirth : ?Time.Time,
     presentingComplaint : Text,
     notes : Text,
-    taskOptions : TaskOptions,
+    taskOptions : TaskOptions, // Now includes dailySummary
   ) : async SurgeryCase {
     checkUserPermission(caller);
 
@@ -144,6 +168,12 @@ actor {
 
       cultureSelected = taskOptions.culture;
       cultureCompleted = false;
+
+      followUpSelected = taskOptions.followUp;
+      followUpCompleted = false;
+
+      dailySummarySelected = taskOptions.dailySummary;
+      dailySummaryCompleted = false;
     };
 
     let newCase : SurgeryCase = {
@@ -257,6 +287,71 @@ actor {
     };
   };
 
+  public shared ({ caller }) func updateTaskCompletion(id : Nat, taskType : TaskType) : async () {
+    checkUserPermission(caller);
+
+    switch (cases.get(id)) {
+      case (null) { Runtime.trap("Case not found") };
+      case (?existingCase) {
+        let updatedTask = updateTaskCompletionState(existingCase.task, taskType);
+        let updatedCase : SurgeryCase = {
+          existingCase with
+          task = updatedTask;
+        };
+        cases.add(id, updatedCase);
+      };
+    };
+  };
+
+  func updateTaskCompletionState(task : Task, taskType : TaskType) : Task {
+    switch (taskType) {
+      case (#dischargeNotes) {
+        {
+          task with
+          dischargeNotesCompleted = not task.dischargeNotesCompleted;
+        };
+      };
+      case (#pdvmNotified) {
+        {
+          task with
+          pdvmNotifiedCompleted = not task.pdvmNotifiedCompleted;
+        };
+      };
+      case (#labs) { { task with labsCompleted = not task.labsCompleted } };
+      case (#histo) { { task with histoCompleted = not task.histoCompleted } };
+      case (#surgeryReport) {
+        {
+          task with
+          surgeryReportCompleted = not task.surgeryReportCompleted;
+        };
+      };
+      case (#imaging) {
+        {
+          task with
+          imagingCompleted = not task.imagingCompleted;
+        };
+      };
+      case (#culture) {
+        {
+          task with
+          cultureCompleted = not task.cultureCompleted;
+        };
+      };
+      case (#followUp) {
+        {
+          task with
+          followUpCompleted = not task.followUpCompleted;
+        };
+      };
+      case (#dailySummary) {
+        {
+          task with
+          dailySummaryCompleted = not task.dailySummaryCompleted;
+        };
+      };
+    };
+  };
+
   public shared ({ caller }) func updateRemainingTasks(id : Nat, taskOptions : TaskOptions) : async () {
     checkUserPermission(caller);
 
@@ -284,6 +379,12 @@ actor {
 
           cultureSelected = taskOptions.culture;
           cultureCompleted = false;
+
+          followUpSelected = taskOptions.followUp;
+          followUpCompleted = false;
+
+          dailySummarySelected = taskOptions.dailySummary;
+          dailySummaryCompleted = false;
         };
         let updatedCase : SurgeryCase = {
           existingCase with
@@ -402,9 +503,14 @@ actor {
       if (caseMap.task.cultureSelected and not caseMap.task.cultureCompleted) {
         taskCount += 1;
       };
+      if (caseMap.task.followUpSelected and not caseMap.task.followUpCompleted) {
+        taskCount += 1;
+      };
+      if (caseMap.task.dailySummarySelected and not caseMap.task.dailySummaryCompleted) {
+        taskCount += 1;
+      };
     };
 
     { openTasks = taskCount };
   };
 };
-

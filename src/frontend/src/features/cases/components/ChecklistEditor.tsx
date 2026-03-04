@@ -1,94 +1,60 @@
-import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
-import type { Task } from '../../../backend';
-import { CHECKLIST_ITEMS, getTaskBorderColor, getTaskBackgroundColor } from '../checklist';
+import React from "react";
+import type { Task } from "../../../backend";
+import WorkflowIcon from "../../../components/workflow-icons/WorkflowIcon";
+import { CHECKLIST_ITEMS } from "../checklist";
 
 interface ChecklistEditorProps {
   task: Task;
-  onChange: (task: Task) => void;
-  disabled?: boolean;
-  mode?: 'creation' | 'completion';
+  onToggleTask: (workflowType: string) => void;
+  isLoading?: boolean;
 }
 
-export default function ChecklistEditor({ task, onChange, disabled, mode = 'completion' }: ChecklistEditorProps) {
-  const isCreationMode = mode === 'creation';
+export default function ChecklistEditor({
+  task,
+  onToggleTask,
+  isLoading = false,
+}: ChecklistEditorProps) {
+  const selectedItems = CHECKLIST_ITEMS.filter(
+    (item) => task[item.selectedField] === true,
+  );
 
-  const handleCheckboxChange = (item: typeof CHECKLIST_ITEMS[0], checked: boolean) => {
-    if (isCreationMode) {
-      // In creation mode, toggle the *Selected field
-      onChange({
-        ...task,
-        [item.selectedField]: checked,
-      });
-    } else {
-      // In completion mode, toggle the *Completed field
-      onChange({
-        ...task,
-        [item.completedField]: checked,
-      });
-    }
-  };
-
-  const getCheckboxState = (item: typeof CHECKLIST_ITEMS[0]): boolean => {
-    if (isCreationMode) {
-      return task[item.selectedField] as boolean;
-    } else {
-      return task[item.completedField] as boolean;
-    }
-  };
-
-  // In completion mode, only show tasks that are selected
-  const itemsToDisplay = isCreationMode 
-    ? CHECKLIST_ITEMS 
-    : CHECKLIST_ITEMS.filter(item => task[item.selectedField] === true);
+  if (selectedItems.length === 0) {
+    return (
+      <p className="text-xs text-muted-foreground italic">No tasks selected.</p>
+    );
+  }
 
   return (
-    <div className="space-y-3 rounded-lg border border-border bg-card p-4">
-      <div className="space-y-2">
-        {itemsToDisplay.map((item) => {
-          const borderColor = getTaskBorderColor(item.color);
-          const backgroundColor = getTaskBackgroundColor(item.color);
-          
-          return (
-            <div 
-              key={item.key} 
-              className={cn(
-                'flex items-center space-x-2 rounded-md p-2 -mx-2 border-2',
-                borderColor,
-                backgroundColor
-              )}
+    <div className="flex flex-wrap gap-3">
+      {selectedItems.map((item) => {
+        const isCompleted = task[item.completedField] === true;
+        return (
+          <button
+            type="button"
+            key={item.workflowType}
+            onClick={() => onToggleTask(item.workflowType)}
+            disabled={isLoading}
+            title={`${item.label}${isCompleted ? " (completed)" : ""}`}
+            className={`flex flex-col items-center gap-1 p-1.5 rounded transition-opacity ${
+              isCompleted ? "opacity-50" : "opacity-100"
+            } hover:opacity-80 disabled:cursor-not-allowed`}
+          >
+            <WorkflowIcon
+              workflowType={item.workflowType}
+              isCompleted={isCompleted}
+            />
+            <span
+              className="text-xs"
+              style={{
+                color: item.color,
+                textDecoration: isCompleted ? "line-through" : "none",
+              }}
             >
-              <Checkbox
-                id={`checklist-${mode}-${item.key}`}
-                checked={getCheckboxState(item)}
-                onCheckedChange={(checked) => handleCheckboxChange(item, checked as boolean)}
-                disabled={disabled}
-              />
-              <Label
-                htmlFor={`checklist-${mode}-${item.key}`}
-                className={cn(
-                  'text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70',
-                  disabled && 'opacity-50 cursor-not-allowed'
-                )}
-              >
-                {item.label}
-                {isCreationMode && item.defaultSelected && (
-                  <span className="ml-2 text-xs text-muted-foreground">(default)</span>
-                )}
-              </Label>
-            </div>
-          );
-        })}
-      </div>
-      {isCreationMode && (
-        <p className="text-xs text-muted-foreground mt-3 pt-3 border-t border-border">
-          Selected tasks will appear as incomplete checkboxes on the case card.
-        </p>
-      )}
+              {item.label}
+            </span>
+          </button>
+        );
+      })}
     </div>
   );
-}
-
-function cn(...classes: (string | boolean | undefined)[]) {
-  return classes.filter(Boolean).join(' ');
 }

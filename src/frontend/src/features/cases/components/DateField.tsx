@@ -1,10 +1,20 @@
-import { useState, useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { CalendarIcon } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { Input } from "@/components/ui/input";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { CalendarIcon } from "lucide-react";
+import {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from "react";
 
 interface DateFieldProps {
   id?: string;
@@ -17,8 +27,19 @@ interface DateFieldProps {
 }
 
 const DateField = forwardRef<HTMLInputElement, DateFieldProps>(
-  ({ id, value, onChange, disabled, className, onComplete, inputRef: externalRef }, ref) => {
-    const [inputValue, setInputValue] = useState('');
+  (
+    {
+      id,
+      value,
+      onChange,
+      disabled,
+      className,
+      onComplete,
+      inputRef: externalRef,
+    },
+    ref,
+  ) => {
+    const [inputValue, setInputValue] = useState("");
     const [isOpen, setIsOpen] = useState(false);
     const internalRef = useRef<HTMLInputElement>(null);
 
@@ -29,21 +50,21 @@ const DateField = forwardRef<HTMLInputElement, DateFieldProps>(
 
     // Format date as MM/DD/YYYY
     const formatDate = (date: Date | null): string => {
-      if (!date) return '';
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
+      if (!date) return "";
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
       const year = date.getFullYear();
       return `${month}/${day}/${year}`;
     };
 
     // Parse MM/DD/YYYY format
     const parseDate = (str: string): Date | null => {
-      const cleaned = str.replace(/\D/g, '');
+      const cleaned = str.replace(/\D/g, "");
       if (cleaned.length !== 8) return null;
 
-      const month = parseInt(cleaned.substring(0, 2), 10);
-      const day = parseInt(cleaned.substring(2, 4), 10);
-      const year = parseInt(cleaned.substring(4, 8), 10);
+      const month = Number.parseInt(cleaned.substring(0, 2), 10);
+      const day = Number.parseInt(cleaned.substring(2, 4), 10);
+      const year = Number.parseInt(cleaned.substring(4, 8), 10);
 
       if (month < 1 || month > 12) return null;
       if (day < 1 || day > 31) return null;
@@ -56,25 +77,26 @@ const DateField = forwardRef<HTMLInputElement, DateFieldProps>(
     };
 
     // Update input value when prop value changes
+    // biome-ignore lint/correctness/useExhaustiveDependencies: formatDate is a stable inline function, only value changes matter
     useEffect(() => {
       setInputValue(formatDate(value));
     }, [value]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       let input = e.target.value;
-      
+
       // Remove all non-digit characters
-      const digitsOnly = input.replace(/\D/g, '');
-      
+      const digitsOnly = input.replace(/\D/g, "");
+
       // Format as MM/DD/YYYY with auto-insertion of slashes
-      let formatted = '';
+      let formatted = "";
       if (digitsOnly.length > 0) {
         formatted = digitsOnly.substring(0, 2);
         if (digitsOnly.length >= 3) {
-          formatted += '/' + digitsOnly.substring(2, 4);
+          formatted += `/${digitsOnly.substring(2, 4)}`;
         }
         if (digitsOnly.length >= 5) {
-          formatted += '/' + digitsOnly.substring(4, 8);
+          formatted += `/${digitsOnly.substring(4, 8)}`;
         }
       }
 
@@ -108,7 +130,7 @@ const DateField = forwardRef<HTMLInputElement, DateFieldProps>(
           setInputValue(formatDate(parsed));
         } else {
           // Invalid date, clear it
-          setInputValue('');
+          setInputValue("");
           onChange(null);
         }
       }
@@ -133,7 +155,7 @@ const DateField = forwardRef<HTMLInputElement, DateFieldProps>(
           onBlur={handleBlur}
           placeholder="MM/DD/YYYY"
           disabled={disabled}
-          className={cn('flex-1', className)}
+          className={cn("flex-1", className)}
           maxLength={10}
         />
         <Popover open={isOpen} onOpenChange={setIsOpen}>
@@ -159,9 +181,9 @@ const DateField = forwardRef<HTMLInputElement, DateFieldProps>(
         </Popover>
       </div>
     );
-  }
+  },
 );
 
-DateField.displayName = 'DateField';
+DateField.displayName = "DateField";
 
 export default DateField;

@@ -1,16 +1,16 @@
-import type { Species, Sex } from '../../backend';
+import type { Sex, Species } from "../../backend";
 
 export const SPECIES_OPTIONS = [
-  { value: 'canine', label: 'Canine' },
-  { value: 'feline', label: 'Feline' },
-  { value: 'other', label: 'Other' },
+  { value: "canine", label: "Canine" },
+  { value: "feline", label: "Feline" },
+  { value: "other", label: "Other" },
 ] as const;
 
 export const SEX_OPTIONS = [
-  { value: 'male', label: 'Male' },
-  { value: 'maleNeutered', label: 'Male (Neutered)' },
-  { value: 'female', label: 'Female' },
-  { value: 'femaleSpayed', label: 'Female (Spayed)' },
+  { value: "male", label: "Male" },
+  { value: "maleNeutered", label: "Male (Neutered)" },
+  { value: "female", label: "Female" },
+  { value: "femaleSpayed", label: "Female (Spayed)" },
 ] as const;
 
 export interface CaseFormData {

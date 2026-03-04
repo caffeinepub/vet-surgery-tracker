@@ -37,8 +37,12 @@ export interface Task {
   'cultureCompleted' : boolean,
   'cultureSelected' : boolean,
   'pdvmNotifiedCompleted' : boolean,
+  'followUpCompleted' : boolean,
+  'dailySummaryCompleted' : boolean,
   'histoSelected' : boolean,
   'labsSelected' : boolean,
+  'dailySummarySelected' : boolean,
+  'followUpSelected' : boolean,
   'imagingCompleted' : boolean,
   'surgeryReportCompleted' : boolean,
   'imagingSelected' : boolean,
@@ -54,10 +58,21 @@ export interface TaskOptions {
   'histo' : boolean,
   'labs' : boolean,
   'culture' : boolean,
+  'followUp' : boolean,
+  'dailySummary' : boolean,
   'surgeryReport' : boolean,
   'imaging' : boolean,
   'dischargeNotes' : boolean,
 }
+export type TaskType = { 'pdvmNotified' : null } |
+  { 'histo' : null } |
+  { 'labs' : null } |
+  { 'culture' : null } |
+  { 'followUp' : null } |
+  { 'dailySummary' : null } |
+  { 'surgeryReport' : null } |
+  { 'imaging' : null } |
+  { 'dischargeNotes' : null };
 export type Time = bigint;
 export interface UserProfile { 'name' : string }
 export type UserRole = { 'admin' : null } |
@@ -121,6 +136,7 @@ export interface _SERVICE {
   'updateCaseNotes' : ActorMethod<[bigint, string], undefined>,
   'updateRemainingTasks' : ActorMethod<[bigint, TaskOptions], undefined>,
   'updateTask' : ActorMethod<[bigint, Task], undefined>,
+  'updateTaskCompletion' : ActorMethod<[bigint, TaskType], undefined>,
   'validateOpenAIConfig' : ActorMethod<[], boolean>,
 }
 export declare const idlService: IDL.ServiceClass;

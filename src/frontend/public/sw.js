@@ -1,5 +1,5 @@
-const CACHE_NAME = 'surgery-case-log-v1';
-const RUNTIME_CACHE = 'surgery-case-log-runtime-v1';
+const CACHE_NAME = 'surgipaw-v2';
+const RUNTIME_CACHE = 'surgipaw-runtime-v2';
 
 // Assets to cache on install
 const PRECACHE_ASSETS = [
@@ -19,7 +19,6 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
-        console.log('[Service Worker] Precaching app shell');
         return cache.addAll(PRECACHE_ASSETS);
       })
       .then(() => self.skipWaiting())
@@ -36,7 +35,6 @@ self.addEventListener('activate', (event) => {
             return cacheName !== CACHE_NAME && cacheName !== RUNTIME_CACHE;
           })
           .map((cacheName) => {
-            console.log('[Service Worker] Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           })
       );
@@ -92,9 +90,8 @@ self.addEventListener('fetch', (event) => {
 
             return response;
           })
-          .catch((error) => {
-            console.error('[Service Worker] Fetch failed:', error);
-            // Return a custom offline page if available
+          .catch(() => {
+            // Return cached index.html as fallback for offline
             return caches.match('/index.html');
           });
       })
