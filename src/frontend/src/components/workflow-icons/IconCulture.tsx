@@ -1,24 +1,48 @@
 import React from "react";
-import WorkflowIconBase from "./WorkflowIconBase";
-import { workflowColors } from "./workflowTokens";
+import { iconSize } from "./workflowTokens";
 
 interface IconCultureProps {
   isCompleted?: boolean;
 }
 
 export default function IconCulture({ isCompleted = false }: IconCultureProps) {
-  const color = workflowColors.culture;
   return (
-    <WorkflowIconBase color={color} isCompleted={isCompleted}>
-      {/* Petri dish outer circle */}
-      <circle cx="12" cy="13" r="9" />
-      {/* Petri dish lid rim (slightly smaller arc at top) */}
-      <path d="M5 10 Q12 7 19 10" />
-      {/* Bacterial colonies inside */}
-      <circle cx="9" cy="14" r="1.5" />
-      <circle cx="14" cy="12" r="1" />
-      <circle cx="13" cy="16" r="1.2" />
-      <circle cx="17" cy="15" r="0.8" />
-    </WorkflowIconBase>
+    <span
+      style={{
+        position: "relative",
+        display: "inline-flex",
+        width: iconSize,
+        height: iconSize,
+      }}
+    >
+      <img
+        src="/assets/uploads/bacteria-7.png"
+        alt="Culture"
+        width={iconSize}
+        height={iconSize}
+        style={{ display: "block", objectFit: "contain" }}
+      />
+      {isCompleted && (
+        <svg
+          aria-hidden="true"
+          width={iconSize}
+          height={iconSize}
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2.5}
+          strokeLinecap="round"
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            color: "#6B7280",
+          }}
+        >
+          <line x1="4" y1="4" x2="20" y2="20" />
+          <line x1="20" y1="4" x2="4" y2="20" />
+        </svg>
+      )}
+    </span>
   );
 }

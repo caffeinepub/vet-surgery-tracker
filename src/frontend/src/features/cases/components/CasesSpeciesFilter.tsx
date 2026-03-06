@@ -21,17 +21,17 @@ const SPECIES_OPTIONS = [
   {
     value: SpeciesEnum.canine,
     label: "Canine",
-    icon: "/assets/generated/dog-silhouette.dim_64x64.png",
+    icon: "/assets/uploads/Dog_Icon-1-1.png",
   },
   {
     value: SpeciesEnum.feline,
     label: "Feline",
-    icon: "/assets/generated/cat-silhouette.dim_64x64.png",
+    icon: "/assets/uploads/Cat_Icon-1-1-2.png",
   },
   {
     value: SpeciesEnum.other,
     label: "Other",
-    icon: "/assets/generated/other-animal-silhouette.dim_64x64.png",
+    icon: "/assets/uploads/Other_Species_Icon-1-3.png",
   },
 ];
 

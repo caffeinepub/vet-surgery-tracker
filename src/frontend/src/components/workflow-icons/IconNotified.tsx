@@ -1,6 +1,5 @@
 import React from "react";
-import WorkflowIconBase from "./WorkflowIconBase";
-import { workflowColors } from "./workflowTokens";
+import { iconSize } from "./workflowTokens";
 
 interface IconNotifiedProps {
   isCompleted?: boolean;
@@ -9,10 +8,43 @@ interface IconNotifiedProps {
 export default function IconNotified({
   isCompleted = false,
 }: IconNotifiedProps) {
-  const color = workflowColors.pdvmNotified;
   return (
-    <WorkflowIconBase color={color} isCompleted={isCompleted}>
-      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-    </WorkflowIconBase>
+    <span
+      style={{
+        position: "relative",
+        display: "inline-flex",
+        width: iconSize,
+        height: iconSize,
+      }}
+    >
+      <img
+        src="/assets/uploads/envelope-9.png"
+        alt="pDVM Notified"
+        width={iconSize}
+        height={iconSize}
+        style={{ display: "block", objectFit: "contain" }}
+      />
+      {isCompleted && (
+        <svg
+          aria-hidden="true"
+          width={iconSize}
+          height={iconSize}
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2.5}
+          strokeLinecap="round"
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            color: "#6B7280",
+          }}
+        >
+          <line x1="4" y1="4" x2="20" y2="20" />
+          <line x1="20" y1="4" x2="4" y2="20" />
+        </svg>
+      )}
+    </span>
   );
 }

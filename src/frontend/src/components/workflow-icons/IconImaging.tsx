@@ -16,11 +16,11 @@ export default function IconImaging({ isCompleted = false }: IconImagingProps) {
       }}
     >
       <img
-        src="/assets/generated/xray-bone-icon.dim_128x128.png"
+        src="/assets/uploads/bone-4.png"
         alt="Imaging"
         width={iconSize}
         height={iconSize}
-        style={{ filter: "grayscale(100%)", display: "block" }}
+        style={{ display: "block", objectFit: "contain" }}
       />
       {isCompleted && (
         <svg

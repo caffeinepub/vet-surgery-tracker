@@ -12,11 +12,11 @@ interface CalendarCaseCardProps {
 function getSpeciesIcon(species: Species): string {
   switch (species) {
     case Species.canine:
-      return "/assets/generated/dog-silhouette.dim_64x64.png";
+      return "/assets/uploads/Dog_Icon-1-1.png";
     case Species.feline:
-      return "/assets/generated/cat-silhouette.dim_64x64.png";
+      return "/assets/uploads/Cat_Icon-1-1-2.png";
     default:
-      return "/assets/generated/other-animal-silhouette.dim_64x64.png";
+      return "/assets/uploads/Other_Species_Icon-1-3.png";
   }
 }
 

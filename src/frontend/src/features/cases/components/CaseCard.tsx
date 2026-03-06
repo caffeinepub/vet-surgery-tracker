@@ -32,11 +32,11 @@ function bigintToDateString(time: bigint): string {
 function getSpeciesIcon(species: Species): string {
   switch (species) {
     case Species.canine:
-      return "/assets/generated/dog-silhouette.dim_64x64.png";
+      return "/assets/uploads/Dog_Icon-1-1.png";
     case Species.feline:
-      return "/assets/generated/cat-silhouette.dim_64x64.png";
+      return "/assets/uploads/Cat_Icon-1-1-2.png";
     default:
-      return "/assets/generated/other-animal-silhouette.dim_64x64.png";
+      return "/assets/uploads/Other_Species_Icon-1-3.png";
   }
 }
 
@@ -128,8 +128,8 @@ export const CaseCard = forwardRef<HTMLDivElement, CaseCardProps>(
             <img
               src={getSpeciesIcon(surgeryCase.species)}
               alt={getSpeciesLabel(surgeryCase.species)}
-              width={32}
-              height={32}
+              width={96}
+              height={96}
               className="flex-shrink-0 object-contain"
             />
             <div className="flex-1 min-w-0">

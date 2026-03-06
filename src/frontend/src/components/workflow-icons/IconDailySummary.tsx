@@ -1,6 +1,5 @@
 import React from "react";
-import WorkflowIconBase from "./WorkflowIconBase";
-import { workflowColors } from "./workflowTokens";
+import { iconSize } from "./workflowTokens";
 
 interface IconDailySummaryProps {
   isCompleted?: boolean;
@@ -9,20 +8,43 @@ interface IconDailySummaryProps {
 export default function IconDailySummary({
   isCompleted = false,
 }: IconDailySummaryProps) {
-  const color = workflowColors.dailySummary;
   return (
-    <WorkflowIconBase color={color} isCompleted={isCompleted}>
-      {/* Calendar page outer rectangle */}
-      <rect x="3" y="3" width="18" height="19" rx="1" ry="1" />
-      {/* Tear-off top strip */}
-      <line x1="3" y1="8" x2="21" y2="8" />
-      {/* Binding holes at top */}
-      <circle cx="8" cy="5.5" r="1" fill={color} stroke="none" />
-      <circle cx="16" cy="5.5" r="1" fill={color} stroke="none" />
-      {/* Calendar date lines */}
-      <line x1="7" y1="13" x2="17" y2="13" />
-      <line x1="7" y1="16" x2="17" y2="16" />
-      <line x1="7" y1="19" x2="13" y2="19" />
-    </WorkflowIconBase>
+    <span
+      style={{
+        position: "relative",
+        display: "inline-flex",
+        width: iconSize,
+        height: iconSize,
+      }}
+    >
+      <img
+        src="/assets/uploads/calendar-page-1-8.png"
+        alt="Daily Summary"
+        width={iconSize}
+        height={iconSize}
+        style={{ display: "block", objectFit: "contain" }}
+      />
+      {isCompleted && (
+        <svg
+          aria-hidden="true"
+          width={iconSize}
+          height={iconSize}
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2.5}
+          strokeLinecap="round"
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            color: "#6B7280",
+          }}
+        >
+          <line x1="4" y1="4" x2="20" y2="20" />
+          <line x1="20" y1="4" x2="4" y2="20" />
+        </svg>
+      )}
+    </span>
   );
 }

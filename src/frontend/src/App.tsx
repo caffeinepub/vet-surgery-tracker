@@ -42,7 +42,7 @@ export default function App() {
       <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-6">
         <div className="flex flex-col items-center gap-4">
           <img
-            src="/assets/IMG_4505.ico"
+            src="/assets/uploads/Vet-app-icon-with-dog-and-cat-1-4.png"
             alt="SurgiPaw"
             className="w-20 h-20 object-contain"
           />
@@ -63,7 +63,7 @@ export default function App() {
         <div className="max-w-screen-2xl mx-auto px-4 h-14 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <img
-              src="/assets/IMG_4505.ico"
+              src="/assets/uploads/Vet-app-icon-with-dog-and-cat-1-4.png"
               alt="SurgiPaw"
               className="w-9 h-9 object-contain"
             />
